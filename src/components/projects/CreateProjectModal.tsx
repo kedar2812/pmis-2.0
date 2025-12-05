@@ -146,13 +146,21 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }: CreateProjectMod
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <motion.div
+        initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+        animate={{ opacity: 1, backdropFilter: 'blur(8px)' }}
+        exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md"
+        onClick={handleClose}
+      >
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.3, ease: 'easeInOut' }}
           className="w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
         >
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
@@ -346,7 +354,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }: CreateProjectMod
             </form>
           </Card>
         </motion.div>
-      </div>
+      </motion.div>
     </AnimatePresence>
   );
 };

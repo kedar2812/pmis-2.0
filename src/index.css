@@ -56,3 +56,11 @@ body {
   background: #555;
 }
 
+/* Backdrop blur support for better browser compatibility */
+@supports (backdrop-filter: blur(8px)) {
+  .backdrop-blur-md {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
