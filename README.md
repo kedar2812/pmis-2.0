@@ -14,7 +14,7 @@ A centralized, cloud-hosted digital platform serving as a single source of truth
 - **Build Tool**: Vite
 - **Routing**: React Router DOM
 - **Charts**: Recharts
-- **Maps**: Leaflet / React-Leaflet
+- **Maps**: Google Maps JavaScript API
 - **3D Viewer**: Three.js
 
 ## Features
@@ -138,7 +138,7 @@ The application uses mock data stored in `src/mock/data/` directory. All data is
 - Role-based access control is implemented at the UI level
 - The application is fully responsive and works on mobile devices
 - Charts and visualizations use Recharts library
-- Maps use Leaflet with OpenStreetMap tiles
+- Maps use Google Maps JavaScript API (requires API key - see Google Maps API Setup section)
 - 3D viewer uses Three.js for basic 3D visualization
 
 ## License
