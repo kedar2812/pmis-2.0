@@ -2,8 +2,13 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { projects, kpis, risks, tasks } from '@/mock';
+import { useMockData } from '@/hooks/useMockData';
+import { CreateProjectModal } from '@/components/projects/CreateProjectModal';
+import { kpis, risks, tasks } from '@/mock';
+import Button from '@/components/ui/Button';
+import { Plus } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -24,8 +29,14 @@ import { toast } from 'sonner';
 
 const Dashboard = () => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const { projects, addProject } = useMockData();
+
+  // Check if user can create projects (SPV_Official or PMNC_Team)
+  const canCreateProject = user?.role === 'SPV_Official' || user?.role === 'PMNC_Team';
 
   const handleKPIClick = (kpi: typeof kpis[0]) => {
     if (kpi.category === 'Risk') {
@@ -34,6 +45,10 @@ const Dashboard = () => {
         description: 'Viewing risk details and mitigation plans.',
       });
     }
+  };
+
+  const handleCreateProject = async (projectData: Omit<typeof projects[0], 'id'>) => {
+    await addProject(projectData as typeof projects[0]);
   };
 
   // Prepare data for charts
@@ -111,18 +126,29 @@ const Dashboard = () => {
           <h1 className="text-3xl font-bold text-primary-950">{t('dashboard.title')}</h1>
           <p className="text-gray-600 mt-1">{t('dashboard.overview')}</p>
         </div>
-        <div className="flex-1 max-w-md ml-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-            <input
-              type="text"
-              placeholder="Search projects, tasks, risks..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600 bg-white"
-              aria-label="Search dashboard content"
-            />
+        <div className="flex items-center gap-4">
+          <div className="flex-1 max-w-md">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              <input
+                type="text"
+                placeholder="Search projects, tasks, risks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600 bg-white"
+                aria-label="Search dashboard content"
+              />
+            </div>
           </div>
+          {canCreateProject && (
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="bg-primary-950 hover:bg-primary-900"
+            >
+              <Plus size={18} className="mr-2" />
+              Create Project
+            </Button>
+          )}
         </div>
       </div>
 
@@ -407,6 +433,12 @@ const Dashboard = () => {
           </div>
         </CardContent>
       </Card>
+
+      <CreateProjectModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSave={handleCreateProject}
+      />
     </div>
   );
 };

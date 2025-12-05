@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Document, Task, Budget, Risk } from '@/mock/interfaces';
-import { documents, tasks, budgets, risks } from '@/mock';
+import type { Document, Task, Budget, Risk, Project } from '@/mock/interfaces';
+import { documents, tasks, budgets, risks, projects } from '@/mock';
 
 const STORAGE_KEYS = {
   documents: 'pmis_documents',
   tasks: 'pmis_tasks',
   budgets: 'pmis_budgets',
   risks: 'pmis_risks',
+  projects: 'pmis_projects',
 };
 
 // Load from localStorage or use initial mock data
@@ -53,6 +54,9 @@ export const useMockData = () => {
   const [risksData, setRisksData] = useState<Risk[]>(() =>
     loadFromStorage(STORAGE_KEYS.risks, risks)
   );
+  const [projectsData, setProjectsData] = useState<Project[]>(() =>
+    loadFromStorage(STORAGE_KEYS.projects, projects)
+  );
 
   // Persist to localStorage whenever data changes
   useEffect(() => {
@@ -70,6 +74,31 @@ export const useMockData = () => {
   useEffect(() => {
     saveToStorage(STORAGE_KEYS.risks, risksData);
   }, [risksData]);
+
+  useEffect(() => {
+    saveToStorage(STORAGE_KEYS.projects, projectsData);
+  }, [projectsData]);
+
+  // Projects CRUD
+  const addProject = useCallback(async (project: Project): Promise<Project> => {
+    const newProject = { ...project, id: `proj-${Date.now()}` };
+    const result = await simulateAsync(newProject, 800);
+    setProjectsData((prev) => [result, ...prev]);
+    return result;
+  }, []);
+
+  const updateProject = useCallback(async (id: string, updates: Partial<Project>): Promise<Project> => {
+    const updated = projectsData.find((p) => p.id === id);
+    if (!updated) throw new Error('Project not found');
+    const result = await simulateAsync({ ...updated, ...updates }, 600);
+    setProjectsData((prev) => prev.map((p) => (p.id === id ? result : p)));
+    return result;
+  }, [projectsData]);
+
+  const deleteProject = useCallback(async (id: string): Promise<void> => {
+    await simulateAsync(null, 600);
+    setProjectsData((prev) => prev.filter((p) => p.id !== id));
+  }, []);
 
   // Documents CRUD
   const addDocument = useCallback(async (document: Document): Promise<Document> => {
@@ -132,6 +161,7 @@ export const useMockData = () => {
     tasks: tasksData,
     budgets: budgetsData,
     risks: risksData,
+    projects: projectsData,
     addDocument,
     updateDocument,
     deleteDocument,
@@ -139,6 +169,9 @@ export const useMockData = () => {
     toggleTaskComplete,
     updateBudget,
     updateRisk,
+    addProject,
+    updateProject,
+    deleteProject,
   };
 };
 
