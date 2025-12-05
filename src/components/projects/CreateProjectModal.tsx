@@ -1,4 +1,5 @@
 import { useState, FormEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
@@ -144,14 +145,15 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }: CreateProjectMod
 
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-        animate={{ opacity: 1, backdropFilter: 'blur(8px)' }}
+        animate={{ opacity: 1, backdropFilter: 'blur(12px)' }}
         exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md"
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40"
+        style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
         onClick={handleClose}
       >
         <motion.div
@@ -357,5 +359,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }: CreateProjectMod
       </motion.div>
     </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
