@@ -1,0 +1,114 @@
+[
+  {
+    "id": "budget-1",
+    "projectId": "proj-1",
+    "category": "Construction",
+    "allocated": 35000000,
+    "spent": 22750000,
+    "committed": 24500000,
+    "remaining": 10500000,
+    "fiscalYear": "2024-25",
+    "lastUpdated": "2024-12-15T10:00:00Z"
+  },
+  {
+    "id": "budget-2",
+    "projectId": "proj-1",
+    "category": "Materials",
+    "allocated": 10000000,
+    "spent": 6500000,
+    "committed": 7000000,
+    "remaining": 3000000,
+    "fiscalYear": "2024-25",
+    "lastUpdated": "2024-12-15T10:00:00Z"
+  },
+  {
+    "id": "budget-3",
+    "projectId": "proj-1",
+    "category": "Labor",
+    "allocated": 5000000,
+    "spent": 3250000,
+    "committed": 3500000,
+    "remaining": 1500000,
+    "fiscalYear": "2024-25",
+    "lastUpdated": "2024-12-15T10:00:00Z"
+  },
+  {
+    "id": "budget-4",
+    "projectId": "proj-2",
+    "category": "Construction",
+    "allocated": 50000000,
+    "spent": 22500000,
+    "committed": 25000000,
+    "remaining": 25000000,
+    "fiscalYear": "2024-25",
+    "lastUpdated": "2024-12-15T10:00:00Z"
+  },
+  {
+    "id": "budget-5",
+    "projectId": "proj-2",
+    "category": "Equipment",
+    "allocated": 15000000,
+    "spent": 6750000,
+    "committed": 7500000,
+    "remaining": 7500000,
+    "fiscalYear": "2024-25",
+    "lastUpdated": "2024-12-15T10:00:00Z"
+  },
+  {
+    "id": "budget-6",
+    "projectId": "proj-2",
+    "category": "Materials",
+    "allocated": 10000000,
+    "spent": 4500000,
+    "committed": 5000000,
+    "remaining": 5000000,
+    "fiscalYear": "2024-25",
+    "lastUpdated": "2024-12-15T10:00:00Z"
+  },
+  {
+    "id": "budget-7",
+    "projectId": "proj-3",
+    "category": "Construction",
+    "allocated": 70000000,
+    "spent": 10500000,
+    "committed": 12000000,
+    "remaining": 58000000,
+    "fiscalYear": "2024-25",
+    "lastUpdated": "2024-12-15T10:00:00Z"
+  },
+  {
+    "id": "budget-8",
+    "projectId": "proj-3",
+    "category": "Equipment",
+    "allocated": 30000000,
+    "spent": 4500000,
+    "committed": 5000000,
+    "remaining": 25000000,
+    "fiscalYear": "2024-25",
+    "lastUpdated": "2024-12-15T10:00:00Z"
+  },
+  {
+    "id": "budget-9",
+    "projectId": "proj-4",
+    "category": "Construction",
+    "allocated": 20000000,
+    "spent": 11000000,
+    "committed": 12000000,
+    "remaining": 8000000,
+    "fiscalYear": "2024-25",
+    "lastUpdated": "2024-12-15T10:00:00Z"
+  },
+  {
+    "id": "budget-10",
+    "projectId": "proj-4",
+    "category": "Equipment",
+    "allocated": 10000000,
+    "spent": 5500000,
+    "committed": 6000000,
+    "remaining": 4000000,
+    "fiscalYear": "2024-25",
+    "lastUpdated": "2024-12-15T10:00:00Z"
+  }
+]
+
+

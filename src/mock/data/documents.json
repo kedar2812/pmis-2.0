@@ -1,0 +1,108 @@
+[
+  {
+    "id": "doc-1",
+    "name": "Road Design Drawing - Section A",
+    "type": "Drawing",
+    "category": "Design",
+    "version": "v2.1",
+    "uploadedBy": "Sneha Reddy",
+    "uploadedDate": "2024-12-10T09:15:00Z",
+    "fileSize": 5242880,
+    "status": "Approved",
+    "projectId": "proj-1",
+    "tags": ["road", "design", "section-a"]
+  },
+  {
+    "id": "doc-2",
+    "name": "Monthly Progress Report - November 2024",
+    "type": "Report",
+    "category": "Progress",
+    "version": "v1.0",
+    "uploadedBy": "Priya Sharma",
+    "uploadedDate": "2024-12-01T14:30:00Z",
+    "fileSize": 2097152,
+    "status": "Approved",
+    "projectId": "proj-1",
+    "tags": ["report", "progress", "november"]
+  },
+  {
+    "id": "doc-3",
+    "name": "Water Supply Contract Agreement",
+    "type": "Contract",
+    "category": "Legal",
+    "version": "v1.0",
+    "uploadedBy": "Rajesh Kumar",
+    "uploadedDate": "2024-11-20T11:00:00Z",
+    "fileSize": 3145728,
+    "status": "Approved",
+    "projectId": "proj-2",
+    "tags": ["contract", "water-supply", "legal"]
+  },
+  {
+    "id": "doc-4",
+    "name": "Electrical Layout Drawing",
+    "type": "Drawing",
+    "category": "Design",
+    "version": "v1.5",
+    "uploadedBy": "Sneha Reddy",
+    "uploadedDate": "2024-12-12T16:45:00Z",
+    "fileSize": 7340032,
+    "status": "Under Review",
+    "projectId": "proj-3",
+    "tags": ["electrical", "design", "layout"]
+  },
+  {
+    "id": "doc-5",
+    "name": "Safety Compliance Report",
+    "type": "Report",
+    "category": "Compliance",
+    "version": "v1.0",
+    "uploadedBy": "Amit Patel",
+    "uploadedDate": "2024-12-08T10:20:00Z",
+    "fileSize": 1572864,
+    "status": "Under Review",
+    "projectId": "proj-1",
+    "tags": ["safety", "compliance", "report"]
+  },
+  {
+    "id": "doc-6",
+    "name": "Budget Approval Document",
+    "type": "Approval",
+    "category": "Financial",
+    "version": "v1.0",
+    "uploadedBy": "Rajesh Kumar",
+    "uploadedDate": "2024-11-15T13:00:00Z",
+    "fileSize": 1048576,
+    "status": "Approved",
+    "projectId": "proj-2",
+    "tags": ["budget", "approval", "financial"]
+  },
+  {
+    "id": "doc-7",
+    "name": "Waste Management Design",
+    "type": "Drawing",
+    "category": "Design",
+    "version": "v1.0",
+    "uploadedBy": "Sneha Reddy",
+    "uploadedDate": "2024-12-05T09:00:00Z",
+    "fileSize": 4194304,
+    "status": "Draft",
+    "projectId": "proj-4",
+    "tags": ["waste-management", "design"]
+  },
+  {
+    "id": "doc-8",
+    "name": "EPC Contractor Agreement",
+    "type": "Contract",
+    "category": "Legal",
+    "version": "v2.0",
+    "uploadedBy": "Rajesh Kumar",
+    "uploadedDate": "2024-10-25T15:30:00Z",
+    "fileSize": 5242880,
+    "status": "Approved",
+    "projectId": "proj-1",
+    "tags": ["contract", "epc", "legal"]
+  }
+]
+
+

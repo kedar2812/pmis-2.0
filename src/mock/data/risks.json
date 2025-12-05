@@ -1,0 +1,108 @@
+[
+  {
+    "id": "risk-1",
+    "title": "Delayed Material Delivery",
+    "description": "Potential delay in delivery of construction materials due to supply chain disruptions",
+    "category": "Schedule",
+    "probability": "Medium",
+    "impact": "High",
+    "status": "Assessed",
+    "owner": "Amit Patel",
+    "mitigationPlan": "Identify alternative suppliers and maintain buffer stock",
+    "identifiedDate": "2024-11-15",
+    "projectId": "proj-1"
+  },
+  {
+    "id": "risk-2",
+    "title": "Budget Overrun",
+    "description": "Risk of exceeding allocated budget due to rising material costs",
+    "category": "Financial",
+    "probability": "High",
+    "impact": "High",
+    "status": "Mitigated",
+    "owner": "Priya Sharma",
+    "mitigationPlan": "Regular budget reviews and cost optimization measures",
+    "identifiedDate": "2024-10-20",
+    "projectId": "proj-2"
+  },
+  {
+    "id": "risk-3",
+    "title": "Monsoon Impact",
+    "description": "Heavy monsoon rains may delay construction activities",
+    "category": "External",
+    "probability": "Medium",
+    "impact": "Medium",
+    "status": "Assessed",
+    "owner": "Rajesh Kumar",
+    "mitigationPlan": "Schedule critical activities outside monsoon season",
+    "identifiedDate": "2024-09-10",
+    "projectId": "proj-1"
+  },
+  {
+    "id": "risk-4",
+    "title": "Labor Shortage",
+    "description": "Shortage of skilled labor during peak construction period",
+    "category": "Resource",
+    "probability": "Low",
+    "impact": "Medium",
+    "status": "Identified",
+    "owner": "Amit Patel",
+    "mitigationPlan": "Early recruitment and training programs",
+    "identifiedDate": "2024-12-01",
+    "projectId": "proj-3"
+  },
+  {
+    "id": "risk-5",
+    "title": "Regulatory Approval Delays",
+    "description": "Delays in obtaining necessary regulatory approvals",
+    "category": "Compliance",
+    "probability": "Low",
+    "impact": "High",
+    "status": "Mitigated",
+    "owner": "Rajesh Kumar",
+    "mitigationPlan": "Proactive engagement with regulatory bodies",
+    "identifiedDate": "2024-08-15",
+    "projectId": "proj-2"
+  },
+  {
+    "id": "risk-6",
+    "title": "Technical Design Changes",
+    "description": "Potential need for design modifications based on site conditions",
+    "category": "Technical",
+    "probability": "Medium",
+    "impact": "Medium",
+    "status": "Assessed",
+    "owner": "Sneha Reddy",
+    "mitigationPlan": "Comprehensive site surveys before finalizing designs",
+    "identifiedDate": "2024-11-05",
+    "projectId": "proj-1"
+  },
+  {
+    "id": "risk-7",
+    "title": "Equipment Breakdown",
+    "description": "Risk of critical equipment failure causing project delays",
+    "category": "Technical",
+    "probability": "Low",
+    "impact": "High",
+    "status": "Mitigated",
+    "owner": "Amit Patel",
+    "mitigationPlan": "Regular maintenance schedules and backup equipment",
+    "identifiedDate": "2024-10-10",
+    "projectId": "proj-4"
+  },
+  {
+    "id": "risk-8",
+    "title": "Quality Non-Compliance",
+    "description": "Risk of quality standards not being met",
+    "category": "Compliance",
+    "probability": "Low",
+    "impact": "Critical",
+    "status": "Assessed",
+    "owner": "Priya Sharma",
+    "mitigationPlan": "Strict quality control measures and regular inspections",
+    "identifiedDate": "2024-11-20",
+    "projectId": "proj-2"
+  }
+]
+
+

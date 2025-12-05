@@ -1,0 +1,84 @@
+[
+  {
+    "id": "kpi-1",
+    "name": "Overall Project Progress",
+    "value": 58,
+    "target": 70,
+    "unit": "%",
+    "trend": "up",
+    "category": "Schedule",
+    "lastUpdated": "2024-12-15T10:30:00Z"
+  },
+  {
+    "id": "kpi-2",
+    "name": "Budget Utilization",
+    "value": 68,
+    "target": 75,
+    "unit": "%",
+    "trend": "stable",
+    "category": "Cost",
+    "lastUpdated": "2024-12-15T10:30:00Z"
+  },
+  {
+    "id": "kpi-3",
+    "name": "Schedule Variance",
+    "value": -12,
+    "target": 0,
+    "unit": "days",
+    "trend": "down",
+    "category": "Schedule",
+    "lastUpdated": "2024-12-15T10:30:00Z"
+  },
+  {
+    "id": "kpi-4",
+    "name": "Cost Variance",
+    "value": -5,
+    "target": 0,
+    "unit": "%",
+    "trend": "stable",
+    "category": "Cost",
+    "lastUpdated": "2024-12-15T10:30:00Z"
+  },
+  {
+    "id": "kpi-5",
+    "name": "Active Risks",
+    "value": 8,
+    "target": 5,
+    "unit": "count",
+    "trend": "up",
+    "category": "Risk",
+    "lastUpdated": "2024-12-15T10:30:00Z"
+  },
+  {
+    "id": "kpi-6",
+    "name": "Quality Score",
+    "value": 92,
+    "target": 90,
+    "unit": "%",
+    "trend": "up",
+    "category": "Quality",
+    "lastUpdated": "2024-12-15T10:30:00Z"
+  },
+  {
+    "id": "kpi-7",
+    "name": "Resource Utilization",
+    "value": 78,
+    "target": 85,
+    "unit": "%",
+    "trend": "stable",
+    "category": "Resource",
+    "lastUpdated": "2024-12-15T10:30:00Z"
+  },
+  {
+    "id": "kpi-8",
+    "name": "Document Approval Rate",
+    "value": 88,
+    "target": 90,
+    "unit": "%",
+    "trend": "up",
+    "category": "Quality",
+    "lastUpdated": "2024-12-15T10:30:00Z"
+  }
+]
+
+
