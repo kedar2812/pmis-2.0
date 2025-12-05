@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -18,12 +19,13 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { TrendingUp, TrendingDown, AlertCircle, CheckCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, AlertCircle, CheckCircle, Search } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Dashboard = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleKPIClick = (kpi: typeof kpis[0]) => {
     if (kpi.category === 'Risk') {
@@ -58,17 +60,70 @@ const Dashboard = () => {
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
 
-  const upcomingTasks = tasks
-    .filter((task) => task.status === 'In Progress' || task.status === 'Not Started')
-    .slice(0, 5);
+  // Filter projects, tasks, and risks based on search query
+  const filteredProjects = useMemo(() => {
+    if (!searchQuery) return projects;
+    const query = searchQuery.toLowerCase();
+    return projects.filter(
+      (p) =>
+        p.name.toLowerCase().includes(query) ||
+        p.description.toLowerCase().includes(query) ||
+        p.status.toLowerCase().includes(query) ||
+        p.category.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
 
-  const activeRisks = risks.filter((risk) => risk.status !== 'Closed').slice(0, 5);
+  const filteredTasks = useMemo(() => {
+    const baseTasks = tasks.filter((task) => task.status === 'In Progress' || task.status === 'Not Started');
+    if (!searchQuery) return baseTasks.slice(0, 5);
+    const query = searchQuery.toLowerCase();
+    return baseTasks
+      .filter(
+        (t) =>
+          t.name.toLowerCase().includes(query) ||
+          t.assignedTo.toLowerCase().includes(query) ||
+          t.status.toLowerCase().includes(query)
+      )
+      .slice(0, 5);
+  }, [searchQuery]);
+
+  const filteredRisks = useMemo(() => {
+    const baseRisks = risks.filter((risk) => risk.status !== 'Closed');
+    if (!searchQuery) return baseRisks.slice(0, 5);
+    const query = searchQuery.toLowerCase();
+    return baseRisks
+      .filter(
+        (r) =>
+          r.title.toLowerCase().includes(query) ||
+          r.category.toLowerCase().includes(query) ||
+          r.impact.toLowerCase().includes(query)
+      )
+      .slice(0, 5);
+  }, [searchQuery]);
+
+  const upcomingTasks = filteredTasks;
+  const activeRisks = filteredRisks;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('dashboard.title')}</h1>
-        <p className="text-gray-600 mt-1">{t('dashboard.overview')}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-primary-950">{t('dashboard.title')}</h1>
+          <p className="text-gray-600 mt-1">{t('dashboard.overview')}</p>
+        </div>
+        <div className="flex-1 max-w-md ml-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <input
+              type="text"
+              placeholder="Search projects, tasks, risks..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600 bg-white"
+              aria-label="Search dashboard content"
+            />
+          </div>
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -221,11 +276,18 @@ const Dashboard = () => {
         {/* Recent Projects */}
         <Card>
           <CardHeader>
-            <CardTitle>{t('dashboard.recentProjects')}</CardTitle>
+            <CardTitle>
+              {t('dashboard.recentProjects')}
+              {searchQuery && (
+                <span className="text-sm font-normal text-gray-500 ml-2">
+                  ({filteredProjects.length} found)
+                </span>
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {projects.slice(0, 5).map((project) => (
+              {filteredProjects.slice(0, 5).map((project) => (
                 <div key={project.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex-1">
                     <p className="font-medium text-sm">{project.name}</p>
@@ -249,11 +311,19 @@ const Dashboard = () => {
         {/* Active Risks */}
         <Card>
           <CardHeader>
-            <CardTitle>{t('dashboard.activeRisks')}</CardTitle>
+            <CardTitle>
+              {t('dashboard.activeRisks')}
+              {searchQuery && (
+                <span className="text-sm font-normal text-gray-500 ml-2">
+                  ({activeRisks.length} found)
+                </span>
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {activeRisks.map((risk) => {
+              {activeRisks.length > 0 ? (
+                activeRisks.map((risk) => {
                 const impactColors: Record<string, string> = {
                   Low: 'bg-green-100 text-green-800',
                   Medium: 'bg-yellow-100 text-yellow-800',
@@ -276,7 +346,12 @@ const Dashboard = () => {
                     </div>
                   </div>
                 );
-              })}
+                })
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  {searchQuery ? 'No risks found matching your search.' : 'No active risks.'}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -285,11 +360,19 @@ const Dashboard = () => {
       {/* Upcoming Tasks */}
       <Card>
         <CardHeader>
-          <CardTitle>{t('dashboard.upcomingTasks')}</CardTitle>
+          <CardTitle>
+            {t('dashboard.upcomingTasks')}
+            {searchQuery && (
+              <span className="text-sm font-normal text-gray-500 ml-2">
+                ({upcomingTasks.length} found)
+              </span>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {upcomingTasks.map((task) => (
+            {upcomingTasks.length > 0 ? (
+              upcomingTasks.map((task) => (
               <div
                 key={task.id}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
@@ -315,7 +398,12 @@ const Dashboard = () => {
                   </span>
                 </div>
               </div>
-            ))}
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                {searchQuery ? 'No tasks found matching your search.' : 'No upcoming tasks.'}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
