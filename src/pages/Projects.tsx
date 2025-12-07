@@ -10,6 +10,7 @@ import { FolderOpen, Plus, Search, DollarSign, TrendingUp } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { getStatusColor } from '@/lib/colors';
+import { calculateBudgetUtilization } from '@/lib/calculations';
 import type { Project } from '@/mock/interfaces';
 
 const Projects = () => {
@@ -279,7 +280,7 @@ const Projects = () => {
                       <div className="flex items-center justify-between text-sm mb-2">
                         <span className="text-gray-600">{t('projects.budgetUtilization')}</span>
                         <span className="font-semibold text-primary-600">
-                          {((project.spent / project.budget) * 100).toFixed(1)}%
+                          {calculateBudgetUtilization(project.budget, project.spent).toFixed(1)}%
                         </span>
                       </div>
                       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -297,6 +298,32 @@ const Projects = () => {
                         />
                       </div>
                     </div>
+
+                    {/* Land Acquisition Status */}
+                    {project.landAcquisitionStatus !== undefined && (
+                      <div>
+                        <div className="flex items-center justify-between text-sm mb-2">
+                          <span className="text-gray-600">Land Acquisition Status</span>
+                          <span className="font-semibold text-primary-600">
+                            {project.landAcquisitionStatus}%
+                          </span>
+                        </div>
+                        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${project.landAcquisitionStatus}%` }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                            className={`h-2 rounded-full transition-all ${
+                              project.landAcquisitionStatus > 90
+                                ? 'bg-green-600'
+                                : project.landAcquisitionStatus > 50
+                                ? 'bg-yellow-500'
+                                : 'bg-red-500'
+                            }`}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

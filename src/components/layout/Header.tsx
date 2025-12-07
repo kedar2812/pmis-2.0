@@ -45,13 +45,13 @@ const Header = () => {
   return (
     <motion.header
       animate={{
-        left: isCollapsed ? '96px' : '280px', // Sidebar width + 8px gap (collapsed: 80px + 16px, expanded: 256px + 24px)
+        left: isCollapsed ? '96px' : '312px', // Sidebar width + 8px gap (collapsed: 80px + 16px, expanded: 288px + 24px)
       }}
       transition={{
         type: 'spring',
-        stiffness: 400,
-        damping: 40,
-        mass: 0.3,
+        stiffness: 300,
+        damping: 30,
+        mass: 0.5,
       }}
       className="absolute top-4 right-4 z-40 h-14 bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-sm flex items-center justify-between px-4"
     >

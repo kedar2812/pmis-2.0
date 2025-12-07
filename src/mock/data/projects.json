@@ -16,7 +16,8 @@
     },
     "manager": "Rajesh Kumar",
     "stakeholders": ["SPV", "PMNC", "EPC Contractors"],
-    "category": "Infrastructure"
+    "category": "Infrastructure",
+    "landAcquisitionStatus": 95
   },
   {
     "id": "proj-2",
@@ -35,7 +36,8 @@
     },
     "manager": "Priya Sharma",
     "stakeholders": ["SPV", "PMNC", "Water Board"],
-    "category": "Utilities"
+    "category": "Utilities",
+    "landAcquisitionStatus": 75
   },
   {
     "id": "proj-3",
@@ -54,7 +56,8 @@
     },
     "manager": "Rajesh Kumar",
     "stakeholders": ["SPV", "PMNC", "Power Department"],
-    "category": "Utilities"
+    "category": "Utilities",
+    "landAcquisitionStatus": 35
   },
   {
     "id": "proj-4",
@@ -73,7 +76,8 @@
     },
     "manager": "Priya Sharma",
     "stakeholders": ["SPV", "PMNC", "EPC Contractors"],
-    "category": "Infrastructure"
+    "category": "Infrastructure",
+    "landAcquisitionStatus": 60
   },
   {
     "id": "proj-5",
@@ -92,7 +96,8 @@
     },
     "manager": "Rajesh Kumar",
     "stakeholders": ["SPV", "PMNC"],
-    "category": "Infrastructure"
+    "category": "Infrastructure",
+    "landAcquisitionStatus": 100
   }
 ]
 

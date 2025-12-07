@@ -14,29 +14,28 @@ const AppLayout = () => {
       <Sidebar />
       <motion.div
         animate={{
-          paddingLeft: isCollapsed ? '88px' : '272px', // 80px (collapsed) + 8px (gap), 256px (expanded) + 16px (gap)
+          paddingLeft: isCollapsed ? '88px' : '304px', // 80px (collapsed) + 8px (gap), 288px (expanded) + 16px (gap)
         }}
         transition={{
           type: 'spring',
-          stiffness: 400,
-          damping: 40,
-          mass: 0.3,
+          stiffness: 300,
+          damping: 30,
+          mass: 0.5,
         }}
         className="lg:block relative"
       >
         <Header />
         <main className="p-6 pt-20">
           <Breadcrumbs />
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={location.pathname}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ 
-                type: 'spring',
-                stiffness: 260,
-                damping: 20,
+                duration: 0.2,
+                ease: 'easeInOut',
               }}
             >
               <Outlet />

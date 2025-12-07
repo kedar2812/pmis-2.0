@@ -102,18 +102,27 @@ export const useMockData = () => {
 
   // Documents CRUD
   const addDocument = useCallback(async (document: Document): Promise<Document> => {
-    const newDoc = { ...document, id: `doc-${Date.now()}` };
+    const newDoc = { ...document, id: document.id || `doc-${Date.now()}` };
     const result = await simulateAsync(newDoc, 600);
     setDocumentsData((prev) => [result, ...prev]);
     return result;
   }, []);
 
-  const updateDocument = useCallback(async (id: string, updates: Partial<Document>): Promise<Document> => {
-    const updated = documentsData.find((d) => d.id === id);
-    if (!updated) throw new Error('Document not found');
-    const result = await simulateAsync({ ...updated, ...updates }, 600);
-    setDocumentsData((prev) => prev.map((d) => (d.id === id ? result : d)));
-    return result;
+  // Support both full document update and partial update by ID
+  const updateDocument = useCallback(async (docOrId: Document | string, updates?: Partial<Document>): Promise<Document> => {
+    if (typeof docOrId === 'string') {
+      // Called with (id, updates)
+      const updated = documentsData.find((d) => d.id === docOrId);
+      if (!updated) throw new Error('Document not found');
+      const result = await simulateAsync({ ...updated, ...updates }, 600);
+      setDocumentsData((prev) => prev.map((d) => (d.id === docOrId ? result : d)));
+      return result;
+    } else {
+      // Called with full document object
+      const result = await simulateAsync(docOrId, 600);
+      setDocumentsData((prev) => prev.map((d) => (d.id === docOrId.id ? result : d)));
+      return result;
+    }
   }, [documentsData]);
 
   const deleteDocument = useCallback(async (id: string): Promise<void> => {

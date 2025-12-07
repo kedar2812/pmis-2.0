@@ -25,6 +25,7 @@ export interface RolePermission {
 
 // Project Interfaces
 export interface Project {
+  landAcquisitionStatus?: number; // 0-100% progress for land acquisition
   id: string;
   name: string;
   description: string;
@@ -56,20 +57,87 @@ export interface KPI {
   lastUpdated: string;
 }
 
-// Document Interfaces (EDMS)
-export interface Document {
+// Document Interfaces (EDMS) - Enhanced for Advanced EDMS Module
+export type DocumentType = 'Drawing' | 'Report' | 'Contract' | 'Bill' | 'SitePhoto' | 'Video' | 'Other';
+export type DocumentStatus = 'Draft' | 'Pending_Approval' | 'Under Review' | 'Approved' | 'Rejected';
+export type MimeType = 'application/pdf' | 'image/jpeg' | 'image/png' | 'application/dwg' | 'application/xlsx' | 'video/mp4' | 'other';
+export type DocumentPhase = 'Planning' | 'Design' | 'Execution' | 'Closure';
+export type DocumentDiscipline = 'Civil' | 'Electrical' | 'Mechanical' | 'Plumbing' | 'HVAC' | 'General';
+
+// Noting Sheet Entry (Chat-style remarks)
+export interface NotingSheetEntry {
   id: string;
-  name: string;
-  type: 'Drawing' | 'Report' | 'Contract' | 'Approval' | 'Other';
-  category: string;
+  userId: string;
+  userName: string;
+  userRole: UserRole | string;
+  remark: string;
+  action: 'Comment' | 'Approve' | 'Reject' | 'Request_Revision';
+  timestamp: string;
+}
+
+// Document Version History
+export interface DocumentVersion {
   version: string;
   uploadedBy: string;
   uploadedDate: string;
   fileSize: number;
-  status: 'Draft' | 'Under Review' | 'Approved' | 'Rejected';
-  projectId: string;
+  changeNotes?: string;
   downloadUrl?: string;
+}
+
+// Enhanced Document Interface
+export interface Document {
+  id: string;
+  name: string;
+  type: DocumentType;
+  mimeType: MimeType;
+  category: string;
+  version: string;
+  
+  // Folder Hierarchy (Strict: Project -> Phase -> Discipline -> File)
+  projectId: string;
+  phase: DocumentPhase;
+  discipline: DocumentDiscipline;
+  
+  // Upload Info
+  uploadedBy: {
+    userId: string;
+    userName: string;
+    role: UserRole | string;
+  };
+  uploadedDate: string;
+  fileSize: number;
+  
+  // Status & Workflow
+  status: DocumentStatus;
+  requiresApproval: boolean;
+  currentApprover?: string;
+  
+  // Metadata
   tags: string[];
+  description?: string;
+  siteTimestamp?: string; // Auto-captured for site photos/videos
+  downloadUrl?: string;
+  thumbnailUrl?: string;
+  
+  // Noting Sheet (Chat-style approval history)
+  notingSheet: NotingSheetEntry[];
+  
+  // Version Control
+  versionHistory: DocumentVersion[];
+  isLatestVersion: boolean;
+}
+
+// Folder Node for Tree View
+export interface FolderNode {
+  id: string;
+  name: string;
+  type: 'project' | 'phase' | 'discipline' | 'file';
+  children?: FolderNode[];
+  documentCount?: number;
+  projectId?: string;
+  phase?: DocumentPhase;
+  discipline?: DocumentDiscipline;
 }
 
 // Schedule Interfaces (Gantt)
@@ -97,6 +165,8 @@ export interface Budget {
   remaining: number;
   fiscalYear: string;
   lastUpdated: string;
+  source?: 'Central' | 'State' | 'Loan'; // Budget source
+  utilization?: 'Infra' | 'Tech' | 'Land'; // Budget utilization category
 }
 
 export interface CostForecast {
@@ -148,6 +218,41 @@ export interface GISFeature {
     description: string;
     projectId?: string;
   };
+}
+
+// Workflow Interfaces
+export interface WorkflowStep {
+  step: number;
+  role: UserRole | string;
+  action: 'Verify' | 'Approve' | 'Review' | 'Sign' | 'Submit' | 'Reject';
+  required: boolean;
+}
+
+export interface Workflow {
+  id: string;
+  name: string;
+  type: 'RFQ' | 'Contract' | 'Bill' | 'Payment' | 'Document' | 'Custom';
+  steps: WorkflowStep[];
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+}
+
+export interface WorkflowRemark {
+  id: string;
+  timestamp: string;
+  role: string;
+  remark: string;
+  step: number;
+}
+
+export interface DocumentApproval {
+  documentId: string;
+  workflowId: string;
+  currentStep: number;
+  status: 'Pending' | 'In Progress' | 'Approved' | 'Rejected';
+  remarks: WorkflowRemark[];
+  assignedTo: string;
 }
 
 

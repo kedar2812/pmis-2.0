@@ -14,7 +14,7 @@ A centralized, cloud-hosted digital platform serving as a single source of truth
 - **Build Tool**: Vite
 - **Routing**: React Router DOM
 - **Charts**: Recharts
-- **Maps**: Google Maps JavaScript API
+- **Maps**: Leaflet (OpenStreetMap)
 - **3D Viewer**: Three.js
 
 ## Features
@@ -47,21 +47,12 @@ Supports three languages:
 - Hindi (हिंदी)
 - Telugu (తెలుగు)
 
-## Google Maps API Setup
+## GIS Mapping
 
-To use the GIS mapping features, you need to set up a Google Maps API key:
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Enable the "Maps JavaScript API" in the API Library
-4. Create credentials (API Key) in the Credentials section
-5. (Optional) Restrict the API key to your domain for security
-6. Create a `.env` file in the root directory:
-   ```
-   VITE_GOOGLE_MAPS_API_KEY=your_api_key_here
-   ```
-
-**Note:** Google Maps offers a free tier with $200 monthly credit, which is sufficient for most development and small-scale production use.
+The GIS mapping features use Leaflet with OpenStreetMap, which requires no API key and is completely free to use. The map includes:
+- Interactive project markers
+- Layer controls (Satellite, Street, Parcels, Utilities)
+- GIS feature overlays (Polygons, Polylines, Points)
 
 ## Getting Started
 
@@ -138,7 +129,7 @@ The application uses mock data stored in `src/mock/data/` directory. All data is
 - Role-based access control is implemented at the UI level
 - The application is fully responsive and works on mobile devices
 - Charts and visualizations use Recharts library
-- Maps use Google Maps JavaScript API (requires API key - see Google Maps API Setup section)
+- Maps use Leaflet with OpenStreetMap (no API key required)
 - 3D viewer uses Three.js for basic 3D visualization
 
 ## License

@@ -10,11 +10,11 @@ import { KPIDetailModal } from '@/components/dashboard/KPIDetailModal';
 import { kpis, risks, tasks } from '@/mock';
 import Button from '@/components/ui/Button';
 import { Plus, Search, FolderOpen, Calendar, AlertTriangle, X } from 'lucide-react';
-import { AnimatedBarChart, AnimatedLineChart, AnimatedPieChart } from '@/components/ui/AnimatedChart';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { DynamicChart } from '@/components/ui/DynamicChart';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { canCreateProject as canCreateProjectRule } from '@/lib/calculations';
 
 const Dashboard = () => {
   const { t } = useLanguage();
@@ -22,14 +22,15 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedKPI, setSelectedKPI] = useState<typeof kpis[0] | null>(null);
   const [isKPIModalOpen, setIsKPIModalOpen] = useState(false);
   const { projects, addProject } = useMockData();
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // Check if user can create projects (SPV_Official or PMNC_Team)
-  const canCreateProject = user?.role === 'SPV_Official' || user?.role === 'PMNC_Team';
+  // Check if user can create projects (SPV_Official or PMNC_Team) - using rule-based function
+  const userCanCreateProject = canCreateProjectRule(user?.role || '');
 
   const handleKPIClick = (kpi: typeof kpis[0]) => {
     if (kpi.category === 'Risk') {
@@ -48,29 +49,44 @@ const Dashboard = () => {
     await addProject(projectData as typeof projects[0]);
   };
 
-  // Prepare data for charts
-  const projectProgressData = projects.map((p) => ({
-    name: p.name.substring(0, 20) + '...',
-    progress: p.progress,
-  }));
+  // Prepare data for charts (filtered by selected project)
+  const projectProgressData = useMemo(() => {
+    const filtered = selectedProjectId === 'all' ? projects : projects.filter((p) => p.id === selectedProjectId);
+    return filtered.map((p) => ({
+      name: p.name.substring(0, 20) + '...',
+      progress: p.progress,
+    }));
+  }, [selectedProjectId, projects]);
 
-  const budgetData = projects.map((p) => ({
-    name: p.name.substring(0, 15) + '...',
-    budget: p.budget / 1000000,
-    spent: p.spent / 1000000,
-  }));
+  const budgetData = useMemo(() => {
+    const filtered = selectedProjectId === 'all' ? projects : projects.filter((p) => p.id === selectedProjectId);
+    return filtered.map((p) => ({
+      name: p.name.substring(0, 15) + '...',
+      budget: p.budget / 1000000,
+      spent: p.spent / 1000000,
+    }));
+  }, [selectedProjectId, projects]);
 
-  const riskDistribution = risks.reduce((acc, risk) => {
-    acc[risk.status] = (acc[risk.status] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const riskDistribution = useMemo(() => {
+    let filteredRisks = risks;
+    if (selectedProjectId !== 'all') {
+      filteredRisks = filteredRisks.filter((risk) => risk.projectId === selectedProjectId);
+    }
+    return filteredRisks.reduce((acc, risk) => {
+      acc[risk.status] = (acc[risk.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+  }, [selectedProjectId]);
 
-  const riskPieData = Object.entries(riskDistribution).map(([name, value]) => ({
-    name,
-    value,
-  }));
+  const riskPieData = useMemo(() => {
+    return Object.entries(riskDistribution).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }, [riskDistribution]);
 
-  const COLORS = ['#2546eb', '#14b8a6', '#f59e0b', '#f97316']; // Updated to dark blue palette
+  // High-contrast vibrant color palette: Emerald, Violet, Amber, Rose, Cyan
+  const COLORS = ['#10b981', '#8b5cf6', '#f59e0b', '#f43f5e', '#06b6d4'];
 
   // Filter projects, tasks, and risks based on search query
   const filteredProjects = useMemo(() => {
@@ -86,32 +102,48 @@ const Dashboard = () => {
   }, [searchQuery]);
 
   const filteredTasks = useMemo(() => {
-    const baseTasks = tasks.filter((task) => task.status === 'In Progress' || task.status === 'Not Started');
-    if (!searchQuery) return baseTasks.slice(0, 5);
-    const query = searchQuery.toLowerCase();
-    return baseTasks
-      .filter(
+    let baseTasks = tasks.filter((task) => task.status === 'In Progress' || task.status === 'Not Started');
+    
+    // Filter by selected project
+    if (selectedProjectId !== 'all') {
+      baseTasks = baseTasks.filter((task) => task.projectId === selectedProjectId);
+    }
+    
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      baseTasks = baseTasks.filter(
         (t) =>
           t.name.toLowerCase().includes(query) ||
           t.assignedTo.toLowerCase().includes(query) ||
           t.status.toLowerCase().includes(query)
-      )
-      .slice(0, 5);
-  }, [searchQuery]);
+      );
+    }
+    
+    return baseTasks.slice(0, 5);
+  }, [searchQuery, selectedProjectId]);
 
   const filteredRisks = useMemo(() => {
-    const baseRisks = risks.filter((risk) => risk.status !== 'Closed');
-    if (!searchQuery) return baseRisks.slice(0, 5);
-    const query = searchQuery.toLowerCase();
-    return baseRisks
-      .filter(
+    let baseRisks = risks.filter((risk) => risk.status !== 'Closed');
+    
+    // Filter by selected project
+    if (selectedProjectId !== 'all') {
+      baseRisks = baseRisks.filter((risk) => risk.projectId === selectedProjectId);
+    }
+    
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      baseRisks = baseRisks.filter(
         (r) =>
           r.title.toLowerCase().includes(query) ||
           r.category.toLowerCase().includes(query) ||
           r.impact.toLowerCase().includes(query)
-      )
-      .slice(0, 5);
-  }, [searchQuery]);
+      );
+    }
+    
+    return baseRisks.slice(0, 5);
+  }, [searchQuery, selectedProjectId]);
 
   const upcomingTasks = filteredTasks;
   const activeRisks = filteredRisks;
@@ -221,41 +253,36 @@ const Dashboard = () => {
     }
   };
 
-  // Animation variants for staggered entrance
+  // Animation variants for staggered entrance - optimized for performance
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
+        staggerChildren: 0.05,
+        delayChildren: 0.1,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      y: 0,
       transition: {
-        type: 'spring',
-        stiffness: 260,
-        damping: 20,
+        duration: 0.3,
+        ease: 'easeOut',
       },
     },
   };
 
   const chartVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
+    hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      scale: 1,
       transition: {
-        type: 'spring',
-        stiffness: 260,
-        damping: 20,
-        delay: 0.3,
+        duration: 0.4,
+        ease: 'easeOut',
       },
     },
   };
@@ -349,7 +376,7 @@ const Dashboard = () => {
               </AnimatePresence>
             </div>
           </div>
-          {canCreateProject && (
+          {userCanCreateProject && (
             <Button
               onClick={() => setIsCreateModalOpen(true)}
             >
@@ -403,11 +430,12 @@ const Dashboard = () => {
             <MotionCardTitle>{t('dashboard.recentProjects')} - {t('dashboard.progress')}</MotionCardTitle>
           </MotionCardHeader>
           <MotionCardContent>
-            <AnimatedBarChart
+            <DynamicChart
               data={projectProgressData}
               dataKey="progress"
               height={300}
-              color="#2546eb"
+              defaultType="bar"
+              name={t('dashboard.progress')}
             />
           </MotionCardContent>
         </MotionCard>
@@ -418,27 +446,13 @@ const Dashboard = () => {
             <MotionCardTitle>{t('dashboard.budgetVsSpent')}</MotionCardTitle>
           </MotionCardHeader>
           <MotionCardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={budgetData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} stroke="#64748b" />
-                <YAxis stroke="#64748b" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    backdropFilter: 'blur(12px)',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '12px',
-                    padding: '8px',
-                  }}
-                  formatter={(value: number) => [`₹${value.toFixed(2)} Cr`, '']}
-                  labelFormatter={(label) => `Project: ${label}`}
-                />
-                <Legend />
-                <Bar dataKey="budget" fill="#cbd5e1" name={t('common.budget')} radius={[8, 8, 0, 0]} animationDuration={1000} />
-                <Bar dataKey="spent" fill="#14b8a6" name={t('common.spent')} radius={[8, 8, 0, 0]} animationDuration={1000} />
-              </BarChart>
-            </ResponsiveContainer>
+            <DynamicChart
+              data={budgetData}
+              dataKey="spent"
+              height={300}
+              defaultType="bar"
+              name={t('common.spent')}
+            />
           </MotionCardContent>
         </MotionCard>
       </motion.div>
@@ -451,10 +465,11 @@ const Dashboard = () => {
             <MotionCardTitle>{t('dashboard.activeRisks')} - {t('dashboard.riskDistribution')}</MotionCardTitle>
           </MotionCardHeader>
           <MotionCardContent>
-            <AnimatedPieChart
+            <DynamicChart
               data={riskPieData}
               dataKey="value"
               height={300}
+              defaultType="pie"
               colors={COLORS}
             />
           </MotionCardContent>
@@ -466,11 +481,12 @@ const Dashboard = () => {
             <MotionCardTitle>{t('dashboard.projectTimeline')}</MotionCardTitle>
           </MotionCardHeader>
           <MotionCardContent>
-            <AnimatedLineChart
-              data={projects.map((p) => ({ name: p.name.substring(0, 15), progress: p.progress }))}
+            <DynamicChart
+              data={projectProgressData}
               dataKey="progress"
               height={300}
-              color="#2546eb"
+              defaultType="line"
+              name={t('dashboard.progress')}
             />
           </MotionCardContent>
         </MotionCard>

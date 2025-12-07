@@ -1,315 +1,280 @@
-import { useState, useMemo } from 'react';
+import { useState, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useMockData } from '@/hooks/useMockData';
+import { FileExplorer } from '@/components/edms/FileExplorer';
+import { DocumentPreviewDrawer } from '@/components/edms/DocumentPreviewDrawer';
+import { SmartSearchBar } from '@/components/edms/SmartSearchBar';
 import { UploadModal } from '@/components/edms/UploadModal';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { FileText, Download, Eye, CheckCircle, XCircle, Clock, Upload, Search, Trash2 } from 'lucide-react';
+import { Upload, FileText, CheckCircle, Clock, XCircle, FolderOpen } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { toast } from 'sonner';
-import { getStatusColor } from '@/lib/colors';
-import type { Document } from '@/mock/interfaces';
+import type { Document, NotingSheetEntry } from '@/mock/interfaces';
 
 const EDMS = () => {
   const { t } = useLanguage();
-  const { hasPermission } = useAuth();
-  const { documents, addDocument, deleteDocument } = useMockData();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [currentPage, setCurrentPage] = useState(1);
+  const { hasPermission, user } = useAuth();
+  const { documents, addDocument, updateDocument, deleteDocument } = useMockData();
+
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const itemsPerPage = 10;
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [filteredDocuments, setFilteredDocuments] = useState<Document[]>(documents);
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+  // Calculate stats
+  const stats = {
+    total: documents.length,
+    approved: documents.filter((d) => d.status === 'Approved').length,
+    pending: documents.filter((d) => d.status === 'Pending_Approval' || d.status === 'Under Review').length,
+    rejected: documents.filter((d) => d.status === 'Rejected').length,
   };
 
-  const getStatusIcon = (status: string) => {
-    const statusColors = getStatusColor(status);
-    switch (status) {
-      case 'Approved':
-        return <CheckCircle className={statusColors.icon} size={18} />;
-      case 'Rejected':
-        return <XCircle className={statusColors.icon} size={18} />;
-      case 'Under Review':
-        return <Clock className={statusColors.icon} size={18} />;
-      default:
-        return <FileText className={statusColors.icon} size={18} />;
-    }
+  // Handle search results
+  const handleSearchResults = useCallback((results: Document[]) => {
+    setFilteredDocuments(results);
+  }, []);
+
+  // Handle document selection
+  const handleSelectDocument = (doc: Document) => {
+    setSelectedDocument(doc);
   };
 
-  const getStatusBadgeColor = (status: string) => {
-    const statusColors = getStatusColor(status);
-    return `${statusColors.bg} ${statusColors.text}`;
+  // Handle document view (open preview drawer)
+  const handleViewDocument = (doc: Document) => {
+    setSelectedDocument(doc);
+    setIsPreviewOpen(true);
   };
 
-  // Filter and search documents
-  const filteredDocuments = useMemo(() => {
-    return documents.filter((doc) => {
-      const matchesSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.category.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || doc.status === statusFilter;
-      const matchesType = typeFilter === 'all' || doc.type === typeFilter;
-      return matchesSearch && matchesStatus && matchesType;
+  // Handle document download
+  const handleDownloadDocument = (doc: Document) => {
+    toast.info('Download started', {
+      description: `Downloading ${doc.name}...`,
     });
-  }, [documents, searchQuery, statusFilter, typeFilter]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage);
-  const paginatedDocuments = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return filteredDocuments.slice(start, start + itemsPerPage);
-  }, [filteredDocuments, currentPage]);
-
-  const handleUpload = async (file: File) => {
-    const newDoc: Document = {
-      id: `doc-${Date.now()}`,
-      name: file.name,
-      type: 'Other',
-      category: 'Uploaded',
-      version: 'v1.0',
-      uploadedBy: 'Current User',
-      uploadedDate: new Date().toISOString(),
-      fileSize: file.size,
-      status: 'Draft',
-      projectId: 'proj-1',
-      tags: [],
-    };
-    await addDocument(newDoc);
   };
 
-  const handleDelete = async (id: string) => {
+  // Handle version history view
+  const handleViewHistory = (doc: Document) => {
+    setSelectedDocument(doc);
+    setIsPreviewOpen(true);
+  };
+
+  // Handle document delete
+  const handleDeleteDocument = async (doc: Document) => {
     if (!hasPermission('edms:delete')) {
-      toast.error(t('edms.permissionDenied'), {
-        description: t('edms.noDeletePermission'),
+      toast.error('Permission Denied', {
+        description: 'You do not have permission to delete documents.',
       });
       return;
     }
-    await deleteDocument(id);
-    toast.success(t('edms.documentDeleted'), {
-      description: t('edms.documentRemoved'),
+
+    await deleteDocument(doc.id);
+    toast.success('Document deleted', {
+      description: `${doc.name} has been removed.`,
     });
   };
 
-  const handleDownload = (doc: Document) => {
-    toast.info(t('edms.downloadStarted'), {
-      description: `${t('edms.downloading')} ${doc.name}...`,
-    });
+  // Handle document approval
+  const handleApproveDocument = async (doc: Document, remark: string) => {
+    const updatedDoc: Document = {
+      ...doc,
+      status: 'Approved',
+      notingSheet: [
+        ...doc.notingSheet,
+        {
+          id: `note-${Date.now()}`,
+          userId: user?.id || '',
+          userName: user?.name || '',
+          userRole: user?.role || '',
+          remark,
+          action: 'Approve',
+          timestamp: new Date().toISOString(),
+        },
+      ],
+    };
+    await updateDocument(updatedDoc);
+    setSelectedDocument(updatedDoc);
   };
 
-  const handleView = (doc: Document) => {
-    toast.info(t('edms.openingDocument'), {
-      description: `${t('edms.viewing')} ${doc.name}...`,
-    });
+  // Handle document rejection
+  const handleRejectDocument = async (doc: Document, remark: string) => {
+    const updatedDoc: Document = {
+      ...doc,
+      status: 'Rejected',
+      notingSheet: [
+        ...doc.notingSheet,
+        {
+          id: `note-${Date.now()}`,
+          userId: user?.id || '',
+          userName: user?.name || '',
+          userRole: user?.role || '',
+          remark,
+          action: 'Reject',
+          timestamp: new Date().toISOString(),
+        },
+      ],
+    };
+    await updateDocument(updatedDoc);
+    setSelectedDocument(updatedDoc);
+  };
+
+  // Handle adding a note
+  const handleAddNote = async (doc: Document, note: NotingSheetEntry) => {
+    const updatedDoc: Document = {
+      ...doc,
+      notingSheet: [...doc.notingSheet, note],
+    };
+    await updateDocument(updatedDoc);
+    setSelectedDocument(updatedDoc);
+  };
+
+  // Handle file upload - receives full document from enhanced UploadModal
+  const handleUpload = async (docData: Omit<Document, 'id'>) => {
+    const newDoc: Document = {
+      id: `doc-${Date.now()}`,
+      ...docData,
+    };
+
+    await addDocument(newDoc);
+    // Refresh filtered documents
+    setFilteredDocuments(prev => [...prev, newDoc]);
   };
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-primary-950">{t('common.documents')}</h1>
-          <p className="text-gray-600 mt-1">{t('edms.subtitle')}</p>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+            {t('common.documents')}
+          </h1>
+          <p className="text-slate-500 mt-1">{t('edms.subtitle')}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           {hasPermission('edms:upload') && (
-            <Button onClick={() => setIsUploadModalOpen(true)} className="bg-primary-950 hover:bg-primary-900">
+            <Button
+              onClick={() => setIsUploadModalOpen(true)}
+              className="bg-primary-600 hover:bg-primary-700"
+            >
               <Upload size={18} />
-              {t('common.upload') || 'Upload'}
+              Upload Document
             </Button>
           )}
-          <Button variant="outline">{t('common.export')}</Button>
         </div>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                type="text"
-                placeholder={t('edms.searchPlaceholder')}
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
-                aria-label="Search documents"
-              />
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-primary-50 rounded-xl">
+              <FolderOpen size={24} className="text-primary-600" />
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
-              aria-label="Filter by status"
-            >
-              <option value="all">{t('edms.allStatus')}</option>
-              <option value="Draft">{t('status.draft')}</option>
-              <option value="Under Review">{t('status.underReview')}</option>
-              <option value="Approved">{t('status.approved')}</option>
-              <option value="Rejected">{t('status.rejected')}</option>
-            </select>
-            <select
-              value={typeFilter}
-              onChange={(e) => {
-                setTypeFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
-              aria-label="Filter by type"
-            >
-              <option value="all">{t('edms.allTypes')}</option>
-              <option value="Drawing">Drawing</option>
-              <option value="Report">Report</option>
-              <option value="Contract">Contract</option>
-              <option value="Approval">Approval</option>
-              <option value="Other">Other</option>
-            </select>
+            <div>
+              <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
+              <p className="text-sm text-slate-500">Total Documents</p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </motion.div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('edms.documentRepository')} ({filteredDocuments.length} {t('edms.documents')})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {paginatedDocuments.length === 0 ? (
-            <EmptyState
-              icon={FileText}
-              title={t('edms.noDocumentsFound')}
-              description={
-                searchQuery || statusFilter !== 'all' || typeFilter !== 'all'
-                  ? t('edms.adjustFilters')
-                  : t('edms.uploadFirst')
-              }
-              actionLabel={hasPermission('edms:upload') ? t('edms.uploadDocument') : undefined}
-              onAction={hasPermission('edms:upload') ? () => setIsUploadModalOpen(true) : undefined}
-            />
-          ) : (
-            <>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">{t('common.name')}</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">{t('common.type')}</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">{t('common.category')}</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">{t('common.version')}</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">{t('common.size')}</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">{t('common.status')}</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">{t('common.uploadedBy')}</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">{t('common.date')}</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">{t('common.actions')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedDocuments.map((doc) => (
-                      <tr key={doc.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-2">
-                            <FileText size={18} className="text-gray-400" />
-                            <span className="font-medium">{doc.name}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-sm text-gray-600">{doc.type}</td>
-                        <td className="py-3 px-4 text-sm text-gray-600">{doc.category}</td>
-                        <td className="py-3 px-4 text-sm text-gray-600">{doc.version}</td>
-                        <td className="py-3 px-4 text-sm text-gray-600">{formatFileSize(doc.fileSize)}</td>
-                        <td className="py-3 px-4">
-                        <div className="flex items-center gap-2">
-                          {getStatusIcon(doc.status)}
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadgeColor(doc.status)}`}>
-                            {doc.status}
-                          </span>
-                        </div>
-                        </td>
-                        <td className="py-3 px-4 text-sm text-gray-600">{doc.uploadedBy}</td>
-                        <td className="py-3 px-4 text-sm text-gray-600">
-                          {new Date(doc.uploadedDate).toLocaleDateString()}
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleView(doc)}
-                              aria-label={`View ${doc.name}`}
-                            >
-                              <Eye size={16} />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDownload(doc)}
-                              aria-label={`Download ${doc.name}`}
-                            >
-                              <Download size={16} />
-                            </Button>
-                            {hasPermission('edms:delete') && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDelete(doc.id)}
-                                aria-label={`Delete ${doc.name}`}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 size={16} />
-                              </Button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-emerald-50 rounded-xl">
+              <CheckCircle size={24} className="text-emerald-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-slate-900">{stats.approved}</p>
+              <p className="text-sm text-slate-500">Approved</p>
+            </div>
+          </div>
+        </motion.div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
-                  <p className="text-sm text-gray-600">
-                    {t('edms.showing')} {(currentPage - 1) * itemsPerPage + 1} {t('edms.to')}{' '}
-                    {Math.min(currentPage * itemsPerPage, filteredDocuments.length)} {t('edms.of')}{' '}
-                    {filteredDocuments.length} {t('edms.documents')}
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      {t('edms.previous')}
-                    </Button>
-                    <span className="px-4 py-2 text-sm text-gray-700">
-                      {t('edms.page')} {currentPage} {t('edms.of')} {totalPages}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages}
-                    >
-                      {t('edms.next')}
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-amber-50 rounded-xl">
+              <Clock size={24} className="text-amber-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-slate-900">{stats.pending}</p>
+              <p className="text-sm text-slate-500">Pending Approval</p>
+            </div>
+          </div>
+        </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-red-50 rounded-xl">
+              <XCircle size={24} className="text-red-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-slate-900">{stats.rejected}</p>
+              <p className="text-sm text-slate-500">Rejected</p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Smart Search Bar */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <SmartSearchBar documents={documents} onSearchResults={handleSearchResults} />
+      </motion.div>
+
+      {/* File Explorer */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+      >
+        <FileExplorer
+          documents={filteredDocuments}
+          onSelectDocument={handleSelectDocument}
+          onViewDocument={handleViewDocument}
+          onDownloadDocument={handleDownloadDocument}
+          onViewHistory={handleViewHistory}
+          onDeleteDocument={hasPermission('edms:delete') ? handleDeleteDocument : undefined}
+          canDelete={hasPermission('edms:delete')}
+          selectedDocumentId={selectedDocument?.id}
+        />
+      </motion.div>
+
+      {/* Document Preview Drawer */}
+      <DocumentPreviewDrawer
+        document={selectedDocument}
+        isOpen={isPreviewOpen}
+        onClose={() => {
+          setIsPreviewOpen(false);
+        }}
+        onApprove={hasPermission('edms:approve') ? handleApproveDocument : undefined}
+        onReject={hasPermission('edms:approve') ? handleRejectDocument : undefined}
+        onAddNote={handleAddNote}
+        onDownload={handleDownloadDocument}
+      />
+
+      {/* Upload Modal */}
       <UploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}

@@ -8,7 +8,9 @@
     "committed": 24500000,
     "remaining": 10500000,
     "fiscalYear": "2024-25",
-    "lastUpdated": "2024-12-15T10:00:00Z"
+    "lastUpdated": "2024-12-15T10:00:00Z",
+    "source": "Central",
+    "utilization": "Infra"
   },
   {
     "id": "budget-2",
@@ -19,7 +21,9 @@
     "committed": 7000000,
     "remaining": 3000000,
     "fiscalYear": "2024-25",
-    "lastUpdated": "2024-12-15T10:00:00Z"
+    "lastUpdated": "2024-12-15T10:00:00Z",
+    "source": "State",
+    "utilization": "Infra"
   },
   {
     "id": "budget-3",
@@ -30,7 +34,9 @@
     "committed": 3500000,
     "remaining": 1500000,
     "fiscalYear": "2024-25",
-    "lastUpdated": "2024-12-15T10:00:00Z"
+    "lastUpdated": "2024-12-15T10:00:00Z",
+    "source": "Central",
+    "utilization": "Infra"
   },
   {
     "id": "budget-4",
@@ -41,7 +47,9 @@
     "committed": 25000000,
     "remaining": 25000000,
     "fiscalYear": "2024-25",
-    "lastUpdated": "2024-12-15T10:00:00Z"
+    "lastUpdated": "2024-12-15T10:00:00Z",
+    "source": "Central",
+    "utilization": "Infra"
   },
   {
     "id": "budget-5",
@@ -52,7 +60,9 @@
     "committed": 7500000,
     "remaining": 7500000,
     "fiscalYear": "2024-25",
-    "lastUpdated": "2024-12-15T10:00:00Z"
+    "lastUpdated": "2024-12-15T10:00:00Z",
+    "source": "Loan",
+    "utilization": "Tech"
   },
   {
     "id": "budget-6",
@@ -63,7 +73,9 @@
     "committed": 5000000,
     "remaining": 5000000,
     "fiscalYear": "2024-25",
-    "lastUpdated": "2024-12-15T10:00:00Z"
+    "lastUpdated": "2024-12-15T10:00:00Z",
+    "source": "State",
+    "utilization": "Infra"
   },
   {
     "id": "budget-7",
@@ -74,7 +86,9 @@
     "committed": 12000000,
     "remaining": 58000000,
     "fiscalYear": "2024-25",
-    "lastUpdated": "2024-12-15T10:00:00Z"
+    "lastUpdated": "2024-12-15T10:00:00Z",
+    "source": "Central",
+    "utilization": "Infra"
   },
   {
     "id": "budget-8",
@@ -85,7 +99,9 @@
     "committed": 5000000,
     "remaining": 25000000,
     "fiscalYear": "2024-25",
-    "lastUpdated": "2024-12-15T10:00:00Z"
+    "lastUpdated": "2024-12-15T10:00:00Z",
+    "source": "Loan",
+    "utilization": "Tech"
   },
   {
     "id": "budget-9",
@@ -96,7 +112,9 @@
     "committed": 12000000,
     "remaining": 8000000,
     "fiscalYear": "2024-25",
-    "lastUpdated": "2024-12-15T10:00:00Z"
+    "lastUpdated": "2024-12-15T10:00:00Z",
+    "source": "State",
+    "utilization": "Infra"
   },
   {
     "id": "budget-10",
@@ -107,8 +125,8 @@
     "committed": 6000000,
     "remaining": 4000000,
     "fiscalYear": "2024-25",
-    "lastUpdated": "2024-12-15T10:00:00Z"
+    "lastUpdated": "2024-12-15T10:00:00Z",
+    "source": "Central",
+    "utilization": "Land"
   }
 ]
-
-

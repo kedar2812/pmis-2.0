@@ -16,12 +16,11 @@ const MotionCard = forwardRef<HTMLDivElement, MotionCardProps>(
         ref={ref}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        whileHover={hover ? { scale: 1.02, y: -4 } : undefined}
-        whileTap={tap ? { scale: 0.98 } : undefined}
+        whileHover={hover ? { scale: 1.01, y: -2 } : undefined}
+        whileTap={tap ? { scale: 0.99 } : undefined}
         transition={{
-          type: 'spring',
-          stiffness: 260,
-          damping: 20,
+          duration: 0.2,
+          ease: 'easeOut',
         }}
         className={cn(
           'rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-md shadow-sm',

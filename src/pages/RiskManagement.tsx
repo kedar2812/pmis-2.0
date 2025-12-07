@@ -3,18 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { risks, projects } from '@/mock';
 import { AlertTriangle, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { getStatusColor, getImpactColor, getPriorityColor } from '@/lib/colors';
-import {
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import { DynamicChart } from '@/components/ui/DynamicChart';
 
 const RiskManagement = () => {
   const { t } = useLanguage();
@@ -60,7 +49,8 @@ const RiskManagement = () => {
     value,
   }));
 
-  const COLORS = ['#2546eb', '#10b981', '#f59e0b', '#ef4444', '#1d4ed8', '#06b6d4'];
+  // High-contrast vibrant color palette: Emerald, Violet, Amber, Rose, Cyan
+  const COLORS = ['#10b981', '#8b5cf6', '#f59e0b', '#f43f5e', '#06b6d4'];
 
   // Group risks by project
   const risksByProject = projects.map((project) => ({
@@ -139,15 +129,13 @@ const RiskManagement = () => {
             <CardTitle>{t('risk.risksByCategory')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={categoryData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" fill="#0284c7" />
-              </BarChart>
-            </ResponsiveContainer>
+            <DynamicChart
+              data={categoryData}
+              dataKey="value"
+              height={300}
+              defaultType="bar"
+              name="Risks"
+            />
           </CardContent>
         </Card>
 
@@ -156,25 +144,13 @@ const RiskManagement = () => {
             <CardTitle>{t('risk.risksByStatus')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={statusData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {statusData.map((_entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            <DynamicChart
+              data={statusData}
+              dataKey="value"
+              height={300}
+              defaultType="pie"
+              colors={COLORS}
+            />
           </CardContent>
         </Card>
       </div>

@@ -2,16 +2,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { budgets, costForecasts, projects } from '@/mock';
 import { DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
+import { BudgetClassificationChart } from '@/components/cost/BudgetClassificationChart';
+import { calculateBudgetUtilization } from '@/lib/calculations';
+import { DynamicChart } from '@/components/ui/DynamicChart';
 
 const CostManagement = () => {
   const { t } = useLanguage();
@@ -36,6 +29,13 @@ const CostManagement = () => {
     return acc;
   }, [] as Array<{ month: string; forecasted: number; actual: number }>);
 
+  // Transform for DynamicChart (needs single dataKey, so we'll use actual as primary)
+  const forecastChartDataForDynamic = forecastChartData.map((item) => ({
+    name: item.month,
+    value: item.actual,
+    forecasted: item.forecasted,
+  }));
+
   // Budget summary by project
   const budgetByProject = projects.map((project) => {
     const projectBudgets = budgets.filter((b) => b.projectId === project.id);
@@ -50,7 +50,7 @@ const CostManagement = () => {
       totalSpent,
       totalCommitted,
       totalRemaining,
-      utilization: (totalSpent / totalAllocated) * 100,
+      utilization: calculateBudgetUtilization(totalAllocated, totalSpent),
     };
   });
 
@@ -147,29 +147,13 @@ const CostManagement = () => {
           <CardTitle>{t('cost.costForecastVsActual')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={forecastChartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip formatter={(value: number) => formatCurrency(value)} />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="forecasted"
-                stroke="#94a3b8"
-                strokeWidth={2}
-                name={t('cost.forecasted')}
-              />
-              <Line
-                type="monotone"
-                dataKey="actual"
-                stroke="#3b82f6"
-                strokeWidth={2}
-                name={t('cost.actual')}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <DynamicChart
+            data={forecastChartDataForDynamic}
+            dataKey="value"
+            height={400}
+            defaultType="line"
+            name={t('cost.actual')}
+          />
         </CardContent>
       </Card>
 

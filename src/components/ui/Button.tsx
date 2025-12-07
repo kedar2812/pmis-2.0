@@ -30,8 +30,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           )}
           onHoverStart={() => setHovered(true)}
           onHoverEnd={() => setHovered(false)}
-          whileTap={{ scale: 0.95 }}
-          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.01 }}
           {...(props as any)}
         >
           {/* Liquid background gradient */}
@@ -81,8 +81,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           },
           className
         )}
-        whileTap={{ scale: 0.95 }}
-        whileHover={{ scale: 1.02, y: -2 }}
+        whileTap={{ scale: 0.97 }}
+        whileHover={{ scale: 1.01, y: -1 }}
         {...(props as any)}
       >
         <span className="flex items-center gap-2 whitespace-nowrap">{children}</span>

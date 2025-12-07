@@ -13,6 +13,9 @@ import CostManagement from './pages/CostManagement';
 import RiskManagement from './pages/RiskManagement';
 import GIS from './pages/GIS';
 import BIM from './pages/BIM';
+import WorkflowConfig from './pages/WorkflowConfig';
+import Reimbursement from './pages/Reimbursement';
+import RoleManager from './pages/RoleManager';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
@@ -40,6 +43,9 @@ const AppRoutes = () => {
         <Route path="risk" element={<RiskManagement />} />
         <Route path="gis" element={<GIS />} />
         <Route path="bim" element={<BIM />} />
+        <Route path="workflow" element={<WorkflowConfig />} />
+        <Route path="reimbursement" element={<Reimbursement />} />
+        <Route path="admin/roles" element={<RoleManager />} />
       </Route>
     </Routes>
   );

@@ -17,19 +17,13 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import type { Project } from '@/mock/interfaces';
 import { tasks, risks } from '@/mock';
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
+import { DynamicChart } from '@/components/ui/DynamicChart';
 import { getStatusColor } from '@/lib/colors';
+import {
+  calculateRemainingBudget,
+  calculateBudgetUtilization,
+  calculateCostVariationPercentage,
+} from '@/lib/calculations';
 
 interface ProjectDetailModalProps {
   isOpen: boolean;
@@ -43,9 +37,9 @@ export const ProjectDetailModal = ({ isOpen, onClose, project }: ProjectDetailMo
   const projectTasks = tasks.filter((task) => task.projectId === project.id);
   const projectRisks = risks.filter((risk) => risk.projectId === project.id);
 
-  const budgetUtilization = project.budget > 0 ? (project.spent / project.budget) * 100 : 0;
-  const budgetRemaining = project.budget - project.spent;
-  const costVariance = project.budget > 0 ? ((project.spent - project.budget) / project.budget) * 100 : 0;
+  const budgetUtilization = calculateBudgetUtilization(project.budget, project.spent);
+  const budgetRemaining = calculateRemainingBudget(project.budget, project.spent, 0);
+  const costVariancePercentage = calculateCostVariationPercentage(project.budget, project.spent);
 
   const statusColors = getStatusColor(project.status);
 
@@ -218,17 +212,17 @@ export const ProjectDetailModal = ({ isOpen, onClose, project }: ProjectDetailMo
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">Cost Variance</p>
+                      <p className="text-sm text-gray-600 mb-1">Cost Variation</p>
                       <p
                         className={`text-2xl font-bold ${
-                          costVariance > 0 ? 'text-error-600' : 'text-success-600'
+                          costVariancePercentage > 0 ? 'text-error-600' : 'text-success-600'
                         }`}
                       >
-                        {costVariance > 0 ? '+' : ''}
-                        {costVariance.toFixed(1)}%
+                        {costVariancePercentage > 0 ? '+' : ''}
+                        {costVariancePercentage.toFixed(1)}%
                       </p>
                     </div>
-                    {costVariance > 0 ? (
+                    {costVariancePercentage > 0 ? (
                       <TrendingUp className="text-error-600" size={32} />
                     ) : (
                       <TrendingDown className="text-success-600" size={32} />
@@ -324,25 +318,13 @@ export const ProjectDetailModal = ({ isOpen, onClose, project }: ProjectDetailMo
                     <p className="text-xl font-bold text-gray-700">{budgetUtilization.toFixed(1)}%</p>
                   </div>
                 </div>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={budgetHistory}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip
-                      formatter={(value: number) => formatCurrency(value)}
-                      contentStyle={{
-                        backgroundColor: '#fff',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        padding: '8px',
-                      }}
-                    />
-                    <Legend />
-                    <Bar dataKey="budget" fill="#cbd5e1" name="Budget" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="spent" fill="#0284c7" name="Spent" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                <DynamicChart
+                  data={budgetHistory.map((item) => ({ name: item.month, value: item.spent, budget: item.budget }))}
+                  dataKey="value"
+                  height={300}
+                  defaultType="bar"
+                  name="Spent"
+                />
               </CardContent>
             </Card>
 
@@ -354,22 +336,13 @@ export const ProjectDetailModal = ({ isOpen, onClose, project }: ProjectDetailMo
                   <CardTitle>Progress History (Last 6 Months)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={progressHistory}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis domain={[0, 100]} />
-                      <Tooltip />
-                      <Legend />
-                      <Line
-                        type="monotone"
-                        dataKey="progress"
-                        stroke="#0284c7"
-                        strokeWidth={2}
-                        name="Progress %"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <DynamicChart
+                    data={progressHistory}
+                    dataKey="progress"
+                    height={300}
+                    defaultType="line"
+                    name="Progress %"
+                  />
                 </CardContent>
               </Card>
 

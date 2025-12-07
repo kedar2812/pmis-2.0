@@ -2,13 +2,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { gisFeatures, projects } from '@/mock';
 import { MapPin } from 'lucide-react';
-import { GoogleMap } from '@/components/gis/GoogleMap';
+import { LeafletMap } from '@/components/gis/LeafletMap';
 
 const GIS = () => {
   const { t } = useLanguage();
-  
-  // Get API key from environment variable
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   return (
     <div className="space-y-6">
@@ -25,7 +22,7 @@ const GIS = () => {
           </p>
         </CardHeader>
         <CardContent>
-          <GoogleMap projects={projects} gisFeatures={gisFeatures} apiKey={apiKey} />
+          <LeafletMap projects={projects} gisFeatures={gisFeatures} />
         </CardContent>
       </Card>
 

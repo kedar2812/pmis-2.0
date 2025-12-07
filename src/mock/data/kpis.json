@@ -31,7 +31,7 @@
   },
   {
     "id": "kpi-4",
-    "name": "Cost Variance",
+    "name": "Cost Variation",
     "value": -5,
     "target": 0,
     "unit": "%",

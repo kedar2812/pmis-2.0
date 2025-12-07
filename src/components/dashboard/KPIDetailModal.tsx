@@ -4,18 +4,7 @@ import { X, TrendingUp, TrendingDown, Minus, Calendar, Target, BarChart3 } from 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import type { KPI } from '@/mock/interfaces';
 import { projects } from '@/mock';
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
+import { calculateCostVariationPercentage } from '@/lib/calculations';
 
 interface KPIDetailModalProps {
   isOpen: boolean;
@@ -133,14 +122,14 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }: KPIDetailModalProps) =>
         };
       case 'kpi-4':
         return {
-          title: 'Cost Variance',
+          title: 'Cost Variation',
           description:
-            'Cost Variance measures the difference between budgeted and actual costs as a percentage. This metric helps identify cost overruns or savings and enables proactive financial management.',
+            'Cost Variation measures the difference between budgeted and actual costs as a percentage. This metric helps identify cost overruns or savings and enables proactive financial management.',
           details: [
-            `Current Variance: ${kpi.value > 0 ? '+' : ''}${kpi.value}% ${kpi.value < 0 ? 'under' : 'over'} budget`,
-            `Target: ${kpi.target}% (no variance)`,
-            `Variance: ${Math.abs(variance)}% deviation from budget`,
-            `Trend: ${kpi.trend === 'up' ? 'Increasing' : kpi.trend === 'down' ? 'Decreasing' : 'Stable'} cost variance`,
+            `Current Variation: ${kpi.value > 0 ? '+' : ''}${kpi.value}% ${kpi.value < 0 ? 'under' : 'over'} budget`,
+            `Target: ${kpi.target}% (no variation)`,
+            `Variation: ${Math.abs(variance)}% deviation from budget`,
+            `Trend: ${kpi.trend === 'up' ? 'Increasing' : kpi.trend === 'down' ? 'Decreasing' : 'Stable'} cost variation`,
             `Last Updated: ${new Date(kpi.lastUpdated).toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'long',
@@ -284,30 +273,13 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }: KPIDetailModalProps) =>
                   <CardTitle>Historical Trend (Last 6 Months)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={historicalData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Line
-                        type="monotone"
-                        dataKey="value"
-                        stroke="#0284c7"
-                        strokeWidth={2}
-                        name="Actual"
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="target"
-                        stroke="#94a3b8"
-                        strokeWidth={2}
-                        strokeDasharray="5 5"
-                        name="Target"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <DynamicChart
+                    data={historicalData}
+                    dataKey="value"
+                    height={300}
+                    defaultType="line"
+                    name="Actual"
+                  />
                 </CardContent>
               </Card>
 
@@ -318,27 +290,13 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }: KPIDetailModalProps) =>
                     <CardTitle>Project Breakdown</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={projectData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar
-                          dataKey={kpi.category === 'Schedule' ? 'progress' : 'utilization'}
-                          fill="#0284c7"
-                          name={kpi.category === 'Schedule' ? 'Progress %' : 'Utilization %'}
-                          radius={[4, 4, 0, 0]}
-                        />
-                        <Bar
-                          dataKey="target"
-                          fill="#cbd5e1"
-                          name="Target"
-                          radius={[4, 4, 0, 0]}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    <DynamicChart
+                      data={projectData}
+                      dataKey={kpi.category === 'Schedule' ? 'progress' : 'utilization'}
+                      height={300}
+                      defaultType="bar"
+                      name={kpi.category === 'Schedule' ? 'Progress %' : 'Utilization %'}
+                    />
                   </CardContent>
                 </Card>
               )}

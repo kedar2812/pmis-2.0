@@ -16,13 +16,14 @@ import {
   ChevronLeft,
   ChevronRight,
   FolderOpen,
+  Workflow,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 // Sidebar width variants for liquid motion
 const sidebarVariants = {
-  expanded: { width: '16rem' }, // 256px
+  expanded: { width: '18rem' }, // 288px - wider to fit "Integrated Dashboard"
   collapsed: { width: '5rem' }, // 80px
 };
 
@@ -52,11 +53,12 @@ const headerTextVariants = {
   },
 };
 
-// Transition timing
+// Transition timing - optimized for performance
 const sidebarTransition = {
   type: 'spring' as const,
-  stiffness: 400,
-  damping: 32,
+  stiffness: 300,
+  damping: 30,
+  mass: 0.5,
 };
 
 const textTransition = {
@@ -126,6 +128,13 @@ const Sidebar = () => {
       icon: Box,
       path: '/bim',
       permission: 'bim:view',
+    },
+    {
+      id: 'workflow',
+      label: 'Workflow Config',
+      icon: Workflow,
+      path: '/workflow',
+      permission: 'users:manage', // Only admins
     },
   ];
 
@@ -205,9 +214,9 @@ const Sidebar = () => {
               return (
                 <motion.div
                   key={item.id}
-                  whileHover={{ scale: 1.02, x: 4 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  whileHover={{ scale: 1.01, x: 2 }}
+                  whileTap={{ scale: 0.99 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
                 >
                   <Link
                     to={item.path}
@@ -229,7 +238,7 @@ const Sidebar = () => {
                         layoutId="activeIndicator"
                         initial={{ scaleY: 0 }}
                         animate={{ scaleY: 1 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
                       />
                     )}
                     <Icon size={20} className="flex-shrink-0" />
@@ -254,15 +263,15 @@ const Sidebar = () => {
             })}
           </nav>
         </div>
-
-        {/* Overlay for mobile */}
-        {isMobileOpen && (
-          <div
-            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
-            onClick={() => setIsMobileOpen(false)}
-          />
-        )}
       </motion.aside>
+
+      {/* Overlay for mobile - must be OUTSIDE the sidebar */}
+      {isMobileOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-20"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
     </>
   );
 };
