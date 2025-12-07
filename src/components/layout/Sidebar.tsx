@@ -168,41 +168,50 @@ const Sidebar = () => {
         )}
       >
         <div className="h-full flex flex-col overflow-hidden">
-          <div className="p-6 border-b border-slate-200/50 flex items-center justify-between overflow-hidden">
-            <div className="flex-1 overflow-hidden">
+          <div className={cn(
+            "border-b border-slate-200/50 flex items-center justify-between overflow-hidden",
+            isCollapsed ? "p-3" : "p-6"
+          )}>
+            <div className={cn(
+              "flex-1 overflow-hidden",
+              isCollapsed && "flex justify-center"
+            )}>
               {!isCollapsed ? (
                 <motion.div
                   variants={headerTextVariants}
                   initial="collapsed"
                   animate="expanded"
                   transition={textTransition}
-                  className="whitespace-nowrap"
+                  className="whitespace-nowrap min-w-0"
                 >
-                  <h2 className="text-xl font-heading font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                  <h2 className="text-xl font-heading font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent truncate">
                     {t('sidebar.pmisZia')}
                   </h2>
-                  <p className="text-sm text-slate-500">{t('sidebar.programmeManagement')}</p>
+                  <p className="text-sm text-slate-500 truncate">{t('sidebar.programmeManagement')}</p>
                 </motion.div>
               ) : (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={textTransition}
-                  className="w-full flex justify-center"
+                  className="w-full flex items-center justify-center"
                 >
-                  <h2 className="text-xl font-heading font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">P</h2>
+                  <h2 className="text-lg font-heading font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent leading-none">P</h2>
                 </motion.div>
               )}
             </div>
             <motion.button
               layout
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="hidden lg:flex p-2 rounded-lg hover:bg-slate-100/50 transition-colors flex-shrink-0"
+              className={cn(
+                "hidden lg:flex rounded-lg hover:bg-slate-100/50 transition-colors flex-shrink-0",
+                isCollapsed ? "p-1.5" : "p-2"
+              )}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               aria-label={isCollapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
             >
-              {isCollapsed ? <ChevronRight size={20} className="text-slate-600" /> : <ChevronLeft size={20} className="text-slate-600" />}
+              {isCollapsed ? <ChevronRight size={18} className="text-slate-600" /> : <ChevronLeft size={20} className="text-slate-600" />}
             </motion.button>
           </div>
 

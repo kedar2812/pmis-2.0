@@ -233,3 +233,6 @@ export const DynamicChart = ({
   );
 };
 
+// Default export for compatibility
+export default DynamicChart;
+

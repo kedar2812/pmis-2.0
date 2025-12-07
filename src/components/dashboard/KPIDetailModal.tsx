@@ -2,6 +2,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, TrendingUp, TrendingDown, Minus, Calendar, Target, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { DynamicChart } from '@/components/ui/DynamicChart';
 import type { KPI } from '@/mock/interfaces';
 import { projects } from '@/mock';
 import { calculateCostVariationPercentage } from '@/lib/calculations';
@@ -100,14 +101,14 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }: KPIDetailModalProps) =>
         };
       case 'kpi-3':
         return {
-          title: 'Schedule Variance',
+          title: 'Project Timeline',
           description:
-            'Schedule Variance indicates the difference between planned and actual project timelines. A negative value means projects are behind schedule, while a positive value indicates projects are ahead of schedule.',
+            'Project Timeline tracks the planned and actual project timelines. A negative value means projects are behind schedule, while a positive value indicates projects are ahead of schedule.',
           details: [
-            `Current Variance: ${kpi.value > 0 ? '+' : ''}${kpi.value} days ${kpi.value < 0 ? 'behind' : 'ahead of'} schedule`,
+            `Current Timeline: ${kpi.value > 0 ? '+' : ''}${kpi.value} days ${kpi.value < 0 ? 'behind' : 'ahead of'} schedule`,
             `Target: ${kpi.target} days (on schedule)`,
-            `Variance: ${Math.abs(variance)} days deviation from target`,
-            `Trend: ${kpi.trend === 'up' ? 'Improving' : kpi.trend === 'down' ? 'Worsening' : 'Stable'} schedule performance`,
+            `Timeline Deviation: ${Math.abs(variance)} days deviation from target`,
+            `Trend: ${kpi.trend === 'up' ? 'Improving' : kpi.trend === 'down' ? 'Worsening' : 'Stable'} timeline performance`,
             `Last Updated: ${new Date(kpi.lastUpdated).toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'long',

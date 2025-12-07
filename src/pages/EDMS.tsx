@@ -258,6 +258,8 @@ const EDMS = () => {
           onDeleteDocument={hasPermission('edms:delete') ? handleDeleteDocument : undefined}
           canDelete={hasPermission('edms:delete')}
           selectedDocumentId={selectedDocument?.id}
+          onNew={() => setIsUploadModalOpen(true)}
+          onUpload={() => setIsUploadModalOpen(true)}
         />
       </motion.div>
 

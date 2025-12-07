@@ -77,7 +77,7 @@ export const rolePermissions: Record<UserRole, RolePermission> = {
       'gis:view',
       'bim:view',
     ],
-    dashboardView: 'Detailed project management metrics, risk alerts, schedule variances',
+    dashboardView: 'Detailed project management metrics, risk alerts, project timeline deviations',
   },
   EPC_Contractor: {
     role: 'EPC_Contractor',

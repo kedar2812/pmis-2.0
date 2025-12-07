@@ -41,7 +41,7 @@
   },
   {
     "id": "notif-5",
-    "title": "Schedule Variance Alert",
+    "title": "Project Timeline Alert",
     "message": "Road Base Layer Construction is showing a delay of 5 days",
     "type": "Warning",
     "timestamp": "2024-12-03T10:00:00Z",

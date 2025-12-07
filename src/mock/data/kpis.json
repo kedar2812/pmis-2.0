@@ -21,7 +21,7 @@
   },
   {
     "id": "kpi-3",
-    "name": "Schedule Variance",
+    "name": "Project Timeline",
     "value": -12,
     "target": 0,
     "unit": "days",
