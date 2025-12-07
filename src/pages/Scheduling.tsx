@@ -82,7 +82,6 @@ const Scheduling = () => {
           <Button
             variant={viewMode === 'gantt' ? 'default' : 'outline'}
             onClick={() => setViewMode('gantt')}
-            className="flex items-center gap-2"
           >
             <BarChart3 size={18} />
             {t('scheduling.ganttChart')}
@@ -90,7 +89,6 @@ const Scheduling = () => {
           <Button
             variant={viewMode === 'list' ? 'default' : 'outline'}
             onClick={() => setViewMode('list')}
-            className="flex items-center gap-2"
           >
             <List size={18} />
             {t('scheduling.listView')}

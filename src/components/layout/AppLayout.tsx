@@ -18,14 +18,14 @@ const AppLayout = () => {
         }}
         transition={{
           type: 'spring',
-          stiffness: 260,
-          damping: 20,
-          duration: 0.3,
+          stiffness: 400,
+          damping: 40,
+          mass: 0.3,
         }}
-        className="lg:block"
+        className="lg:block relative"
       >
         <Header />
-        <main className="p-6">
+        <main className="p-6 pt-20">
           <Breadcrumbs />
           <AnimatePresence mode="wait">
             <motion.div

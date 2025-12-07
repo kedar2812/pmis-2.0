@@ -35,6 +35,12 @@ i18n
     react: {
       useSuspense: false, // Disable suspense for better compatibility
     },
+    
+    // Return the key if translation is missing (instead of showing the key)
+    returnNull: false,
+    returnEmptyString: false,
+    // Don't return the key if translation is missing - use fallback
+    returnObjects: false,
   });
 
 export default i18n;

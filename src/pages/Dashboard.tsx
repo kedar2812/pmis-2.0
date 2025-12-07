@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { MotionCard, MotionCardContent, MotionCardHeader, MotionCardTitle } from '@/components/ui/MotionCard';
@@ -9,21 +9,24 @@ import { CreateProjectModal } from '@/components/projects/CreateProjectModal';
 import { KPIDetailModal } from '@/components/dashboard/KPIDetailModal';
 import { kpis, risks, tasks } from '@/mock';
 import Button from '@/components/ui/Button';
-import { Plus } from 'lucide-react';
+import { Plus, Search, FolderOpen, Calendar, AlertTriangle, X } from 'lucide-react';
 import { AnimatedBarChart, AnimatedLineChart, AnimatedPieChart } from '@/components/ui/AnimatedChart';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import { TrendingUp, TrendingDown, Search } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 const Dashboard = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedKPI, setSelectedKPI] = useState<typeof kpis[0] | null>(null);
   const [isKPIModalOpen, setIsKPIModalOpen] = useState(false);
   const { projects, addProject } = useMockData();
+  const searchRef = useRef<HTMLDivElement>(null);
 
   // Check if user can create projects (SPV_Official or PMNC_Team)
   const canCreateProject = user?.role === 'SPV_Official' || user?.role === 'PMNC_Team';
@@ -113,6 +116,111 @@ const Dashboard = () => {
   const upcomingTasks = filteredTasks;
   const activeRisks = filteredRisks;
 
+  // Generate search suggestions
+  const searchSuggestions = useMemo(() => {
+    if (!searchQuery || searchQuery.length < 2) return [];
+    
+    const query = searchQuery.toLowerCase();
+    const suggestions: Array<{
+      id: string;
+      type: 'project' | 'task' | 'risk';
+      title: string;
+      subtitle: string;
+      icon: typeof FolderOpen;
+    }> = [];
+
+    // Add matching projects
+    projects
+      .filter((p) => 
+        p.name.toLowerCase().includes(query) ||
+        p.description.toLowerCase().includes(query) ||
+        p.status.toLowerCase().includes(query) ||
+        p.category.toLowerCase().includes(query)
+      )
+      .slice(0, 3)
+      .forEach((project) => {
+        suggestions.push({
+          id: project.id,
+          type: 'project',
+          title: project.name,
+          subtitle: `${project.status} • ${project.category}`,
+          icon: FolderOpen,
+        });
+      });
+
+    // Add matching tasks
+    tasks
+      .filter((t) =>
+        t.name.toLowerCase().includes(query) ||
+        t.assignedTo.toLowerCase().includes(query) ||
+        t.status.toLowerCase().includes(query)
+      )
+      .slice(0, 3)
+      .forEach((task) => {
+        suggestions.push({
+          id: task.id,
+          type: 'task',
+          title: task.name,
+          subtitle: `${task.status} • ${task.assignedTo}`,
+          icon: Calendar,
+        });
+      });
+
+    // Add matching risks
+    risks
+      .filter((r) =>
+        r.title.toLowerCase().includes(query) ||
+        r.category.toLowerCase().includes(query) ||
+        r.impact.toLowerCase().includes(query)
+      )
+      .slice(0, 3)
+      .forEach((risk) => {
+        suggestions.push({
+          id: risk.id,
+          type: 'risk',
+          title: risk.title,
+          subtitle: `${risk.impact} • ${risk.category}`,
+          icon: AlertTriangle,
+        });
+      });
+
+    return suggestions.slice(0, 8); // Limit to 8 suggestions
+  }, [searchQuery, projects, tasks, risks]);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+
+    if (isSearchFocused) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSearchFocused]);
+
+  const handleSuggestionClick = (suggestion: typeof searchSuggestions[0]) => {
+    setSearchQuery(suggestion.title);
+    setIsSearchFocused(false);
+    
+    if (suggestion.type === 'project') {
+      navigate('/projects');
+      toast.info('Navigating to project', {
+        description: `Viewing details for ${suggestion.title}`,
+      });
+    } else if (suggestion.type === 'risk') {
+      navigate('/risk');
+      toast.info('Navigating to risk', {
+        description: `Viewing details for ${suggestion.title}`,
+      });
+    }
+  };
+
   // Animation variants for staggered entrance
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -168,23 +276,84 @@ const Dashboard = () => {
         </div>
         <div className="flex items-center gap-4">
           <div className="flex-1 max-w-md">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
+            <div className="relative" ref={searchRef}>
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 z-10" size={18} />
               <input
                 type="text"
                 placeholder={t('dashboard.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary-600 focus:border-primary-600 bg-white/80 backdrop-blur-sm shadow-sm"
+                onFocus={() => setIsSearchFocused(true)}
+                className={cn(
+                  'w-full pl-10 pr-10 py-2 border rounded-xl',
+                  'bg-white/80 backdrop-blur-sm shadow-sm',
+                  'focus:outline-none transition-all duration-200',
+                  isSearchFocused
+                    ? 'border-primary-600 ring-2 ring-primary-600/20'
+                    : 'border-slate-300 focus:ring-2 focus:ring-primary-600 focus:border-primary-600'
+                )}
                 aria-label="Search dashboard content"
               />
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setIsSearchFocused(false);
+                  }}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-slate-100 transition-colors"
+                  aria-label="Clear search"
+                >
+                  <X size={16} className="text-slate-400" />
+                </button>
+              )}
+              
+              {/* Search Suggestions Dropdown */}
+              <AnimatePresence>
+                {isSearchFocused && searchSuggestions.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-xl rounded-2xl shadow-glass border border-slate-200/50 z-[60] max-h-96 overflow-y-auto"
+                  >
+                    <div className="p-2">
+                      <div className="px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                        {t('dashboard.searchSuggestions') || 'Suggestions'}
+                      </div>
+                      {searchSuggestions.map((suggestion) => {
+                        const Icon = suggestion.icon;
+                        return (
+                          <button
+                            key={`${suggestion.type}-${suggestion.id}`}
+                            onClick={() => handleSuggestionClick(suggestion)}
+                            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors text-left"
+                          >
+                            <div className="p-2 rounded-lg bg-primary-50">
+                              <Icon size={18} className="text-primary-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-slate-900 truncate">
+                                {suggestion.title}
+                              </p>
+                              <p className="text-xs text-slate-500 truncate">
+                                {suggestion.subtitle}
+                              </p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
           {canCreateProject && (
             <Button
               onClick={() => setIsCreateModalOpen(true)}
             >
-              <Plus size={18} className="mr-2" />
+              <Plus size={18} />
               {t('dashboard.createProject')}
             </Button>
           )}

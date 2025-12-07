@@ -117,7 +117,7 @@ const EDMS = () => {
         <div className="flex gap-2">
           {hasPermission('edms:upload') && (
             <Button onClick={() => setIsUploadModalOpen(true)} className="bg-primary-950 hover:bg-primary-900">
-              <Upload size={18} className="mr-2" />
+              <Upload size={18} />
               {t('common.upload') || 'Upload'}
             </Button>
           )}

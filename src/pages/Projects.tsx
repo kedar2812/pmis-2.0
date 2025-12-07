@@ -66,7 +66,7 @@ const Projects = () => {
             onClick={() => setIsCreateModalOpen(true)}
             className="bg-primary-950 hover:bg-primary-900"
           >
-            <Plus size={18} className="mr-2" />
+            <Plus size={18} />
             {t('projects.createProject')}
           </Button>
         )}

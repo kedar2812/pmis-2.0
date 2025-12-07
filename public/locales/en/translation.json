@@ -5,7 +5,7 @@
   "common": {
     "login": "Login",
     "logout": "Logout",
-    "dashboard": "Dashboard",
+    "dashboard": "Integrated Dashboard",
     "projects": "Projects",
     "documents": "Documents",
     "schedule": "Schedule",
@@ -83,7 +83,7 @@
     "accessLevel": "Access Level"
   },
   "dashboard": {
-    "title": "Unified Dashboard",
+    "title": "Integrated Dashboard",
     "overview": "Overview",
     "kpis": "Key Performance Indicators",
     "recentProjects": "Recent Projects",

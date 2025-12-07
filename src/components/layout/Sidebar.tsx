@@ -20,6 +20,49 @@ import {
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
+// Sidebar width variants for liquid motion
+const sidebarVariants = {
+  expanded: { width: '16rem' }, // 256px
+  collapsed: { width: '5rem' }, // 80px
+};
+
+// Text label variants for smooth fade/slide
+const textVariants = {
+  expanded: {
+    opacity: 1,
+    x: 0,
+    display: 'block',
+  },
+  collapsed: {
+    opacity: 0,
+    x: -10,
+    transitionEnd: { display: 'none' },
+  },
+};
+
+// Header text variants
+const headerTextVariants = {
+  expanded: {
+    opacity: 1,
+    x: 0,
+  },
+  collapsed: {
+    opacity: 0,
+    x: -10,
+  },
+};
+
+// Transition timing
+const sidebarTransition = {
+  type: 'spring' as const,
+  stiffness: 400,
+  damping: 32,
+};
+
+const textTransition = {
+  duration: 0.15,
+};
+
 const Sidebar = () => {
   const { hasPermission } = useAuth();
   const { t } = useLanguage();
@@ -102,29 +145,29 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       <motion.aside
+        layout
         initial={false}
-        animate={{
-          width: isCollapsed ? 80 : 256,
-        }}
-        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        animate={isCollapsed ? 'collapsed' : 'expanded'}
+        variants={sidebarVariants}
+        transition={sidebarTransition}
         className={cn(
-          'fixed top-4 left-4 z-40 h-[calc(100vh-2rem)]',
+          'fixed top-4 left-4 z-30 h-[calc(100vh-2rem)]',
           'bg-white/80 backdrop-blur-xl border border-slate-200/50',
-          'rounded-2xl shadow-glass',
+          'rounded-2xl shadow-glass overflow-hidden',
           'lg:translate-x-0',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
-        <div className="h-full flex flex-col">
-          <div className="p-6 border-b border-slate-200/50 flex items-center justify-between">
-            <AnimatePresence mode="wait">
+        <div className="h-full flex flex-col overflow-hidden">
+          <div className="p-6 border-b border-slate-200/50 flex items-center justify-between overflow-hidden">
+            <div className="flex-1 overflow-hidden">
               {!isCollapsed ? (
                 <motion.div
-                  key="expanded"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex-1"
+                  variants={headerTextVariants}
+                  initial="collapsed"
+                  animate="expanded"
+                  transition={textTransition}
+                  className="whitespace-nowrap"
                 >
                   <h2 className="text-xl font-heading font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
                     {t('sidebar.pmisZia')}
@@ -133,19 +176,19 @@ const Sidebar = () => {
                 </motion.div>
               ) : (
                 <motion.div
-                  key="collapsed"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={textTransition}
                   className="w-full flex justify-center"
                 >
                   <h2 className="text-xl font-heading font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">P</h2>
                 </motion.div>
               )}
-            </AnimatePresence>
+            </div>
             <motion.button
+              layout
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="hidden lg:flex p-2 rounded-lg hover:bg-slate-100/50 transition-colors"
+              className="hidden lg:flex p-2 rounded-lg hover:bg-slate-100/50 transition-colors flex-shrink-0"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               aria-label={isCollapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
@@ -164,13 +207,13 @@ const Sidebar = () => {
                   key={item.id}
                   whileHover={{ scale: 1.02, x: 4 }}
                   whileTap={{ scale: 0.98 }}
-                  transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                 >
                   <Link
                     to={item.path}
                     onClick={() => setIsMobileOpen(false)}
                     className={cn(
-                      'flex items-center gap-3 rounded-xl transition-all duration-200',
+                      'flex items-center gap-3 rounded-xl transition-all duration-200 overflow-hidden',
                       'focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2',
                       isActive
                         ? 'bg-gradient-to-r from-primary-50 to-blue-50 text-primary-700 font-semibold shadow-sm pl-3 py-3 pr-4'
@@ -186,17 +229,20 @@ const Sidebar = () => {
                         layoutId="activeIndicator"
                         initial={{ scaleY: 0 }}
                         animate={{ scaleY: 1 }}
-                        transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                       />
                     )}
                     <Icon size={20} className="flex-shrink-0" />
-                    <AnimatePresence>
+                    <AnimatePresence mode="wait">
                       {!isCollapsed && (
                         <motion.span
-                          initial={{ opacity: 0, width: 0 }}
-                          animate={{ opacity: 1, width: 'auto' }}
-                          exit={{ opacity: 0, width: 0 }}
-                          transition={{ duration: 0.2 }}
+                          key="text"
+                          variants={textVariants}
+                          initial="collapsed"
+                          animate="expanded"
+                          exit="collapsed"
+                          transition={textTransition}
+                          className="whitespace-nowrap"
                         >
                           {item.label}
                         </motion.span>

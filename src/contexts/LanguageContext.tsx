@@ -16,7 +16,7 @@ const translations: Record<Language, Record<string, string>> = {
     'app.title': 'PMIS - Zaheerabad Industrial Area',
     'common.login': 'Login',
     'common.logout': 'Logout',
-    'common.dashboard': 'Dashboard',
+    'common.dashboard': 'Integrated Dashboard',
     'common.projects': 'Projects',
     'common.documents': 'Documents',
     'common.schedule': 'Schedule',
@@ -47,7 +47,7 @@ const translations: Record<Language, Record<string, string>> = {
     'common.date': 'Date',
     'common.actions': 'Actions',
     // Dashboard
-    'dashboard.title': 'Unified Dashboard',
+    'dashboard.title': 'Integrated Dashboard',
     'dashboard.overview': 'Overview',
     'dashboard.kpis': 'Key Performance Indicators',
     'dashboard.recentProjects': 'Recent Projects',
@@ -295,7 +295,7 @@ const translations: Record<Language, Record<string, string>> = {
     'app.title': 'PMIS - ज़हीराबाद औद्योगिक क्षेत्र',
     'common.login': 'लॉगिन',
     'common.logout': 'लॉगआउट',
-    'common.dashboard': 'डैशबोर्ड',
+    'common.dashboard': 'एकीकृत डैशबोर्ड',
     'common.projects': 'परियोजनाएं',
     'common.documents': 'दस्तावेज़',
     'common.schedule': 'अनुसूची',
@@ -574,7 +574,7 @@ const translations: Record<Language, Record<string, string>> = {
     'app.title': 'PMIS - జహీరాబాద్ ఇండస్ట్రియల్ ఏరియా',
     'common.login': 'లాగిన్',
     'common.logout': 'లాగ్అవుట్',
-    'common.dashboard': 'డాష్బోర్డ్',
+    'common.dashboard': 'ఏకీకృత డాష్బోర్డ్',
     'common.projects': 'ప్రాజెక్టులు',
     'common.documents': 'పత్రాలు',
     'common.schedule': 'షెడ్యూల్',
@@ -876,18 +876,18 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   // Use i18next's translation function, fallback to key if not found
   const t = (key: string): string => {
     try {
-      // First try legacy translations (always available)
-      if (translations[language]?.[key]) {
-        return translations[language][key];
-      }
-      
-      // Then try i18next if it's ready
+      // First try i18next if it's ready (preferred method)
       if (i18n.isInitialized) {
         const translated = i18n.t(key, { returnObjects: false });
         // Only use i18next result if it's different from the key
-        if (translated && translated !== key) {
+        if (translated && translated !== key && !translated.includes('[')) {
           return translated;
         }
+      }
+      
+      // Fallback to legacy translations (always available)
+      if (translations[language]?.[key]) {
+        return translations[language][key];
       }
       
       // Last resort: return key if nothing found

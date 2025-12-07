@@ -1,7 +1,9 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSidebar } from '@/contexts/SidebarContext';
 import { Bell, Globe } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import type { Language } from '@/contexts/LanguageContext';
@@ -9,8 +11,31 @@ import type { Language } from '@/contexts/LanguageContext';
 const Header = () => {
   const { user, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
+  const { isCollapsed } = useSidebar();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setShowProfile(false);
+      }
+    };
+
+    if (showNotifications || showProfile) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showNotifications, showProfile]);
 
   const handleLogout = () => {
     logout();
@@ -18,7 +43,18 @@ const Header = () => {
   };
 
   return (
-    <header className="h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 flex items-center justify-between px-4 shadow-sm">
+    <motion.header
+      animate={{
+        left: isCollapsed ? '96px' : '280px', // Sidebar width + 8px gap (collapsed: 80px + 16px, expanded: 256px + 24px)
+      }}
+      transition={{
+        type: 'spring',
+        stiffness: 400,
+        damping: 40,
+        mass: 0.3,
+      }}
+      className="absolute top-4 right-4 z-40 h-14 bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-sm flex items-center justify-between px-4"
+    >
       <div className="flex-1"></div>
 
       <div className="flex items-center gap-4">
@@ -28,7 +64,7 @@ const Header = () => {
           <Select
             value={language}
             onChange={(e) => setLanguage(e.target.value as Language)}
-            className="w-32 rounded-xl border-slate-300"
+            className="w-32 rounded-xl border-slate-200 bg-white/80 backdrop-blur-sm shadow-sm hover:border-slate-300 transition-colors"
           >
             <option value="en">{t('header.english')}</option>
             <option value="hi">{t('header.hindi')}</option>
@@ -37,9 +73,12 @@ const Header = () => {
         </div>
 
         {/* Notifications */}
-        <div className="relative">
+        <div className="relative" ref={notificationsRef}>
           <button
-            onClick={() => setShowNotifications(!showNotifications)}
+            onClick={() => {
+              setShowNotifications(!showNotifications);
+              setShowProfile(false); // Close profile when opening notifications
+            }}
             className="p-2 rounded-xl hover:bg-slate-100/50 relative transition-colors"
           >
             <Bell size={20} className="text-slate-600" />
@@ -47,7 +86,7 @@ const Header = () => {
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-glass border border-slate-200/50 z-50">
+            <div className="absolute right-0 mt-2 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-glass border border-slate-200/50 z-[60]">
               <div className="p-4 border-b border-slate-200/50">
                 <h3 className="font-heading font-semibold text-slate-900">{t('common.notifications')}</h3>
               </div>
@@ -61,12 +100,15 @@ const Header = () => {
         </div>
 
         {/* User Profile */}
-        <div className="relative">
+        <div className="relative" ref={profileRef}>
           <button
-            onClick={() => setShowProfile(!showProfile)}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100/50 transition-colors"
+            onClick={() => {
+              setShowProfile(!showProfile);
+              setShowNotifications(false); // Close notifications when opening profile
+            }}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100/60 transition-all duration-200 hover:scale-105"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-600 to-primary-700 flex items-center justify-center text-white text-sm font-semibold shadow-blue-glow">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-600 to-primary-700 flex items-center justify-center text-white text-sm font-semibold shadow-blue-glow ring-2 ring-primary-100">
               {user?.name.charAt(0).toUpperCase()}
             </div>
             <span className="hidden md:block text-sm font-semibold text-slate-700">
@@ -75,7 +117,7 @@ const Header = () => {
           </button>
 
           {showProfile && (
-            <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-xl rounded-2xl shadow-glass border border-slate-200/50 z-50">
+            <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-xl rounded-2xl shadow-glass border border-slate-200/50 z-[60]">
               <div className="p-4 border-b border-slate-200/50">
                 <p className="font-semibold text-sm text-slate-900">{user?.name}</p>
                 <p className="text-xs text-slate-500">{user?.email}</p>
@@ -94,7 +136,7 @@ const Header = () => {
           )}
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 };
 

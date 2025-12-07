@@ -59,7 +59,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             transition={{ duration: 0.6, ease: 'easeInOut' }}
           />
           
-          <span className="relative z-10 text-white font-semibold">{children}</span>
+          <span className="relative z-10 text-white font-semibold flex items-center gap-2 whitespace-nowrap">{children}</span>
         </motion.button>
       );
     }
@@ -85,7 +85,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         whileHover={{ scale: 1.02, y: -2 }}
         {...(props as any)}
       >
-        {children}
+        <span className="flex items-center gap-2 whitespace-nowrap">{children}</span>
       </motion.button>
     );
   }
