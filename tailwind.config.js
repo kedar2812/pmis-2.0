@@ -8,33 +8,44 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-          950: '#0f172a', // Deep Government Blue
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2546eb', // Blue-600 (main)
+          700: '#1d4ed8', // Dark blue-700
+          800: '#1e40af', // Dark blue-800
+          900: '#1e3a8a', // Dark blue-900
+          950: '#172554', // Very dark blue
+        },
+        secondary: {
+          DEFAULT: '#14b8a6', // Teal-500
+          50: '#f0fdfa',
+          100: '#ccfbf1',
+          200: '#99f6e4',
+          300: '#5eead4',
+          400: '#2dd4bf',
+          500: '#14b8a6',
+          600: '#0d9488',
+          700: '#0f766e',
         },
         accent: {
-          DEFAULT: '#f97316', // Industrial Orange
+          DEFAULT: '#f97316', // Coral-500 (keeping for compatibility)
           50: '#fff7ed',
           100: '#ffedd5',
           200: '#fed7aa',
           300: '#fdba74',
           400: '#fb923c',
-          500: '#f97316',
+          500: '#f97316', // Coral-500
           600: '#ea580c',
           700: '#c2410c',
           800: '#9a3412',
           900: '#7c2d12',
         },
         background: {
-          DEFAULT: '#f8fafc',
+          DEFAULT: '#f8fafc', // Slate-50
         },
         // Semantic colors for consistent usage
         success: {
@@ -67,13 +78,38 @@ export default {
           600: '#dc2626',
           700: '#b91c1c',
         },
+        slate: {
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
+        },
       },
       fontFamily: {
-        sans: ['Inter', 'Public Sans', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        'blue-glow': '0 4px 14px 0 rgba(37, 70, 235, 0.2)',
+        'indigo-glow': '0 4px 14px 0 rgba(37, 70, 235, 0.2)', // Keep for compatibility
+        'teal-glow': '0 4px 14px 0 rgba(20, 184, 166, 0.2)',
+        'coral-glow': '0 4px 14px 0 rgba(249, 115, 22, 0.2)',
+        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+      },
+      backdropBlur: {
+        xs: '2px',
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in-out',
         'slide-in': 'slideIn 0.3s ease-out',
+        'shimmer': 'shimmer 2s infinite',
+        'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
         fadeIn: {
@@ -83,6 +119,14 @@ export default {
         slideIn: {
           '0%': { transform: 'translateX(-10px)', opacity: '0' },
           '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-1000px 0' },
+          '100%': { backgroundPosition: '1000px 0' },
+        },
+        pulseGlow: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.5' },
         },
       },
     },

@@ -1,26 +1,49 @@
-import { Outlet } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { Outlet, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useSidebar } from '@/contexts/SidebarContext';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 
 const AppLayout = () => {
+  const location = useLocation();
+  const { isCollapsed } = useSidebar();
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-slate-50">
       <Sidebar />
-      <div className="lg:pl-64">
+      <motion.div
+        animate={{
+          paddingLeft: isCollapsed ? '88px' : '272px', // 80px (collapsed) + 8px (gap), 256px (expanded) + 16px (gap)
+        }}
+        transition={{
+          type: 'spring',
+          stiffness: 260,
+          damping: 20,
+          duration: 0.3,
+        }}
+        className="lg:block"
+      >
         <Header />
         <main className="p-6">
           <Breadcrumbs />
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Outlet />
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ 
+                type: 'spring',
+                stiffness: 260,
+                damping: 20,
+              }}
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </main>
-      </div>
+      </motion.div>
     </div>
   );
 };

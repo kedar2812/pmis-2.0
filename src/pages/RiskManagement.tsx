@@ -60,7 +60,7 @@ const RiskManagement = () => {
     value,
   }));
 
-  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+  const COLORS = ['#2546eb', '#10b981', '#f59e0b', '#ef4444', '#1d4ed8', '#06b6d4'];
 
   // Group risks by project
   const risksByProject = projects.map((project) => ({

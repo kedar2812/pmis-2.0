@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSidebar } from '@/contexts/SidebarContext';
 import {
   LayoutDashboard,
   FileText,
@@ -16,22 +17,15 @@ import {
   ChevronRight,
   FolderOpen,
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 const Sidebar = () => {
   const { hasPermission } = useAuth();
   const { t } = useLanguage();
   const location = useLocation();
+  const { isCollapsed, setIsCollapsed } = useSidebar();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    const saved = localStorage.getItem('sidebar_collapsed');
-    return saved ? JSON.parse(saved) : false;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('sidebar_collapsed', JSON.stringify(isCollapsed));
-  }, [isCollapsed]);
 
   const menuItems = [
     {
@@ -97,12 +91,14 @@ const Sidebar = () => {
   return (
     <>
       {/* Mobile menu button */}
-      <button
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-md"
+      <motion.button
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-white/80 backdrop-blur-md shadow-glass"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
+        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.05 }}
       >
-        {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
+        {isMobileOpen ? <X size={24} className="text-slate-700" /> : <Menu size={24} className="text-slate-700" />}
+      </motion.button>
 
       {/* Sidebar */}
       <motion.aside
@@ -112,12 +108,15 @@ const Sidebar = () => {
         }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
         className={cn(
-          'fixed top-0 left-0 z-40 h-screen bg-white border-r border-gray-200 lg:translate-x-0',
+          'fixed top-4 left-4 z-40 h-[calc(100vh-2rem)]',
+          'bg-white/80 backdrop-blur-xl border border-slate-200/50',
+          'rounded-2xl shadow-glass',
+          'lg:translate-x-0',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
         <div className="h-full flex flex-col">
-          <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+          <div className="p-6 border-b border-slate-200/50 flex items-center justify-between">
             <AnimatePresence mode="wait">
               {!isCollapsed ? (
                 <motion.div
@@ -127,8 +126,10 @@ const Sidebar = () => {
                   exit={{ opacity: 0 }}
                   className="flex-1"
                 >
-                  <h2 className="text-xl font-bold text-primary-950">{t('sidebar.pmisZia')}</h2>
-                  <p className="text-sm text-gray-600">{t('sidebar.programmeManagement')}</p>
+                  <h2 className="text-xl font-heading font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                    {t('sidebar.pmisZia')}
+                  </h2>
+                  <p className="text-sm text-slate-500">{t('sidebar.programmeManagement')}</p>
                 </motion.div>
               ) : (
                 <motion.div
@@ -138,17 +139,19 @@ const Sidebar = () => {
                   exit={{ opacity: 0 }}
                   className="w-full flex justify-center"
                 >
-                  <h2 className="text-xl font-bold text-primary-950">P</h2>
+                  <h2 className="text-xl font-heading font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">P</h2>
                 </motion.div>
               )}
             </AnimatePresence>
-            <button
+            <motion.button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="hidden lg:flex p-2 rounded-md hover:bg-gray-100 transition-colors"
+              className="hidden lg:flex p-2 rounded-lg hover:bg-slate-100/50 transition-colors"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               aria-label={isCollapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
             >
-              {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-            </button>
+              {isCollapsed ? <ChevronRight size={20} className="text-slate-600" /> : <ChevronLeft size={20} className="text-slate-600" />}
+            </motion.button>
           </div>
 
           <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -157,34 +160,50 @@ const Sidebar = () => {
               const isActive = location.pathname === item.path;
 
               return (
-                <Link
+                <motion.div
                   key={item.id}
-                  to={item.path}
-                  onClick={() => setIsMobileOpen(false)}
-                  className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200',
-                    'focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2',
-                    isActive
-                      ? 'bg-primary-100 text-primary-700 font-medium shadow-sm'
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-primary-700'
-                  )}
-                  title={isCollapsed ? item.label : undefined}
-                  aria-label={item.label}
+                  whileHover={{ scale: 1.02, x: 4 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 20 }}
                 >
-                  <Icon size={20} className="flex-shrink-0" />
-                  <AnimatePresence>
-                    {!isCollapsed && (
-                      <motion.span
-                        initial={{ opacity: 0, width: 0 }}
-                        animate={{ opacity: 1, width: 'auto' }}
-                        exit={{ opacity: 0, width: 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        {item.label}
-                      </motion.span>
+                  <Link
+                    to={item.path}
+                    onClick={() => setIsMobileOpen(false)}
+                    className={cn(
+                      'flex items-center gap-3 rounded-xl transition-all duration-200',
+                      'focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2',
+                      isActive
+                        ? 'bg-gradient-to-r from-primary-50 to-blue-50 text-primary-700 font-semibold shadow-sm pl-3 py-3 pr-4'
+                        : 'text-slate-700 hover:bg-slate-100/50 hover:text-primary-600 px-4 py-3'
                     )}
-                  </AnimatePresence>
-                </Link>
+                    title={isCollapsed ? item.label : undefined}
+                    aria-label={item.label}
+                  >
+                    {/* Internal active indicator pill */}
+                    {isActive && (
+                      <motion.div
+                        className="h-6 w-1 bg-gradient-to-b from-primary-600 to-primary-700 rounded-full shadow-blue-glow flex-shrink-0"
+                        layoutId="activeIndicator"
+                        initial={{ scaleY: 0 }}
+                        animate={{ scaleY: 1 }}
+                        transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                      />
+                    )}
+                    <Icon size={20} className="flex-shrink-0" />
+                    <AnimatePresence>
+                      {!isCollapsed && (
+                        <motion.span
+                          initial={{ opacity: 0, width: 0 }}
+                          animate={{ opacity: 1, width: 'auto' }}
+                          exit={{ opacity: 0, width: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {item.label}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </Link>
+                </motion.div>
               );
             })}
           </nav>

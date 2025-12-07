@@ -1,21 +1,79 @@
-import { ButtonHTMLAttributes, forwardRef } from 'react';
+import { forwardRef, useState } from 'react';
+import { motion, HTMLMotionProps } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
   variant?: 'default' | 'outline' | 'ghost' | 'destructive';
   size?: 'sm' | 'md' | 'lg';
+  children?: React.ReactNode;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'default', size = 'md', ...props }, ref) => {
+  ({ className, variant = 'default', size = 'md', children, ...props }, ref) => {
+    const [hovered, setHovered] = useState(false);
+
+    if (variant === 'default') {
+      return (
+        <motion.button
+          ref={ref}
+          className={cn(
+            'relative inline-flex items-center justify-center rounded-xl font-medium',
+            'overflow-hidden transition-all duration-200',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2',
+            'disabled:pointer-events-none disabled:opacity-50',
+            {
+              'h-8 px-3 text-sm': size === 'sm',
+              'h-10 px-4': size === 'md',
+              'h-12 px-6 text-lg': size === 'lg',
+            },
+            className
+          )}
+          onHoverStart={() => setHovered(true)}
+          onHoverEnd={() => setHovered(false)}
+          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.02 }}
+          {...(props as any)}
+        >
+          {/* Liquid background gradient */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-primary-600 via-primary-700 to-primary-600"
+            initial={false}
+            animate={{
+              backgroundPosition: hovered ? ['0% 50%', '100% 50%', '0% 50%'] : '0% 50%',
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: hovered ? Infinity : 0,
+              ease: 'linear',
+            }}
+            style={{
+              backgroundSize: '200% 100%',
+            }}
+          />
+          
+          {/* Shine effect */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+            initial={{ x: '-100%' }}
+            animate={{ x: hovered ? '100%' : '-100%' }}
+            transition={{ duration: 0.6, ease: 'easeInOut' }}
+          />
+          
+          <span className="relative z-10 text-white font-semibold">{children}</span>
+        </motion.button>
+      );
+    }
+
     return (
-      <button
+      <motion.button
+        ref={ref}
         className={cn(
-          'inline-flex items-center justify-center rounded-md font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95',
+          'inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2',
+          'disabled:pointer-events-none disabled:opacity-50',
           {
-            'bg-primary-600 text-white hover:bg-primary-700': variant === 'default',
-            'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50': variant === 'outline',
-            'text-gray-700 hover:bg-gray-100': variant === 'ghost',
+            'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50': variant === 'outline',
+            'text-slate-700 hover:bg-slate-100': variant === 'ghost',
             'bg-red-600 text-white hover:bg-red-700': variant === 'destructive',
             'h-8 px-3 text-sm': size === 'sm',
             'h-10 px-4': size === 'md',
@@ -23,9 +81,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           },
           className
         )}
-        ref={ref}
-        {...props}
-      />
+        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.02, y: -2 }}
+        {...(props as any)}
+      >
+        {children}
+      </motion.button>
     );
   }
 );

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { SidebarProvider } from './contexts/SidebarContext';
 import { ToastProvider } from './components/ui/Toast';
 import AppLayout from './components/layout/AppLayout';
 import Login from './pages/Login';
@@ -49,8 +50,10 @@ function App() {
     <BrowserRouter>
       <LanguageProvider>
         <AuthProvider>
-          <ToastProvider />
-          <AppRoutes />
+          <SidebarProvider>
+            <ToastProvider />
+            <AppRoutes />
+          </SidebarProvider>
         </AuthProvider>
       </LanguageProvider>
     </BrowserRouter>

@@ -15,9 +15,8 @@ import {
   Users,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { useLanguage } from '@/contexts/LanguageContext';
 import type { Project } from '@/mock/interfaces';
-import { tasks, risks, budgets } from '@/mock';
+import { tasks, risks } from '@/mock';
 import {
   LineChart,
   Line,
@@ -39,13 +38,10 @@ interface ProjectDetailModalProps {
 }
 
 export const ProjectDetailModal = ({ isOpen, onClose, project }: ProjectDetailModalProps) => {
-  const { t } = useLanguage();
-
   if (!isOpen || !project) return null;
 
   const projectTasks = tasks.filter((task) => task.projectId === project.id);
   const projectRisks = risks.filter((risk) => risk.projectId === project.id);
-  const projectBudgets = budgets.filter((budget) => budget.projectId === project.id);
 
   const budgetUtilization = project.budget > 0 ? (project.spent / project.budget) * 100 : 0;
   const budgetRemaining = project.budget - project.spent;

@@ -18,17 +18,17 @@ const Header = () => {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:pl-72">
+    <header className="h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 flex items-center justify-between px-4 shadow-sm">
       <div className="flex-1"></div>
 
       <div className="flex items-center gap-4">
         {/* Language Toggle */}
         <div className="flex items-center gap-2">
-          <Globe size={18} className="text-gray-600" />
+          <Globe size={18} className="text-slate-600" />
           <Select
             value={language}
             onChange={(e) => setLanguage(e.target.value as Language)}
-            className="w-32"
+            className="w-32 rounded-xl border-slate-300"
           >
             <option value="en">{t('header.english')}</option>
             <option value="hi">{t('header.hindi')}</option>
@@ -40,19 +40,19 @@ const Header = () => {
         <div className="relative">
           <button
             onClick={() => setShowNotifications(!showNotifications)}
-            className="p-2 rounded-full hover:bg-gray-100 relative"
+            className="p-2 rounded-xl hover:bg-slate-100/50 relative transition-colors"
           >
-            <Bell size={20} className="text-gray-600" />
-            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            <Bell size={20} className="text-slate-600" />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-accent-500 rounded-full shadow-coral-glow"></span>
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-              <div className="p-4 border-b border-gray-200">
-                <h3 className="font-semibold">{t('common.notifications')}</h3>
+            <div className="absolute right-0 mt-2 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-glass border border-slate-200/50 z-50">
+              <div className="p-4 border-b border-slate-200/50">
+                <h3 className="font-heading font-semibold text-slate-900">{t('common.notifications')}</h3>
               </div>
               <div className="max-h-96 overflow-y-auto">
-                <div className="p-4 text-sm text-gray-600">
+                <div className="p-4 text-sm text-slate-500">
                   {t('common.notifications')} - {t('common.comingSoon')}
                 </div>
               </div>
@@ -64,22 +64,22 @@ const Header = () => {
         <div className="relative">
           <button
             onClick={() => setShowProfile(!showProfile)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100/50 transition-colors"
           >
-            <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-sm font-medium">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-600 to-primary-700 flex items-center justify-center text-white text-sm font-semibold shadow-blue-glow">
               {user?.name.charAt(0).toUpperCase()}
             </div>
-            <span className="hidden md:block text-sm font-medium text-gray-700">
+            <span className="hidden md:block text-sm font-semibold text-slate-700">
               {user?.name}
             </span>
           </button>
 
           {showProfile && (
-            <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-              <div className="p-4 border-b border-gray-200">
-                <p className="font-medium text-sm">{user?.name}</p>
-                <p className="text-xs text-gray-600">{user?.email}</p>
-                <p className="text-xs text-gray-500 mt-1">{user?.role}</p>
+            <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-xl rounded-2xl shadow-glass border border-slate-200/50 z-50">
+              <div className="p-4 border-b border-slate-200/50">
+                <p className="font-semibold text-sm text-slate-900">{user?.name}</p>
+                <p className="text-xs text-slate-500">{user?.email}</p>
+                <p className="text-xs text-slate-400 mt-1">{user?.role}</p>
               </div>
               <div className="p-2">
                 <Button

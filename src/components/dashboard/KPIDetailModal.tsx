@@ -2,7 +2,6 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, TrendingUp, TrendingDown, Minus, Calendar, Target, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { useLanguage } from '@/contexts/LanguageContext';
 import type { KPI } from '@/mock/interfaces';
 import { projects } from '@/mock';
 import {
@@ -25,13 +24,10 @@ interface KPIDetailModalProps {
 }
 
 export const KPIDetailModal = ({ isOpen, onClose, kpi }: KPIDetailModalProps) => {
-  const { t } = useLanguage();
-
   if (!isOpen || !kpi) return null;
 
   const isPositive = kpi.trend === 'up' || (kpi.trend === 'stable' && kpi.value >= kpi.target);
   const variance = kpi.value - kpi.target;
-  const variancePercentage = kpi.target !== 0 ? ((variance / kpi.target) * 100).toFixed(1) : '0';
 
   // Generate historical data for the last 6 months
   const historicalData = Array.from({ length: 6 }, (_, i) => {
