@@ -83,3 +83,30 @@ body {
   -webkit-backdrop-filter: blur(12px);
 }
 
+/* Extended Glassmorphism & Visual Polish */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.shadow-glass {
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+.shadow-teal-glow {
+  box-shadow: 0 0 15px rgba(20, 184, 166, 0.2);
+}
+
+.shadow-blue-glow {
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+/* Gradient Text Utilities */
+.text-gradient-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #0f172a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

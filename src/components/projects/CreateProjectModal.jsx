@@ -354,3 +354,4 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
   return createPortal(modalContent, document.body);
 };
 
+
