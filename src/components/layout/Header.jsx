@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
+import GoogleTranslateWidget from '@/components/ui/GoogleTranslateWidget';
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -41,6 +42,18 @@ const Header = () => {
     window.location.href = '/login';
   };
 
+  const handleLanguageChange = (e) => {
+    const newLang = e.target.value;
+    setLanguage(newLang);
+
+    // Trigger Google Translate
+    const googleSelect = document.querySelector('.goog-te-combo');
+    if (googleSelect) {
+      googleSelect.value = newLang;
+      googleSelect.dispatchEvent(new Event('change'));
+    }
+  };
+
   return (
     <motion.header
       animate={{
@@ -59,15 +72,23 @@ const Header = () => {
       <div className="flex items-center gap-4">
         {/* Language Toggle */}
         <div className="flex items-center gap-2">
+          <div className="hidden">
+            <GoogleTranslateWidget />
+          </div>
+          <div className="h-6 w-px bg-slate-200 mx-2"></div> {/* Divider */}
           <Globe size={18} className="text-slate-600" />
           <Select
             value={language}
-            onChange={(e) => setLanguage(e.target.value)}
+            onChange={handleLanguageChange}
             className="w-32 rounded-xl border-slate-200 bg-white/80 backdrop-blur-sm shadow-sm hover:border-slate-300 transition-colors"
           >
-            <option value="en">{t('header.english')}</option>
-            <option value="hi">{t('header.hindi')}</option>
-            <option value="te">{t('header.telugu')}</option>
+            <option value="en">English</option>
+            <option value="hi">हिंदी (Hindi)</option>
+            <option value="te">తెలుగు (Telugu)</option>
+            <option value="kn">ಕನ್ನಡ (Kannada)</option>
+            <option value="ta">தமிழ் (Tamil)</option>
+            <option value="ml">മലയാളം (Malayalam)</option>
+            <option value="mr">मराठी (Marathi)</option>
           </Select>
         </div>
 

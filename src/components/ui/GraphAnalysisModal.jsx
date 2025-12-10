@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, BarChart3, LineChart, PieChart, Settings2, Download } from 'lucide-react';
+import { X, BarChart3, LineChart, PieChart, Settings2, Download, RefreshCw } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { DynamicChart } from '@/components/ui/DynamicChart';
 import Button from '@/components/ui/Button';
@@ -8,33 +8,116 @@ import Button from '@/components/ui/Button';
 const GraphAnalysisModal = ({ isOpen, onClose, projects, initialMetric = 'budget' }) => {
     if (!isOpen) return null;
 
-    const [selectedProject, setSelectedProject] = useState('All');
+    const [groupBy, setGroupBy] = useState('project'); // project, status, type, location
     const [chartType, setChartType] = useState('bar');
     const [metric, setMetric] = useState(initialMetric);
+    const [isGenerating, setIsGenerating] = useState(false);
 
-    // Derived Data Calculation
+    // Dynamic Data Aggregation Engine
     const chartData = useMemo(() => {
-        let data = projects;
+        if (!projects) return [];
 
-        // 1. Filter by Project
-        if (selectedProject !== 'All') {
-            data = projects.filter(p => p.id === selectedProject);
+        // 1. Group Data
+        const grouped = projects.reduce((acc, curr) => {
+            let key = '';
+
+            switch (groupBy) {
+                case 'project':
+                    key = curr.name;
+                    break;
+                case 'status':
+                    key = curr.status;
+                    break;
+                case 'category':
+                    key = curr.category || 'Uncategorized';
+                    break;
+                case 'manager':
+                    key = curr.manager || 'Unassigned';
+                    break;
+                default:
+                    key = curr.name;
+            }
+
+            if (!acc[key]) {
+                acc[key] = {
+                    name: key,
+                    count: 0,
+                    budget: 0,
+                    spent: 0,
+                    progressSum: 0
+                };
+            }
+
+            acc[key].count += 1;
+            acc[key].budget += curr.budget || 0;
+            acc[key].spent += curr.spent || 0;
+            acc[key].progressSum += curr.progress || 0;
+
+            return acc;
+        }, {});
+
+        // 2. Transform to Chart Format based on Metric
+        return Object.values(grouped).map(group => {
+            let value = 0;
+            switch (metric) {
+                case 'budget':
+                    value = group.budget / 10000000; // Cr
+                    break;
+                case 'spent':
+                    value = group.spent / 10000000; // Cr
+                    break;
+                case 'progress':
+                    value = groupBy === 'project' ? group.progressSum : (group.progressSum / group.count); // Average for groups
+                    break;
+                case 'count':
+                    value = group.count;
+                    break;
+                case 'utilization':
+                    value = group.budget > 0 ? (group.spent / group.budget) * 100 : 0;
+                    break;
+                default:
+                    value = 0;
+            }
+
+            return {
+                name: group.name,
+                value: Number(value.toFixed(2))
+            };
+        }).sort((a, b) => b.value - a.value); // Descending sort for better viz
+    }, [projects, groupBy, metric]);
+
+    const metricLabels = {
+        budget: 'Total Allocated Budget (₹ Cr)',
+        spent: 'Total Amount Spent (₹ Cr)',
+        progress: 'Average Progress (%)',
+        count: 'Project Count',
+        utilization: 'Budget Utilization (%)'
+    };
+
+    const handleGenerate = () => {
+        setIsGenerating(true);
+        setTimeout(() => setIsGenerating(false), 800);
+    };
+
+    const handleExport = () => {
+        const headers = ['Name', metricLabels[metric]];
+        const csvContent = [
+            headers.join(','),
+            ...chartData.map(row => `${row.name},${row.value}`)
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `PMIS_Report_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
-
-        // 2. Map based on selected metric
-        return data.map(p => ({
-            name: p.name,
-            value: metric === 'budget' ? p.budget / 10000000 :
-                metric === 'spent' ? p.spent / 10000000 :
-                    p.progress
-        }));
-    }, [selectedProject, metric, projects]);
-
-    const metricLabel = metric === 'budget' ? 'Total Budget (Cr)' :
-        metric === 'spent' ? 'Total Spent (Cr)' :
-            'Progress (%)';
-
-    const ChartIcon = chartType === 'bar' ? BarChart3 : chartType === 'line' ? LineChart : PieChart;
+    };
 
     return createPortal(
         <AnimatePresence>
@@ -48,94 +131,149 @@ const GraphAnalysisModal = ({ isOpen, onClose, projects, initialMetric = 'budget
                 />
 
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    className="relative w-full max-w-4xl bg-white glass-panel rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                    className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh]"
                 >
-                    {/* Modal Header */}
+                    {/* Header */}
                     <div className="flex justify-between items-center p-6 border-b border-slate-200">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-indigo-100 text-indigo-700 rounded-lg">
                                 <Settings2 size={24} />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-slate-800">Advanced Project Analytics</h3>
-                                <p className="text-sm text-slate-500">Customize variables to analyze project health</p>
+                                <h3 className="text-xl font-bold text-slate-800">Custom Report Generator</h3>
+                                <p className="text-sm text-slate-500">Analyze project portfolio dimensions</p>
                             </div>
                         </div>
-                        <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500">
+                        <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full text-slate-500">
                             <X size={24} />
                         </button>
                     </div>
 
-                    {/* Controls Toolbar */}
-                    <div className="flex flex-wrap items-center gap-4 p-4 bg-slate-50 border-b border-slate-200">
+                    {/* Scrollable Content Container */}
+                    <div className="flex-1 overflow-y-auto custom-scrollbar">
+                        <div className="p-6 space-y-8">
 
-                        {/* Project Select */}
-                        <div className="flex-1 min-w-[200px]">
-                            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Select Project</label>
-                            <select
-                                value={selectedProject}
-                                onChange={(e) => setSelectedProject(e.target.value)}
-                                className="w-full p-2 rounded-lg border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            >
-                                <option value="All">All Projects</option>
-                                {projects.map(p => (
-                                    <option key={p.id} value={p.id}>{p.name}</option>
-                                ))}
-                            </select>
-                        </div>
+                            {/* Generator Controls */}
+                            <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
 
-                        {/* Metric Select */}
-                        <div className="flex-1 min-w-[200px]">
-                            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Variable (Y-Axis)</label>
-                            <select
-                                value={metric}
-                                onChange={(e) => setMetric(e.target.value)}
-                                className="w-full p-2 rounded-lg border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            >
-                                <option value="budget">Total Allocated Budget</option>
-                                <option value="spent">Actual Amount Spent</option>
-                                <option value="progress">Physical Progress (%)</option>
-                            </select>
-                        </div>
+                                {/* Group By (X-Axis) */}
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Group By (X-Axis)</label>
+                                    <select
+                                        value={groupBy}
+                                        onChange={(e) => { setGroupBy(e.target.value); handleGenerate(); }}
+                                        className="w-full p-2.5 rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-slate-700"
+                                    >
+                                        <option value="project">Individual Projects</option>
+                                        <option value="status">Project Status</option>
+                                        <option value="category">Project Category</option>
+                                        <option value="manager">Project Manager</option>
+                                    </select>
+                                </div>
 
-                        {/* Chart Type Toggle */}
-                        <div className="flex gap-2 items-end">
-                            {['bar', 'line', 'area'].map(type => (
-                                <button
-                                    key={type}
-                                    onClick={() => setChartType(type)}
-                                    className={`p-2 rounded-lg border ${chartType === type ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-500 border-slate-300 hover:bg-slate-100'}`}
+                                {/* Metric (Y-Axis) */}
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Metric (Y-Axis)</label>
+                                    <select
+                                        value={metric}
+                                        onChange={(e) => { setMetric(e.target.value); handleGenerate(); }}
+                                        className="w-full p-2.5 rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-slate-700"
+                                    >
+                                        <option value="budget">Total Budget</option>
+                                        <option value="spent">Total Spent</option>
+                                        <option value="utilization">Budget Utilization</option>
+                                        <option value="progress">Avg. Progress</option>
+                                        <option value="count">Count of Projects</option>
+                                    </select>
+                                </div>
+
+                                {/* Chart Type */}
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Visual Style</label>
+                                    <div className="flex bg-white rounded-lg border border-slate-300 p-1">
+                                        {[
+                                            { id: 'bar', icon: BarChart3 },
+                                            { id: 'line', icon: LineChart },
+                                            { id: 'area', icon: PieChart },
+                                        ].map(type => (
+                                            <button
+                                                key={type.id}
+                                                onClick={() => setChartType(type.id)}
+                                                className={`flex-1 p-1.5 flex justify-center rounded-md transition-colors ${chartType === type.id ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'
+                                                    }`}
+                                            >
+                                                <type.icon size={18} />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Generate Button */}
+                                <Button
+                                    onClick={handleGenerate}
+                                    className="h-[42px] bg-indigo-600 hover:bg-indigo-700 text-white shadow-md active:scale-95 transition-all"
                                 >
-                                    {type === 'bar' && <BarChart3 size={20} />}
-                                    {type === 'line' && <LineChart size={20} />}
-                                    {type === 'area' && <PieChart size={20} />} {/* Using Pie icon for Area for now generic */}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                                    {isGenerating ? <RefreshCw className="animate-spin" size={18} /> : <Settings2 size={18} />}
+                                    <span className="ml-2">Generate Graph</span>
+                                </Button>
+                            </div>
 
-                    {/* Chart Area */}
-                    <div className="p-6 flex-1 min-h-[400px] bg-white">
-                        <DynamicChart
-                            data={chartData}
-                            dataKey="value"
-                            name={metricLabel}
-                            defaultType={chartType}
-                            height={400}
-                            colors={['#4f46e5', '#10b981', '#f59e0b']}
-                        />
+                            {/* Chart Visualization Area */}
+                            <div className="min-h-[450px] bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+                                <div className="flex justify-between items-center mb-6 pl-2">
+                                    <h4 className="text-lg font-bold text-slate-800">Analysis Results</h4>
+                                    <div className="text-sm text-slate-500">
+                                        {metricLabels[metric]} vs {groupBy === 'project' ? 'Projects' : groupBy}
+                                    </div>
+                                </div>
+
+                                <DynamicChart
+                                    data={chartData}
+                                    dataKey="value"
+                                    name={metricLabels[metric]}
+                                    defaultType={chartType}
+                                    height={400}
+                                    loading={isGenerating}
+                                    colors={['#4f46e5', '#3b82f6', '#f59e0b', '#10b981', '#ef4444']}
+                                />
+                            </div>
+
+                            {/* Data Summary Table (Optional logic enhancement) */}
+                            <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
+                                <h4 className="text-sm font-bold text-slate-700 mb-4 uppercase">Data Summary</h4>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="p-4 bg-white rounded-lg border border-slate-200 shadow-sm">
+                                        <p className="text-xs text-slate-500 mb-1">Total Datapoints</p>
+                                        <p className="text-2xl font-bold text-slate-800">{chartData.length}</p>
+                                    </div>
+                                    <div className="p-4 bg-white rounded-lg border border-slate-200 shadow-sm">
+                                        <p className="text-xs text-slate-500 mb-1">Highest Value</p>
+                                        <p className="text-2xl font-bold text-emerald-600">
+                                            {Math.max(...chartData.map(d => d.value)).toFixed(2)}
+                                        </p>
+                                    </div>
+                                    <div className="p-4 bg-white rounded-lg border border-slate-200 shadow-sm">
+                                        <p className="text-xs text-slate-500 mb-1">Average Value</p>
+                                        <p className="text-2xl font-bold text-blue-600">
+                                            {(chartData.reduce((a, b) => a + b.value, 0) / chartData.length).toFixed(2)}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
 
                     {/* Footer */}
-                    <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
-                        <p className="text-sm text-slate-500">
-                            Showing data for <span className="font-semibold text-slate-900">{chartData.length}</span> items based on current filters.
+                    <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center z-10 rounded-b-2xl">
+                        <p className="text-xs text-slate-500">
+                            Generated by <span className="font-semibold text-slate-700">PMIS Analytics Engine</span> • {new Date().toLocaleDateString()}
                         </p>
-                        <Button variant="outline" className="flex items-center gap-2">
-                            <Download size={16} /> Export View
+                        <Button variant="outline" className="flex items-center gap-2 text-sm h-9" onClick={handleExport}>
+                            <Download size={14} /> Export Report
                         </Button>
                     </div>
                 </motion.div>

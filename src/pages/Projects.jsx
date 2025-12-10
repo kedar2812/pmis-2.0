@@ -160,7 +160,7 @@ const Projects = () => {
                   <div>
                     <p className="text-sm text-gray-600">{t('projects.totalBudget')}</p>
                     <p className="text-lg font-bold mt-1">
-                      {formatCurrency(projects.reduce((sum, p) => sum + p.budget, 0))}
+                      {formatCurrency(projects.filter(p => p.status === 'In Progress' || p.status === 'Completed').reduce((sum, p) => sum + Number(p.budget || 0), 0))}
                     </p>
                   </div>
                   <DollarSign className="text-primary-600" size={32} />
@@ -214,8 +214,8 @@ const Projects = () => {
                 searchQuery || statusFilter !== 'all'
                   ? t('projects.adjustFilters')
                   : canCreateProject
-                  ? t('projects.getStarted')
-                  : t('projects.noProjectsAvailable')
+                    ? t('projects.getStarted')
+                    : t('projects.noProjectsAvailable')
               }
               actionLabel={canCreateProject && !searchQuery && statusFilter === 'all' ? t('projects.createProject') : undefined}
               onAction={canCreateProject && !searchQuery && statusFilter === 'all' ? () => setIsCreateModalOpen(true) : undefined}
@@ -264,13 +264,12 @@ const Projects = () => {
                           initial={{ width: 0 }}
                           animate={{ width: `${project.progress}%` }}
                           transition={{ duration: 0.5 }}
-                          className={`h-2 rounded-full transition-all ${
-                            project.progress === 100
-                              ? 'bg-success-600'
-                              : project.progress >= 50
+                          className={`h-2 rounded-full transition-all ${project.progress === 100
+                            ? 'bg-success-600'
+                            : project.progress >= 50
                               ? 'bg-primary-600'
                               : 'bg-warning-500'
-                          }`}
+                            }`}
                         />
                       </div>
                     </div>
@@ -288,13 +287,12 @@ const Projects = () => {
                           initial={{ width: 0 }}
                           animate={{ width: `${Math.min((project.spent / project.budget) * 100, 100)}%` }}
                           transition={{ duration: 0.5 }}
-                          className={`h-2 rounded-full transition-all ${
-                            (project.spent / project.budget) * 100 > 90
-                              ? 'bg-error-600'
-                              : (project.spent / project.budget) * 100 > 75
+                          className={`h-2 rounded-full transition-all ${(project.spent / project.budget) * 100 > 90
+                            ? 'bg-error-600'
+                            : (project.spent / project.budget) * 100 > 75
                               ? 'bg-warning-500'
                               : 'bg-success-600'
-                          }`}
+                            }`}
                         />
                       </div>
                     </div>
@@ -315,13 +313,12 @@ const Projects = () => {
                             initial={{ width: 0 }}
                             animate={{ width: `${project.landAcquisitionStatus}%` }}
                             transition={{ duration: 0.5, delay: 0.2 }}
-                            className={`h-2 rounded-full transition-all ${
-                              project.landAcquisitionStatus > 90
-                                ? 'bg-green-600'
-                                : project.landAcquisitionStatus > 50
+                            className={`h-2 rounded-full transition-all ${project.landAcquisitionStatus > 90
+                              ? 'bg-green-600'
+                              : project.landAcquisitionStatus > 50
                                 ? 'bg-yellow-500'
                                 : 'bg-red-500'
-                            }`}
+                              }`}
                           />
                         </div>
                       </div>

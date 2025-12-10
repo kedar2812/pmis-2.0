@@ -236,7 +236,7 @@ export const aggregateBudgetByUtilization = (budgets) => {
  * Rule: Sum all allocated budgets for a project
  */
 export const calculateTotalProjectBudget = (budgets) => {
-  return budgets.reduce((sum, budget) => sum + budget.allocated, 0);
+  return budgets.reduce((sum, budget) => sum + Number(budget.allocated || 0), 0);
 };
 
 /**
@@ -244,7 +244,7 @@ export const calculateTotalProjectBudget = (budgets) => {
  * Rule: Sum all spent amounts for a project
  */
 export const calculateTotalProjectSpent = (budgets) => {
-  return budgets.reduce((sum, budget) => sum + budget.spent, 0);
+  return budgets.reduce((sum, budget) => sum + Number(budget.spent || 0), 0);
 };
 
 // ============================================================================

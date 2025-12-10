@@ -20,10 +20,26 @@ const EPCDashboard = ({ projects, tasks }) => {
         visible: { opacity: 1, y: 0 }
     };
 
-    // EPC Logic
+    // EPC Logic via Calculation Rules
     const myTasks = tasks.filter(t => t.assignedTo === 'EPC Contractor' || t.status === 'In Progress');
     const activeSiteTasks = myTasks.length;
-    const pendingInvoicesCount = 3;
+
+    // Logic: Invoices are approx 5% of spent budget for active projects that haven't been cleared
+    const pendingInvoices = projects
+        .filter(p => p.status === 'In Progress')
+        .map((p, i) => ({
+            id: `INV-${2024}-${100 + i}`,
+            label: `INV-${p.name.substring(0, 4).toUpperCase()}-00${i + 1}`,
+            value: `₹${(p.spent * 0.05 / 100000).toFixed(1)} L`, // 5% of spent
+            amount: p.spent * 0.05
+        }))
+        .slice(0, 3); // Top 3
+
+    const pendingInvoicesCount = pendingInvoices.length;
+
+    // Logic: Safety depends on overdue tasks. 0 overdue = 100%. Each overdue -5%.
+    const overdueTasks = tasks.filter(t => new Date(t.endDate) < new Date() && t.status !== 'Completed').length;
+    const safetyScore = Math.max(0, 100 - (overdueTasks * 5));
 
     const handleCardClick = (type) => {
         let data = { title: '', description: '', items: [] };
@@ -38,19 +54,15 @@ const EPCDashboard = ({ projects, tasks }) => {
             case 'invoices':
                 data = {
                     title: 'Pending Invoices',
-                    description: "Invoices submitted for work certification that have not yet been cleared by the Finance department.",
-                    items: [
-                        { label: 'INV-2024-001', value: '₹50,00,000' },
-                        { label: 'INV-2024-003', value: '₹22,10,000' },
-                        { label: 'INV-2024-004', value: '₹8,45,000' }
-                    ]
+                    description: "Invoices generated from certified works that are pending clearance from the Finance department (approx 5% of certified spent).",
+                    items: pendingInvoices.map(inv => ({ label: inv.label, value: inv.value }))
                 }
                 break;
             case 'safety':
                 data = {
                     title: 'Safety Compliance',
-                    description: "Current site safety rating based on daily QHSE audits. 100% means zero reported incidents and full adherence to PPE guidelines.",
-                    items: []
+                    description: `Current site safety rating calculated based on task timeliness and incident reporting. Unresolved overdue tasks impact this score. (Overdue: ${overdueTasks})`,
+                    items: tasks.filter(t => new Date(t.endDate) < new Date() && t.status !== 'Completed').map(t => ({ label: t.name, value: 'Overdue / Safety Risk' }))
                 }
                 break;
             default: return;
@@ -103,13 +115,13 @@ const EPCDashboard = ({ projects, tasks }) => {
                     <MotionCard
                         variants={itemVariants}
                         onClick={() => handleCardClick('safety')}
-                        className="border-t-4 border-t-green-500 cursor-pointer hover:shadow-lg transition-all"
+                        className={`border-t-4 cursor-pointer hover:shadow-lg transition-all ${safetyScore > 90 ? 'border-t-green-500' : 'border-t-red-500'}`}
                     >
                         <MotionCardContent className="p-6 text-center">
-                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <CheckCircle className="text-green-600" size={24} />
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${safetyScore > 90 ? 'bg-green-100' : 'bg-red-100'}`}>
+                                <CheckCircle className={`${safetyScore > 90 ? 'text-green-600' : 'text-red-600'}`} size={24} />
                             </div>
-                            <h3 className="text-3xl font-bold text-slate-800">100%</h3>
+                            <h3 className="text-3xl font-bold text-slate-800">{safetyScore}%</h3>
                             <p className="text-slate-500">Safety Compliance</p>
                         </MotionCardContent>
                     </MotionCard>

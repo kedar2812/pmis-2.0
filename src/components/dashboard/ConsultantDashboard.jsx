@@ -3,13 +3,22 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { MotionCard, MotionCardContent, MotionCardHeader, MotionCardTitle } from '@/components/ui/MotionCard';
 import { Box, Layers, GitPullRequest, Eye } from 'lucide-react';
 
-const ConsultantDashboard = () => {
+const ConsultantDashboard = ({ projects, documents, tasks }) => {
     const { t } = useLanguage();
 
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
     };
+
+    // Logic Calculation
+    const activeBIMModels = projects.filter(p => p.status === 'Planning' || p.status === 'In Progress').length;
+    const drawingsUnderReview = documents ? documents.filter(d => d.status === 'Pending' || d.status === 'In Review').length : 0;
+
+    // Simulate Change Requests from tasks related to 'Review' or 'Change'
+    const changeRequests = tasks ? tasks.filter(t => t.name.includes('Review') || t.status === 'Under Review').length : 0;
+
+    const recentDrawings = documents ? documents.filter(d => d.category === 'Drawing' || d.type === 'pdf' || d.type === 'dwg').slice(0, 5) : [];
 
     return (
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
@@ -20,25 +29,25 @@ const ConsultantDashboard = () => {
                 <MotionCard className="bg-purple-50 border-purple-200">
                     <MotionCardContent className="p-6 flex flex-col items-center">
                         <Box size={32} className="text-purple-600 mb-2" />
-                        <span className="text-2xl font-bold text-slate-800">12</span>
+                        <span className="text-2xl font-bold text-slate-800">{activeBIMModels}</span>
                         <span className="text-sm text-purple-700">Active BIM Models</span>
                     </MotionCardContent>
                 </MotionCard>
                 <MotionCard className="bg-pink-50 border-pink-200">
                     <MotionCardContent className="p-6 flex flex-col items-center">
                         <Layers size={32} className="text-pink-600 mb-2" />
-                        <span className="text-2xl font-bold text-slate-800">45</span>
+                        <span className="text-2xl font-bold text-slate-800">{drawingsUnderReview}</span>
                         <span className="text-sm text-pink-700">Drawings Under Review</span>
                     </MotionCardContent>
                 </MotionCard>
                 <MotionCard className="bg-indigo-50 border-indigo-200">
                     <MotionCardContent className="p-6 flex flex-col items-center">
                         <GitPullRequest size={32} className="text-indigo-600 mb-2" />
-                        <span className="text-2xl font-bold text-slate-800">8</span>
+                        <span className="text-2xl font-bold text-slate-800">{changeRequests}</span>
                         <span className="text-sm text-indigo-700">Change Requests</span>
                     </MotionCardContent>
                 </MotionCard>
-                <MotionCard className="bg-slate-50 border-slate-200">
+                <MotionCard className="bg-slate-50 border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors">
                     <MotionCardContent className="p-6 flex flex-col items-center">
                         <Eye size={32} className="text-slate-600 mb-2" />
                         <span className="text-2xl font-bold text-slate-800">{t('common.view')}</span>
@@ -51,27 +60,42 @@ const ConsultantDashboard = () => {
                 <MotionCard>
                     <MotionCardHeader><MotionCardTitle>Recent Drawing Uploads</MotionCardTitle></MotionCardHeader>
                     <MotionCardContent>
-                        <ul className="space-y-3">
-                            <li className="flex justify-between p-2 hover:bg-slate-50 rounded">
-                                <span className="text-sm">Main_Terminal_L1_Arch.dwg</span>
-                                <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">{t('common.underReview')}</span>
-                            </li>
-                            <li className="flex justify-between p-2 hover:bg-slate-50 rounded">
-                                <span className="text-sm">Utility_Corridor_Sec_A.pdf</span>
-                                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">{t('common.approved')}</span>
-                            </li>
-                            <li className="flex justify-between p-2 hover:bg-slate-50 rounded">
-                                <span className="text-sm">Landscaping_MasterPlan_Rev3.rvt</span>
-                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">In Review</span>
-                            </li>
-                        </ul>
+                        {recentDrawings.length > 0 ? (
+                            <ul className="space-y-3">
+                                {recentDrawings.map((doc, index) => (
+                                    <li key={doc.id || index} className="flex justify-between items-center p-2 hover:bg-slate-50 rounded transition-colors cursor-pointer">
+                                        <div className="flex items-center gap-2 overflow-hidden">
+                                            <span className="truncate text-sm font-medium text-slate-700">{doc.name}</span>
+                                        </div>
+                                        <span className={`text-xs px-2 py-0.5 rounded ${doc.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                                                doc.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                                                    'bg-yellow-100 text-yellow-700'
+                                            }`}>
+                                            {doc.status || 'Pending'}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <div className="text-center py-8 text-slate-500 text-sm">No drawings uploaded recently.</div>
+                        )}
                     </MotionCardContent>
                 </MotionCard>
                 <MotionCard>
                     <MotionCardHeader><MotionCardTitle>BIM Coordination Issues</MotionCardTitle></MotionCardHeader>
                     <MotionCardContent>
-                        <div className="p-4 bg-slate-50 rounded border border-slate-100 text-center text-slate-500">
-                            3D Model Viewer Integration Ready
+                        <div className="space-y-4">
+                            {tasks && tasks.filter(t => t.priority === 'High').slice(0, 3).map(task => (
+                                <div key={task.id} className="p-3 bg-red-50 rounded border border-red-100 flex justify-between items-center">
+                                    <span className="text-sm font-medium text-red-900">{task.name}</span>
+                                    <span className="text-xs bg-red-200 text-red-800 px-2 py-1 rounded-full">High Priority</span>
+                                </div>
+                            ))}
+                            {(!tasks || tasks.filter(t => t.priority === 'High').length === 0) && (
+                                <div className="p-4 bg-slate-50 rounded border border-slate-100 text-center text-slate-400">
+                                    No critical coordination issues detected.
+                                </div>
+                            )}
                         </div>
                     </MotionCardContent>
                 </MotionCard>

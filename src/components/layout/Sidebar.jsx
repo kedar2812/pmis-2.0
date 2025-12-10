@@ -7,7 +7,7 @@ import {
   LayoutDashboard,
   FileText,
   Calendar,
-  DollarSign,
+  IndianRupee,
   AlertTriangle,
   Map,
   Box,
@@ -104,7 +104,7 @@ const Sidebar = () => {
     {
       id: 'cost',
       label: t('common.cost'),
-      icon: DollarSign,
+      icon: IndianRupee,
       path: '/cost',
       permission: 'cost:view',
     },
@@ -128,6 +128,13 @@ const Sidebar = () => {
       icon: Box,
       path: '/bim',
       permission: 'bim:view',
+    },
+    {
+      id: 'procurement',
+      label: 'Procurement',
+      icon: FileText, // Using FileText temporarily, or maybe distinct icon like Briefcase if available, but FileText is imported.
+      path: '/procurement',
+      permission: 'dashboard:view', // Accessible to dashboard viewers for now
     },
     {
       id: 'workflow',
@@ -275,12 +282,12 @@ const Sidebar = () => {
       </motion.aside>
 
       {/* Overlay for mobile - must be OUTSIDE the sidebar */}
-        {isMobileOpen && (
-          <div
+      {isMobileOpen && (
+        <div
           className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-20"
-            onClick={() => setIsMobileOpen(false)}
-          />
-        )}
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
     </>
   );
 };

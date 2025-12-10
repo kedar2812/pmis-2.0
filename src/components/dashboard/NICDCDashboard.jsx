@@ -1,11 +1,17 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { MotionCard, MotionCardContent, MotionCardHeader, MotionCardTitle } from '@/components/ui/MotionCard';
-import { Network, MapPin, BarChart3 } from 'lucide-react';
+import { Network, MapPin, BarChart3, TrendingUp } from 'lucide-react';
 import { CalculationRules } from '@/lib/calculations';
+import MetricsDetailModal from '@/components/ui/MetricsDetailModal';
+import { DynamicChart } from '@/components/ui/DynamicChart';
 
 const NICDCDashboard = ({ projects }) => {
     const { t } = useLanguage();
+    const navigate = useNavigate();
+    const [selectedMetric, setSelectedMetric] = useState(null);
 
     // Calculate total investment (budget)
     const totalInvestment = CalculationRules.calculateTotalProjectBudget(projects.map(p => ({ allocated: p.budget })));
@@ -14,6 +20,33 @@ const NICDCDashboard = ({ projects }) => {
     const overallCompletion = projects.length > 0
         ? projects.reduce((acc, p) => acc + p.progress, 0) / projects.length
         : 0;
+
+    const formatBudget = (val) => `₹${(Number(val) / 10000000).toFixed(2)} Cr`;
+
+    const handleCardClick = (type) => {
+        if (type === 'investment') {
+            setSelectedMetric({
+                title: 'Total Investment',
+                description: "Cumulative capital allocation across all industrial nodes under NICDC purview. Represents the financial scale of infrastructure development including land, utilities, and connectivity projects.",
+                items: projects.map(p => ({
+                    label: p.name,
+                    value: formatBudget(p.budget),
+                    onClick: () => {
+                        setSelectedMetric(null);
+                        navigate(`/projects/${p.id}`);
+                    }
+                }))
+            });
+        }
+    };
+
+    // Prepare data for the performance matrix (Budget vs Spent)
+    const performanceData = projects.map(p => ({
+        name: p.name,
+        budget: p.budget / 10000000, // Cr
+        spent: p.spent / 10000000    // Cr
+    }));
+
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -40,12 +73,18 @@ const NICDCDashboard = ({ projects }) => {
                         </div>
                     </MotionCardContent>
                 </MotionCard>
-                <MotionCard>
+                <MotionCard
+                    onClick={() => handleCardClick('investment')}
+                    className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-emerald-500"
+                >
                     <MotionCardContent className="p-6 flex items-center gap-4">
-                        <div className="p-3 bg-green-50 rounded-full"><BarChart3 className="text-green-600" /></div>
+                        <div className="p-3 bg-emerald-50 rounded-full"><BarChart3 className="text-emerald-600" /></div>
                         <div>
-                            <p className="text-2xl font-bold">₹{(totalInvestment / 10000000).toFixed(2)} Cr</p>
+                            <p className="text-2xl font-bold text-slate-800">{formatBudget(totalInvestment)}</p>
                             <p className="text-sm text-slate-500">Total Investment</p>
+                            <p className="text-xs text-emerald-600 flex items-center mt-1">
+                                <TrendingUp size={12} className="mr-1" /> Approved
+                            </p>
                         </div>
                     </MotionCardContent>
                 </MotionCard>
@@ -61,13 +100,30 @@ const NICDCDashboard = ({ projects }) => {
             </div>
 
             <MotionCard>
-                <MotionCardHeader><MotionCardTitle>Node Performance Matrix</MotionCardTitle></MotionCardHeader>
+                <MotionCardHeader>
+                    <MotionCardTitle>Node Performance Matrix (Budget vs Spent)</MotionCardTitle>
+                </MotionCardHeader>
                 <MotionCardContent>
-                    <div className="h-64 flex items-center justify-center bg-slate-50 rounded border border-dashed border-slate-300">
-                        <p className="text-slate-400">Interactive Map / Scatter Plot Placeholder</p>
+                    <div className="h-80 w-full">
+                        <DynamicChart
+                            data={performanceData}
+                            dataKey="budget"
+                            name="Budget (Cr)"
+                            height={320}
+                            defaultType="bar"
+                            colors={['#10b981', '#3b82f6']} // Emerald (Budget), Blue (Spent) - visualizing Budget for now
+                        />
                     </div>
                 </MotionCardContent>
             </MotionCard>
+
+            <MetricsDetailModal
+                isOpen={!!selectedMetric}
+                onClose={() => setSelectedMetric(null)}
+                title={selectedMetric?.title}
+                description={selectedMetric?.description}
+                items={selectedMetric?.items}
+            />
         </motion.div>
     );
 };

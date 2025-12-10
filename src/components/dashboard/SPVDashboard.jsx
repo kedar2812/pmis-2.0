@@ -8,14 +8,18 @@ import { CalculationRules } from '@/lib/calculations';
 import MetricsDetailModal from '@/components/ui/MetricsDetailModal';
 import GraphAnalysisModal from '@/components/ui/GraphAnalysisModal';
 
+import { useNavigate } from 'react-router-dom';
+
 const SPVDashboard = ({ projects, kpis, risks }) => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [selectedMetric, setSelectedMetric] = useState(null);
   const [graphModalOpen, setGraphModalOpen] = useState(false);
   const [graphMetric, setGraphMetric] = useState('budget');
 
   // SPV Specific Metrics with Dynamic Calculations
-  const totalBudget = CalculationRules.calculateTotalProjectBudget(projects.map(p => ({ allocated: p.budget })));
+  const runningProjects = projects.filter(p => p.status === 'In Progress');
+  const totalBudget = CalculationRules.calculateTotalProjectBudget(runningProjects.map(p => ({ allocated: p.budget })));
   const totalSpent = CalculationRules.calculateTotalProjectSpent(projects.map(p => ({ spent: p.spent })));
 
   // Dynamic financial data for chart
@@ -27,6 +31,9 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
 
   const activeProjectsCount = CalculationRules.filterProjectsByStatus(projects, 'In Progress').length;
   const criticalRisksCount = CalculationRules.filterRisks(risks, 'all', 'Open').filter(r => r.impact === 'Critical').length;
+
+  // Format currency helper
+  const formatBudget = (val) => `₹${(Number(val) / 10000000).toFixed(2)} Cr`;
 
   // Mock pending approvals based on strict logic (e.g. projects in "Planning" or "Under Review")
   const pendingApprovalsCount = projects.filter(p => p.status === 'Planning' || p.status === 'Under Review').length;
@@ -48,8 +55,15 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
       case 'budget':
         data = {
           title: t('projects.totalBudget'),
-          description: "This represents the total approved capital expenditure for the Zaheerabad Industrial Area project. It includes allocations for land acquisition, infrastructure development (roads, water, power), and technology implementation. The value is dynamically aggregated from all active project charters.",
-          items: projects.map(p => ({ label: p.name, value: `₹${(p.budget / 10000000).toFixed(2)} Cr` })),
+          description: "This represents the total approved capital expenditure for running projects in the Zaheerabad Industrial Area. Click a project to view full details.",
+          items: runningProjects.map(p => ({
+            label: p.name,
+            value: formatBudget(p.budget),
+            onClick: () => {
+              setSelectedMetric(null); // Close modal
+              navigate(`/projects/${p.id}`);
+            }
+          })),
           documents: [
             { name: 'Annual_Budget_FY24.pdf', date: '21 Oct 2024', type: 'pdf' },
             { name: 'Q3_Expenditure_Report.xlsx', date: '05 Dec 2024', type: 'xlsx' },
@@ -137,7 +151,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-slate-500">{t('projects.totalBudget')}</p>
-                  <h3 className="text-2xl font-bold text-slate-800 mt-2">₹{(totalBudget / 10000000).toFixed(2)} Cr</h3>
+                  <h3 className="text-2xl font-bold text-slate-800 mt-2">{formatBudget(totalBudget)}</h3>
                   <p className="text-xs text-emerald-600 flex items-center mt-1">
                     <TrendingUp size={12} className="mr-1" /> {t('common.approved')}
                   </p>

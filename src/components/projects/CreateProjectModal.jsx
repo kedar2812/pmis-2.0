@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, ChevronRight, ChevronLeft, Check } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { toast } from 'sonner';
@@ -9,349 +9,395 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SmartInput } from '@/components/ui/SmartInput';
 
+const STEPS = [
+  { id: 1, title: 'General Info' },
+  { id: 2, title: 'Location & Jurisdiction' },
+  { id: 3, title: 'Classification' },
+  { id: 4, title: 'Funding Pattern' },
+  { id: 5, title: 'Approvals' },
+];
+
 export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
   const { t } = useLanguage();
   const { user } = useAuth();
+  const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [direction, setDirection] = useState(0);
+
   const [formData, setFormData] = useState({
+    // Step 1: General
     name: '',
     description: '',
     status: 'Planning',
     startDate: '',
     endDate: '',
     budget: '',
-    category: '',
     manager: user?.name || '',
+
+    // Step 2: Location
+    division: '',
+    zone: '',
+    subDivision: '',
+    circle: '',
+    district: '',
+    town: '',
+
+    // Step 3: Classification
+    scheme: '',
+    schemeType: '',
+    workType: '',
+    projectCategory: '',
+
+    // Step 4: Funding (Array of objects)
+    fundingPattern: [
+      { id: 1, source: 'Government of India', amount: '' },
+      { id: 2, source: 'Government of Karnataka', amount: '' },
+      { id: 3, source: 'Financial Institutions (Loan)', amount: '' },
+      { id: 4, source: 'ULB Share', amount: '' },
+      { id: 5, source: 'RDPR', amount: '' },
+    ],
+
+    // Step 5: Approvals
+    adminApprovalNo: '',
+    adminApprovalDate: '',
+    techDocument: null, // Placeholder
   });
 
   const [errors, setErrors] = useState({});
 
-  const validateForm = () => {
+  const validateStep = (step) => {
     const newErrors = {};
+    let isValid = true;
 
-    if (!formData.name.trim()) {
-      newErrors.name = t('project.projectNameRequired');
+    if (step === 1) {
+      if (!formData.name.trim()) newErrors.name = t('project.projectNameRequired');
+      if (!formData.startDate) newErrors.startDate = t('project.startDateRequired');
+      if (!formData.endDate) newErrors.endDate = t('project.endDateRequired');
+      if (!formData.budget) newErrors.budget = t('project.validBudgetRequired');
     }
 
-    if (!formData.description.trim()) {
-      newErrors.description = t('project.descriptionRequired');
-    }
-
-    if (!formData.startDate) {
-      newErrors.startDate = t('project.startDateRequired');
-    }
-
-    if (!formData.endDate) {
-      newErrors.endDate = t('project.endDateRequired');
-    }
-
-    if (formData.startDate && formData.endDate && new Date(formData.startDate) > new Date(formData.endDate)) {
-      newErrors.endDate = t('project.endDateAfterStart');
-    }
-
-    if (!formData.budget || parseFloat(formData.budget) <= 0) {
-      newErrors.budget = t('project.validBudgetRequired');
-    }
-
-    if (!formData.category.trim()) {
-      newErrors.category = t('project.categoryRequired');
-    }
-
-    if (!formData.manager.trim()) {
-      newErrors.manager = t('project.managerRequired');
-    }
+    // Add validations for other steps as strictly or loosely as needed
+    // For now, keeping it basic to allow navigation
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleNext = () => {
+    if (validateStep(currentStep)) {
+      setDirection(1);
+      setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
+    }
+  };
+
+  const handleBack = () => {
+    setDirection(-1);
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
+  };
+
+  const updateFunding = (index, value) => {
+    const newFunding = [...formData.fundingPattern];
+    newFunding[index].amount = value;
+    setFormData({ ...formData, fundingPattern: newFunding });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      toast.error(t('project.fixFormErrors'));
-      return;
-    }
+    if (!validateStep(currentStep)) return;
 
     setIsSubmitting(true);
-
     try {
       const projectData = {
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        status: formData.status,
-        startDate: formData.startDate,
-        endDate: formData.endDate,
+        ...formData,
         progress: 0,
-        budget: parseFloat(formData.budget),
         spent: 0,
         location: {
-          lat: 17.6868,
-          lng: 77.6093,
-          address: 'Zaheerabad Industrial Area, Telangana',
+          // Combine detailed location into a display string or object
+          address: `${formData.town}, ${formData.district}, ${formData.state || ''}`,
+          ...formData.location
         },
-        manager: formData.manager.trim(),
         stakeholders: [],
-        category: formData.category.trim(),
+        category: formData.projectCategory || 'General',
       };
 
       await onSave(projectData);
-      toast.success(t('project.createdSuccessfully'), {
-        description: `${projectData.name} ${t('project.hasBeenAdded')}`,
-      });
-
-      // Reset form
-      setFormData({
-        name: '',
-        description: '',
-        status: 'Planning',
-        startDate: '',
-        endDate: '',
-        budget: '',
-        category: '',
-        manager: user?.name || '',
-      });
-      setErrors({});
+      toast.success(t('project.createdSuccessfully'));
       onClose();
     } catch (error) {
-      toast.error(t('project.failedToCreate'), {
-        description: t('project.tryAgain'),
-      });
+      toast.error(t('project.failedToCreate'));
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleClose = () => {
-    if (!isSubmitting) {
-      setFormData({
-        name: '',
-        description: '',
-        status: 'Planning',
-        startDate: '',
-        endDate: '',
-        budget: '',
-        category: '',
-        manager: user?.name || '',
-      });
-      setErrors({});
-      onClose();
-    }
-  };
-
   if (!isOpen) return null;
 
-  const modalContent = (
+  return createPortal(
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-        animate={{ opacity: 1, backdropFilter: 'blur(12px)' }}
-        exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-        transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40"
-        style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
-        onClick={handleClose}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+        onClick={onClose}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.3, ease: 'easeInOut' }}
-          className="w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          className="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
           onClick={(e) => e.stopPropagation()}
         >
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-primary-950">{t('project.createNewProject')}</h2>
-              <button
-                onClick={handleClose}
-                disabled={isSubmitting}
-                className="p-1 rounded-md hover:bg-gray-100 transition-colors disabled:opacity-50"
-                aria-label="Close modal"
-              >
-                <X size={24} />
-              </button>
+          {/* Header */}
+          <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-white z-10">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900">Create New Project</h2>
+              <p className="text-sm text-slate-500">Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1].title}</p>
             </div>
+            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+              <X size={24} className="text-slate-500" />
+            </button>
+          </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('project.projectName')} <span className="text-red-500">{t('project.required')}</span>
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600 ${
-                    errors.name ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder={t('project.enterProjectName')}
-                  disabled={isSubmitting}
-                />
-                {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
-              </div>
+          {/* Progress Bar */}
+          <div className="h-1 w-full bg-slate-100">
+            <motion.div
+              className="h-full bg-primary-600"
+              initial={{ width: 0 }}
+              animate={{ width: `${(currentStep / STEPS.length) * 100}%` }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
 
-              <div>
-                <SmartInput
-                  value={formData.description}
-                  onChange={(value) => setFormData({ ...formData, description: value })}
-                  placeholder={t('project.enterDescription')}
-                  rows={3}
-                  disabled={isSubmitting}
-                  label={t('project.description')}
-                  required
-                  error={errors.description}
-                />
-              </div>
+          {/* Form Content */}
+          <div className="flex-1 overflow-y-auto p-6">
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.div
+                key={currentStep}
+                custom={direction}
+                initial={{ x: direction * 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: direction * -20, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-6"
+              >
+                {/* STEP 1: GENERAL INFO */}
+                {currentStep === 1 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Project Name *</label>
+                      <input
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className={`w-full p-2 border rounded-lg ${errors.name ? 'border-red-500' : 'border-slate-200'}`}
+                        placeholder="Enter project name"
+                      />
+                      {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
+                    </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('project.startDate')} <span className="text-red-500">{t('project.required')}</span>
-                  </label>
-                  <input
-                    id="startDate"
-                    type="date"
-                    value={formData.startDate}
-                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600 ${
-                      errors.startDate ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    disabled={isSubmitting}
-                  />
-                  {errors.startDate && <p className="text-sm text-red-500 mt-1">{errors.startDate}</p>}
-                </div>
+                    <div className="md:col-span-2">
+                      <SmartInput
+                        label="Description"
+                        value={formData.description}
+                        onChange={(val) => setFormData({ ...formData, description: val })}
+                        placeholder="Project description..."
+                        rows={3}
+                      />
+                    </div>
 
-                <div>
-                  <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('project.endDate')} <span className="text-red-500">{t('project.required')}</span>
-                  </label>
-                  <input
-                    id="endDate"
-                    type="date"
-                    value={formData.endDate}
-                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600 ${
-                      errors.endDate ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    disabled={isSubmitting}
-                  />
-                  {errors.endDate && <p className="text-sm text-red-500 mt-1">{errors.endDate}</p>}
-                </div>
-              </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Start Date *</label>
+                      <input
+                        type="date"
+                        value={formData.startDate}
+                        onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                        className="w-full p-2 border border-slate-200 rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">End Date *</label>
+                      <input
+                        type="date"
+                        value={formData.endDate}
+                        onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                        className="w-full p-2 border border-slate-200 rounded-lg"
+                      />
+                    </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('project.budget')} <span className="text-red-500">{t('project.required')}</span>
-                  </label>
-                  <input
-                    id="budget"
-                    type="number"
-                    min="0"
-                    step="1000"
-                    value={formData.budget}
-                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600 ${
-                      errors.budget ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder={t('project.enterBudget')}
-                    disabled={isSubmitting}
-                  />
-                  {errors.budget && <p className="text-sm text-red-500 mt-1">{errors.budget}</p>}
-                </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Project Cost (₹) *</label>
+                      <input
+                        type="number"
+                        value={formData.budget}
+                        onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                        className="w-full p-2 border border-slate-200 rounded-lg"
+                        placeholder="0.00"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Project Manager</label>
+                      <input
+                        value={formData.manager}
+                        onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
+                        className="w-full p-2 border border-slate-200 rounded-lg"
+                      />
+                    </div>
+                  </div>
+                )}
 
-                <div>
-                  <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('project.status')} <span className="text-red-500">{t('project.required')}</span>
-                  </label>
-                  <select
-                    id="status"
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
-                    disabled={isSubmitting}
-                  >
-                    <option value="Planning">{t('status.planning')}</option>
-                    <option value="In Progress">{t('status.inProgress')}</option>
-                    <option value="On Hold">{t('status.onHold')}</option>
-                    <option value="Completed">{t('status.completed')}</option>
-                    <option value="Cancelled">{t('status.cancelled')}</option>
-                  </select>
-                </div>
-              </div>
+                {/* STEP 2: LOCATION */}
+                {currentStep === 2 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {['Division', 'Zone', 'Sub Division', 'Circle', 'District', 'Town'].map((field) => (
+                      <div key={field}>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">{field}</label>
+                        <input
+                          value={formData[field.toLowerCase().replace(' ', '')]}
+                          onChange={(e) => setFormData({ ...formData, [field.toLowerCase().replace(' ', '')]: e.target.value })}
+                          className="w-full p-2 border border-slate-200 rounded-lg"
+                          placeholder={`Enter ${field}`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('project.category')} <span className="text-red-500">{t('project.required')}</span>
-                  </label>
-                  <input
-                    id="category"
-                    type="text"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600 ${
-                      errors.category ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder={t('project.categoryPlaceholder')}
-                    disabled={isSubmitting}
-                  />
-                  {errors.category && <p className="text-sm text-red-500 mt-1">{errors.category}</p>}
-                </div>
+                {/* STEP 3: CLASSIFICATION */}
+                {currentStep === 3 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {['Scheme', 'Scheme Type', 'Work Type', 'Project Category'].map((field) => (
+                      <div key={field}>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">{field}</label>
+                        <input
+                          value={formData[field.toLowerCase().replace(' ', '')]}
+                          onChange={(e) => setFormData({ ...formData, [field.toLowerCase().replace(' ', '')]: e.target.value })}
+                          className="w-full p-2 border border-slate-200 rounded-lg"
+                          placeholder={`Enter ${field}`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-                <div>
-                  <label htmlFor="manager" className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('project.projectManager')} <span className="text-red-500">{t('project.required')}</span>
-                  </label>
-                  <input
-                    id="manager"
-                    type="text"
-                    value={formData.manager}
-                    onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600 ${
-                      errors.manager ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder={t('project.enterManagerName')}
-                    disabled={isSubmitting}
-                  />
-                  {errors.manager && <p className="text-sm text-red-500 mt-1">{errors.manager}</p>}
-                </div>
-              </div>
+                {/* STEP 4: FUNDING */}
+                {currentStep === 4 && (
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-slate-900">Add Funding Pattern</h3>
+                    <div className="border border-slate-200 rounded-lg overflow-hidden">
+                      <table className="w-full text-sm text-left">
+                        <thead className="bg-slate-50 text-slate-700">
+                          <tr>
+                            <th className="p-3 font-medium">Source</th>
+                            <th className="p-3 font-medium">Amount (₹)</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {formData.fundingPattern.map((item, idx) => (
+                            <tr key={item.id}>
+                              <td className="p-3 text-slate-600">{item.source}</td>
+                              <td className="p-3">
+                                <input
+                                  type="number"
+                                  value={item.amount}
+                                  onChange={(e) => updateFunding(idx, e.target.value)}
+                                  className="w-full p-1.5 border border-slate-200 rounded bg-transparent focus:bg-white transition-colors"
+                                  placeholder="0.00"
+                                />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleClose}
-                  disabled={isSubmitting}
-                >
-                  {t('common.cancel')}
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-primary-950 hover:bg-primary-900"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      {t('common.creating')}
-                    </>
-                  ) : (
-                    t('projects.createProject')
-                  )}
-                </Button>
-              </div>
-            </form>
-          </Card>
+                {/* STEP 5: APPROVALS */}
+                {currentStep === 5 && (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Admin Approval No.</label>
+                        <input
+                          value={formData.adminApprovalNo}
+                          onChange={(e) => setFormData({ ...formData, adminApprovalNo: e.target.value })}
+                          className="w-full p-2 border border-slate-200 rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Approval Date</label>
+                        <input
+                          type="date"
+                          value={formData.adminApprovalDate}
+                          onChange={(e) => setFormData({ ...formData, adminApprovalDate: e.target.value })}
+                          className="w-full p-2 border border-slate-200 rounded-lg"
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      onClick={() => document.getElementById('file-upload').click()}
+                      className={`p-8 border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center transition-colors cursor-pointer ${formData.techDocument ? 'border-green-500 bg-green-50' : 'border-slate-200 hover:bg-slate-50'
+                        }`}
+                    >
+                      <input
+                        id="file-upload"
+                        type="file"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            setFormData({ ...formData, techDocument: file });
+                            toast.success('Document attached');
+                          }
+                        }}
+                      />
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${formData.techDocument ? 'bg-green-100 text-green-600' : 'bg-blue-50 text-blue-600'
+                        }`}>
+                        <Check size={24} />
+                      </div>
+                      {formData.techDocument ? (
+                        <>
+                          <p className="font-medium text-green-700">Document Selected</p>
+                          <p className="text-sm text-green-600 mt-1">{formData.techDocument.name}</p>
+                          <p className="text-xs text-green-500 mt-2">Click to replace</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="font-medium text-slate-900">Upload Admin Approval Document</p>
+                          <p className="text-sm text-slate-500 mt-1">Drag and drop or click to browse</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Footer */}
+          <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-between">
+            <Button
+              variant="outline"
+              onClick={currentStep === 1 ? onClose : handleBack}
+              disabled={isSubmitting}
+            >
+              {currentStep === 1 ? 'Cancel' : 'Back'}
+            </Button>
+
+            {currentStep < STEPS.length ? (
+              <Button onClick={handleNext} className="bg-primary-950 text-white hover:bg-primary-900">
+                Next Step <ChevronRight size={16} className="ml-1" />
+              </Button>
+            ) : (
+              <Button onClick={handleSubmit} disabled={isSubmitting} className="bg-green-600 text-white hover:bg-green-700">
+                {isSubmitting ? <Loader2 className="animate-spin" /> : 'Create Project'}
+              </Button>
+            )}
+          </div>
         </motion.div>
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
-
-  return createPortal(modalContent, document.body);
 };
-
-

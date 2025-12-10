@@ -77,8 +77,12 @@ const MetricsDetailModal = ({ isOpen, onClose, title, description, items, docume
                                 <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">Detailed Breakdown</h4>
                                 <div className="space-y-2">
                                     {items.map((item, index) => (
-                                        <div key={index} className="flex justify-between items-center p-3 bg-white/60 rounded-xl border border-slate-100 hover:border-indigo-100 transition-colors">
-                                            <span className="font-medium text-slate-700">{item.label}</span>
+                                        <div
+                                            key={index}
+                                            onClick={item.onClick}
+                                            className={`flex justify-between items-center p-3 bg-white/60 rounded-xl border border-slate-100 hover:border-indigo-100 transition-colors ${item.onClick ? 'cursor-pointer hover:bg-indigo-50 hover:shadow-sm' : ''}`}
+                                        >
+                                            <span className={`font-medium ${item.onClick ? 'text-indigo-700' : 'text-slate-700'}`}>{item.label}</span>
                                             <span className="text-slate-900 font-semibold">{item.value}</span>
                                         </div>
                                     ))}

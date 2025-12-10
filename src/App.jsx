@@ -14,8 +14,10 @@ import RiskManagement from './pages/RiskManagement';
 import GIS from './pages/GIS';
 import BIM from './pages/BIM';
 import WorkflowConfig from './pages/WorkflowConfig';
+import Procurement from './pages/Procurement';
 import Reimbursement from './pages/Reimbursement';
 import RoleManager from './pages/RoleManager';
+import ProjectDetailsPage from './pages/ProjectDetailsPage';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -37,6 +39,8 @@ const AppRoutes = () => {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="projects" element={<Projects />} />
+        <Route path="projects/:id" element={<ProjectDetailsPage />} />
+        <Route path="procurement" element={<Procurement />} />
         <Route path="edms" element={<EDMS />} />
         <Route path="scheduling" element={<Scheduling />} />
         <Route path="cost" element={<CostManagement />} />
