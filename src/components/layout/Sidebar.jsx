@@ -132,9 +132,16 @@ const Sidebar = () => {
     {
       id: 'procurement',
       label: 'Procurement',
-      icon: FileText, // Using FileText temporarily, or maybe distinct icon like Briefcase if available, but FileText is imported.
+      icon: FileText,
       path: '/procurement',
-      permission: 'dashboard:view', // Accessible to dashboard viewers for now
+      permission: 'dashboard:view',
+    },
+    {
+      id: 'ra-billing',
+      label: 'RA Billing',
+      icon: IndianRupee,
+      path: '/ra-billing',
+      permission: 'dashboard:view', // Accessible to dashboard viewers
     },
     {
       id: 'workflow',
@@ -171,7 +178,8 @@ const Sidebar = () => {
           'bg-white/80 backdrop-blur-xl border border-slate-200/50',
           'rounded-2xl shadow-glass overflow-hidden',
           'lg:translate-x-0',
-          isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+          'print:hidden'
         )}
       >
         <div className="h-full flex flex-col overflow-hidden">

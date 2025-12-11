@@ -18,6 +18,7 @@ import Procurement from './pages/Procurement';
 import Reimbursement from './pages/Reimbursement';
 import RoleManager from './pages/RoleManager';
 import ProjectDetailsPage from './pages/ProjectDetailsPage';
+import RABilling from './pages/RABilling';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -41,6 +42,7 @@ const AppRoutes = () => {
         <Route path="projects" element={<Projects />} />
         <Route path="projects/:id" element={<ProjectDetailsPage />} />
         <Route path="procurement" element={<Procurement />} />
+        <Route path="ra-billing" element={<RABilling />} />
         <Route path="edms" element={<EDMS />} />
         <Route path="scheduling" element={<Scheduling />} />
         <Route path="cost" element={<CostManagement />} />

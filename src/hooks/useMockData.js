@@ -9,6 +9,7 @@ const STORAGE_KEYS = {
   projects: 'pmis_projects',
   packages: 'pmis_packages',
   contractors: 'pmis_contractors',
+  raBills: 'pmis_ra_bills',
 };
 
 // Load from localStorage or use initial mock data
@@ -66,6 +67,10 @@ export const useMockData = () => {
     loadFromStorage(STORAGE_KEYS.contractors, [])
   );
 
+  const [raBillsData, setRaBillsData] = useState(() =>
+    loadFromStorage(STORAGE_KEYS.raBills, [])
+  );
+
   // Persist to localStorage whenever data changes
   useEffect(() => {
     saveToStorage(STORAGE_KEYS.documents, documentsData);
@@ -94,6 +99,10 @@ export const useMockData = () => {
   useEffect(() => {
     saveToStorage(STORAGE_KEYS.contractors, contractorsData);
   }, [contractorsData]);
+
+  useEffect(() => {
+    saveToStorage(STORAGE_KEYS.raBills, raBillsData);
+  }, [raBillsData]);
 
   // Projects CRUD
   const addProject = useCallback(async (project) => {
@@ -223,6 +232,13 @@ export const useMockData = () => {
       setContractorsData((prev) => prev.map((c) => (c.id === id ? result : c)));
       return result;
     }, [contractorsData]),
+    raBills: raBillsData,
+    addRABill: useCallback(async (bill) => {
+      const newBill = { ...bill, id: `bill-${Date.now()}` };
+      const result = await simulateAsync(newBill, 800);
+      setRaBillsData((prev) => [result, ...prev]);
+      return result;
+    }, []),
   };
 };
 
