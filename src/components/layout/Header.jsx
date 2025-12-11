@@ -57,7 +57,7 @@ const Header = () => {
   return (
     <motion.header
       animate={{
-        left: isCollapsed ? '96px' : '312px', // Sidebar width + 8px gap (collapsed: 80px + 16px, expanded: 288px + 24px)
+        left: isCollapsed ? '112px' : '312px', // Sidebar width + 16px gap (collapsed: 96px + 16px, expanded: 288px + 24px)
       }}
       transition={{
         type: 'spring',
@@ -161,6 +161,8 @@ const Header = () => {
 };
 
 export default Header;
+
+
 
 
 

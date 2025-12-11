@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  X, 
-  Upload, 
-  File, 
-  CheckCircle, 
-  FolderOpen, 
-  Tag, 
+import {
+  X,
+  Upload,
+  File,
+  CheckCircle,
+  FolderOpen,
+  Tag,
   Calendar,
   FileText,
   FileImage,
@@ -74,10 +74,10 @@ const getMimeType = (file) => {
 const generateAutoTags = (file, category) => {
   const tags = [];
   const name = file.name.toLowerCase();
-  
+
   // Add category-based tags
   if (category) tags.push(category.toLowerCase().replace(/\s+/g, '-'));
-  
+
   // Add file type tags
   if (file.type.includes('image')) tags.push('site-photo');
   if (file.type.includes('video')) tags.push('video', 'progress');
@@ -86,7 +86,7 @@ const generateAutoTags = (file, category) => {
   if (name.includes('contract')) tags.push('contract', 'legal');
   if (name.includes('test')) tags.push('test', 'quality');
   if (name.includes('safety')) tags.push('safety', 'compliance');
-  
+
   // Extract meaningful words from filename
   const words = file.name.replace(/\.[^/.]+$/, '').split(/[-_\s]+/);
   words.forEach(word => {
@@ -94,7 +94,7 @@ const generateAutoTags = (file, category) => {
       tags.push(word.toLowerCase());
     }
   });
-  
+
   return [...new Set(tags)].slice(0, 6);
 };
 
@@ -123,7 +123,7 @@ export const UploadModal = ({ isOpen, onClose, onUpload }) => {
   const phases = ['Planning', 'Design', 'Execution', 'Closure'];
   const disciplines = ['Civil', 'Electrical', 'Mechanical', 'Plumbing', 'HVAC', 'General'];
   const categories = [
-    'Design', 'Progress', 'Legal', 'Financial', 'Quality', 
+    'Design', 'Progress', 'Legal', 'Financial', 'Quality',
     'Compliance', 'Technical', 'Site Documentation'
   ];
   const documentTypes = ['Drawing', 'Report', 'Contract', 'Bill', 'SitePhoto', 'Video', 'Other'];
@@ -153,7 +153,7 @@ export const UploadModal = ({ isOpen, onClose, onUpload }) => {
     if (uploadedFile) {
       const autoType = getDocumentType(uploadedFile);
       setDocumentType(autoType);
-      
+
       // Auto-capture timestamp for images/videos
       if (uploadedFile.type.includes('image') || uploadedFile.type.includes('video')) {
         setSiteTimestamp(new Date().toISOString());
@@ -296,11 +296,11 @@ export const UploadModal = ({ isOpen, onClose, onUpload }) => {
       await onUpload(newDoc);
       setUploadProgress(100);
       clearInterval(interval);
-      
+
       toast.success('Document uploaded successfully!', {
         description: `${uploadedFile.name} has been added to the repository.`,
       });
-      
+
       setTimeout(() => {
         onClose();
       }, 1500);
@@ -319,6 +319,21 @@ export const UploadModal = ({ isOpen, onClose, onUpload }) => {
     onClose();
   };
 
+  // Handle Escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener('keydown', handleEscape);
+    }
+
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, isUploading, onClose]);
+
   if (!isOpen) return null;
 
   const fileInfo = uploadedFile ? getFileTypeInfo(uploadedFile) : null;
@@ -333,7 +348,6 @@ export const UploadModal = ({ isOpen, onClose, onUpload }) => {
         transition={{ duration: 0.3, ease: 'easeInOut' }}
         className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40"
         style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
-        onClick={handleClose}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -383,8 +397,8 @@ export const UploadModal = ({ isOpen, onClose, onUpload }) => {
                     onDrop={handleDrop}
                     className={cn(
                       'border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-200',
-                      isDragging 
-                        ? 'border-primary-500 bg-primary-50 scale-[1.02]' 
+                      isDragging
+                        ? 'border-primary-500 bg-primary-50 scale-[1.02]'
                         : 'border-slate-300 hover:border-primary-400 hover:bg-slate-50'
                     )}
                     onClick={() => fileInputRef.current?.click()}
@@ -673,7 +687,7 @@ export const UploadModal = ({ isOpen, onClose, onUpload }) => {
                         <Upload size={36} className="text-primary-600" />
                       )}
                     </motion.div>
-                    
+
                     <h3 className="text-lg font-semibold text-slate-900 mb-2">
                       {uploadProgress === 100 ? 'Upload Complete!' : 'Uploading...'}
                     </h3>
@@ -692,8 +706,8 @@ export const UploadModal = ({ isOpen, onClose, onUpload }) => {
                           transition={{ duration: 0.3 }}
                           className={cn(
                             'h-full rounded-full',
-                            uploadProgress === 100 
-                              ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' 
+                            uploadProgress === 100
+                              ? 'bg-gradient-to-r from-emerald-500 to-emerald-600'
                               : 'bg-gradient-to-r from-primary-500 to-blue-500'
                           )}
                         />

@@ -5,9 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useMockData } from '@/hooks/useMockData';
 import { CreateProjectModal } from '@/components/projects/CreateProjectModal';
 import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
+import { CreatePackageModal } from '@/components/packages/CreatePackageModal';
 import { LandStats } from '@/components/projects/LandStats';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { FolderOpen, Plus, Search, DollarSign, TrendingUp } from 'lucide-react';
+import { FolderOpen, Plus, Search, DollarSign, TrendingUp, Package } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { getStatusColor } from '@/lib/colors';
@@ -16,10 +17,11 @@ import { calculateBudgetUtilization } from '@/lib/calculations';
 const Projects = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
-  const { projects, addProject } = useMockData();
+  const { projects, addProject, addPackage, packages, contractors, addContractor } = useMockData();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreatePackageModalOpen, setIsCreatePackageModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
@@ -63,13 +65,23 @@ const Projects = () => {
           <p className="text-gray-600 mt-1">{t('projects.subtitle')}</p>
         </div>
         {canCreateProject && (
-          <Button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="bg-primary-950 hover:bg-primary-900"
-          >
-            <Plus size={18} />
-            {t('projects.createProject')}
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => setIsCreatePackageModalOpen(true)}
+              variant="outline"
+              className="border-primary-950 text-primary-950 hover:bg-primary-50"
+            >
+              <Package size={18} />
+              Create Package
+            </Button>
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="bg-primary-950 hover:bg-primary-900"
+            >
+              <Plus size={18} />
+              {t('projects.createProject')}
+            </Button>
+          </div>
         )}
       </div>
 
@@ -338,12 +350,19 @@ const Projects = () => {
       />
 
       <ProjectDetailModal
-        isOpen={isDetailModalOpen}
-        onClose={() => {
-          setIsDetailModalOpen(false);
-          setSelectedProject(null);
-        }}
+        isOpen={!!selectedProject}
+        onClose={() => setSelectedProject(null)}
         project={selectedProject}
+        packages={packages}
+        contractors={contractors}
+        onAddContractor={addContractor}
+      />
+
+      <CreatePackageModal
+        isOpen={isCreatePackageModalOpen}
+        onClose={() => setIsCreatePackageModalOpen(false)}
+        projects={projects}
+        onSave={addPackage}
       />
     </div>
   );

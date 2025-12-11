@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MessageSquare, Send, Clock } from 'lucide-react';
 import Button from '@/components/ui/Button';
@@ -53,6 +53,21 @@ export const DocumentApprovalModal = ({ isOpen, onClose, document, workflow }) =
     });
   };
 
+  // Handle Escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener('keydown', handleEscape);
+    }
+
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !document) return null;
 
   return (
@@ -95,12 +110,11 @@ export const DocumentApprovalModal = ({ isOpen, onClose, document, workflow }) =
                   </div>
                   <div>
                     <label className="text-sm font-medium text-slate-700 mb-2 block">Status</label>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      document.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${document.status === 'Approved' ? 'bg-green-100 text-green-700' :
                       document.status === 'Rejected' ? 'bg-red-100 text-red-700' :
-                      document.status === 'Under Review' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-slate-100 text-slate-700'
-                    }`}>
+                        document.status === 'Under Review' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-slate-100 text-slate-700'
+                      }`}>
                       {document.status}
                     </span>
                   </div>
@@ -183,5 +197,7 @@ export const DocumentApprovalModal = ({ isOpen, onClose, document, workflow }) =
     </div>
   );
 };
+
+
 
 

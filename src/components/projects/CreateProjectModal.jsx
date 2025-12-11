@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, ChevronRight, ChevronLeft, Check } from 'lucide-react';
@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SmartInput } from '@/components/ui/SmartInput';
+import { useModalClose } from '@/hooks/useModalClose';
 
 const STEPS = [
   { id: 1, title: 'General Info' },
@@ -23,6 +24,9 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [direction, setDirection] = useState(0);
+
+  // Use standard hook for Escape key closing
+  useModalClose(isOpen, onClose);
 
   const [formData, setFormData] = useState({
     // Step 1: General
@@ -139,7 +143,6 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
-        onClick={onClose}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -401,3 +404,5 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
     document.body
   );
 };
+
+

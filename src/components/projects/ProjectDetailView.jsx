@@ -12,9 +12,10 @@ import {
     Target,
     BarChart3,
     Users,
+    Briefcase,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { tasks, risks } from '@/mock'; // Assuming mocked data import exists or passed via props? Original file imported from @/mock
+import { tasks, risks } from '@/mock';
 import { DynamicChart } from '@/components/ui/DynamicChart';
 import { getStatusColor } from '@/lib/colors';
 import {
@@ -22,10 +23,13 @@ import {
     calculateBudgetUtilization,
     calculateCostVariationPercentage,
 } from '@/lib/calculations';
-import { EmptyState } from '@/components/ui/EmptyState'; // Assuming this exists based on previous file usage
+import { EmptyState } from '@/components/ui/EmptyState';
+import { AddContractorModal } from '@/components/procurement/AddContractorModal';
+import Button from '@/components/ui/Button';
 
-export const ProjectDetailView = ({ project }) => {
+export const ProjectDetailView = ({ project, packages = [], contractors = [], onAddContractor }) => {
     const [activeTab, setActiveTab] = useState('overview');
+    const [isAddContractorModalOpen, setIsAddContractorModalOpen] = useState(false);
 
     if (!project) return null;
 
@@ -118,7 +122,7 @@ export const ProjectDetailView = ({ project }) => {
             {/* Tab Navigation */}
             <div className="px-6 border-b border-slate-200 bg-white sticky top-[88px] z-10">
                 <div className="flex gap-6">
-                    {['Overview', 'Packages', 'Budget', 'Risks'].map((tab) => (
+                    {['Overview', 'Packages', 'Procurements', 'Budget', 'Risks'].map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab.toLowerCase())}
@@ -288,26 +292,144 @@ export const ProjectDetailView = ({ project }) => {
                     </motion.div>
                 )}
 
+                {activeTab === 'procurements' && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <h3 className="text-lg font-bold text-slate-900">Contractors & Procurements</h3>
+                            <Button
+                                onClick={() => setIsAddContractorModalOpen(true)}
+                                className="bg-primary-950 text-white hover:bg-primary-900 shadow-lg shadow-primary-950/20 flex items-center gap-2"
+                            >
+                                + Add Contractor
+                            </Button>
+                        </div>
+
+                        {contractors && contractors.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {contractors.map((contractor) => (
+                                    <Card key={contractor.id}>
+                                        <CardContent className="p-4">
+                                            <div className="flex items-start justify-between mb-3">
+                                                <div>
+                                                    <h4 className="font-semibold text-slate-900">{contractor.contractorName}</h4>
+                                                    <div className="flex items-center gap-1 text-xs text-slate-500 mt-1">
+                                                        <MapPin size={12} /> {contractor.city}, {contractor.state}
+                                                    </div>
+                                                </div>
+                                                <span className="p-1.5 bg-slate-100 rounded-lg text-slate-500">
+                                                    <Briefcase size={16} />
+                                                </span>
+                                            </div>
+
+                                            <div className="space-y-2 mt-4 text-sm">
+                                                <div className="flex justify-between p-2 bg-slate-50 rounded">
+                                                    <span className="text-slate-500 text-xs uppercase font-medium">PAN</span>
+                                                    <span className="text-slate-700 font-mono tracking-wide">{contractor.panNo}</span>
+                                                </div>
+                                                <div className="flex justify-between p-2 bg-slate-50 rounded">
+                                                    <span className="text-slate-500 text-xs uppercase font-medium">GSTIN</span>
+                                                    <span className="text-slate-700 font-mono tracking-wide">{contractor.gstinNo}</span>
+                                                </div>
+                                                <div className="pt-2 flex flex-col gap-1">
+                                                    <span className="flex items-center gap-2 text-slate-600">
+                                                        <User size={14} className="text-slate-400" /> {contractor.email}
+                                                    </span>
+                                                    <span className="flex items-center gap-2 text-slate-600">
+                                                        <DollarSign size={14} className="text-slate-400" /> {contractor.mobile}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="border border-dashed border-slate-300 rounded-xl p-12 text-center bg-slate-50">
+                                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                                    <Briefcase size={32} />
+                                </div>
+                                <h4 className="text-slate-900 font-medium mb-1">No Contractors Added</h4>
+                                <p className="text-slate-500 text-sm mb-4">Add contractors to manage procurements for this project.</p>
+                                <button
+                                    onClick={() => setIsAddContractorModalOpen(true)}
+                                    className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                                >
+                                    Add Your First Contractor
+                                </button>
+                            </div>
+                        )}
+                    </motion.div>
+                )}
+
                 {activeTab === 'packages' && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                         <div className="flex justify-between items-center">
                             <h3 className="text-lg font-bold text-slate-900">Work Packages</h3>
-                            <button className="px-4 py-2 bg-primary-950 text-white rounded-lg text-sm font-medium hover:bg-primary-900 transition-colors">
-                                + Create Package
-                            </button>
+                            {/* Contextual create button - we might want to reinject the create logic purely for context later, for now just view */}
                         </div>
 
-                        {/* Empty State / Placeholder for Packages */}
-                        <div className="border border-dashed border-slate-300 rounded-xl p-12 text-center bg-slate-50">
-                            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
-                                <FolderOpen size={32} />
+                        {packages.filter(p => p.projectId === project.id).length > 0 ? (
+                            <div className="grid grid-cols-1 gap-4">
+                                {packages.filter(p => p.projectId === project.id).map((pkg) => (
+                                    <Card key={pkg.id}>
+                                        <CardContent className="p-4">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <h4 className="font-semibold text-lg text-slate-900">{pkg.name}</h4>
+                                                    {pkg.description && <p className="text-sm text-slate-500 mb-2">{pkg.description}</p>}
+                                                </div>
+                                                <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full shrink-0">
+                                                    {pkg.status}
+                                                </span>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-4 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg">
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs text-slate-400 uppercase font-medium">Contractor</span>
+                                                    <span className="flex items-center gap-1 font-medium text-slate-700">
+                                                        <User size={14} className="text-slate-400" /> {pkg.contractor}
+                                                    </span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs text-slate-400 uppercase font-medium">Responsible Staff</span>
+                                                    <span className="font-medium text-slate-700">{pkg.responsibleStaff || '-'}</span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs text-slate-400 uppercase font-medium">Contract Value</span>
+                                                    <span className="flex items-center gap-1 font-medium text-slate-700">
+                                                        <DollarSign size={14} className="text-slate-400" /> {formatCurrency(pkg.contractValue || pkg.budget)}
+                                                    </span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs text-slate-400 uppercase font-medium">Agreement No.</span>
+                                                    <span className="font-medium text-slate-700">{pkg.agreementNo || '-'}</span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs text-slate-400 uppercase font-medium">Agreement Date</span>
+                                                    <span className="flex items-center gap-1 font-medium text-slate-700">
+                                                        <Calendar size={14} className="text-slate-400" /> {pkg.agreementDate ? new Date(pkg.agreementDate).toLocaleDateString() : '-'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs text-slate-400 uppercase font-medium">Due Date</span>
+                                                    <span className="flex items-center gap-1 font-medium text-slate-700">
+                                                        <Calendar size={14} className="text-slate-400" /> {pkg.endDate ? new Date(pkg.endDate).toLocaleDateString() : '-'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
                             </div>
-                            <h4 className="text-slate-900 font-medium mb-1">No Packages Created Yet</h4>
-                            <p className="text-slate-500 text-sm mb-4">Create packages to assign work to contractors.</p>
-                            <button className="text-primary-600 font-medium hover:underline text-sm">
-                                Create your first package
-                            </button>
-                        </div>
+                        ) : (
+                            <div className="border border-dashed border-slate-300 rounded-xl p-12 text-center bg-slate-50">
+                                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                                    <FolderOpen size={32} />
+                                </div>
+                                <h4 className="text-slate-900 font-medium mb-1">No Packages Created Yet</h4>
+                                <p className="text-slate-500 text-sm mb-4">Create packages from the Projects page to assign work.</p>
+                            </div>
+                        )}
                     </motion.div>
                 )}
 
@@ -392,6 +514,12 @@ export const ProjectDetailView = ({ project }) => {
                 )}
 
             </div>
+            {/* Add Contractor Modal */}
+            <AddContractorModal
+                isOpen={isAddContractorModalOpen}
+                onClose={() => setIsAddContractorModalOpen(false)}
+                onSave={onAddContractor}
+            />
         </div>
     );
 };

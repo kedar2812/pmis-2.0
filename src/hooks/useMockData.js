@@ -7,6 +7,8 @@ const STORAGE_KEYS = {
   budgets: 'pmis_budgets',
   risks: 'pmis_risks',
   projects: 'pmis_projects',
+  packages: 'pmis_packages',
+  contractors: 'pmis_contractors',
 };
 
 // Load from localStorage or use initial mock data
@@ -56,6 +58,13 @@ export const useMockData = () => {
   const [projectsData, setProjectsData] = useState(() =>
     loadFromStorage(STORAGE_KEYS.projects, projects)
   );
+  const [packagesData, setPackagesData] = useState(() =>
+    loadFromStorage(STORAGE_KEYS.packages, [])
+  );
+
+  const [contractorsData, setContractorsData] = useState(() =>
+    loadFromStorage(STORAGE_KEYS.contractors, [])
+  );
 
   // Persist to localStorage whenever data changes
   useEffect(() => {
@@ -77,6 +86,14 @@ export const useMockData = () => {
   useEffect(() => {
     saveToStorage(STORAGE_KEYS.projects, projectsData);
   }, [projectsData]);
+
+  useEffect(() => {
+    saveToStorage(STORAGE_KEYS.packages, packagesData);
+  }, [packagesData]);
+
+  useEffect(() => {
+    saveToStorage(STORAGE_KEYS.contractors, contractorsData);
+  }, [contractorsData]);
 
   // Projects CRUD
   const addProject = useCallback(async (project) => {
@@ -170,6 +187,8 @@ export const useMockData = () => {
     budgets: budgetsData,
     risks: risksData,
     projects: projectsData,
+    packages: packagesData,
+    contractors: contractorsData,
     addDocument,
     updateDocument,
     deleteDocument,
@@ -180,6 +199,30 @@ export const useMockData = () => {
     addProject,
     updateProject,
     deleteProject,
+    addPackage: useCallback(async (pkg) => {
+      const newPkg = { ...pkg, id: `pkg-${Date.now()}` };
+      const result = await simulateAsync(newPkg, 800);
+      setPackagesData((prev) => [result, ...prev]);
+      return result;
+    }, []),
+    addContractor: useCallback(async (contractor) => {
+      console.log('useMockData: Adding contractor', contractor);
+      const newContractor = { ...contractor, id: `contr-${Date.now()}` };
+      const result = await simulateAsync(newContractor, 800);
+      setContractorsData((prev) => [result, ...prev]);
+      return result;
+    }, []),
+    deleteContractor: useCallback(async (id) => {
+      await simulateAsync(null, 600);
+      setContractorsData((prev) => prev.filter((c) => c.id !== id));
+    }, []),
+    updateContractor: useCallback(async (id, updates) => {
+      const updated = contractorsData.find((c) => c.id === id);
+      if (!updated) throw new Error('Contractor not found');
+      const result = await simulateAsync({ ...updated, ...updates }, 600);
+      setContractorsData((prev) => prev.map((c) => (c.id === id ? result : c)));
+      return result;
+    }, [contractorsData]),
   };
 };
 

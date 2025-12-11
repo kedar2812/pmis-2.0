@@ -7,7 +7,7 @@ import { ChevronLeft } from 'lucide-react';
 const ProjectDetailsPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { projects } = useMockData();
+    const { projects, packages, contractors, addContractor } = useMockData();
 
     const project = projects.find((p) => String(p.id) === String(id));
 
@@ -28,7 +28,7 @@ const ProjectDetailsPage = () => {
                 <ChevronLeft size={16} className="mr-1" /> Back
             </Button>
             <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden min-h-[85vh]">
-                <ProjectDetailView project={project} />
+                <ProjectDetailView project={project} packages={packages} contractors={contractors} onAddContractor={addContractor} />
             </div>
         </div>
     );

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, BarChart3, LineChart, PieChart, Settings2, Download, RefreshCw } from 'lucide-react';
 import { createPortal } from 'react-dom';
@@ -12,6 +12,21 @@ const GraphAnalysisModal = ({ isOpen, onClose, projects, initialMetric = 'budget
     const [chartType, setChartType] = useState('bar');
     const [metric, setMetric] = useState(initialMetric);
     const [isGenerating, setIsGenerating] = useState(false);
+
+    // Handle Escape key
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            window.addEventListener('keydown', handleEscape);
+        }
+
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [isOpen, onClose]);
 
     // Dynamic Data Aggregation Engine
     const chartData = useMemo(() => {
@@ -126,7 +141,6 @@ const GraphAnalysisModal = ({ isOpen, onClose, projects, initialMetric = 'budget
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    onClick={onClose}
                     className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
                 />
 
@@ -157,7 +171,7 @@ const GraphAnalysisModal = ({ isOpen, onClose, projects, initialMetric = 'budget
                         <div className="p-6 space-y-8">
 
                             {/* Generator Controls */}
-                            <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                            <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
 
                                 {/* Group By (X-Axis) */}
                                 <div>
@@ -188,27 +202,6 @@ const GraphAnalysisModal = ({ isOpen, onClose, projects, initialMetric = 'budget
                                         <option value="progress">Avg. Progress</option>
                                         <option value="count">Count of Projects</option>
                                     </select>
-                                </div>
-
-                                {/* Chart Type */}
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Visual Style</label>
-                                    <div className="flex bg-white rounded-lg border border-slate-300 p-1">
-                                        {[
-                                            { id: 'bar', icon: BarChart3 },
-                                            { id: 'line', icon: LineChart },
-                                            { id: 'area', icon: PieChart },
-                                        ].map(type => (
-                                            <button
-                                                key={type.id}
-                                                onClick={() => setChartType(type.id)}
-                                                className={`flex-1 p-1.5 flex justify-center rounded-md transition-colors ${chartType === type.id ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'
-                                                    }`}
-                                            >
-                                                <type.icon size={18} />
-                                            </button>
-                                        ))}
-                                    </div>
                                 </div>
 
                                 {/* Generate Button */}

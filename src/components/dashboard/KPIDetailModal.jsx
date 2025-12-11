@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, TrendingUp, TrendingDown, Minus, Calendar, Target, BarChart3 } from 'lucide-react';
@@ -7,6 +8,21 @@ import { projects } from '@/mock';
 import { calculateCostVariationPercentage } from '@/lib/calculations';
 
 export const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
+  // Handle Escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener('keydown', handleEscape);
+    }
+
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !kpi) return null;
 
   const isPositive = kpi.trend === 'up' || (kpi.trend === 'stable' && kpi.value >= kpi.target);
@@ -157,7 +173,6 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
         transition={{ duration: 0.3, ease: 'easeInOut' }}
         className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60"
         style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
-        onClick={onClose}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -216,9 +231,8 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                   <div className="text-center md:text-left">
                     <p className="text-sm text-gray-600 mb-1">Variance</p>
                     <p
-                      className={`text-3xl font-bold ${
-                        variance < 0 ? 'text-error-600' : variance > 0 ? 'text-success-600' : 'text-gray-700'
-                      }`}
+                      className={`text-3xl font-bold ${variance < 0 ? 'text-error-600' : variance > 0 ? 'text-success-600' : 'text-gray-700'
+                        }`}
                     >
                       {variance > 0 ? '+' : ''}
                       {variance} {kpi.unit}
@@ -227,9 +241,8 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                   <div className="text-center md:text-left">
                     <p className="text-sm text-gray-600 mb-1">Status</p>
                     <p
-                      className={`text-lg font-semibold ${
-                        isPositive ? 'text-success-600' : 'text-error-600'
-                      }`}
+                      className={`text-lg font-semibold ${isPositive ? 'text-success-600' : 'text-error-600'
+                        }`}
                     >
                       {isPositive ? 'On Track' : 'Needs Attention'}
                     </p>

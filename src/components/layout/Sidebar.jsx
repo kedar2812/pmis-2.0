@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils';
 // Sidebar width variants for liquid motion
 const sidebarVariants = {
   expanded: { width: '18rem' }, // 288px - wider to fit "Integrated Dashboard"
-  collapsed: { width: '5rem' }, // 80px
+  collapsed: { width: '6rem' }, // 96px - wider to prevent scrollbar occlusion
 };
 
 // Text label variants for smooth fade/slide
@@ -293,6 +293,8 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+
+
 
 
 

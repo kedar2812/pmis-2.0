@@ -50,3 +50,5 @@ export const SkeletonTable = ({ rows = 5 }) => {
 
 
 
+
+

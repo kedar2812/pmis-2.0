@@ -14,7 +14,7 @@ const AppLayout = () => {
       <Sidebar />
       <motion.div
         animate={{
-          paddingLeft: isCollapsed ? '88px' : '304px', // 80px (collapsed) + 8px (gap), 288px (expanded) + 16px (gap)
+          paddingLeft: isCollapsed ? '104px' : '304px', // 96px (collapsed) + 8px (gap), 288px (expanded) + 16px (gap)
         }}
         transition={{
           type: 'spring',
@@ -33,7 +33,7 @@ const AppLayout = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ 
+              transition={{
                 duration: 0.2,
                 ease: 'easeInOut',
               }}
@@ -48,6 +48,8 @@ const AppLayout = () => {
 };
 
 export default AppLayout;
+
+
 
 
 

@@ -1,9 +1,22 @@
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, FileText, Download, ExternalLink } from 'lucide-react';
 import { createPortal } from 'react-dom';
 
 const MetricsDetailModal = ({ isOpen, onClose, title, description, items, documents }) => {
     if (!isOpen) return null;
+
+    // Handle Escape key
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [onClose]);
 
     // Render using portal to escape parent stacking contexts
     return createPortal(
@@ -14,7 +27,6 @@ const MetricsDetailModal = ({ isOpen, onClose, title, description, items, docume
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    onClick={onClose}
                     className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
                 />
 
