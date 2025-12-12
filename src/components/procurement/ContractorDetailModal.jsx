@@ -1,13 +1,33 @@
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Building2, MapPin, Phone, Mail, FileText, BadgeCheck } from 'lucide-react';
+import { X, Building2, MapPin, Phone, Mail, FileText } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import Switch from '@/components/ui/Switch';
 import { useModalClose } from '@/hooks/useModalClose';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
-export const ContractorDetailModal = ({ isOpen, onClose, contractor }) => {
+export const ContractorDetailModal = ({ isOpen, onClose, contractor, onUpdate }) => {
     useModalClose(isOpen, onClose);
+    const { user } = useAuth();
+
+    // Check if user is Admin (SPV_Official has accessLevel: Admin)
+    const isAdmin = user?.role === 'SPV_Official';
 
     if (!isOpen || !contractor) return null;
+
+    const handleStatusChange = async (newStatus) => {
+        if (!isAdmin) return;
+
+        try {
+            await onUpdate(contractor.id, { status: newStatus ? 'Active' : 'Inactive' });
+            toast.success(`Contractor marked as ${newStatus ? 'Active' : 'Inactive'}`);
+        } catch (error) {
+            toast.error('Failed to update status');
+        }
+    };
+
+    const isActive = contractor.status === 'Active' || !contractor.status; // Default to Active if undefined
 
     return createPortal(
         <AnimatePresence>
@@ -31,12 +51,28 @@ export const ContractorDetailModal = ({ isOpen, onClose, contractor }) => {
                                 <Building2 size={28} />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-bold text-slate-900">{contractor.contractorName}</h2>
+                                <div className="flex items-center gap-3">
+                                    <h2 className="text-2xl font-bold text-slate-900">{contractor.contractorName}</h2>
+                                    {isAdmin && (
+                                        <div className="flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-full border border-slate-200">
+                                            <span className={`text-xs font-semibold uppercase ${isActive ? 'text-green-600' : 'text-slate-500'}`}>
+                                                {isActive ? 'Active' : 'Inactive'}
+                                            </span>
+                                            <Switch
+                                                checked={isActive}
+                                                onChange={handleStatusChange}
+                                                className={isActive ? 'bg-green-500' : 'bg-slate-300'}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${contractor.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'
-                                        }`}>
-                                        {contractor.status || 'Active'}
-                                    </span>
+                                    {!isAdmin && (
+                                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                            }`}>
+                                            {contractor.status || 'Active'}
+                                        </span>
+                                    )}
                                     <span className="text-slate-400">•</span>
                                     <span className="text-sm text-slate-500">{contractor.projects || 0} Active Projects</span>
                                 </div>
@@ -82,7 +118,7 @@ export const ContractorDetailModal = ({ isOpen, onClose, contractor }) => {
                                     </div>
                                     <div>
                                         <p className="text-xs text-slate-500 font-medium">Email Address</p>
-                                        <p className="text-slate-900">{contractor.email || 'N/A'}</p>
+                                        <p className="text-slate-900">{contractor.email || 'N/A'} (Login ID)</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 p-2">

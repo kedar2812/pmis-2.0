@@ -9,6 +9,7 @@ import risksData from './data/risks.json';
 import notificationsData from './data/notifications.json';
 import gisFeaturesData from './data/gisFeatures.json';
 import usersData from './data/users.json';
+import contractorsData from './data/contractors.json';
 
 // Export all data
 export const projects = projectsData;
@@ -21,6 +22,7 @@ export const risks = risksData;
 export const notifications = notificationsData;
 export const gisFeatures = gisFeaturesData;
 export const users = usersData;
+export const contractors = contractorsData;
 
 // Role permissions configuration
 export const rolePermissions = {

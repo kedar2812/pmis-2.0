@@ -5,14 +5,11 @@ import {
     Search,
     Plus,
     Filter,
-    MoreVertical,
     Mail,
     Phone,
     MapPin,
     FileBadge,
-    Trash2,
-    Eye,
-    Pencil
+
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -44,65 +41,19 @@ const Procurement = () => {
     const [selectedContractor, setSelectedContractor] = useState(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-    // Dropdown State
-    const [activeDropdown, setActiveDropdown] = useState(null);
-    const dropdownRef = useRef(null);
-
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setActiveDropdown(null);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
 
     const handleContractorClick = (contractor) => {
         setSelectedContractor(contractor);
         setIsDetailModalOpen(true);
     };
 
-    const handleEditContractor = (e, contractor) => {
-        e.stopPropagation();
-        setEditingContractor(contractor);
-        setIsAddModalOpen(true);
-        setActiveDropdown(null);
-    };
-
     const handleSaveContractor = async (data) => {
-        if (editingContractor) {
-            await updateContractor(editingContractor.id, data);
-            toast.success('Contractor updated successfully');
-        } else {
-            await addContractor(data);
-        }
-        setEditingContractor(null);
+        await addContractor(data);
         setIsAddModalOpen(false);
     };
 
     const handleModalClose = () => {
         setIsAddModalOpen(false);
-        setEditingContractor(null);
-    };
-
-    const handleDeleteContractor = async (e, id) => {
-        e.stopPropagation(); // Prevent card click
-        if (confirm('Are you sure you want to delete this contractor? This action cannot be undone.')) {
-            try {
-                await deleteContractor(id);
-                toast.success('Contractor deleted successfully');
-                setActiveDropdown(null);
-            } catch (error) {
-                toast.error('Failed to delete contractor');
-            }
-        }
-    };
-
-    const toggleDropdown = (e, id) => {
-        e.stopPropagation();
-        setActiveDropdown(activeDropdown === id ? null : id);
     };
 
     // Filter contractors based on search
@@ -115,7 +66,7 @@ const Procurement = () => {
     const activeContractors = filteredContractors.filter(c => c.status === 'Active').length;
 
     return (
-        <div className="p-6 space-y-6" onClick={() => setActiveDropdown(null)}>
+        <div className="p-6 space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-heading font-bold text-slate-900">Procurement</h1>
@@ -195,53 +146,6 @@ const Procurement = () => {
                                             <div className="p-3 rounded-lg bg-primary-50 text-primary-700 group-hover:bg-primary-600 group-hover:text-white transition-colors duration-300">
                                                 <Building2 size={24} />
                                             </div>
-                                            <div className="relative">
-                                                <button
-                                                    onClick={(e) => toggleDropdown(e, contractor.id)}
-                                                    className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-                                                >
-                                                    <MoreVertical size={20} />
-                                                </button>
-
-                                                {/* Dropdown Menu */}
-                                                <AnimatePresence>
-                                                    {activeDropdown === contractor.id && (
-                                                        <motion.div
-                                                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                                                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                                                            className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100 z-20 overflow-hidden"
-                                                            onClick={(e) => e.stopPropagation()}
-                                                            ref={dropdownRef}
-                                                        >
-                                                            <div className="p-1">
-                                                                <button
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleContractorClick(contractor);
-                                                                        setActiveDropdown(null);
-                                                                    }}
-                                                                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg"
-                                                                >
-                                                                    <Eye size={16} /> View Details
-                                                                </button>
-                                                                <button
-                                                                    onClick={(e) => handleEditContractor(e, contractor)}
-                                                                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg"
-                                                                >
-                                                                    <Pencil size={16} /> Edit Details
-                                                                </button>
-                                                                <button
-                                                                    onClick={(e) => handleDeleteContractor(e, contractor.id)}
-                                                                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
-                                                                >
-                                                                    <Trash2 size={16} /> Delete Contractor
-                                                                </button>
-                                                            </div>
-                                                        </motion.div>
-                                                    )}
-                                                </AnimatePresence>
-                                            </div>
                                         </div>
 
                                         <div>
@@ -294,13 +198,14 @@ const Procurement = () => {
                 packages={packages}
                 onAddProject={addProject}
                 onAddPackage={addPackage}
-                contractor={editingContractor}
+                contractor={null}
             />
 
             <ContractorDetailModal
                 isOpen={isDetailModalOpen}
                 onClose={() => setIsDetailModalOpen(false)}
                 contractor={selectedContractor}
+                onUpdate={updateContractor}
             />
         </div>
     );

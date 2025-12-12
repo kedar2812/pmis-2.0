@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { SidebarProvider } from './contexts/SidebarContext';
+
+
 import { ToastProvider } from './components/ui/Toast';
 import AppLayout from './components/layout/AppLayout';
 import Login from './pages/Login';
@@ -19,6 +21,7 @@ import Reimbursement from './pages/Reimbursement';
 import RoleManager from './pages/RoleManager';
 import ProjectDetailsPage from './pages/ProjectDetailsPage';
 import RABilling from './pages/RABilling';
+import AuditLogs from './pages/admin/AuditLogs';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -43,6 +46,7 @@ const AppRoutes = () => {
         <Route path="projects/:id" element={<ProjectDetailsPage />} />
         <Route path="procurement" element={<Procurement />} />
         <Route path="ra-billing" element={<RABilling />} />
+        <Route path="admin/audit-logs" element={<AuditLogs />} />
         <Route path="edms" element={<EDMS />} />
         <Route path="scheduling" element={<Scheduling />} />
         <Route path="cost" element={<CostManagement />} />

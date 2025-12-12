@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import GoogleTranslateWidget from '@/components/ui/GoogleTranslateWidget';
 
+
 const Header = () => {
   const { user, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
@@ -70,6 +71,8 @@ const Header = () => {
       <div className="flex-1"></div>
 
       <div className="flex items-center gap-4">
+
+
         {/* Language Toggle */}
         <div className="flex items-center gap-2">
           <div className="hidden">

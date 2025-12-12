@@ -17,6 +17,7 @@ import {
   ChevronRight,
   FolderOpen,
   Workflow,
+  Shield,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -150,6 +151,13 @@ const Sidebar = () => {
       path: '/workflow',
       permission: 'users:manage', // Only admins
     },
+    {
+      id: 'audit-logs',
+      label: 'Audit System',
+      icon: Shield,
+      path: '/admin/audit-logs',
+      permission: 'users:manage', // Only admins
+    },
   ];
 
   const visibleItems = menuItems.filter((item) => hasPermission(item.permission));
@@ -158,7 +166,7 @@ const Sidebar = () => {
     <>
       {/* Mobile menu button */}
       <motion.button
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-white/80 backdrop-blur-md shadow-glass"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-white/80 backdrop-blur-md shadow-glass border border-transparent"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
         whileTap={{ scale: 0.95 }}
         whileHover={{ scale: 1.05 }}

@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import projectService from '@/api/services/projectService';
 import { useMockData } from '@/hooks/useMockData';
 import { CreateProjectModal } from '@/components/projects/CreateProjectModal';
 import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
@@ -13,11 +14,17 @@ import Button from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { getStatusColor } from '@/lib/colors';
 import { calculateBudgetUtilization } from '@/lib/calculations';
+import { toast } from 'sonner';
 
 const Projects = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
-  const { projects, addProject, addPackage, packages, contractors, addContractor } = useMockData();
+  // Keep using useMockData for packages/contractors for now until those are migrated
+  const { addPackage, packages, contractors, addContractor } = useMockData();
+
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -25,24 +32,55 @@ const Projects = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
+  // Fetch Projects from Backend
+  const fetchProjects = async () => {
+    try {
+      const data = await projectService.getAllProjects();
+      setProjects(data);
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+      toast.error('Failed to load projects');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
   // Check if user can create projects
   const canCreateProject = user?.role === 'SPV_Official' || user?.role === 'PMNC_Team';
 
   // Filter projects
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
+      // Safe checks for potentially missing fields in new data
+      const name = project.name || '';
+      const desc = project.description || '';
+      const cat = project.category || '';
+      const mgr = project.manager || '';
+
       const matchesSearch =
-        project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.manager.toLowerCase().includes(searchQuery.toLowerCase());
+        name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        cat.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        mgr.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [projects, searchQuery, statusFilter]);
 
   const handleCreateProject = async (projectData) => {
-    await addProject(projectData);
+    try {
+      await projectService.createProject(projectData);
+      toast.success('Project created successfully');
+      setIsCreateModalOpen(false);
+      fetchProjects(); // Reload list
+    } catch (error) {
+      console.error('Create project failed:', error);
+      toast.error('Failed to create project');
+    }
   };
 
   const getStatusBadgeColor = (status) => {

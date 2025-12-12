@@ -134,7 +134,7 @@ const EPCDashboard = ({ projects, tasks }) => {
                     <MotionCardContent>
                         <div className="space-y-3">
                             {myTasks.slice(0, 5).map(task => (
-                                <div key={task.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                                <div key={task.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl transition-colors">
                                     <div className="flex items-center gap-3">
                                         <div className={`w-2 h-2 rounded-full ${task.priority === 'High' ? 'bg-red-500' : 'bg-blue-500'} `} />
                                         <span className="font-medium text-slate-800">{task.name}</span>

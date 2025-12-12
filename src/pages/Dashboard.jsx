@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMockData } from '@/hooks/useMockData';
+import projectService from '@/api/services/projectService';
 import SPVDashboard from '@/components/dashboard/SPVDashboard';
 import PMNCDashboard from '@/components/dashboard/PMNCDashboard';
 import EPCDashboard from '@/components/dashboard/EPCDashboard';
@@ -10,10 +11,30 @@ import NICDCDashboard from '@/components/dashboard/NICDCDashboard';
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const { projects, kpis, risks, tasks } = useMockData();
+  const { kpis, risks, tasks } = useMockData(); // Kept other mocks for now
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const data = await projectService.getAllProjects();
+        setProjects(data);
+      } catch (error) {
+        console.error('Failed to fetch projects:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProjects();
+  }, []);
 
   // If no user is logged in (should be handled by ProtectedRoute, but safe check)
   if (!user) return null;
+
+  if (loading) {
+    return <div className="flex h-screen items-center justify-center">Loading Dashboard...</div>;
+  }
 
   // Role-Based Render Logic
   const renderDashboard = () => {
