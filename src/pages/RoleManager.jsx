@@ -8,10 +8,7 @@ import { toast } from 'sonner';
 const allPermissions = [
   'dashboard:view',
   'dashboard:edit',
-  'edms:view',
-  'edms:upload',
-  'edms:approve',
-  'edms:delete',
+
   'scheduling:view',
   'scheduling:edit',
   'cost:view',
@@ -31,7 +28,7 @@ const RoleManager = () => {
     Site_Inspector: {
       role: 'Site_Inspector',
       accessLevel: 'Contributor',
-      permissions: ['dashboard:view', 'edms:view', 'edms:upload', 'scheduling:view'],
+      permissions: ['dashboard:view', 'scheduling:view'],
       dashboardView: 'Site inspection reports, upload photos, view schedules',
     },
   });
@@ -139,11 +136,10 @@ const RoleManager = () => {
               {Object.entries(roles).map(([roleKey, roleData]) => (
                 <div
                   key={roleKey}
-                  className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                    selectedRole === roleKey
+                  className={`p-3 rounded-lg border cursor-pointer transition-colors ${selectedRole === roleKey
                       ? 'border-primary-600 bg-primary-50'
                       : 'border-slate-200 hover:border-slate-300'
-                  }`}
+                    }`}
                   onClick={() => handleSelectRole(roleKey)}
                 >
                   <div className="flex items-center justify-between">

@@ -9,7 +9,7 @@ import AppLayout from './components/layout/AppLayout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
-import EDMS from './pages/EDMS';
+
 import Scheduling from './pages/Scheduling';
 import CostManagement from './pages/CostManagement';
 import RiskManagement from './pages/RiskManagement';
@@ -22,8 +22,11 @@ import RoleManager from './pages/RoleManager';
 import ProjectDetailsPage from './pages/ProjectDetailsPage';
 import RABilling from './pages/RABilling';
 import AuditLogs from './pages/admin/AuditLogs';
+import UserManagement from './pages/UserManagement';
 
-const ProtectedRoute = ({ children }) => {
+import EDMS from './pages/EDMS';
+
+const ProtectedRoute = ({ children, requiredPermission }) => {
   const { user } = useAuth();
   return user ? <>{children}</> : <Navigate to="/login" replace />;
 };
@@ -47,8 +50,10 @@ const AppRoutes = () => {
         <Route path="procurement" element={<Procurement />} />
         <Route path="ra-billing" element={<RABilling />} />
         <Route path="admin/audit-logs" element={<AuditLogs />} />
-        <Route path="edms" element={<EDMS />} />
+
         <Route path="scheduling" element={<Scheduling />} />
+        <Route path="users" element={<UserManagement />} />
+        <Route path="edms" element={<EDMS />} />
         <Route path="cost" element={<CostManagement />} />
         <Route path="risk" element={<RiskManagement />} />
         <Route path="gis" element={<GIS />} />

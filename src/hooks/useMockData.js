@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { documents, tasks, budgets, risks, projects, users, contractors } from '@/mock';
+import { tasks, budgets, risks, projects, users, contractors } from '@/mock';
 import { useAuth } from '@/contexts/AuthContext'; // Import useAuth
 import { AuditLogger } from '@/services/AuditLogger'; // Import Logger
 
 const STORAGE_KEYS = {
-  documents: 'pmis_documents_v2',
+
   tasks: 'pmis_tasks_v2',
   budgets: 'pmis_budgets_v2',
   risks: 'pmis_risks_v2',
@@ -48,9 +48,7 @@ const simulateAsync = (data, delay = 800) => {
 export const useMockData = () => {
   const { user } = useAuth(); // Access current user for logging
 
-  const [documentsData, setDocumentsData] = useState(() =>
-    loadFromStorage(STORAGE_KEYS.documents, documents)
-  );
+
   const [tasksData, setTasksData] = useState(() =>
     loadFromStorage(STORAGE_KEYS.tasks, tasks)
   );
@@ -76,9 +74,7 @@ export const useMockData = () => {
   );
 
   // Persist to localStorage whenever data changes
-  useEffect(() => {
-    saveToStorage(STORAGE_KEYS.documents, documentsData);
-  }, [documentsData]);
+
 
   useEffect(() => {
     saveToStorage(STORAGE_KEYS.tasks, tasksData);
@@ -132,39 +128,7 @@ export const useMockData = () => {
     AuditLogger.logAction(user, 'DELETE', 'Project', `Deleted project ID: ${id}`);
   }, [user]);
 
-  // Documents CRUD
-  const addDocument = useCallback(async (document) => {
-    const newDoc = { ...document, id: document.id || `doc-${Date.now()}` };
-    const result = await simulateAsync(newDoc, 600);
-    setDocumentsData((prev) => [result, ...prev]);
-    AuditLogger.logAction(user, 'UPLOAD', 'Document', `Uploaded document: ${result.name}`);
-    return result;
-  }, [user]);
 
-  // Support both full document update and partial update by ID
-  const updateDocument = useCallback(async (docOrId, updates) => {
-    if (typeof docOrId === 'string') {
-      // Called with (id, updates)
-      const updated = documentsData.find((d) => d.id === docOrId);
-      if (!updated) throw new Error('Document not found');
-      const result = await simulateAsync({ ...updated, ...updates }, 600);
-      setDocumentsData((prev) => prev.map((d) => (d.id === docOrId ? result : d)));
-      AuditLogger.logAction(user, 'UPDATE', 'Document', `Updated document: ${updated.name}`, updates);
-      return result;
-    } else {
-      // Called with full document object
-      const result = await simulateAsync(docOrId, 600);
-      setDocumentsData((prev) => prev.map((d) => (d.id === docOrId.id ? result : d)));
-      AuditLogger.logAction(user, 'UPDATE', 'Document', `Updated document: ${result.name}`);
-      return result;
-    }
-  }, [documentsData, user]);
-
-  const deleteDocument = useCallback(async (id) => {
-    await simulateAsync(null, 600);
-    setDocumentsData((prev) => prev.filter((d) => d.id !== id));
-    AuditLogger.logAction(user, 'DELETE', 'Document', `Deleted document ID: ${id}`);
-  }, [user]);
 
   // Tasks CRUD
   const updateTask = useCallback(async (id, updates) => {
@@ -242,16 +206,14 @@ export const useMockData = () => {
 
   return {
     users, // Export users static data
-    documents: documentsData,
+
     tasks: tasksData,
     budgets: budgetsData,
     risks: risksData,
     projects: projectsData,
     packages: packagesData,
     contractors: contractorsData,
-    addDocument,
-    updateDocument,
-    deleteDocument,
+
     updateTask,
     toggleTaskComplete,
     updateBudget,

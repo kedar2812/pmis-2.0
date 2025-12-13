@@ -1,7 +1,7 @@
 // Mock data loader
 import projectsData from './data/projects.json';
 import kpisData from './data/kpis.json';
-import documentsData from './data/documents.json';
+
 import tasksData from './data/tasks.json';
 import budgetsData from './data/budgets.json';
 import costForecastsData from './data/costForecasts.json';
@@ -14,7 +14,7 @@ import contractorsData from './data/contractors.json';
 // Export all data
 export const projects = projectsData;
 export const kpis = kpisData;
-export const documents = documentsData;
+
 export const tasks = tasksData;
 export const budgets = budgetsData;
 export const costForecasts = costForecastsData;
@@ -32,9 +32,7 @@ export const rolePermissions = {
     permissions: [
       'dashboard:view',
       'dashboard:edit',
-      'edms:view',
-      'edms:upload',
-      'edms:approve',
+
       'scheduling:view',
       'scheduling:edit',
       'cost:view',
@@ -53,9 +51,7 @@ export const rolePermissions = {
     permissions: [
       'dashboard:view',
       'dashboard:edit',
-      'edms:view',
-      'edms:upload',
-      'edms:approve',
+
       'scheduling:view',
       'scheduling:edit',
       'cost:view',
@@ -72,8 +68,7 @@ export const rolePermissions = {
     accessLevel: 'Contributor',
     permissions: [
       'dashboard:view',
-      'edms:view',
-      'edms:upload',
+
       'scheduling:view',
       'scheduling:edit',
       'cost:view',
@@ -85,13 +80,13 @@ export const rolePermissions = {
   Consultant_Design: {
     role: 'Consultant_Design',
     accessLevel: 'Limited',
-    permissions: ['edms:view', 'edms:upload', 'bim:view'],
+    permissions: ['bim:view'],
     dashboardView: 'Design repository, model viewer',
   },
   Govt_Department: {
     role: 'Govt_Department',
     accessLevel: 'Read_Only',
-    permissions: ['dashboard:view', 'edms:view', 'gis:view'],
+    permissions: ['dashboard:view', 'gis:view'],
     dashboardView: 'High-level status reports, completion percentages',
   },
   NICDC_HQ: {
@@ -108,7 +103,7 @@ export const getAccessibleModules = (role) => {
   const modules = new Set();
 
   if (permissions.some((p) => p.startsWith('dashboard'))) modules.add('dashboard');
-  if (permissions.some((p) => p.startsWith('edms'))) modules.add('edms');
+
   if (permissions.some((p) => p.startsWith('scheduling'))) modules.add('scheduling');
   if (permissions.some((p) => p.startsWith('cost'))) modules.add('cost');
   if (permissions.some((p) => p.startsWith('risk'))) modules.add('risk');

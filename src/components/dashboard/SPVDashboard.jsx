@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { MotionCard, MotionCardContent, MotionCardHeader, MotionCardTitle } from '@/components/ui/MotionCard';
@@ -7,8 +7,8 @@ import { TrendingUp, TrendingDown, DollarSign, AlertTriangle, CheckCircle, Activ
 import { CalculationRules } from '@/lib/calculations';
 import MetricsDetailModal from '@/components/ui/MetricsDetailModal';
 import GraphAnalysisModal from '@/components/ui/GraphAnalysisModal';
-
 import { useNavigate } from 'react-router-dom';
+import client from '@/api/client'; // Moved to top-level imports
 
 const SPVDashboard = ({ projects, kpis, risks }) => {
   const { t } = useLanguage();
@@ -16,6 +16,24 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
   const [selectedMetric, setSelectedMetric] = useState(null);
   const [graphModalOpen, setGraphModalOpen] = useState(false);
   const [graphMetric, setGraphMetric] = useState('budget');
+  const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
+
+  // EDMS Integration
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await client.get('/edms/documents/');
+        // Handle pagination (DRF usually returns { results: [...] } if paginated)
+        const docs = Array.isArray(res.data) ? res.data : (res.data.results || []);
+
+        const pending = docs.filter(d => d.status === 'SUBMITTED' || d.status === 'UNDER_REVIEW').length;
+        setPendingApprovalsCount(pending);
+      } catch (err) {
+        console.error("Failed to load EDMS stats", err);
+      }
+    };
+    fetchStats();
+  }, []);
 
   // SPV Specific Metrics with Dynamic Calculations
   const runningProjects = projects.filter(p => p.status === 'In Progress');
@@ -34,9 +52,6 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
 
   // Format currency helper
   const formatBudget = (val) => `₹${(Number(val) / 10000000).toFixed(2)} Cr`;
-
-  // Mock pending approvals based on strict logic (e.g. projects in "Planning" or "Under Review")
-  const pendingApprovalsCount = projects.filter(p => p.status === 'Planning' || p.status === 'Under Review').length;
 
   const containerVariants = {
     hidden: { opacity: 0 },

@@ -3,7 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { MotionCard, MotionCardContent, MotionCardHeader, MotionCardTitle } from '@/components/ui/MotionCard';
 import { Box, Layers, GitPullRequest, Eye } from 'lucide-react';
 
-const ConsultantDashboard = ({ projects, documents, tasks }) => {
+const ConsultantDashboard = ({ projects, tasks }) => {
     const { t } = useLanguage();
 
     const containerVariants = {
@@ -13,12 +13,12 @@ const ConsultantDashboard = ({ projects, documents, tasks }) => {
 
     // Logic Calculation
     const activeBIMModels = projects.filter(p => p.status === 'Planning' || p.status === 'In Progress').length;
-    const drawingsUnderReview = documents ? documents.filter(d => d.status === 'Pending' || d.status === 'In Review').length : 0;
+    const drawingsUnderReview = 0; // Document system removed
 
     // Simulate Change Requests from tasks related to 'Review' or 'Change'
     const changeRequests = tasks ? tasks.filter(t => t.name.includes('Review') || t.status === 'Under Review').length : 0;
 
-    const recentDrawings = documents ? documents.filter(d => d.category === 'Drawing' || d.type === 'pdf' || d.type === 'dwg').slice(0, 5) : [];
+    const recentDrawings = [];
 
     return (
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
@@ -68,8 +68,8 @@ const ConsultantDashboard = ({ projects, documents, tasks }) => {
                                             <span className="truncate text-sm font-medium text-slate-700">{doc.name}</span>
                                         </div>
                                         <span className={`text-xs px-2 py-0.5 rounded ${doc.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                                                doc.status === 'Rejected' ? 'bg-red-100 text-red-700' :
-                                                    'bg-yellow-100 text-yellow-700'
+                                            doc.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                                                'bg-yellow-100 text-yellow-700'
                                             }`}>
                                             {doc.status || 'Pending'}
                                         </span>

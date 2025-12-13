@@ -9,7 +9,7 @@ export const Breadcrumbs = () => {
 
   const pathMap = {
     '/dashboard': t('common.dashboard'),
-    '/edms': t('common.documents'),
+
     '/scheduling': t('common.schedule'),
     '/cost': t('common.cost'),
     '/risk': t('common.risk'),

@@ -7,7 +7,6 @@
     "logout": "Logout",
     "dashboard": "Integrated Dashboard",
     "projects": "Projects",
-    "documents": "Documents",
     "schedule": "Schedule",
     "cost": "Cost Management",
     "risk": "Risk Management",
@@ -132,32 +131,6 @@
     "budgetUtilization": "Budget Utilization",
     "totalProjects": "Total Projects",
     "totalBudget": "Total Budget"
-  },
-  "edms": {
-    "subtitle": "Electronic Document Management System",
-    "searchPlaceholder": "Search documents...",
-    "allStatus": "All Status",
-    "allTypes": "All Types",
-    "documentRepository": "Document Repository",
-    "documents": "documents",
-    "noDocumentsFound": "No documents found",
-    "adjustFilters": "Try adjusting your filters to see more results.",
-    "uploadFirst": "Upload your first document to get started.",
-    "uploadDocument": "Upload Document",
-    "showing": "Showing",
-    "to": "to",
-    "of": "of",
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page",
-    "permissionDenied": "Permission Denied",
-    "noDeletePermission": "You do not have permission to delete documents. Contact your administrator.",
-    "documentDeleted": "Document deleted",
-    "documentRemoved": "The document has been removed from the repository.",
-    "downloadStarted": "Download started",
-    "downloading": "Downloading",
-    "openingDocument": "Opening document",
-    "viewing": "Viewing"
   },
   "scheduling": {
     "subtitle": "Project Scheduling and Timeline Tracking",
@@ -300,4 +273,3 @@
     "enterTextToTranslate": "Enter text to translate"
   }
 }
-

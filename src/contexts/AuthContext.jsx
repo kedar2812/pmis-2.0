@@ -99,18 +99,20 @@ export const AuthProvider = ({ children }) => {
         'projects:manage',
         'approvals:manage',
         'users:manage',
-        'edms:view',
+
         'scheduling:view',
         'cost:view',
         'risk:view',
         'gis:view',
         'bim:view',
-        'reports:view'
+        'reports:view',
+        'edms:view',
+        'edms:upload'
       ],
-      'PMNC_Team': ['dashboard:view', 'projects:edit', 'reports:create', 'scheduling:view', 'risk:view'],
-      'EPC_Contractor': ['dashboard:view', 'projects:view', 'tasks:update', 'edms:view'],
-      'Nodal_Officer': ['dashboard:view', 'approvals:manage', 'reports:view'],
-      'Govt_Official': ['dashboard:view', 'reports:view', 'gis:view']
+      'PMNC_Team': ['dashboard:view', 'projects:edit', 'reports:create', 'scheduling:view', 'risk:view', 'edms:view'],
+      'EPC_Contractor': ['dashboard:view', 'projects:view', 'tasks:update', 'edms:view', 'edms:upload'],
+      'Nodal_Officer': ['dashboard:view', 'approvals:manage', 'reports:view', 'edms:view'],
+      'Govt_Official': ['dashboard:view', 'reports:view', 'gis:view', 'edms:view']
     };
     return rolePermissions[role] || [];
   };

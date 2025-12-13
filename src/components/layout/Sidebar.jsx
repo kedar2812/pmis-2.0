@@ -88,6 +88,7 @@ const Sidebar = () => {
       path: '/projects',
       permission: 'dashboard:view', // All users who can view dashboard can view projects
     },
+
     {
       id: 'edms',
       label: t('common.documents'),

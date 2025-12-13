@@ -1,177 +1,120 @@
-import React, { useState, useMemo } from 'react';
-import { ExplorerLayout } from './ExplorerLayout';
-import { projects } from '@/mock';
+import { useState, useMemo } from 'react';
+import { Folder, FileText, ChevronRight, ChevronDown, Lock, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-export const FileExplorer = ({
-  documents,
-  onSelectDocument,
-  onViewDocument,
-  onDownloadDocument,
-  onViewHistory,
-  onDeleteDocument,
-  canDelete,
-  selectedDocumentId,
-  onNew,
-  onUpload,
-}) => {
-  const [viewMode, setViewMode] = useState('list');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedPath, setSelectedPath] = useState(['all']);
-  const [contextMenu, setContextMenu] = useState(null);
-
-  // Build folder tree from documents
-  const folderTree = useMemo(() => {
-    const tree = [
-      {
-        id: 'all',
-        name: 'All Documents',
-        type: 'project',
-        documentCount: documents.length,
-        children: [],
-      },
-    ];
-
-    // Group by project
-    const projectMap = new Map();
-
-    documents.forEach((doc) => {
-      const project = projects.find((p) => p.id === doc.projectId);
-      const projectName = project?.name || 'Unknown Project';
-
-      if (!projectMap.has(doc.projectId)) {
-        projectMap.set(doc.projectId, {
-          id: doc.projectId,
-          name: projectName,
-          type: 'project',
-          projectId: doc.projectId,
-          children: [],
-          documentCount: 0,
-        });
-      }
-
-      const projectNode = projectMap.get(doc.projectId);
-      projectNode.documentCount = (projectNode.documentCount || 0) + 1;
-
-      // Find or create phase node
-      let phaseNode = projectNode.children?.find((c) => c.name === doc.phase);
-      if (!phaseNode) {
-        phaseNode = {
-          id: `${doc.projectId}-${doc.phase}`,
-          name: doc.phase,
-          type: 'phase',
-          phase: doc.phase,
-          children: [],
-          documentCount: 0,
-        };
-        projectNode.children = projectNode.children || [];
-        projectNode.children.push(phaseNode);
-      }
-      phaseNode.documentCount = (phaseNode.documentCount || 0) + 1;
-
-      // Find or create discipline node
-      let disciplineNode = phaseNode.children?.find((c) => c.name === doc.discipline);
-      if (!disciplineNode) {
-        disciplineNode = {
-          id: `${doc.projectId}-${doc.phase}-${doc.discipline}`,
-          name: doc.discipline,
-          type: 'discipline',
-          discipline: doc.discipline,
-          children: [],
-          documentCount: 0,
-        };
-        phaseNode.children = phaseNode.children || [];
-        phaseNode.children.push(disciplineNode);
-      }
-      disciplineNode.documentCount = (disciplineNode.documentCount || 0) + 1;
-    });
-
-    tree[0].children = Array.from(projectMap.values());
-    return tree;
-  }, [documents]);
-
-  // Filter documents based on selection and search
-  const filteredDocuments = useMemo(() => {
-    let filtered = documents;
-
-    // Filter by selected path
-    if (selectedPath[0] !== 'all') {
-      const pathId = selectedPath[0];
-      if (pathId.includes('-')) {
-        const parts = pathId.split('-');
-        const projectId = parts[0] + '-' + parts[1];
-        filtered = filtered.filter((d) => d.projectId === projectId);
-        
-        if (parts.length >= 3) {
-          const phase = parts[2];
-          filtered = filtered.filter((d) => d.phase === phase);
-        }
-        if (parts.length >= 4) {
-          const discipline = parts[3];
-          filtered = filtered.filter((d) => d.discipline === discipline);
-        }
-      } else {
-        filtered = filtered.filter((d) => d.projectId === pathId);
-      }
-    }
-
-    // Filter by search
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (d) =>
-          d.name.toLowerCase().includes(query) ||
-          d.tags.some((t) => t.toLowerCase().includes(query)) ||
-          d.category.toLowerCase().includes(query) ||
-          d.description?.toLowerCase().includes(query)
-      );
-    }
-
-    return filtered;
-  }, [documents, selectedPath, searchQuery]);
-
-  const handleContextMenu = (e, doc) => {
-    e.preventDefault();
-    const menuWidth = 200;
-    const menuHeight = canDelete ? 280 : 220;
-    const padding = 8;
-
-    let newX = e.clientX;
-    let newY = e.clientY;
-
-    // Adjust X if it overflows right edge
-    if (newX + menuWidth + padding > window.innerWidth) {
-      newX = window.innerWidth - menuWidth - padding;
-    }
-    // Adjust Y if it overflows bottom edge
-    if (newY + menuHeight + padding > window.innerHeight) {
-      newY = window.innerHeight - menuHeight - padding;
-    }
-
-    setContextMenu({ x: newX, y: newY, doc });
-  };
-
-  return (
-    <ExplorerLayout
-      folderTree={folderTree}
-      documents={filteredDocuments}
-      selectedPath={selectedPath}
-      selectedDocumentId={selectedDocumentId}
-      viewMode={viewMode}
-      searchQuery={searchQuery}
-      contextMenu={contextMenu}
-      onPathChange={setSelectedPath}
-      onSelectDocument={onSelectDocument}
-      onViewDocument={onViewDocument}
-      onDownloadDocument={onDownloadDocument}
-      onViewHistory={onViewHistory}
-      onDeleteDocument={onDeleteDocument}
-      onViewModeChange={setViewMode}
-      onSearchChange={setSearchQuery}
-      onNew={onNew || (() => {})}
-      onUpload={onUpload || (() => {})}
-      onContextMenu={handleContextMenu}
-      onCloseContextMenu={() => setContextMenu(null)}
-      canDelete={canDelete}
-    />
-  );
+const StatusBadge = ({ status }) => {
+    const styles = {
+        'DRAFT': 'bg-slate-100 text-slate-600',
+        'SUBMITTED': 'bg-blue-100 text-blue-700',
+        'UNDER_REVIEW': 'bg-amber-100 text-amber-700',
+        'APPROVED': 'bg-green-100 text-green-700',
+        'REJECTED': 'bg-red-100 text-red-700',
+        'CLARIFICATION_REQ': 'bg-purple-100 text-purple-700'
+    };
+    return (
+        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${styles[status] || styles['DRAFT']}`}>
+            {status?.replace('_', ' ')}
+        </span>
+    );
 };
+
+const FileRow = ({ doc, onClick }) => (
+    <div
+        onClick={() => onClick(doc)}
+        className="flex items-center gap-3 p-3 hover:bg-slate-50 border-b border-slate-100 cursor-pointer group transition-colors"
+    >
+        <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-100 transition-colors">
+            <FileText size={18} />
+        </div>
+        <div className="flex-1 min-w-0">
+            <h4 className="font-medium text-slate-700 truncate group-hover:text-primary-600">{doc.title}</h4>
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+                <span>v{doc.current_version}</span>
+                <span>•</span>
+                <span>{new Date(doc.updated_at).toLocaleDateString()}</span>
+                <span>•</span>
+                <span className="font-mono">{doc.file_hash?.substring(0, 8)}...</span>
+            </div>
+        </div>
+        <StatusBadge status={doc.status} />
+    </div>
+);
+
+const FolderRow = ({ name, children, depth = 0 }) => {
+    const [isOpen, setIsOpen] = useState(true);
+
+    return (
+        <div className="select-none">
+            <div
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center gap-2 p-2 hover:bg-slate-50 cursor-pointer text-slate-700 font-medium"
+                style={{ paddingLeft: `${depth * 1.5 + 0.5}rem` }}
+            >
+                {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                <Folder size={18} className="text-amber-400 fill-amber-400" />
+                <span>{name}</span>
+                <span className="text-xs text-slate-400 ml-auto">({children?.length || 0})</span>
+            </div>
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                    >
+                        {children}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+const FileExplorer = ({ documents, isLoading, onDocumentClick }) => {
+    // Transform flat list to tree (Project -> Package -> Category -> Files)
+    const tree = useMemo(() => {
+        const structure = {};
+
+        documents.forEach(doc => {
+            const proj = doc.project_name || 'Unassigned Project';
+            const pkg = doc.metadata?.package || 'General'; // Using metadata for flexibility
+
+            if (!structure[proj]) structure[proj] = {};
+            if (!structure[proj][pkg]) structure[proj][pkg] = [];
+
+            structure[proj][pkg].push(doc);
+        });
+
+        return structure;
+    }, [documents]);
+
+    if (isLoading) return <div className="p-8 text-center text-slate-500">Loading vault...</div>;
+
+    if (documents.length === 0) return (
+        <div className="h-full flex flex-col items-center justify-center text-slate-400">
+            <Folder size={48} className="mb-4 text-slate-200" />
+            <p>Vault is empty</p>
+        </div>
+    );
+
+    return (
+        <div className="h-full overflow-y-auto custom-scrollbar">
+            {Object.entries(tree).map(([projName, packages]) => (
+                <FolderRow key={projName} name={projName}>
+                    {Object.entries(packages).map(([pkgName, docs]) => (
+                        <FolderRow key={pkgName} name={pkgName} depth={1}>
+                            <div className="pl-8">
+                                {docs.map(doc => (
+                                    <FileRow key={doc.id} doc={doc} onClick={onDocumentClick} />
+                                ))}
+                            </div>
+                        </FolderRow>
+                    ))}
+                </FolderRow>
+            ))}
+        </div>
+    );
+};
+
+export default FileExplorer;
