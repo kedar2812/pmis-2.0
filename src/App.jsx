@@ -28,6 +28,8 @@ import EDMS from './pages/EDMS';
 import DocumentViewerPage from './pages/DocumentViewerPage';
 import Communications from './pages/Communications';
 import Approvals from './pages/Approvals';
+import ContractorRegistration from './pages/ContractorRegistration';
+import AcceptInvite from './pages/AcceptInvite';
 
 const ProtectedRoute = ({ children, requiredPermission }) => {
   const { user } = useAuth();
@@ -38,6 +40,8 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<ContractorRegistration />} />
+      <Route path="/accept-invite/:token" element={<AcceptInvite />} />
       <Route
         path="/"
         element={

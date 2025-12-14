@@ -5,26 +5,37 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import client from '@/api/client';
 import {
     Bell, X, Check, MessageSquare, AlertTriangle,
-    Gavel, Clock, ChevronRight
+    Gavel, Clock, ChevronRight, UserCheck, Users
 } from 'lucide-react';
 
 const NotificationDropdown = () => {
     const navigate = useNavigate();
+    const { hasPermission } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [pendingApprovals, setPendingApprovals] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const dropdownRef = useRef(null);
+
+    const isAdmin = hasPermission('users:manage');
 
     // Fetch notifications
     useEffect(() => {
         fetchNotifications();
-        const interval = setInterval(fetchUnreadCount, 30000); // Poll every 30s
+        if (isAdmin) {
+            fetchPendingApprovals();
+        }
+        const interval = setInterval(() => {
+            fetchUnreadCount();
+            if (isAdmin) fetchPendingApprovals();
+        }, 30000); // Poll every 30s
         return () => clearInterval(interval);
-    }, []);
+    }, [isAdmin]);
 
     // Close on outside click
     useEffect(() => {
@@ -48,6 +59,16 @@ const NotificationDropdown = () => {
             console.error('Failed to fetch notifications:', error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const fetchPendingApprovals = async () => {
+        try {
+            const res = await client.get('/users/pending/');
+            const data = Array.isArray(res.data) ? res.data : (res.data.results || []);
+            setPendingApprovals(data.length);
+        } catch (error) {
+            console.error('Failed to fetch pending approvals:', error);
         }
     };
 
@@ -104,6 +125,8 @@ const NotificationDropdown = () => {
             case 'ESCALATION':
             case 'DEADLINE_BREACH':
                 return <Clock className="text-red-500" size={16} />;
+            case 'PENDING_APPROVAL':
+                return <UserCheck className="text-amber-500" size={16} />;
             default:
                 return <Bell className="text-slate-400" size={16} />;
         }
@@ -122,6 +145,8 @@ const NotificationDropdown = () => {
         return `${diffDays}d ago`;
     };
 
+    const totalBadgeCount = unreadCount + (isAdmin ? pendingApprovals : 0);
+
     return (
         <div className="relative" ref={dropdownRef}>
             {/* Bell Button */}
@@ -130,9 +155,9 @@ const NotificationDropdown = () => {
                 className="relative p-2 hover:bg-slate-100 rounded-lg transition-colors"
             >
                 <Bell size={22} className="text-slate-600" />
-                {unreadCount > 0 && (
+                {totalBadgeCount > 0 && (
                     <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
-                        {unreadCount > 99 ? '99+' : unreadCount}
+                        {totalBadgeCount > 99 ? '99+' : totalBadgeCount}
                     </span>
                 )}
             </button>
@@ -159,11 +184,35 @@ const NotificationDropdown = () => {
                             )}
                         </div>
 
+                        {/* Pending Approvals Banner (Admin Only) */}
+                        {isAdmin && pendingApprovals > 0 && (
+                            <div
+                                onClick={() => {
+                                    navigate('/users');
+                                    setIsOpen(false);
+                                }}
+                                className="p-3 bg-amber-50 border-b border-amber-200 cursor-pointer hover:bg-amber-100 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                                        <Users className="text-amber-600" size={20} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-amber-800">
+                                            {pendingApprovals} Pending Approval{pendingApprovals > 1 ? 's' : ''}
+                                        </p>
+                                        <p className="text-xs text-amber-600">Contractor registrations await review</p>
+                                    </div>
+                                    <ChevronRight className="text-amber-400" size={18} />
+                                </div>
+                            </div>
+                        )}
+
                         {/* Notifications List */}
                         <div className="max-h-[400px] overflow-y-auto">
                             {isLoading ? (
                                 <div className="p-4 text-center text-slate-400">Loading...</div>
-                            ) : notifications.length === 0 ? (
+                            ) : notifications.length === 0 && pendingApprovals === 0 ? (
                                 <div className="p-8 text-center text-slate-400">
                                     <Bell size={32} className="mx-auto mb-2 opacity-30" />
                                     <p className="text-sm">No notifications</p>

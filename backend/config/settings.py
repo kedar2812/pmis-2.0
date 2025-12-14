@@ -141,3 +141,22 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
 }
+
+# Frontend URL (for invite links, etc.)
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+
+# Email Configuration
+# For development, use console backend (prints emails to console)
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+
+# AWS SES SMTP settings (for production)
+# Set EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend' in .env for production
+EMAIL_HOST = config('EMAIL_HOST', default='email-smtp.ap-south-1.amazonaws.com')  # Mumbai region
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('AWS_SES_SMTP_USER', default='')  # SES SMTP username
+EMAIL_HOST_PASSWORD = config('AWS_SES_SMTP_PASSWORD', default='')  # SES SMTP password
+
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@pmis-zia.gov.in')
+
+

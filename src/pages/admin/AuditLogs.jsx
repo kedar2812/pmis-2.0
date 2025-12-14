@@ -1,40 +1,126 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Shield, Download, Search, Filter, Clock, User, Activity, FileText } from 'lucide-react';
+import { Shield, Download, Search, Filter, Clock, User, Activity, FileText, Database, HardDrive, RefreshCw } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { AuditLogger } from '@/services/AuditLogger';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import api from '@/api/client';
 
 const AuditLogs = () => {
-    const [logs, setLogs] = useState([]);
+    const [localLogs, setLocalLogs] = useState([]);
+    const [backendLogs, setBackendLogs] = useState([]);
+    const [isLoadingBackend, setIsLoadingBackend] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [roleFilter, setRoleFilter] = useState('All');
+    const [activeTab, setActiveTab] = useState('backend'); // 'backend' or 'frontend'
     const { user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
         // Security check
-        if (user && user.role !== 'SPV_Official') {
+        if (user && user.role !== 'SPV_Official' && user.role !== 'NICDC_HQ') {
             navigate('/dashboard');
             return;
         }
-        setLogs(AuditLogger.getLogs());
+
+        // Load local logs
+        setLocalLogs(AuditLogger.getLogs());
+
+        // Load backend logs
+        fetchBackendLogs();
     }, [user, navigate]);
 
-    const filteredLogs = logs.filter(log => {
+    const fetchBackendLogs = async () => {
+        setIsLoadingBackend(true);
+        try {
+            const response = await api.get('/edms/audit-logs/');
+            const formattedLogs = response.data.results ? response.data.results : response.data;
+            setBackendLogs(formattedLogs.map(log => ({
+                id: log.id,
+                timestamp: log.timestamp,
+                userName: log.actor_name || log.actor?.username || 'System',
+                userRole: log.actor_role || 'Unknown',
+                action: log.action,
+                resource: log.resource_type,
+                details: formatDetails(log),
+                ipAddress: log.ip_address
+            })));
+        } catch (error) {
+            console.error('Failed to fetch backend audit logs:', error);
+        } finally {
+            setIsLoadingBackend(false);
+        }
+    };
+
+    const formatDetails = (log) => {
+        if (log.details && typeof log.details === 'object') {
+            const parts = [];
+            if (log.details.title) parts.push(`Title: ${log.details.title}`);
+            if (log.details.file_name) parts.push(`File: ${log.details.file_name}`);
+            if (log.details.version) parts.push(`Version: ${log.details.version}`);
+            if (log.details.comments) parts.push(`Comments: ${log.details.comments}`);
+            return parts.join(' | ') || JSON.stringify(log.details);
+        }
+        return String(log.details || '');
+    };
+
+    // Get current logs based on active tab
+    const currentLogs = activeTab === 'backend' ? backendLogs : localLogs;
+
+    const filteredLogs = currentLogs.filter(log => {
         const matchesSearch =
-            log.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            log.details.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            log.resource.toLowerCase().includes(searchQuery.toLowerCase());
+            (log.userName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (log.details || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (log.resource || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (log.action || '').toLowerCase().includes(searchQuery.toLowerCase());
 
         const matchesRole = roleFilter === 'All' || log.userRole === roleFilter;
 
         return matchesSearch && matchesRole;
     });
 
-    const roles = ['All', ...new Set(logs.map(l => l.userRole))];
+    const roles = ['All', ...new Set(currentLogs.map(l => l.userRole).filter(Boolean))];
+
+    const getActionColor = (action) => {
+        const actionUpper = (action || '').toUpperCase();
+        if (actionUpper.includes('CREATE') || actionUpper.includes('UPLOAD')) return 'bg-green-100 text-green-700';
+        if (actionUpper.includes('DELETE') || actionUpper.includes('REJECT') || actionUpper.includes('ARCHIVE')) return 'bg-red-100 text-red-700';
+        if (actionUpper.includes('UPDATE') || actionUpper.includes('VERSION') || actionUpper.includes('MOVE')) return 'bg-blue-100 text-blue-700';
+        if (actionUpper.includes('APPROVE') || actionUpper.includes('VALIDATE')) return 'bg-emerald-100 text-emerald-700';
+        if (actionUpper.includes('VIEW') || actionUpper.includes('DOWNLOAD')) return 'bg-purple-100 text-purple-700';
+        if (actionUpper.includes('SUBMIT') || actionUpper.includes('REVISION')) return 'bg-amber-100 text-amber-700';
+        return 'bg-slate-100 text-slate-700';
+    };
+
+    // Export current visible logs as CSV
+    const handleExportCSV = () => {
+        const logsToExport = filteredLogs;
+        if (!logsToExport.length) {
+            alert('No logs to export.');
+            return;
+        }
+
+        const headers = ['Timestamp', 'User Name', 'Role', 'Action', 'Resource', 'Details', 'IP Address'];
+        const csvContent = [
+            headers.join(','),
+            ...logsToExport.map(log => [
+                `"${log.timestamp || ''}"`,
+                `"${(log.userName || '').replace(/"/g, '""')}"`,
+                `"${(log.userRole || '').replace(/"/g, '""')}"`,
+                `"${(log.action || '').replace(/"/g, '""')}"`,
+                `"${(log.resource || '').replace(/"/g, '""')}"`,
+                `"${(log.details || '').replace(/"/g, '""')}"`,
+                `"${log.ipAddress || ''}"`
+            ].join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `audit_logs_${activeTab}_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+    };
 
     return (
         <div className="p-6 space-y-6">
@@ -45,12 +131,81 @@ const AuditLogs = () => {
                     </h1>
                     <p className="text-slate-500 mt-1">Immutable record of all system activities and security events</p>
                 </div>
-                <Button
-                    onClick={AuditLogger.exportLogs}
-                    className="flex items-center gap-2 bg-slate-900 text-white hover:bg-slate-800"
+                <div className="flex items-center gap-3">
+                    {activeTab === 'backend' && (
+                        <Button
+                            variant="outline"
+                            onClick={fetchBackendLogs}
+                            className="flex items-center gap-2"
+                            disabled={isLoadingBackend}
+                        >
+                            <RefreshCw size={18} className={isLoadingBackend ? 'animate-spin' : ''} />
+                            Refresh
+                        </Button>
+                    )}
+                    <Button
+                        onClick={handleExportCSV}
+                        className="flex items-center gap-2 bg-slate-900 text-white hover:bg-slate-800"
+                    >
+                        <Download size={18} /> Export CSV
+                    </Button>
+                </div>
+            </div>
+
+            {/* Tab Buttons */}
+            <div className="flex gap-2">
+                <button
+                    onClick={() => setActiveTab('backend')}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${activeTab === 'backend'
+                            ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                            : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                        }`}
                 >
-                    <Download size={18} /> Export CSV
-                </Button>
+                    <Database size={20} />
+                    Backend Logs (EDMS)
+                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'backend' ? 'bg-white/20 text-white' : 'bg-primary-100 text-primary-700'
+                        }`}>
+                        {backendLogs.length}
+                    </span>
+                </button>
+                <button
+                    onClick={() => setActiveTab('frontend')}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${activeTab === 'frontend'
+                            ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
+                            : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                        }`}
+                >
+                    <HardDrive size={20} />
+                    Frontend Logs (Local)
+                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'frontend' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-700'
+                        }`}>
+                        {localLogs.length}
+                    </span>
+                </button>
+            </div>
+
+            {/* Info Banner */}
+            <div className={`p-4 rounded-xl flex items-center gap-3 ${activeTab === 'backend'
+                    ? 'bg-primary-50 border border-primary-200'
+                    : 'bg-amber-50 border border-amber-200'
+                }`}>
+                {activeTab === 'backend' ? (
+                    <>
+                        <Database className="text-primary-600" size={24} />
+                        <div>
+                            <p className="font-medium text-primary-900">Backend Audit Logs (EDMS Database)</p>
+                            <p className="text-sm text-primary-700">Permanent, immutable records of document management actions stored in the PostgreSQL database.</p>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <HardDrive className="text-amber-600" size={24} />
+                        <div>
+                            <p className="font-medium text-amber-900">Frontend Audit Logs (Browser Storage)</p>
+                            <p className="text-sm text-amber-700">Local logs stored in browser's localStorage. These are cleared when browser data is cleared.</p>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Filters */}
@@ -89,13 +244,21 @@ const AuditLogs = () => {
                             <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-semibold">
                                 <th className="p-4 w-48">Timestamp</th>
                                 <th className="p-4 w-48">User Identity</th>
-                                <th className="p-4 w-32">Action</th>
+                                <th className="p-4 w-40">Action</th>
                                 <th className="p-4 w-32">Resource</th>
                                 <th className="p-4">Details</th>
+                                {activeTab === 'backend' && <th className="p-4 w-32">IP Address</th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {filteredLogs.length > 0 ? (
+                            {(activeTab === 'backend' && isLoadingBackend) ? (
+                                <tr>
+                                    <td colSpan={activeTab === 'backend' ? 6 : 5} className="p-8 text-center text-slate-500">
+                                        <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />
+                                        Loading backend logs...
+                                    </td>
+                                </tr>
+                            ) : filteredLogs.length > 0 ? (
                                 filteredLogs.map((log) => (
                                     <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
                                         <td className="p-4 text-sm text-slate-500 font-mono">
@@ -113,13 +276,7 @@ const AuditLogs = () => {
                                             </div>
                                         </td>
                                         <td className="p-4">
-                                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold
-                                                ${log.action === 'CREATE' ? 'bg-green-100 text-green-700' :
-                                                    log.action === 'DELETE' ? 'bg-red-100 text-red-700' :
-                                                        log.action === 'UPDATE' ? 'bg-blue-100 text-blue-700' :
-                                                            'bg-slate-100 text-slate-700'
-                                                }
-                                            `}>
+                                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${getActionColor(log.action)}`}>
                                                 <Activity size={12} /> {log.action}
                                             </span>
                                         </td>
@@ -127,16 +284,21 @@ const AuditLogs = () => {
                                             {log.resource}
                                         </td>
                                         <td className="p-4 text-sm text-slate-600">
-                                            <div className="flex items-center gap-2">
-                                                <FileText size={14} className="text-slate-400" />
-                                                {log.details}
+                                            <div className="flex items-center gap-2 max-w-md truncate" title={log.details}>
+                                                <FileText size={14} className="text-slate-400 flex-shrink-0" />
+                                                <span className="truncate">{log.details}</span>
                                             </div>
                                         </td>
+                                        {activeTab === 'backend' && (
+                                            <td className="p-4 text-sm text-slate-500 font-mono">
+                                                {log.ipAddress || '-'}
+                                            </td>
+                                        )}
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5" className="p-8 text-center text-slate-500">
+                                    <td colSpan={activeTab === 'backend' ? 6 : 5} className="p-8 text-center text-slate-500">
                                         No audit logs found matching your criteria.
                                     </td>
                                 </tr>

@@ -276,261 +276,283 @@ const DocumentDetailModal = ({
 
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-4">
-                    {/* Details Tab */}
-                    {activeTab === 'details' && (
-                        <div className="space-y-4">
-                            {/* Document Info */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-3 bg-slate-50 rounded-lg">
-                                    <p className="text-xs text-slate-500 mb-1">Document Number</p>
-                                    <p className="font-medium text-slate-800">{document.document_number || '-'}</p>
-                                </div>
-                                <div className="p-3 bg-slate-50 rounded-lg">
-                                    <p className="text-xs text-slate-500 mb-1">Folder</p>
-                                    <p className="font-medium text-slate-800">{document.folder_path || 'Root'}</p>
-                                </div>
-                                <div className="p-3 bg-slate-50 rounded-lg">
-                                    <p className="text-xs text-slate-500 mb-1">Uploaded By</p>
-                                    <p className="font-medium text-slate-800">{document.uploaded_by_name}</p>
-                                </div>
-                                <div className="p-3 bg-slate-50 rounded-lg">
-                                    <p className="text-xs text-slate-500 mb-1">Uploaded</p>
-                                    <p className="font-medium text-slate-800">
-                                        {format(new Date(document.created_at), 'dd MMM yyyy, HH:mm')}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Description */}
-                            {document.description && (
-                                <div className="p-3 bg-slate-50 rounded-lg">
-                                    <p className="text-xs text-slate-500 mb-1">Description</p>
-                                    <p className="text-sm text-slate-700">{document.description}</p>
-                                </div>
-                            )}
-
-                            {/* Current Version Info */}
-                            {document.current_version && (
-                                <div className="p-3 bg-blue-50 rounded-lg">
-                                    <p className="text-xs text-blue-600 mb-1">Current Version</p>
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="font-medium text-slate-800">{document.current_version.file_name}</p>
-                                            <p className="text-xs text-slate-500">
-                                                {document.current_version.file_size_display} • {document.current_version.mime_type}
-                                            </p>
-                                        </div>
-                                        <span className="text-sm font-semibold text-blue-600">
-                                            v{document.current_version.version_number}
-                                        </span>
+                    <AnimatePresence mode="wait">
+                        {/* Details Tab */}
+                        {activeTab === 'details' && (
+                            <motion.div
+                                key="details"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                transition={{ duration: 0.2, ease: "easeInOut" }}
+                                className="space-y-4"
+                            >
+                                {/* Document Info */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="p-3 bg-slate-50 rounded-lg">
+                                        <p className="text-xs text-slate-500 mb-1">Document Number</p>
+                                        <p className="font-medium text-slate-800">{document.document_number || '-'}</p>
+                                    </div>
+                                    <div className="p-3 bg-slate-50 rounded-lg">
+                                        <p className="text-xs text-slate-500 mb-1">Folder</p>
+                                        <p className="font-medium text-slate-800">{document.folder_path || 'Root'}</p>
+                                    </div>
+                                    <div className="p-3 bg-slate-50 rounded-lg">
+                                        <p className="text-xs text-slate-500 mb-1">Uploaded By</p>
+                                        <p className="font-medium text-slate-800">{document.uploaded_by_name}</p>
+                                    </div>
+                                    <div className="p-3 bg-slate-50 rounded-lg">
+                                        <p className="text-xs text-slate-500 mb-1">Uploaded</p>
+                                        <p className="font-medium text-slate-800">
+                                            {format(new Date(document.created_at), 'dd MMM yyyy, HH:mm')}
+                                        </p>
                                     </div>
                                 </div>
-                            )}
 
-                            {/* Upload New Version */}
-                            {canEdit && (
-                                <div className="border border-dashed border-slate-300 rounded-lg p-4">
-                                    {!showVersionUpload ? (
-                                        <button
-                                            onClick={() => setShowVersionUpload(true)}
-                                            className="flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700"
-                                        >
-                                            <Upload size={16} />
-                                            Upload New Version
-                                        </button>
-                                    ) : (
-                                        <div className="space-y-3">
-                                            <input
-                                                type="file"
-                                                onChange={(e) => setNewVersionFile(e.target.files?.[0] || null)}
-                                                className="text-sm"
-                                            />
+                                {/* Description */}
+                                {document.description && (
+                                    <div className="p-3 bg-slate-50 rounded-lg">
+                                        <p className="text-xs text-slate-500 mb-1">Description</p>
+                                        <p className="text-sm text-slate-700">{document.description}</p>
+                                    </div>
+                                )}
+
+                                {/* Current Version Info */}
+                                {document.current_version && (
+                                    <div className="p-3 bg-blue-50 rounded-lg">
+                                        <p className="text-xs text-blue-600 mb-1">Current Version</p>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="font-medium text-slate-800">{document.current_version.file_name}</p>
+                                                <p className="text-xs text-slate-500">
+                                                    {document.current_version.file_size_display} • {document.current_version.mime_type}
+                                                </p>
+                                            </div>
+                                            <span className="text-sm font-semibold text-blue-600">
+                                                v{document.current_version.version_number}
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Upload New Version */}
+                                {canEdit && (
+                                    <div className="border border-dashed border-slate-300 rounded-lg p-4">
+                                        {!showVersionUpload ? (
+                                            <button
+                                                onClick={() => setShowVersionUpload(true)}
+                                                className="flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700"
+                                            >
+                                                <Upload size={16} />
+                                                Upload New Version
+                                            </button>
+                                        ) : (
+                                            <div className="space-y-3">
+                                                <input
+                                                    type="file"
+                                                    onChange={(e) => setNewVersionFile(e.target.files?.[0] || null)}
+                                                    className="text-sm"
+                                                />
+                                                <textarea
+                                                    value={changeNotes}
+                                                    onChange={(e) => setChangeNotes(e.target.value)}
+                                                    placeholder="What changed in this version?"
+                                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none"
+                                                    rows={2}
+                                                />
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={handleVersionUpload}
+                                                        disabled={!newVersionFile || actionLoading}
+                                                    >
+                                                        {actionLoading ? <Loader2 size={14} className="animate-spin mr-1" /> : null}
+                                                        Upload
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => {
+                                                            setShowVersionUpload(false);
+                                                            setNewVersionFile(null);
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
+
+                        {/* Versions Tab */}
+                        {activeTab === 'versions' && (
+                            <motion.div
+                                key="versions"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                transition={{ duration: 0.2, ease: "easeInOut" }}
+                                className="space-y-3"
+                            >
+                                {document.versions?.map((version, index) => (
+                                    <div
+                                        key={version.id}
+                                        className={`p-3 rounded-lg border ${version.id === document.current_version?.id
+                                            ? 'border-primary-200 bg-primary-50'
+                                            : 'border-slate-200'
+                                            }`}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <span className={`px-2 py-1 rounded text-xs font-bold ${version.id === document.current_version?.id
+                                                    ? 'bg-primary-600 text-white'
+                                                    : 'bg-slate-200 text-slate-600'
+                                                    }`}>
+                                                    v{version.version_number}
+                                                </span>
+                                                <div>
+                                                    <p className="font-medium text-sm text-slate-800">{version.file_name}</p>
+                                                    <p className="text-xs text-slate-500">
+                                                        By {version.uploaded_by_name} • {formatDistanceToNow(new Date(version.created_at), { addSuffix: true })}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <Button variant="ghost" size="sm" onClick={handleDownload}>
+                                                <Download size={14} />
+                                            </Button>
+                                        </div>
+                                        {version.change_notes && (
+                                            <p className="text-xs text-slate-600 mt-2 italic">
+                                                "{version.change_notes}"
+                                            </p>
+                                        )}
+                                    </div>
+                                ))}
+                            </motion.div>
+                        )}
+
+                        {/* Workflow Tab */}
+                        {activeTab === 'workflow' && (
+                            <motion.div
+                                key="workflow"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                transition={{ duration: 0.2, ease: "easeInOut" }}
+                                className="space-y-4"
+                            >
+                                {document.workflow ? (
+                                    <div className="space-y-3">
+                                        {document.workflow.steps?.map((step, index) => {
+                                            const isComplete = step.action !== 'PENDING';
+                                            return (
+                                                <div key={step.id} className="flex items-start gap-3">
+                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isComplete ? 'bg-green-100' : 'bg-slate-100'
+                                                        }`}>
+                                                        {isComplete ? (
+                                                            <CheckCircle size={16} className="text-green-600" />
+                                                        ) : (
+                                                            <Clock size={16} className="text-slate-400" />
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="font-medium text-sm text-slate-800">
+                                                            {step.step_type?.replace('_', ' ')}
+                                                        </p>
+                                                        {isComplete ? (
+                                                            <p className="text-xs text-slate-500">
+                                                                {step.action} by {step.actor_name} • {formatDistanceToNow(new Date(step.acted_at), { addSuffix: true })}
+                                                            </p>
+                                                        ) : (
+                                                            <p className="text-xs text-slate-400">Pending</p>
+                                                        )}
+                                                        {step.comments && (
+                                                            <p className="text-xs text-slate-600 mt-1 italic">"{step.comments}"</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-8 text-slate-400">
+                                        <Clock size={32} className="mx-auto mb-2" />
+                                        <p>No workflow started yet</p>
+                                    </div>
+                                )}
+
+                                {/* Workflow Actions */}
+                                <div className="border-t border-slate-200 pt-4 space-y-3">
+                                    {/* Submit for Review */}
+                                    {canSubmit && (
+                                        <Button onClick={handleSubmitForReview} disabled={actionLoading} className="w-full">
+                                            <Send size={16} className="mr-2" />
+                                            Submit for Review
+                                        </Button>
+                                    )}
+
+                                    {/* PMNC Actions */}
+                                    {canValidate && (
+                                        <>
                                             <textarea
-                                                value={changeNotes}
-                                                onChange={(e) => setChangeNotes(e.target.value)}
-                                                placeholder="What changed in this version?"
+                                                value={approvalComment}
+                                                onChange={(e) => setApprovalComment(e.target.value)}
+                                                placeholder="Add comments (required for revision/rejection)"
                                                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none"
                                                 rows={2}
                                             />
                                             <div className="flex gap-2">
-                                                <Button
-                                                    size="sm"
-                                                    onClick={handleVersionUpload}
-                                                    disabled={!newVersionFile || actionLoading}
-                                                >
-                                                    {actionLoading ? <Loader2 size={14} className="animate-spin mr-1" /> : null}
-                                                    Upload
+                                                <Button onClick={handleValidate} disabled={actionLoading} className="flex-1">
+                                                    <CheckCircle size={16} className="mr-1" />
+                                                    Validate
                                                 </Button>
                                                 <Button
-                                                    size="sm"
                                                     variant="outline"
-                                                    onClick={() => {
-                                                        setShowVersionUpload(false);
-                                                        setNewVersionFile(null);
-                                                    }}
+                                                    onClick={handleRequestRevision}
+                                                    disabled={actionLoading}
+                                                    className="flex-1"
                                                 >
-                                                    Cancel
+                                                    <AlertTriangle size={16} className="mr-1" />
+                                                    Request Revision
                                                 </Button>
                                             </div>
-                                        </div>
+                                        </>
+                                    )}
+
+                                    {/* SPV Actions */}
+                                    {canApprove && (
+                                        <>
+                                            <textarea
+                                                value={approvalComment}
+                                                onChange={(e) => setApprovalComment(e.target.value)}
+                                                placeholder="Add comments (required for rejection)"
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none"
+                                                rows={2}
+                                            />
+                                            <div className="flex gap-2">
+                                                <Button onClick={handleApprove} disabled={actionLoading} className="flex-1 bg-green-600 hover:bg-green-700">
+                                                    <CheckCircle size={16} className="mr-1" />
+                                                    Final Approval
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={handleReject}
+                                                    disabled={actionLoading}
+                                                    className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
+                                                >
+                                                    <XCircle size={16} className="mr-1" />
+                                                    Reject
+                                                </Button>
+                                            </div>
+                                        </>
                                     )}
                                 </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Versions Tab */}
-                    {activeTab === 'versions' && (
-                        <div className="space-y-3">
-                            {document.versions?.map((version, index) => (
-                                <div
-                                    key={version.id}
-                                    className={`p-3 rounded-lg border ${version.id === document.current_version?.id
-                                        ? 'border-primary-200 bg-primary-50'
-                                        : 'border-slate-200'
-                                        }`}
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <span className={`px-2 py-1 rounded text-xs font-bold ${version.id === document.current_version?.id
-                                                ? 'bg-primary-600 text-white'
-                                                : 'bg-slate-200 text-slate-600'
-                                                }`}>
-                                                v{version.version_number}
-                                            </span>
-                                            <div>
-                                                <p className="font-medium text-sm text-slate-800">{version.file_name}</p>
-                                                <p className="text-xs text-slate-500">
-                                                    By {version.uploaded_by_name} • {formatDistanceToNow(new Date(version.created_at), { addSuffix: true })}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <Button variant="ghost" size="sm" onClick={handleDownload}>
-                                            <Download size={14} />
-                                        </Button>
-                                    </div>
-                                    {version.change_notes && (
-                                        <p className="text-xs text-slate-600 mt-2 italic">
-                                            "{version.change_notes}"
-                                        </p>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Workflow Tab */}
-                    {activeTab === 'workflow' && (
-                        <div className="space-y-4">
-                            {/* Workflow Steps */}
-                            {document.workflow ? (
-                                <div className="space-y-3">
-                                    {document.workflow.steps?.map((step, index) => {
-                                        const isComplete = step.action !== 'PENDING';
-                                        return (
-                                            <div key={step.id} className="flex items-start gap-3">
-                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isComplete ? 'bg-green-100' : 'bg-slate-100'
-                                                    }`}>
-                                                    {isComplete ? (
-                                                        <CheckCircle size={16} className="text-green-600" />
-                                                    ) : (
-                                                        <Clock size={16} className="text-slate-400" />
-                                                    )}
-                                                </div>
-                                                <div className="flex-1">
-                                                    <p className="font-medium text-sm text-slate-800">
-                                                        {step.step_type?.replace('_', ' ')}
-                                                    </p>
-                                                    {isComplete ? (
-                                                        <p className="text-xs text-slate-500">
-                                                            {step.action} by {step.actor_name} • {formatDistanceToNow(new Date(step.acted_at), { addSuffix: true })}
-                                                        </p>
-                                                    ) : (
-                                                        <p className="text-xs text-slate-400">Pending</p>
-                                                    )}
-                                                    {step.comments && (
-                                                        <p className="text-xs text-slate-600 mt-1 italic">"{step.comments}"</p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            ) : (
-                                <div className="text-center py-8 text-slate-400">
-                                    <Clock size={32} className="mx-auto mb-2" />
-                                    <p>No workflow started yet</p>
-                                </div>
-                            )}
-
-                            {/* Workflow Actions */}
-                            <div className="border-t border-slate-200 pt-4 space-y-3">
-                                {/* Submit for Review */}
-                                {canSubmit && (
-                                    <Button onClick={handleSubmitForReview} disabled={actionLoading} className="w-full">
-                                        <Send size={16} className="mr-2" />
-                                        Submit for Review
-                                    </Button>
-                                )}
-
-                                {/* PMNC Actions */}
-                                {canValidate && (
-                                    <>
-                                        <textarea
-                                            value={approvalComment}
-                                            onChange={(e) => setApprovalComment(e.target.value)}
-                                            placeholder="Add comments (required for revision/rejection)"
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none"
-                                            rows={2}
-                                        />
-                                        <div className="flex gap-2">
-                                            <Button onClick={handleValidate} disabled={actionLoading} className="flex-1">
-                                                <CheckCircle size={16} className="mr-1" />
-                                                Validate
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                onClick={handleRequestRevision}
-                                                disabled={actionLoading}
-                                                className="flex-1"
-                                            >
-                                                <AlertTriangle size={16} className="mr-1" />
-                                                Request Revision
-                                            </Button>
-                                        </div>
-                                    </>
-                                )}
-
-                                {/* SPV Actions */}
-                                {canApprove && (
-                                    <>
-                                        <textarea
-                                            value={approvalComment}
-                                            onChange={(e) => setApprovalComment(e.target.value)}
-                                            placeholder="Add comments (required for rejection)"
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none"
-                                            rows={2}
-                                        />
-                                        <div className="flex gap-2">
-                                            <Button onClick={handleApprove} disabled={actionLoading} className="flex-1 bg-green-600 hover:bg-green-700">
-                                                <CheckCircle size={16} className="mr-1" />
-                                                Final Approval
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                onClick={handleReject}
-                                                disabled={actionLoading}
-                                                className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
-                                            >
-                                                <XCircle size={16} className="mr-1" />
-                                                Reject
-                                            </Button>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </motion.div>
         </div>,

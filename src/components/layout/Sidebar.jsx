@@ -20,6 +20,7 @@ import {
   Shield,
   MessageSquare,
   Clock,
+  Users,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -173,6 +174,13 @@ const Sidebar = () => {
       label: 'Audit System',
       icon: Shield,
       path: '/admin/audit-logs',
+      permission: 'users:manage', // Only admins
+    },
+    {
+      id: 'user-management',
+      label: 'User Management',
+      icon: Users,
+      path: '/users',
       permission: 'users:manage', // Only admins
     },
   ];
