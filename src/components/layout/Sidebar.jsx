@@ -19,6 +19,7 @@ import {
   Workflow,
   Shield,
   MessageSquare,
+  Clock,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -103,6 +104,13 @@ const Sidebar = () => {
       icon: MessageSquare,
       path: '/communications',
       permission: 'dashboard:view', // All users can access communications
+    },
+    {
+      id: 'approvals',
+      label: 'Approvals',
+      icon: Clock,
+      path: '/approvals',
+      permission: 'dashboard:view', // Permission checked in component
     },
     {
       id: 'scheduling',

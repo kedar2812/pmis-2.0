@@ -25,7 +25,9 @@ import AuditLogs from './pages/admin/AuditLogs';
 import UserManagement from './pages/UserManagement';
 
 import EDMS from './pages/EDMS';
+import DocumentViewerPage from './pages/DocumentViewerPage';
 import Communications from './pages/Communications';
+import Approvals from './pages/Approvals';
 
 const ProtectedRoute = ({ children, requiredPermission }) => {
   const { user } = useAuth();
@@ -55,6 +57,7 @@ const AppRoutes = () => {
         <Route path="scheduling" element={<Scheduling />} />
         <Route path="users" element={<UserManagement />} />
         <Route path="edms" element={<EDMS />} />
+        <Route path="edms/view/:id" element={<DocumentViewerPage />} />
         <Route path="cost" element={<CostManagement />} />
         <Route path="risk" element={<RiskManagement />} />
         <Route path="gis" element={<GIS />} />
@@ -63,6 +66,7 @@ const AppRoutes = () => {
         <Route path="reimbursement" element={<Reimbursement />} />
         <Route path="admin/roles" element={<RoleManager />} />
         <Route path="communications" element={<Communications />} />
+        <Route path="approvals" element={<Approvals />} />
       </Route>
     </Routes>
   );

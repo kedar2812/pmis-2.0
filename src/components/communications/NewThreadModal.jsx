@@ -39,9 +39,8 @@ const NewThreadModal = ({ onClose, onCreated, preselectedContext = null }) => {
     const [userSearch, setUserSearch] = useState('');
 
     // Available context types with icons
-    // Note: EDMS document option is temporarily disabled while EDMS is being rebuilt
     const contextOptions = [
-        // { value: 'edms.document', label: 'Document', icon: FileText, apiEndpoint: '/edms/documents/' },
+        { value: 'edms.document', label: 'Document', icon: FileText, apiEndpoint: '/edms/documents/' },
         { value: 'projects.project', label: 'Project', icon: FolderOpen, apiEndpoint: '/projects/' },
     ];
 
