@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import GoogleTranslateWidget from '@/components/ui/GoogleTranslateWidget';
+import NotificationDropdown from '@/components/communications/NotificationDropdown';
 
 
 const Header = () => {
@@ -95,32 +96,8 @@ const Header = () => {
           </Select>
         </div>
 
-        {/* Notifications */}
-        <div className="relative" ref={notificationsRef}>
-          <button
-            onClick={() => {
-              setShowNotifications(!showNotifications);
-              setShowProfile(false); // Close profile when opening notifications
-            }}
-            className="p-2 rounded-xl hover:bg-slate-100/50 relative transition-colors"
-          >
-            <Bell size={20} className="text-slate-600" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-accent-500 rounded-full shadow-coral-glow"></span>
-          </button>
-
-          {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-glass border border-slate-200/50 z-[60]">
-              <div className="p-4 border-b border-slate-200/50">
-                <h3 className="font-heading font-semibold text-slate-900">{t('common.notifications')}</h3>
-              </div>
-              <div className="max-h-96 overflow-y-auto">
-                <div className="p-4 text-sm text-slate-500">
-                  {t('common.notifications')} - {t('common.comingSoon')}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Notifications - Using new Communications NotificationDropdown */}
+        <NotificationDropdown />
 
         {/* User Profile */}
         <div className="relative" ref={profileRef}>

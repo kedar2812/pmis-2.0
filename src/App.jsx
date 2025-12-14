@@ -25,6 +25,7 @@ import AuditLogs from './pages/admin/AuditLogs';
 import UserManagement from './pages/UserManagement';
 
 import EDMS from './pages/EDMS';
+import Communications from './pages/Communications';
 
 const ProtectedRoute = ({ children, requiredPermission }) => {
   const { user } = useAuth();
@@ -61,6 +62,7 @@ const AppRoutes = () => {
         <Route path="workflow" element={<WorkflowConfig />} />
         <Route path="reimbursement" element={<Reimbursement />} />
         <Route path="admin/roles" element={<RoleManager />} />
+        <Route path="communications" element={<Communications />} />
       </Route>
     </Routes>
   );

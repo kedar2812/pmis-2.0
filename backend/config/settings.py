@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'projects',
     'edms',
+    'communications',
 ]
 
 MIDDLEWARE = [

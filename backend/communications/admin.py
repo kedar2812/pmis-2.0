@@ -1,2 +1,3 @@
-# EDMS Admin - To be rebuilt
 from django.contrib import admin
+
+# Register your models here.

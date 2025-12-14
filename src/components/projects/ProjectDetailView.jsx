@@ -13,6 +13,7 @@ import {
     BarChart3,
     Users,
     Briefcase,
+    MessageSquare,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { tasks, risks } from '@/mock';
@@ -26,10 +27,13 @@ import {
 import { EmptyState } from '@/components/ui/EmptyState';
 import { AddContractorModal } from '@/components/procurement/AddContractorModal';
 import Button from '@/components/ui/Button';
+import NewThreadModal from '@/components/communications/NewThreadModal';
+import { toast } from 'sonner';
 
 export const ProjectDetailView = ({ project, packages = [], contractors = [], onAddContractor }) => {
     const [activeTab, setActiveTab] = useState('overview');
     const [isAddContractorModalOpen, setIsAddContractorModalOpen] = useState(false);
+    const [showNewThread, setShowNewThread] = useState(false);
 
     if (!project) return null;
 
@@ -116,7 +120,14 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                         </div>
                     </div>
                 </div>
-                {/* Actions or close button if modal (handled by parent) */}
+                {/* Actions */}
+                <Button
+                    variant="outline"
+                    onClick={() => setShowNewThread(true)}
+                    className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                >
+                    <MessageSquare size={16} className="mr-2" /> Discuss Project
+                </Button>
             </div>
 
             {/* Tab Navigation */}
@@ -520,6 +531,21 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                 onClose={() => setIsAddContractorModalOpen(false)}
                 onSave={onAddContractor}
             />
+
+            {/* Communications Modal */}
+            {showNewThread && (
+                <NewThreadModal
+                    onClose={() => setShowNewThread(false)}
+                    onCreated={(thread) => {
+                        setShowNewThread(false);
+                        toast.success(`Discussion thread created: ${thread.subject}`);
+                    }}
+                    preselectedContext={{
+                        type: 'projects.project',
+                        id: project.id
+                    }}
+                />
+            )}
         </div>
     );
 };

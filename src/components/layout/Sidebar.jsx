@@ -18,6 +18,7 @@ import {
   FolderOpen,
   Workflow,
   Shield,
+  MessageSquare,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -95,6 +96,13 @@ const Sidebar = () => {
       icon: FileText,
       path: '/edms',
       permission: 'edms:view',
+    },
+    {
+      id: 'communications',
+      label: 'Communications',
+      icon: MessageSquare,
+      path: '/communications',
+      permission: 'dashboard:view', // All users can access communications
     },
     {
       id: 'scheduling',

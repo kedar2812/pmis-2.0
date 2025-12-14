@@ -21,6 +21,7 @@ urlpatterns = [
     path('api/users/', include('users.urls')),
     path('api/projects/', include('projects.urls')),
     path('api/edms/', include('edms.urls')),
+    path('api/communications/', include('communications.urls')),
 ]
 
 from django.conf import settings
