@@ -330,21 +330,17 @@ const EDMS = () => {
                 </div>
             )}
 
-            {/* Documents Section - Only show if there are documents OR if completely empty */}
-            {(documents.length > 0 || folders.length === 0) && (
-                <div className="space-y-4">
-                    {folders.length > 0 && documents.length > 0 && (
-                        <div className="flex items-center justify-between pt-4 border-t border-slate-200/60">
-                            <h3 className="text-base font-bold text-slate-800 tracking-tight flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center">
-                                    <FileText size={16} className="text-primary-600" />
-                                </div>
-                                Documents
-                                <span className="text-xs font-normal text-slate-400 ml-1">({documents.length})</span>
-                            </h3>
-                        </div>
-                    )}
-
+            {/* Documents Section */}
+            <div className="space-y-3">
+                {folders.length > 0 && documents.length > 0 && (
+                    <div className="flex items-center gap-2 pt-4 border-t border-slate-200/60">
+                        <FileText size={16} className="text-primary-500" />
+                        <h3 className="text-sm font-bold text-slate-800 tracking-wide">
+                            Documents
+                        </h3>
+                    </div>
+                )}
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                     <DocumentList
                         documents={documents}
                         loading={loading && folders.length === 0}
@@ -356,7 +352,7 @@ const EDMS = () => {
                         onDiscuss={handleDiscuss}
                     />
                 </div>
-            )}
+            </div>
         </div>
     );
 
@@ -383,10 +379,10 @@ const EDMS = () => {
                                     <FileText size={20} />
                                 </div>
                                 <div>
-                                    <h1 className="text-3xl font-bold text-slate-800 leading-tight">
+                                    <h1 className="text-lg font-bold text-slate-800 leading-tight">
                                         Electronic Document Management System
                                     </h1>
-                                    <p className="text-sm text-slate-500 mt-1">
+                                    <p className="text-xs text-slate-500 font-medium">
                                         {currentProject ? 'Project Documents' : 'Select a Project to browse'}
                                     </p>
                                 </div>
@@ -437,8 +433,8 @@ const EDMS = () => {
                             <button
                                 onClick={() => navigateToBreadcrumb(-1)}
                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border ${breadcrumbs.length === 0
-                                    ? 'bg-slate-800 text-white border-slate-800 shadow-sm'
-                                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                                        ? 'bg-slate-800 text-white border-slate-800 shadow-sm'
+                                        : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                                     }`}
                             >
                                 <Home size={14} />
@@ -453,8 +449,8 @@ const EDMS = () => {
                                         <button
                                             onClick={() => navigateToBreadcrumb(index)}
                                             className={`px-3 py-1.5 rounded-full transition-all border whitespace-nowrap max-w-[150px] truncate ${isLast
-                                                ? 'bg-slate-800 text-white border-slate-800 shadow-sm'
-                                                : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                                                    ? 'bg-slate-800 text-white border-slate-800 shadow-sm'
+                                                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                                                 }`}
                                         >
                                             {crumb.item.name}
@@ -492,20 +488,18 @@ const EDMS = () => {
                 </div>
             </div>
 
-            {/* Main Scrollable Content - Wrapped in white rounded container */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 min-h-full">
-                    {loading && (currentView === 'projects' || folders.length === 0) ? (
-                        <div className="flex flex-col items-center justify-center py-20 opacity-60">
-                            <Loader2 size={40} className="animate-spin text-primary-500 mb-4" />
-                            <p className="text-slate-500 font-medium">Loading contents...</p>
-                        </div>
-                    ) : currentView === 'projects' ? (
-                        renderProjectsView()
-                    ) : (
-                        renderFoldersAndDocuments()
-                    )}
-                </div>
+            {/* Main Scrollable Content */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                {loading && (currentView === 'projects' || folders.length === 0) ? (
+                    <div className="flex flex-col items-center justify-center py-20 opacity-60">
+                        <Loader2 size={40} className="animate-spin text-primary-500 mb-4" />
+                        <p className="text-slate-500 font-medium">Loading contents...</p>
+                    </div>
+                ) : currentView === 'projects' ? (
+                    renderProjectsView()
+                ) : (
+                    renderFoldersAndDocuments()
+                )}
             </div>
 
             {/* Create Folder Modal */}

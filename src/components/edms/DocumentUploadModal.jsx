@@ -15,14 +15,13 @@ import { toast } from 'sonner';
 import Button from '@/components/ui/Button';
 
 const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUploaded }) => {
-    const [file, setFile] = useState(null);
-    const [title, setTitle] = useState('');
+    const [files, setFiles] = useState([]);
+    const [title, setTitle] = useState(''); // Only used for single file
     const [description, setDescription] = useState('');
     const [documentType, setDocumentType] = useState('OTHER');
-    const [documentNumber, setDocumentNumber] = useState('');
+    // documentNumber state removed
     const [isConfidential, setIsConfidential] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(0);
 
     // Folder selection
     const [folders, setFolders] = useState([]);
@@ -50,7 +49,6 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
     const fetchFolders = async () => {
         setLoadingFolders(true);
         try {
-            // Fetch all folders for this project (flat list for dropdown)
             const res = await client.get(`/edms/folders/?project=${projectId}`);
             const folderList = Array.isArray(res.data) ? res.data : (res.data.results || []);
             setFolders(folderList);
@@ -74,8 +72,6 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
             toast.success('Folder created');
             setNewFolderName('');
             setShowCreateFolder(false);
-
-            // Add to list and select it
             setFolders(prev => [...prev, res.data]);
             setSelectedFolderId(res.data.id);
         } catch (error) {
@@ -85,23 +81,39 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
         }
     };
 
-    const onDrop = useCallback((acceptedFiles) => {
+    const onDrop = useCallback((acceptedFiles, fileRejections) => {
+        if (fileRejections.length > 0) {
+            const rejection = fileRejections[0];
+            const errorMsg = rejection.errors[0]?.message || 'File type not supported';
+            toast.error(`Cannot upload ${rejection.file.name}: ${errorMsg}`);
+        }
+
         if (acceptedFiles.length > 0) {
-            const f = acceptedFiles[0];
-            setFile(f);
-            // Auto-fill title from filename if empty
-            if (!title) {
-                setTitle(f.name.replace(/\.[^/.]+$/, ''));
-            }
-            // Auto-detect type from extension
-            const ext = f.name.split('.').pop().toLowerCase();
-            if (['pdf', 'doc', 'docx', 'txt'].includes(ext)) {
+            const newFiles = acceptedFiles.map(f => ({
+                file: f,
+                id: Math.random().toString(36).substring(7),
+                status: 'pending', // pending, uploading, success, error
+                progress: 0
+            }));
+
+            setFiles(prev => {
+                const updated = [...prev, ...newFiles];
+                // Auto-fill title if this is the ONLY file and no title set
+                if (updated.length === 1 && !title) {
+                    setTitle(updated[0].file.name.replace(/\.[^/.]+$/, ''));
+                }
+                return updated;
+            });
+
+            // Auto-detect type from first file if not set
+            const firstExt = acceptedFiles[0].name.split('.').pop().toLowerCase();
+            if (['pdf', 'doc', 'docx', 'txt', 'rtf'].includes(firstExt)) {
                 setDocumentType('REPORT');
-            } else if (['dwg', 'dxf', 'cad'].includes(ext)) {
+            } else if (['dwg', 'dxf', 'cad'].includes(firstExt)) {
                 setDocumentType('DRAWING');
-            } else if (['xls', 'xlsx', 'csv'].includes(ext)) {
+            } else if (['xls', 'xlsx', 'csv'].includes(firstExt)) {
                 setDocumentType('INVOICE');
-            } else if (['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov'].includes(ext)) {
+            } else if (['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov', 'avi'].includes(firstExt)) {
                 setDocumentType('MEDIA');
             }
         }
@@ -109,23 +121,32 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
-        multiple: false,
+        multiple: true,
         accept: {
             'application/pdf': ['.pdf'],
             'application/msword': ['.doc'],
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
             'application/vnd.ms-excel': ['.xls'],
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-            'image/*': ['.png', '.jpg', '.jpeg', '.gif'],
-            'video/*': ['.mp4', '.mov', '.avi'],
+            'text/csv': ['.csv'],
+            'application/vnd.ms-powerpoint': ['.ppt'],
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'],
+            'text/plain': ['.txt'],
+            'text/rtf': ['.rtf'],
+            'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp'],
+            'video/*': ['.mp4', '.mov', '.avi', '.webm'],
             'application/octet-stream': ['.dwg', '.dxf'],
+            'image/vnd.dxf': ['.dxf'],
         }
     });
 
-    const getFileIcon = () => {
-        if (!file) return FileText;
-        const ext = file.name.split('.').pop().toLowerCase();
-        if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return FileImage;
+    const removeFile = (id) => {
+        setFiles(prev => prev.filter(f => f.id !== id));
+    };
+
+    const getFileIcon = (fileName) => {
+        const ext = fileName.split('.').pop().toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return FileImage;
         if (['xls', 'xlsx', 'csv'].includes(ext)) return FileSpreadsheet;
         return FileText;
     };
@@ -139,52 +160,75 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!file) {
-            toast.error('Please select a file');
+        if (files.length === 0) {
+            toast.error('Please select at least one file');
             return;
         }
-        if (!title.trim()) {
+
+        if (files.length === 1 && !title.trim()) {
             toast.error('Please enter a title');
             return;
         }
 
         setIsUploading(true);
-        setUploadProgress(0);
+        let successCount = 0;
 
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('title', title.trim());
-        formData.append('description', description);
-        formData.append('document_type', documentType);
-        formData.append('document_number', documentNumber);
-        formData.append('project', projectId);
-        formData.append('is_confidential', isConfidential);
-        if (selectedFolderId) {
-            formData.append('folder', selectedFolderId);
+        for (const fileObj of files) {
+            if (fileObj.status === 'success') {
+                successCount++;
+                continue;
+            }
+
+            // Update status to uploading
+            setFiles(prev => prev.map(f => f.id === fileObj.id ? { ...f, status: 'uploading' } : f));
+
+            const formData = new FormData();
+            formData.append('file', fileObj.file);
+            // Use manual title for single file, otherwise filename
+            const finalTitle = (files.length === 1 && title.trim())
+                ? title.trim()
+                : fileObj.file.name.replace(/\.[^/.]+$/, '');
+
+            formData.append('title', finalTitle);
+            formData.append('description', description);
+            formData.append('document_type', documentType);
+            // documentNumber append removed
+            formData.append('project', projectId);
+            formData.append('is_confidential', isConfidential);
+            if (selectedFolderId) {
+                formData.append('folder', selectedFolderId);
+            }
+
+            try {
+                await client.post('/edms/documents/', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                    onUploadProgress: (progressEvent) => {
+                        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setFiles(prev => prev.map(f => f.id === fileObj.id ? { ...f, progress: percent } : f));
+                    }
+                });
+
+                setFiles(prev => prev.map(f => f.id === fileObj.id ? { ...f, status: 'success', progress: 100 } : f));
+                successCount++;
+            } catch (error) {
+                console.error('Upload failed for', fileObj.file.name, error);
+                setFiles(prev => prev.map(f => f.id === fileObj.id ? { ...f, status: 'error' } : f));
+                toast.error(`Failed to upload ${fileObj.file.name}`);
+            }
         }
 
-        try {
-            const res = await client.post('/edms/documents/', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-                onUploadProgress: (progressEvent) => {
-                    const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    setUploadProgress(percent);
-                }
-            });
+        setIsUploading(false);
 
-            toast.success('Document uploaded successfully');
-            onUploaded(res.data);
-        } catch (error) {
-            console.error('Upload failed:', error);
-            toast.error(error.response?.data?.error || 'Failed to upload document');
-        } finally {
-            setIsUploading(false);
+        if (successCount === files.length) {
+            toast.success(`Successfully uploaded ${successCount} document(s)`);
+            onUploaded && onUploaded(); // Refresh parent
+            onClose();
+        } else if (successCount > 0) {
+            toast.warning(`Uploaded ${successCount} of ${files.length} documents. Some failed.`);
+            onUploaded && onUploaded();
         }
     };
 
-    const FileIcon = getFileIcon();
-
-    // Build folder path display
     const getSelectedFolderPath = () => {
         if (!selectedFolderId) return 'Root (No folder)';
         const folder = folders.find(f => f.id === selectedFolderId);
@@ -203,7 +247,7 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                     <div>
                         <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                             <Upload className="text-primary-600" size={20} />
-                            Upload Document
+                            Upload Document(s)
                         </h2>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-white/50 rounded-lg transition-colors">
@@ -216,204 +260,174 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                     <div
                         {...getRootProps()}
                         className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${isDragActive
-                                ? 'border-primary-500 bg-primary-50'
-                                : file
-                                    ? 'border-green-300 bg-green-50'
-                                    : 'border-slate-300 hover:border-slate-400'
+                            ? 'border-primary-500 bg-primary-50'
+                            : 'border-slate-300 hover:border-slate-400'
                             }`}
                     >
                         <input {...getInputProps()} />
-
-                        {file ? (
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
-                                    <FileIcon size={24} className="text-green-600" />
-                                </div>
-                                <div className="text-left flex-1">
-                                    <p className="font-medium text-slate-800 text-sm truncate">{file.name}</p>
-                                    <p className="text-xs text-slate-500">{formatFileSize(file.size)}</p>
-                                </div>
-                                <Check size={20} className="text-green-600" />
-                            </div>
-                        ) : (
-                            <>
-                                <Upload size={32} className={`mx-auto ${isDragActive ? 'text-primary-600' : 'text-slate-400'}`} />
-                                <p className="text-sm text-slate-600 mt-2">
-                                    {isDragActive ? 'Drop the file here' : 'Drag & drop a file, or click to browse'}
-                                </p>
-                                <p className="text-xs text-slate-400 mt-1">
-                                    PDF, Word, Excel, Images, Media files
-                                </p>
-                            </>
-                        )}
+                        <Upload size={32} className={`mx-auto ${isDragActive ? 'text-primary-600' : 'text-slate-400'}`} />
+                        <p className="text-sm text-slate-600 mt-2">
+                            {isDragActive ? 'Drop files here' : 'Drag & drop files, or click to browse'}
+                        </p>
+                        <p className="text-xs text-slate-400 mt-1">
+                            PDF, Word, Excel, Images, Media, CAD
+                        </p>
                     </div>
 
-                    {/* Folder Selection */}
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Upload to Folder
-                        </label>
-                        <div className="flex gap-2">
-                            <div className="relative flex-1">
-                                <Folder size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500" />
-                                <select
-                                    value={selectedFolderId || ''}
-                                    onChange={(e) => setSelectedFolderId(e.target.value || null)}
-                                    disabled={loadingFolders}
-                                    className="w-full pl-10 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none"
-                                >
-                                    <option value="">Root (No folder)</option>
-                                    {folders.map(folder => (
-                                        <option key={folder.id} value={folder.id}>
-                                            {folder.full_path || folder.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                            </div>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setShowCreateFolder(!showCreateFolder)}
-                            >
-                                <Plus size={16} />
-                            </Button>
+                    {/* File List */}
+                    {files.length > 0 && (
+                        <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                            {files.map((fObj) => {
+                                const Icon = getFileIcon(fObj.file.name);
+                                return (
+                                    <div key={fObj.id} className="flex items-center gap-3 p-2 bg-slate-50 rounded-lg border border-slate-100">
+                                        <div className="w-8 h-8 rounded bg-white flex items-center justify-center border border-slate-200">
+                                            <Icon size={16} className="text-slate-500" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-medium text-slate-700 truncate">{fObj.file.name}</p>
+                                            <div className="flex items-center gap-2 text-xs text-slate-400">
+                                                <span>{formatFileSize(fObj.file.size)}</span>
+                                                {fObj.status === 'uploading' && <span className="text-primary-600">Uploading {fObj.progress}%</span>}
+                                                {fObj.status === 'success' && <span className="text-green-600">Done</span>}
+                                                {fObj.status === 'error' && <span className="text-red-500">Failed</span>}
+                                            </div>
+                                            {fObj.status === 'uploading' && (
+                                                <div className="h-1 bg-slate-200 rounded-full mt-1 overflow-hidden">
+                                                    <div className="h-full bg-primary-500 transition-all duration-300" style={{ width: `${fObj.progress}%` }} />
+                                                </div>
+                                            )}
+                                        </div>
+                                        {!isUploading && fObj.status !== 'success' && (
+                                            <button type="button" onClick={() => removeFile(fObj.id)} className="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-red-500">
+                                                <X size={14} />
+                                            </button>
+                                        )}
+                                        {fObj.status === 'success' && <Check size={16} className="text-green-600" />}
+                                    </div>
+                                );
+                            })}
                         </div>
+                    )}
 
-                        {/* Create New Folder Inline */}
-                        {showCreateFolder && (
-                            <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                className="mt-2 p-3 bg-slate-50 rounded-lg border border-slate-200"
-                            >
-                                <p className="text-xs font-medium text-slate-600 mb-2">Create New Folder</p>
-                                <div className="flex gap-2">
+                    {/* Common Metadata */}
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/60 space-y-3">
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Common Settings</p>
+
+                        {/* Folder Selection */}
+                        <div>
+                            <label className="block text-xs font-medium text-slate-700 mb-1">Folder</label>
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <select
+                                        value={selectedFolderId || ''}
+                                        onChange={(e) => setSelectedFolderId(e.target.value || null)}
+                                        disabled={loadingFolders}
+                                        className="w-full pl-2 pr-8 py-1.5 bg-white border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    >
+                                        <option value="">Root (No folder)</option>
+                                        {folders.map(folder => (
+                                            <option key={folder.id} value={folder.id}>
+                                                {folder.full_path || folder.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setShowCreateFolder(!showCreateFolder)}
+                                >
+                                    <Plus size={16} />
+                                </Button>
+                            </div>
+                            {/* Create New Folder Inline */}
+                            {showCreateFolder && (
+                                <div className="mt-2 flex gap-2">
                                     <input
                                         type="text"
                                         value={newFolderName}
                                         onChange={(e) => setNewFolderName(e.target.value)}
                                         placeholder="Folder name"
-                                        className="flex-1 px-3 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleCreateFolder())}
+                                        className="flex-1 px-3 py-1.5 border border-slate-200 rounded text-sm"
                                     />
-                                    <Button
-                                        type="button"
-                                        size="sm"
-                                        onClick={handleCreateFolder}
-                                        disabled={isCreatingFolder || !newFolderName.trim()}
-                                    >
-                                        {isCreatingFolder ? <Loader2 size={14} className="animate-spin" /> : 'Create'}
-                                    </Button>
+                                    <Button type="button" size="sm" onClick={handleCreateFolder}>Create</Button>
                                 </div>
-                            </motion.div>
-                        )}
-                    </div>
-
-                    {/* Title */}
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Title <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Document title"
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            required
-                        />
-                    </div>
-
-                    {/* Type & Number Row */}
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
-                                Document Type
-                            </label>
-                            <select
-                                value={documentType}
-                                onChange={(e) => setDocumentType(e.target.value)}
-                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            >
-                                {documentTypes.map(t => (
-                                    <option key={t.value} value={t.value}>{t.label}</option>
-                                ))}
-                            </select>
+                            )}
                         </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs font-medium text-slate-700 mb-1">Type</label>
+                                <select
+                                    value={documentType}
+                                    onChange={(e) => setDocumentType(e.target.value)}
+                                    className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                >
+                                    {documentTypes.map(t => (
+                                        <option key={t.value} value={t.value}>{t.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex items-end">
+                                <label className="flex items-center gap-2 cursor-pointer pb-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={isConfidential}
+                                        onChange={(e) => setIsConfidential(e.target.checked)}
+                                        className="w-4 h-4 rounded border-slate-300 text-primary-600"
+                                    />
+                                    <span className="text-sm text-slate-700">Confidential</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* Title Input - Only show if single file */}
+                        {files.length <= 1 && (
+                            <div>
+                                <label className="block text-xs font-medium text-slate-700 mb-1">
+                                    Title <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    placeholder="Document title"
+                                    className="w-full px-3 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                />
+                            </div>
+                        )}
+
+                        {/* Document Number Input Removed */}
+
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
-                                Document Number
-                            </label>
-                            <input
-                                type="text"
-                                value={documentNumber}
-                                onChange={(e) => setDocumentNumber(e.target.value)}
-                                placeholder="e.g., DRG-001"
-                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            <label className="block text-xs font-medium text-slate-700 mb-1">Description</label>
+                            <textarea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="Description (applied to all files)"
+                                className="w-full px-3 py-1.5 border border-slate-200 rounded text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                rows={2}
                             />
                         </div>
                     </div>
-
-                    {/* Description */}
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Description
-                        </label>
-                        <textarea
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Brief description of the document"
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            rows={2}
-                        />
-                    </div>
-
-                    {/* Confidential Toggle */}
-                    <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={isConfidential}
-                            onChange={(e) => setIsConfidential(e.target.checked)}
-                            className="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
-                        />
-                        <span className="text-sm text-slate-700">Mark as confidential</span>
-                        <AlertCircle size={14} className="text-slate-400" />
-                    </label>
-
-                    {/* Upload Progress */}
-                    {isUploading && (
-                        <div className="space-y-1">
-                            <div className="flex justify-between text-xs text-slate-500">
-                                <span>Uploading...</span>
-                                <span>{uploadProgress}%</span>
-                            </div>
-                            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                                <motion.div
-                                    className="h-full bg-primary-600"
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${uploadProgress}%` }}
-                                />
-                            </div>
-                        </div>
-                    )}
 
                     {/* Actions */}
                     <div className="flex justify-end gap-2 pt-2">
                         <Button type="button" variant="outline" onClick={onClose} disabled={isUploading}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={isUploading || !file}>
+                        <Button type="submit" disabled={isUploading || files.length === 0}>
                             {isUploading ? (
                                 <>
                                     <Loader2 size={16} className="animate-spin mr-2" />
-                                    Uploading...
+                                    Uploading {files.length} files...
                                 </>
                             ) : (
                                 <>
                                     <Upload size={16} className="mr-2" />
-                                    Upload
+                                    Upload {files.length > 0 ? `${files.length} Files` : ''}
                                 </>
                             )}
                         </Button>

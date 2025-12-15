@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import Button from '@/components/ui/Button';
 import NotingPanel from '@/components/edms/NotingPanel';
 import AddNoteModal from '@/components/edms/AddNoteModal';
+import * as XLSX from 'xlsx';
 
 const DocumentViewerPage = () => {
     const { id } = useParams();
@@ -25,7 +26,9 @@ const DocumentViewerPage = () => {
     const [document, setDocument] = useState(null);
     const [notings, setNotings] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [pdfUrl, setPdfUrl] = useState(null);
+    const [fileUrl, setFileUrl] = useState(null);
+    const [fileType, setFileType] = useState('unknown'); // 'pdf', 'image', 'video', 'excel', 'unknown'
+    const [excelData, setExcelData] = useState(null); // For excel parsing
     const [showAddNote, setShowAddNote] = useState(false);
     const [panelWidth, setPanelWidth] = useState(35); // Percentage
     const [currentPage, setCurrentPage] = useState(1);
@@ -53,13 +56,38 @@ const DocumentViewerPage = () => {
             const res = await client.get(`/edms/documents/${id}/`);
             setDocument(res.data);
 
-            // Get PDF URL for viewing
             if (res.data.current_version) {
-                const pdfRes = await client.get(`/edms/documents/${id}/download/`, {
+                const docVersion = res.data.current_version;
+                const mimeType = docVersion.mime_type || '';
+
+                // Determine File Type
+                let type = 'unknown';
+                if (mimeType.includes('pdf')) type = 'pdf';
+                else if (mimeType.match(/image\/(jpeg|png|gif|webp)/)) type = 'image';
+                else if (mimeType.match(/video\/(mp4|webm|ogg)/)) type = 'video';
+                else if (mimeType.includes('spreadsheet') || mimeType.includes('excel') || mimeType.includes('csv') || docVersion.file_name.endsWith('.xlsx') || docVersion.file_name.endsWith('.xls') || docVersion.file_name.endsWith('.csv')) type = 'excel';
+
+                setFileType(type);
+
+                // Fetch File content
+                const downloadRes = await client.get(`/edms/documents/${id}/download/`, {
                     responseType: 'blob'
                 });
-                const url = URL.createObjectURL(pdfRes.data);
-                setPdfUrl(url);
+
+                if (type === 'excel') {
+                    // Parse Excel
+                    const arrayBuffer = await downloadRes.data.arrayBuffer();
+                    const workbook = XLSX.read(arrayBuffer);
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                    setExcelData(jsonData);
+                    setFileUrl(null); // No URL needed specifically unless we want to download
+                } else {
+                    // Create URL for media/pdf
+                    const url = URL.createObjectURL(downloadRes.data);
+                    setFileUrl(url);
+                }
             }
         } catch (error) {
             console.error('Failed to fetch document:', error);
@@ -179,41 +207,43 @@ const DocumentViewerPage = () => {
                     <div className="flex items-center justify-between px-6 py-3 bg-slate-800/50 backdrop-blur border-b border-slate-800">
                         <div className="flex items-center gap-2 bg-slate-900/50 rounded-lg p-1 border border-slate-800">
                             <button
-                                onClick={() => setZoom(Math.max(50, zoom - 25))}
+                                onClick={() => setZoom(Math.max(25, zoom - 25))}
                                 className="p-1.5 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-colors"
                             >
                                 <ZoomOut size={16} />
                             </button>
                             <span className="text-slate-300 text-xs font-mono w-12 text-center">{zoom}%</span>
                             <button
-                                onClick={() => setZoom(Math.min(200, zoom + 25))}
+                                onClick={() => setZoom(Math.min(300, zoom + 25))}
                                 className="p-1.5 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-colors"
                             >
                                 <ZoomIn size={16} />
                             </button>
                         </div>
 
-                        <div className="flex items-center gap-4 text-slate-400 text-sm">
-                            <div className="flex items-center gap-2 bg-slate-900/50 rounded-lg p-1 border border-slate-800">
-                                <button
-                                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                                    className="p-1 hover:bg-slate-700 rounded-md disabled:opacity-30 transition-colors"
-                                    disabled={currentPage <= 1}
-                                >
-                                    <ChevronLeft size={16} />
-                                </button>
-                                <span className="text-xs font-medium px-2">
-                                    Page {currentPage} / {totalPages}
-                                </span>
-                                <button
-                                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                                    className="p-1 hover:bg-slate-700 rounded-md disabled:opacity-30 transition-colors"
-                                    disabled={currentPage >= totalPages}
-                                >
-                                    <ChevronRight size={16} />
-                                </button>
+                        {fileType === 'pdf' && (
+                            <div className="flex items-center gap-4 text-slate-400 text-sm">
+                                <div className="flex items-center gap-2 bg-slate-900/50 rounded-lg p-1 border border-slate-800">
+                                    <button
+                                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                                        className="p-1 hover:bg-slate-700 rounded-md disabled:opacity-30 transition-colors"
+                                        disabled={currentPage <= 1}
+                                    >
+                                        <ChevronLeft size={16} />
+                                    </button>
+                                    <span className="text-xs font-medium px-2">
+                                        Page {currentPage} / {totalPages}
+                                    </span>
+                                    <button
+                                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                                        className="p-1 hover:bg-slate-700 rounded-md disabled:opacity-30 transition-colors"
+                                        disabled={currentPage >= totalPages}
+                                    >
+                                        <ChevronRight size={16} />
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         <button
                             onClick={() => setPanelWidth(panelWidth > 20 ? 0 : 35)}
@@ -224,11 +254,11 @@ const DocumentViewerPage = () => {
                         </button>
                     </div>
 
-                    {/* Document Display */}
+                    {/* Document Display Content */}
                     <div className="flex-1 overflow-auto p-8 flex items-start justify-center bg-slate-900/50">
-                        {pdfUrl ? (
+                        {fileType === 'pdf' && fileUrl ? (
                             <iframe
-                                src={pdfUrl}
+                                src={fileUrl}
                                 className="bg-white shadow-2xl transition-all duration-300"
                                 style={{
                                     width: `${zoom}%`,
@@ -237,10 +267,66 @@ const DocumentViewerPage = () => {
                                 }}
                                 title="Document Viewer"
                             />
+                        ) : fileType === 'image' && fileUrl ? (
+                            <img
+                                src={fileUrl}
+                                alt="Document"
+                                className="shadow-2xl object-contain transition-all duration-300"
+                                style={{
+                                    width: `${zoom}%`,
+                                    maxWidth: 'none' // Allow zoom to exceed container
+                                }}
+                            />
+                        ) : fileType === 'video' && fileUrl ? (
+                            <div
+                                style={{ width: `${zoom}%`, maxWidth: '100%' }}
+                                className="shadow-2xl bg-black rounded-lg overflow-hidden"
+                            >
+                                <video controls className="w-full h-auto">
+                                    <source src={fileUrl} />
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        ) : fileType === 'excel' && excelData ? (
+                            <div
+                                className="bg-white shadow-2xl overflow-auto w-full transition-all duration-300"
+                                style={{
+                                    width: `${zoom}%`,
+                                    maxWidth: 'none'
+                                }}
+                            >
+                                <table className="w-full border-collapse text-sm text-slate-800">
+                                    <tbody>
+                                        {excelData.map((row, rowIndex) => (
+                                            <tr key={rowIndex} className={rowIndex === 0 ? "bg-slate-100 font-bold border-b border-slate-300" : "border-b border-slate-100 hover:bg-slate-50"}>
+                                                {row.map((cell, cellIndex) => (
+                                                    <td key={cellIndex} className="p-2 border-r border-slate-200 min-w-[100px] whitespace-nowrap">
+                                                        {cell}
+                                                    </td>
+                                                ))}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center h-full text-slate-500">
-                                <FileText size={64} className="mb-4 opacity-20" />
-                                <p>No file preview available</p>
+                            <div className="flex flex-col items-center justify-center h-full text-slate-500 gap-4">
+                                <div className="p-6 bg-slate-800/50 rounded-2xl flex flex-col items-center">
+                                    <FileText size={48} className="mb-4 opacity-50" />
+                                    <h3 className="text-lg font-medium text-slate-300">
+                                        Preview not available
+                                    </h3>
+                                    <p className="text-sm text-slate-500 mb-6 text-center max-w-xs">
+                                        This file type ({document?.current_version?.mime_type || 'unknown'}) cannot be previewed directly.
+                                    </p>
+                                    <button
+                                        onClick={handleDownload}
+                                        className="flex items-center gap-2 px-6 py-3 rounded-full bg-primary-600 hover:bg-primary-700 text-white font-medium transition-all"
+                                    >
+                                        <Download size={18} />
+                                        Download File
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>

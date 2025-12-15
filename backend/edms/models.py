@@ -152,6 +152,35 @@ class Document(models.Model):
     def __str__(self):
         return f"{self.title} (v{self.current_version.version_number if self.current_version else 0})"
     
+    def save(self, *args, **kwargs):
+        if not self.document_number:
+            from django.utils import timezone
+            import datetime
+            
+            now = timezone.now()
+            year = now.year
+            prefix = f"DOC-{year}"
+            
+            # Find the last document number for this year
+            # This is a naive implementation; for high concurrency use a separate Sequence model
+            last_doc = Document.objects.filter(
+                document_number__startswith=prefix
+            ).order_by('created_at').last()
+            
+            last_seq = 0
+            if last_doc and last_doc.document_number:
+                try:
+                    parts = last_doc.document_number.split('-')
+                    if len(parts) >= 3:
+                        last_seq = int(parts[-1])
+                except ValueError:
+                    pass
+            
+            new_seq = last_seq + 1
+            self.document_number = f"{prefix}-{new_seq:05d}"
+            
+        super().save(*args, **kwargs)
+    
     def can_be_edited_by(self, user):
         """Check if document can be edited by user based on status and role."""
         # Only DRAFT and REVISION_REQUESTED allow edits

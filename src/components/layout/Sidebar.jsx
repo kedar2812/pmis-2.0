@@ -94,7 +94,7 @@ const Sidebar = () => {
 
     {
       id: 'edms',
-      label: t('common.documents'),
+      label: 'EDMS',
       icon: FileText,
       path: '/edms',
       permission: 'edms:view',
@@ -334,6 +334,7 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+
 
 
 
