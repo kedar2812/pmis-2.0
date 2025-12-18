@@ -1,15 +1,67 @@
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useMockData } from '@/hooks/useMockData';
+import projectService from '@/api/services/projectService';
+
 import { ProjectDetailView } from '@/components/projects/ProjectDetailView';
 import Button from '@/components/ui/Button';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+
+// Temporary mock for contractors if service missing
+import { useMockData } from '@/hooks/useMockData';
 
 const ProjectDetailsPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { projects, packages, contractors, addContractor } = useMockData();
 
-    const project = projects.find((p) => String(p.id) === String(id));
+    const [project, setProject] = useState(null);
+    const [packages, setPackages] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // We still need contractors list for the dropdowns
+    const { contractors: mockContractors } = useMockData();
+    // Ideally we should fetch real contractors:
+    // const [contractors, setContractors] = useState([]);
+
+    const loadProjectData = async () => {
+        try {
+            setLoading(true);
+            const projectData = await projectService.getProjectById(id);
+            setProject(projectData);
+
+            // If the project serializer returns work_packages, use them.
+            // Otherwise fetch separately.
+            if (projectData.work_packages) {
+                setPackages(projectData.work_packages);
+            } else {
+                const packagesData = await projectService.getPackages(id);
+                setPackages(packagesData);
+            }
+        } catch (error) {
+            console.error('Failed to load project:', error);
+            toast.error('Failed to load project details');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (id) {
+            loadProjectData();
+        }
+    }, [id]);
+
+    const handlePackageCreated = () => {
+        loadProjectData(); // Refresh data
+    };
+
+    if (loading) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <Loader2 className="animate-spin text-primary-600" size={32} />
+            </div>
+        );
+    }
 
     if (!project) {
         return (
@@ -28,7 +80,12 @@ const ProjectDetailsPage = () => {
                 <ChevronLeft size={16} className="mr-1" /> Back
             </Button>
             <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden min-h-[85vh]">
-                <ProjectDetailView project={project} packages={packages} contractors={contractors} onAddContractor={addContractor} />
+                <ProjectDetailView
+                    project={project}
+                    packages={packages}
+                    contractors={mockContractors}
+                    onPackageUpdate={handlePackageCreated}
+                />
             </div>
         </div>
     );

@@ -17,7 +17,11 @@ import ThreadList from '@/components/communications/ThreadList';
 import ThreadDetail from '@/components/communications/ThreadDetail';
 import NewThreadModal from '@/components/communications/NewThreadModal';
 
+import { useParams, useNavigate } from 'react-router-dom';
+
 const Communications = () => {
+    const { threadId } = useParams();
+    const navigate = useNavigate();
     const { user } = useAuth();
     const { t } = useLanguage();
     const [threads, setThreads] = useState([]);
@@ -35,10 +39,48 @@ const Communications = () => {
         escalated: 0
     });
 
-    // Fetch threads
+    // Initial load and URL param handling
     useEffect(() => {
-        fetchThreads();
-    }, [filters]);
+        const loadInitialData = async () => {
+            setIsLoading(true);
+            try {
+                // Fetch all threads first
+                const params = new URLSearchParams();
+                if (filters.status) params.append('status', filters.status);
+                if (filters.type) params.append('type', filters.type);
+
+                const res = await client.get(`/communications/threads/?${params.toString()}`);
+                const data = Array.isArray(res.data) ? res.data : (res.data.results || []);
+                setThreads(data);
+
+                // Calculate stats
+                setStats({
+                    open: data.filter(t => t.status === 'OPEN').length,
+                    pending: data.filter(t => t.status === 'PENDING_RESPONSE').length,
+                    escalated: data.filter(t => t.status === 'ESCALATED').length
+                });
+
+                // If threadId is provided in URL, fetch and select it
+                if (threadId) {
+                    try {
+                        const threadRes = await client.get(`/communications/threads/${threadId}/`);
+                        setSelectedThread(threadRes.data);
+                    } catch (error) {
+                        console.error('Failed to load deep-linked thread:', error);
+                        toast.error('Thread not found or access denied');
+                        navigate('/communications'); // Fallback
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch threads:', error);
+                toast.error('Failed to load communications');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadInitialData();
+    }, [filters.status, filters.type, threadId]); // Re-run if filters or ID change
 
     const fetchThreads = async () => {
         setIsLoading(true);
@@ -171,7 +213,7 @@ const Communications = () => {
             {/* Main Content - Split View */}
             <div className="flex-1 flex overflow-hidden">
                 {/* Left Panel - Thread List */}
-                <div className="w-[400px] border-r border-slate-200 bg-slate-50 overflow-y-auto">
+                <div className="w-[320px] border-r border-slate-200 bg-slate-50 overflow-y-auto">
                     <ThreadList
                         threads={threads}
                         selectedThread={selectedThread}

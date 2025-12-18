@@ -24,6 +24,27 @@ const projectService = {
     deleteProject: async (id) => {
         const response = await client.delete(`/projects/${id}/`);
         return response.data;
+    },
+
+    // Work Packages
+    getPackages: async (projectId) => {
+        const response = await client.get(`/projects/packages/?project=${projectId}`);
+        return response.data;
+    },
+
+    createPackage: async (packageData) => {
+        const response = await client.post('/projects/packages/', packageData);
+        return response.data;
+    },
+
+    updatePackage: async (id, packageData) => {
+        const response = await client.put(`/projects/packages/${id}/`, packageData);
+        return response.data;
+    },
+
+    deletePackage: async (id) => {
+        const response = await client.delete(`/projects/packages/${id}/`);
+        return response.data;
     }
 };
 

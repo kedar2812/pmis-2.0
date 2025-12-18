@@ -70,6 +70,7 @@ const AppRoutes = () => {
         <Route path="reimbursement" element={<Reimbursement />} />
         <Route path="admin/roles" element={<RoleManager />} />
         <Route path="communications" element={<Communications />} />
+        <Route path="communications/:threadId" element={<Communications />} />
         <Route path="approvals" element={<Approvals />} />
       </Route>
     </Routes>

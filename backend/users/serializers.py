@@ -14,7 +14,8 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
             'role', 'account_status', 'department', 'phone_number', 'designation',
-            'company_name', 'is_contractor', 'date_joined', 'last_login'
+            'company_name', 'is_contractor', 'date_joined', 'last_login',
+            'full_address'
         ]
         read_only_fields = ['id', 'date_joined', 'last_login', 'is_contractor']
 
@@ -176,9 +177,16 @@ class ContractorRegistrationSerializer(serializers.Serializer):
         validated_data.pop('confirm_password')
         password = validated_data.pop('password')
         
-        # Generate username from email
-        email = validated_data['email']
-        base_username = email.split('@')[0]
+        # Generate username from first name and last name (epc_contractor_firstname_l)
+        first_name = validated_data['first_name']
+        last_name = validated_data['last_name']
+        
+        # Clean names (lowercase, remove spaces/special chars)
+        clean_first_name = ''.join(e for e in first_name if e.isalnum()).lower()
+        clean_last_initial = ''.join(e for e in last_name if e.isalnum()).lower()[0] if last_name else 'x'
+        
+        base_username = f"epc_contractor_{clean_first_name}_{clean_last_initial}"
+        
         username = base_username
         counter = 1
         while User.objects.filter(username=username).exists():
@@ -190,6 +198,7 @@ class ContractorRegistrationSerializer(serializers.Serializer):
             password=password,
             role=User.Roles.EPC_CONTRACTOR,
             account_status=User.AccountStatus.PENDING_APPROVAL,
+            is_active=False,  # Contractors can't login until approved
             **validated_data
         )
         return user

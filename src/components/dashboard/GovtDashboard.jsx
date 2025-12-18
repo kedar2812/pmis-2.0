@@ -19,7 +19,7 @@ const GovtDashboard = ({ projects, kpis }) => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {projects.slice(0, 3).map(project => (
+                {(projects || []).slice(0, 3).map(project => (
                     <MotionCard key={project.id} className="border-t-4 border-t-slate-800">
                         <MotionCardHeader>
                             <MotionCardTitle>{project.name}</MotionCardTitle>
@@ -56,7 +56,7 @@ const GovtDashboard = ({ projects, kpis }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {kpis.slice(0, 5).map(kpi => (
+                            {(kpis || []).slice(0, 5).map(kpi => (
                                 <tr key={kpi.id} className="border-b">
                                     <td className="px-4 py-3 font-medium">{kpi.name}</td>
                                     <td className="px-4 py-3">{kpi.target} {kpi.unit}</td>

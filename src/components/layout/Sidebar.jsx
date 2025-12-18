@@ -21,6 +21,7 @@ import {
   MessageSquare,
   Clock,
   Users,
+  Building2,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -121,6 +122,13 @@ const Sidebar = () => {
       permission: 'scheduling:view',
     },
     {
+      id: 'user-management',
+      label: 'User Management',
+      icon: Users,
+      path: '/users',
+      permission: 'users:manage', // Only admins
+    },
+    {
       id: 'cost',
       label: t('common.cost'),
       icon: IndianRupee,
@@ -176,13 +184,6 @@ const Sidebar = () => {
       path: '/admin/audit-logs',
       permission: 'users:manage', // Only admins
     },
-    {
-      id: 'user-management',
-      label: 'User Management',
-      icon: Users,
-      path: '/users',
-      permission: 'users:manage', // Only admins
-    },
   ];
 
   const visibleItems = menuItems.filter((item) => hasPermission(item.permission));
@@ -230,12 +231,17 @@ const Sidebar = () => {
                   initial="collapsed"
                   animate="expanded"
                   transition={textTransition}
-                  className="whitespace-nowrap min-w-0"
+                  className="flex items-center gap-3 whitespace-nowrap min-w-0"
                 >
-                  <h2 className="text-xl font-heading font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent truncate">
-                    {t('sidebar.pmisZia')}
-                  </h2>
-                  <p className="text-sm text-slate-500 truncate">{t('sidebar.programmeManagement')}</p>
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-md flex-shrink-0">
+                    <Building2 className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="text-lg font-heading font-bold text-primary-600 truncate">
+                      PMIS
+                    </h2>
+                    <p className="text-xs text-slate-500 truncate">Zaheerabad Industrial Area</p>
+                  </div>
                 </motion.div>
               ) : (
                 <motion.div
@@ -244,7 +250,9 @@ const Sidebar = () => {
                   transition={textTransition}
                   className="w-full flex items-center justify-center"
                 >
-                  <h2 className="text-lg font-heading font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent leading-none">P</h2>
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-md">
+                    <Building2 className="w-5 h-5 text-white" />
+                  </div>
                 </motion.div>
               )}
             </div>
@@ -334,6 +342,7 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+
 
 
 

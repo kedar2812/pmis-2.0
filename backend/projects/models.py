@@ -36,3 +36,34 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class WorkPackage(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('In Progress', 'In Progress'),
+        ('Completed', 'Completed'),
+        ('On Hold', 'On Hold'),
+    ]
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='work_packages')
+    contractor = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_packages')
+    
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
+    
+    budget = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    
+    # Agreement Details
+    agreement_no = models.CharField(max_length=100, blank=True, null=True)
+    agreement_date = models.DateField(null=True, blank=True)
+    responsible_staff = models.CharField(max_length=255, blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.project.name})"

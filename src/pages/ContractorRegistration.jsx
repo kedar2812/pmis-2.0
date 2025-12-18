@@ -325,7 +325,14 @@ const ContractorRegistration = () => {
                                 <InputField label="Last Name" name="last_name" required placeholder="Doe" value={formData.last_name} onChange={handleChange} error={errors.last_name} />
                             </div>
 
-                            <InputField label="Phone Number" name="phone_number" required icon={Phone} placeholder="9876543210" value={formData.phone_number} onChange={handleChange} error={errors.phone_number} />
+                            <div className="space-y-1">
+                                <InputField label="Phone Number" name="phone_number" required icon={Phone} placeholder="9876543210" value={formData.phone_number} onChange={handleChange} error={errors.phone_number} />
+                                {formData.first_name && (
+                                    <p className="text-sm text-green-600 font-medium px-1">
+                                        Username: epc_contractor_{formData.first_name.toLowerCase().replace(/[^a-z0-9]/g, '')}_{formData.last_name ? formData.last_name.toLowerCase().replace(/[^a-z0-9]/g, '').charAt(0) : 'x'}
+                                    </p>
+                                )}
+                            </div>
                         </motion.div>
                     )}
 

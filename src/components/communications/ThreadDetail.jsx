@@ -8,8 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import client from '@/api/client';
 import { toast } from 'sonner';
 import {
-    X, Send, Clock, User, Gavel, Lock, AlertTriangle,
-    CheckCircle, ChevronDown, CornerDownRight
+    CheckCircle, ChevronDown, CornerDownRight, FolderOpen, FileText,
+    User, Send, Clock, Gavel, Lock, AlertTriangle, X
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 
@@ -66,7 +66,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
 
     const getMessageStyles = (msg) => {
         const isOwn = msg.sender === user?.id;
-        let baseStyles = 'rounded-lg p-4 max-w-[80%] break-words';
+        let baseStyles = 'rounded-lg p-4 max-w-[85%] break-words shadow-sm';
 
         switch (msg.message_type) {
             case 'RULING':
@@ -81,6 +81,10 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                 return `${baseStyles} ${isOwn ? 'bg-primary-50 border border-primary-200 ml-auto' : 'bg-white border border-slate-200'}`;
         }
     };
+
+
+
+
 
     const getMessageTypeLabel = (type) => {
         switch (type) {
@@ -127,9 +131,9 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                                 {thread.thread_type?.replace('_', ' ')}
                             </span>
                             <span className={`px-2 py-0.5 rounded text-xs uppercase font-bold ${thread.status === 'OPEN' ? 'bg-blue-100 text-blue-700' :
-                                    thread.status === 'ESCALATED' ? 'bg-red-100 text-red-700' :
-                                        thread.status === 'CLOSED' ? 'bg-green-100 text-green-700' :
-                                            'bg-amber-100 text-amber-700'
+                                thread.status === 'ESCALATED' ? 'bg-red-100 text-red-700' :
+                                    thread.status === 'CLOSED' ? 'bg-green-100 text-green-700' :
+                                        'bg-amber-100 text-amber-700'
                                 }`}>
                                 {thread.status?.replace('_', ' ')}
                             </span>
@@ -147,6 +151,37 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Context Attachment (System Message) */}
+            {thread.context_model && thread.context_id && (
+                <div className="bg-blue-50/50 border-b border-blue-100 p-3 flex items-center justify-center">
+                    <div
+                        onClick={() => {
+                            if (thread.context_model.includes('project')) {
+                                window.open(`/projects/${thread.context_id}`, '_blank');
+                            } else if (thread.context_model.includes('document')) {
+                                window.open(`/edms/view/${thread.context_id}`, '_blank');
+                            }
+                        }}
+                        className="bg-white border border-blue-200 shadow-sm rounded-lg p-3 flex items-center gap-3 cursor-pointer hover:bg-blue-50 transition-colors max-w-md w-full"
+                    >
+                        <div className="bg-blue-100 text-blue-600 p-2 rounded-lg">
+                            {thread.context_model.includes('project') ? <FolderOpen size={20} /> : <FileText size={20} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs text-blue-600 font-bold uppercase tracking-wide">
+                                Linked {thread.context_model.includes('project') ? 'Project' : 'Document'}
+                            </p>
+                            <p className="text-sm font-semibold text-slate-800 truncate">
+                                {thread.context_display || 'View Context Details'}
+                            </p>
+                        </div>
+                        <div className="bg-slate-100 p-1.5 rounded text-slate-500">
+                            <CornerDownRight size={16} />
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-100/50">
@@ -181,7 +216,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                                 </div>
 
                                 {/* Content */}
-                                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                                <p className="text-base whitespace-pre-wrap leading-relaxed">{msg.content}</p>
 
                                 {/* Reference */}
                                 {msg.references_content && (
@@ -191,8 +226,8 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                                 )}
 
                                 {/* Timestamp */}
-                                <div className="mt-2 text-[10px] text-slate-400 flex items-center gap-1">
-                                    <Clock size={10} />
+                                <div className="mt-2 text-xs text-slate-400 flex items-center gap-1">
+                                    <Clock size={12} />
                                     {formatTimestamp(msg.created_at)}
                                 </div>
                             </div>

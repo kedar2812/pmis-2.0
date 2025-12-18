@@ -67,12 +67,13 @@ class ThreadSerializer(serializers.ModelSerializer):
     messages = MessageSerializer(many=True, read_only=True)
     message_count = serializers.SerializerMethodField()
     context_display = serializers.SerializerMethodField()
+    context_model = serializers.SerializerMethodField()
     last_message_at = serializers.SerializerMethodField()
     
     class Meta:
         model = Thread
         fields = [
-            'id', 'subject', 'context_type', 'context_id', 'context_display',
+            'id', 'subject', 'context_type', 'context_id', 'context_display', 'context_model',
             'thread_type', 'status', 'initiated_by', 'initiated_by_name',
             'initiated_by_role', 'sla_deadline', 'created_at', 'closed_at',
             'closed_by', 'messages', 'message_count', 'last_message_at'
@@ -99,6 +100,11 @@ class ThreadSerializer(serializers.ModelSerializer):
         except:
             pass
         return f"{obj.context_type.model} ({obj.context_id})"
+    
+    def get_context_model(self, obj):
+        if obj.context_type:
+            return obj.context_type.model
+        return None
     
     def get_last_message_at(self, obj):
         last_msg = obj.messages.order_by('-created_at').first()

@@ -330,21 +330,17 @@ const EDMS = () => {
                 </div>
             )}
 
-            {/* Documents Section - Only show if there are documents OR if completely empty */}
-            {(documents.length > 0 || folders.length === 0) && (
-                <div className="space-y-4">
-                    {folders.length > 0 && documents.length > 0 && (
-                        <div className="flex items-center justify-between pt-4 border-t border-slate-200/60">
-                            <h3 className="text-base font-bold text-slate-800 tracking-tight flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center">
-                                    <FileText size={16} className="text-primary-600" />
-                                </div>
-                                Documents
-                                <span className="text-xs font-normal text-slate-400 ml-1">({documents.length})</span>
-                            </h3>
-                        </div>
-                    )}
-
+            {/* Documents Section */}
+            <div className="space-y-3">
+                {folders.length > 0 && documents.length > 0 && (
+                    <div className="flex items-center gap-2 pt-4 border-t border-slate-200/60">
+                        <FileText size={16} className="text-primary-500" />
+                        <h3 className="text-sm font-bold text-slate-800 tracking-wide">
+                            Documents
+                        </h3>
+                    </div>
+                )}
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                     <DocumentList
                         documents={documents}
                         loading={loading && folders.length === 0}
@@ -356,7 +352,7 @@ const EDMS = () => {
                         onDiscuss={handleDiscuss}
                     />
                 </div>
-            )}
+            </div>
         </div>
     );
 
