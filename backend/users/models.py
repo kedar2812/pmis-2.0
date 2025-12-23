@@ -94,6 +94,10 @@ class User(AbstractUser):
         ]
     )
     
+    # User Presence Tracking
+    last_seen = models.DateTimeField(null=True, blank=True, help_text="Last activity timestamp")
+    is_online = models.BooleanField(default=False, help_text="Currently active status")
+    
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = 'Users'

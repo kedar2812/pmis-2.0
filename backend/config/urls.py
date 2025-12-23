@@ -5,6 +5,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from audit import views as audit_views
 
 def api_root(request):
     return JsonResponse({
@@ -22,6 +23,7 @@ urlpatterns = [
     path('api/projects/', include('projects.urls')),
     path('api/edms/', include('edms.urls')),
     path('api/communications/', include('communications.urls')),
+    path('api/audit/logs/', audit_views.unified_audit_logs, name='unified_audit_logs'),
 ]
 
 from django.conf import settings

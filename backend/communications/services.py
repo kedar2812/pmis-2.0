@@ -25,14 +25,12 @@ class AuditService:
             resource_type: 'Thread' or 'Message'
             resource_id: UUID of the resource
             details: Additional context (dict)
-            request: HTTP request for IP/user agent extraction
+            request: HTTP request for IP extraction
         """
         ip_address = None
-        user_agent = ''
         
         if request:
             ip_address = request.META.get('REMOTE_ADDR')
-            user_agent = request.META.get('HTTP_USER_AGENT', '')
         
         return CommunicationAuditLog.objects.create(
             actor=actor,
@@ -41,8 +39,7 @@ class AuditService:
             resource_type=resource_type,
             resource_id=resource_id,
             details=details or {},
-            ip_address=ip_address,
-            user_agent=user_agent
+            ip_address=ip_address
         )
 
 
@@ -325,3 +322,118 @@ class CommunicationService:
         )
         
         return thread
+
+
+class ChatService:
+    """Service for managing general chat functionality (DMs and Group Chats)."""
+    
+    @staticmethod
+    def create_direct_message(user, recipient):
+        """
+        Create or get existing DM thread between two users.
+        Returns existing thread if one already exists.
+        """
+        # Check if DM already exists between these two users
+        existing = Thread.objects.filter(
+            thread_type=Thread.ThreadType.DIRECT_MESSAGE,
+            context_type__isnull=True,
+            context_id__isnull=True
+        ).filter(
+            participants=user
+        ).filter(
+            participants=recipient
+        ).first()
+        
+        if existing:
+            return existing
+        
+        # Create new DM thread
+        thread = Thread.objects.create(
+            subject=f"Chat with {recipient.username}",
+            thread_type=Thread.ThreadType.DIRECT_MESSAGE,
+            initiated_by=user,
+            initiated_by_role=getattr(user, 'role', 'Unknown'),
+            status=Thread.Status.OPEN,
+            context_type=None,
+            context_id=None
+        )
+        thread.participants.add(user, recipient)
+        
+        # Audit log
+        AuditService.log(
+            actor=user,
+            action=CommunicationAuditLog.Action.THREAD_CREATED,
+            resource_type='Thread',
+            resource_id=thread.id,
+            details={'type': 'DIRECT_MESSAGE', 'recipient': recipient.username}
+        )
+        
+        return thread
+    
+    @staticmethod
+    def create_group_chat(user, participants, chat_name=None):
+        """
+        Create a group chat with multiple participants.
+        
+        Args:
+            user: The user creating the chat
+            participants: List of User objects to include
+            chat_name: Optional custom name for the group
+        
+        Returns:
+            Thread object
+        """
+        # Auto-generate name if not provided
+        if not chat_name:
+            participant_names = [p.username for p in participants[:3]]
+            if len(participants) > 3:
+                chat_name = f"Group Chat - {', '.join(participant_names)} +{len(participants) - 3} more"
+            else:
+                chat_name = f"Group Chat - {', '.join(participant_names)}"
+        
+        # Create group chat thread
+        thread = Thread.objects.create(
+            subject=chat_name,
+            chat_name=chat_name,
+            thread_type=Thread.ThreadType.GROUP_CHAT,
+            initiated_by=user,
+            initiated_by_role=getattr(user, 'role', 'Unknown'),
+            status=Thread.Status.OPEN,
+            context_type=None,
+            context_id=None
+        )
+        
+        # Add creator + all participants
+        all_participants = [user] + list(participants)
+        thread.participants.add(*all_participants)
+        
+        # Audit log
+        AuditService.log(
+            actor=user,
+            action=CommunicationAuditLog.Action.THREAD_CREATED,
+            resource_type='Thread',
+            resource_id=thread.id,
+            details={'type': 'GROUP_CHAT', 'participant_count': len(all_participants)}
+        )
+        
+        return thread
+    
+    @staticmethod
+    def get_chat_display_name(thread, current_user):
+        """
+        Get display name for a chat thread.
+        
+        For DMs: Returns the other user's name
+        For Group Chats: Returns the custom chat name or generated name
+        """
+        if thread.thread_type == Thread.ThreadType.DIRECT_MESSAGE:
+            # For DM, show the other user's name
+            other_user = thread.participants.exclude(id=current_user.id).first()
+            return other_user.username if other_user else "Direct Message"
+        
+        elif thread.thread_type == Thread.ThreadType.GROUP_CHAT:
+            return thread.chat_name or thread.subject
+        
+        else:
+            # Context-based threads use subject
+            return thread.subject

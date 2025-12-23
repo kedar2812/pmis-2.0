@@ -10,12 +10,13 @@ import client from '@/api/client';
 import { toast } from 'sonner';
 import {
     MessageSquare, Filter, Search, Plus, Bell, ChevronRight,
-    Clock, AlertTriangle, CheckCircle, Lock, Gavel
+    Clock, AlertTriangle, CheckCircle, Lock, Gavel, FileText
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import ThreadList from '@/components/communications/ThreadList';
 import ThreadDetail from '@/components/communications/ThreadDetail';
 import NewThreadModal from '@/components/communications/NewThreadModal';
+import StartChatModal from '@/components/communications/StartChatModal';
 
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -28,6 +29,7 @@ const Communications = () => {
     const [selectedThread, setSelectedThread] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [showNewThread, setShowNewThread] = useState(false);
+    const [showStartChat, setShowStartChat] = useState(false);
     const [filters, setFilters] = useState({
         status: '',
         type: '',
@@ -153,9 +155,6 @@ const Communications = () => {
                             <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
                                 {stats.open} Open
                             </span>
-                            <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm font-medium">
-                                {stats.pending} Pending
-                            </span>
                             {stats.escalated > 0 && (
                                 <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center gap-1">
                                     <AlertTriangle size={14} /> {stats.escalated} Escalated
@@ -166,10 +165,16 @@ const Communications = () => {
                         {/* New Thread Button */}
                         {canInitiateThread && (
                             <Button onClick={() => setShowNewThread(true)}>
-                                <Plus size={18} className="mr-2" />
-                                New Thread
+                                <FileText size={18} className="mr-2" />
+                                New Discussion Thread
                             </Button>
                         )}
+
+                        {/* Start Chat Button - Available to all users */}
+                        <Button onClick={() => setShowStartChat(true)}>
+                            <MessageSquare size={18} className="mr-2" />
+                            Chat with Team
+                        </Button>
                     </div>
                 </div>
 
@@ -210,10 +215,10 @@ const Communications = () => {
                 </div>
             </div>
 
-            {/* Main Content - Split View */}
-            <div className="flex-1 flex overflow-hidden">
-                {/* Left Panel - Thread List */}
-                <div className="w-[320px] border-r border-slate-200 bg-slate-50 overflow-y-auto">
+            {/* Main Content - Split View - Takes all remaining height */}
+            <div className="flex-1 flex overflow-hidden min-h-0">
+                {/* Left Panel - Thread List - Wider for better visibility */}
+                <div className="w-[380px] border-r border-slate-200 bg-slate-50 overflow-y-auto">
                     <ThreadList
                         threads={threads}
                         selectedThread={selectedThread}
@@ -244,6 +249,14 @@ const Communications = () => {
             {showNewThread && (
                 <NewThreadModal
                     onClose={() => setShowNewThread(false)}
+                    onCreated={handleThreadCreated}
+                />
+            )}
+
+            {/* Start Chat Modal */}
+            {showStartChat && (
+                <StartChatModal
+                    onClose={() => setShowStartChat(false)}
                     onCreated={handleThreadCreated}
                 />
             )}

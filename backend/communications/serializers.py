@@ -69,6 +69,8 @@ class ThreadSerializer(serializers.ModelSerializer):
     context_display = serializers.SerializerMethodField()
     context_model = serializers.SerializerMethodField()
     last_message_at = serializers.SerializerMethodField()
+    is_pinned = serializers.SerializerMethodField()
+    is_muted = serializers.SerializerMethodField()
     
     class Meta:
         model = Thread
@@ -76,7 +78,8 @@ class ThreadSerializer(serializers.ModelSerializer):
             'id', 'subject', 'context_type', 'context_id', 'context_display', 'context_model',
             'thread_type', 'status', 'initiated_by', 'initiated_by_name',
             'initiated_by_role', 'sla_deadline', 'created_at', 'closed_at',
-            'closed_by', 'messages', 'message_count', 'last_message_at'
+            'closed_by', 'messages', 'message_count', 'last_message_at',
+            'is_pinned', 'is_muted'
         ]
         read_only_fields = [
             'id', 'initiated_by', 'initiated_by_role', 'created_at',
@@ -93,6 +96,14 @@ class ThreadSerializer(serializers.ModelSerializer):
     
     def get_context_display(self, obj):
         """Get a human-readable representation of the linked context."""
+        # Handle general chats (DM, Group Chat) without context
+        if not obj.context_type:
+            if obj.thread_type == 'DIRECT_MESSAGE':
+                return 'Direct Message'
+            elif obj.thread_type == 'GROUP_CHAT':
+                return 'Group Chat'
+            return 'General Chat'
+        
         try:
             context = obj.context_object
             if context:
@@ -109,6 +120,42 @@ class ThreadSerializer(serializers.ModelSerializer):
     def get_last_message_at(self, obj):
         last_msg = obj.messages.order_by('-created_at').first()
         return last_msg.created_at if last_msg else obj.created_at
+    
+    def get_is_pinned(self, obj):
+        """Check if thread is pinned for the current user."""
+        request = self.context.get('request')
+        if request and request.user:
+            from .models import ThreadParticipant
+            try:
+                participant = ThreadParticipant.objects.get(thread=obj, user=request.user)
+                return participant.is_pinned
+            except ThreadParticipant.DoesNotExist:
+                return False
+        return False
+    
+    def get_is_muted(self, obj):
+        """Check if thread is muted for the current user."""
+        request = self.context.get('request')
+        if request and request.user:
+            from .models import ThreadParticipant
+            from django.utils import timezone
+            try:
+                participant = ThreadParticipant.objects.get(thread=obj, user=request.user)
+                # Check if muted and not expired
+                if participant.is_muted:
+                    if participant.muted_until is None:  # Forever
+                        return True
+                    elif participant.muted_until > timezone.now():  # Not expired
+                        return True
+                    else:  # Expired
+                        participant.is_muted = False
+                        participant.muted_until = None
+                        participant.save()
+                        return False
+                return False
+            except ThreadParticipant.DoesNotExist:
+                return False
+        return False
 
 
 class ThreadListSerializer(serializers.ModelSerializer):

@@ -204,6 +204,219 @@ class ThreadViewSet(viewsets.ModelViewSet):
         )
         
         return Response(ThreadSerializer(thread).data)
+    
+    @action(detail=False, methods=['post'])
+    def start_dm(self, request):
+        """Start a direct message with a user."""
+        from .services import ChatService
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        recipient_id = request.data.get('recipient_id')
+        if not recipient_id:
+            return Response(
+                {'error': 'recipient_id is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            recipient = User.objects.get(id=recipient_id)
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'Recipient not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Create or get existing DM
+        thread = ChatService.create_direct_message(request.user, recipient)
+        return Response(ThreadSerializer(thread).data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['post'])
+    def start_group_chat(self, request):
+        """Start a group chat with multiple users."""
+        from .services import ChatService
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        participant_ids = request.data.get('participant_ids', [])
+        chat_name = request.data.get('chat_name', '')
+        
+        if not participant_ids or len(participant_ids) < 1:
+            return Response(
+                {'error': 'At least one participant is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            participants = User.objects.filter(id__in=participant_ids)
+            if participants.count() != len(participant_ids):
+                return Response(
+                    {'error': 'Some participants not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        except Exception as e:
+            return Response(
+                {'error': f'Invalid participant IDs: {str(e)}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Create group chat
+        thread = ChatService.create_group_chat(request.user, participants, chat_name)
+        return Response(ThreadSerializer(thread).data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=True, methods=['post'])
+    def pin(self, request, pk=None):
+        """Pin/unpin a thread for the current user."""
+        from .models import ThreadParticipant
+        thread = self.get_object()
+        
+        participant, created = ThreadParticipant.objects.get_or_create(
+            thread=thread,
+            user=request.user
+        )
+        
+        # Toggle pin status
+        participant.is_pinned = not participant.is_pinned
+        participant.pinned_at = timezone.now() if participant.is_pinned else None
+        participant.save(update_fields=['is_pinned', 'pinned_at'])
+        
+        return Response({
+            'is_pinned': participant.is_pinned,
+            'message': 'Thread pinned' if participant.is_pinned else 'Thread unpinned'
+        })
+    
+    @action(detail=True, methods=['post'])
+    def mute(self, request, pk=None):
+        """Mute a thread for the current user."""
+        from .models import ThreadParticipant
+        from datetime import timedelta
+        
+        thread = self.get_object()
+        duration = request.data.get('duration', 'forever')  # Options: '1h', '8h', '24h', 'forever'
+        
+        participant, created = ThreadParticipant.objects.get_or_create(
+            thread=thread,
+            user=request.user
+        )
+        
+        # Calculate mute duration
+        muted_until = None
+        if duration != 'forever':
+            hours = {'1h': 1, '8h': 8, '24h': 24}.get(duration, 24)
+            muted_until = timezone.now() + timedelta(hours=hours)
+        
+        participant.is_muted = True
+        participant.muted_until = muted_until
+        participant.save(update_fields=['is_muted', 'muted_until'])
+        
+        return Response({
+            'is_muted': True,
+            'muted_until': muted_until,
+            'message': f'Thread muted {duration}'
+        })
+    
+    @action(detail=True, methods=['post'])
+    def unmute(self, request, pk=None):
+        """Unmute a thread for the current user."""
+        from .models import ThreadParticipant
+        
+        thread = self.get_object()
+        
+        try:
+            participant = ThreadParticipant.objects.get(thread=thread, user=request.user)
+            participant.is_muted = False
+            participant.muted_until = None
+            participant.save(update_fields=['is_muted', 'muted_until'])
+            return Response({'is_muted': False, 'message': 'Thread unmuted'})
+        except ThreadParticipant.DoesNotExist:
+            return Response({'error': 'Not a participant'}, status=status.HTTP_404_NOT_FOUND)
+    
+    @action(detail=True, methods=['post'])
+    def leave_group(self, request, pk=None):
+        """Leave a group chat."""
+        thread = self.get_object()
+        
+        # Only allow leaving group chats
+        if thread.thread_type != Thread.ThreadType.GROUP_CHAT:
+            return Response(
+                {'error': 'Can only leave group chats'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Remove user from participants
+        if request.user in thread.participants.all():
+            thread.participants.remove(request.user)
+            
+            # Update ThreadParticipant left_at
+            from .models import ThreadParticipant
+            try:
+                participant = ThreadParticipant.objects.get(thread=thread, user=request.user)
+                participant.left_at = timezone.now()
+                participant.save(update_fields=['left_at'])
+            except ThreadParticipant.DoesNotExist:
+                pass
+            
+            # Audit log
+            AuditService.log(
+                actor=request.user,
+                action=CommunicationAuditLog.Action.PARTICIPANT_REMOVED,
+                resource_type='Thread',
+                resource_id=thread.id,
+                details={'user': request.user.username, 'action': 'left_group'}
+            )
+            
+            return Response({'message': 'Left group successfully'})
+        
+        return Response({'error': 'Not a participant'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['post'])
+    def add_participants(self, request, pk=None):
+        """Add participants to a group chat."""
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        thread = self.get_object()
+        
+        # Only allow adding to group chats
+        if thread.thread_type != Thread.ThreadType.GROUP_CHAT:
+            return Response(
+                {'error': 'Can only add participants to group chats'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        participant_ids = request.data.get('participant_ids', [])
+        if not participant_ids:
+            return Response(
+                {'error': 'No participants specified'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            new_participants = User.objects.filter(id__in=participant_ids)
+            thread.participants.add(*new_participants)
+            
+            # Audit log
+            AuditService.log(
+                actor=request.user,
+                action=CommunicationAuditLog.Action.PARTICIPANT_ADDED,
+                resource_type='Thread',
+                resource_id=thread.id,
+                details={
+                    'added_by': request.user.username,
+                    'participant_count': new_participants.count()
+                }
+            )
+            
+            return Response({
+                'message': f'Added {new_participants.count()} participants',
+                'thread': ThreadSerializer(thread).data
+            })
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
 
 
 class NotificationViewSet(viewsets.ReadOnlyModelViewSet):

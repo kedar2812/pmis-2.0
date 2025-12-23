@@ -5,7 +5,8 @@
 import { motion } from 'framer-motion';
 import {
     MessageSquare, Clock, AlertTriangle, CheckCircle,
-    Lock, Gavel, ChevronRight, User
+    Lock, Gavel, ChevronRight, User, MessageCircle, Users,
+    Pin, BellOff
 } from 'lucide-react';
 
 const ThreadList = ({ threads, selectedThread, onSelect, isLoading }) => {
@@ -27,6 +28,10 @@ const ThreadList = ({ threads, selectedThread, onSelect, isLoading }) => {
 
     const getTypeStyles = (type) => {
         switch (type) {
+            case 'DIRECT_MESSAGE':
+                return 'border-l-4 border-l-indigo-500';
+            case 'GROUP_CHAT':
+                return 'border-l-4 border-l-purple-500';
             case 'CLARIFICATION':
                 return 'border-l-4 border-l-amber-500 bg-amber-50/50';
             case 'INTERNAL_NOTE':
@@ -40,6 +45,10 @@ const ThreadList = ({ threads, selectedThread, onSelect, isLoading }) => {
 
     const getTypeIcon = (type) => {
         switch (type) {
+            case 'DIRECT_MESSAGE':
+                return <MessageCircle size={14} className="text-indigo-600" />;
+            case 'GROUP_CHAT':
+                return <Users size={14} className="text-purple-600" />;
             case 'INTERNAL_NOTE':
                 return <Lock size={14} className="text-slate-500" />;
             case 'RULING':
@@ -110,6 +119,12 @@ const ThreadList = ({ threads, selectedThread, onSelect, isLoading }) => {
                             <h3 className="font-semibold text-slate-800 truncate text-sm">
                                 {thread.subject}
                             </h3>
+                            {thread.is_pinned && (
+                                <Pin size={14} fill="currentColor" className="text-primary-600 flex-shrink-0" title="Pinned" />
+                            )}
+                            {thread.is_muted && (
+                                <BellOff size={14} className="text-amber-600 flex-shrink-0" title="Muted" />
+                            )}
                             {getTypeIcon(thread.thread_type)}
                         </div>
                         <span className="text-xs text-slate-400 whitespace-nowrap">

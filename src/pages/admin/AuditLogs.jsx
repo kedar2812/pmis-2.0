@@ -34,7 +34,7 @@ const AuditLogs = () => {
     const fetchBackendLogs = async () => {
         setIsLoadingBackend(true);
         try {
-            const response = await api.get('/edms/audit-logs/');
+            const response = await api.get('/audit/logs/');
             const formattedLogs = response.data.results ? response.data.results : response.data;
             setBackendLogs(formattedLogs.map(log => ({
                 id: log.id,
@@ -43,6 +43,7 @@ const AuditLogs = () => {
                 userRole: log.actor_role || 'Unknown',
                 action: log.action,
                 resource: log.resource_type,
+                module: log.module || 'Unknown',
                 details: formatDetails(log),
                 ipAddress: log.ip_address
             })));
@@ -157,12 +158,12 @@ const AuditLogs = () => {
                 <button
                     onClick={() => setActiveTab('backend')}
                     className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${activeTab === 'backend'
-                            ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                            : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                        ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
                         }`}
                 >
                     <Database size={20} />
-                    Backend Logs (EDMS)
+                    Backend Logs (All Modules)
                     <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'backend' ? 'bg-white/20 text-white' : 'bg-primary-100 text-primary-700'
                         }`}>
                         {backendLogs.length}
@@ -171,8 +172,8 @@ const AuditLogs = () => {
                 <button
                     onClick={() => setActiveTab('frontend')}
                     className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${activeTab === 'frontend'
-                            ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
-                            : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                        ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
                         }`}
                 >
                     <HardDrive size={20} />
@@ -186,15 +187,15 @@ const AuditLogs = () => {
 
             {/* Info Banner */}
             <div className={`p-4 rounded-xl flex items-center gap-3 ${activeTab === 'backend'
-                    ? 'bg-primary-50 border border-primary-200'
-                    : 'bg-amber-50 border border-amber-200'
+                ? 'bg-primary-50 border border-primary-200'
+                : 'bg-amber-50 border border-amber-200'
                 }`}>
                 {activeTab === 'backend' ? (
                     <>
                         <Database className="text-primary-600" size={24} />
                         <div>
-                            <p className="font-medium text-primary-900">Backend Audit Logs (EDMS Database)</p>
-                            <p className="text-sm text-primary-700">Permanent, immutable records of document management actions stored in the PostgreSQL database.</p>
+                            <p className="font-medium text-primary-900">Backend Audit Logs (All System Modules)</p>
+                            <p className="text-sm text-primary-700">Permanent, immutable records of all system activities (EDMS, Users, Projects, Communications) stored in the database.</p>
                         </div>
                     </>
                 ) : (
@@ -246,6 +247,7 @@ const AuditLogs = () => {
                                 <th className="p-4 w-48">User Identity</th>
                                 <th className="p-4 w-40">Action</th>
                                 <th className="p-4 w-32">Resource</th>
+                                <th className="p-4 w-24">Module</th>
                                 <th className="p-4">Details</th>
                                 {activeTab === 'backend' && <th className="p-4 w-32">IP Address</th>}
                             </tr>
@@ -253,7 +255,7 @@ const AuditLogs = () => {
                         <tbody className="divide-y divide-slate-100">
                             {(activeTab === 'backend' && isLoadingBackend) ? (
                                 <tr>
-                                    <td colSpan={activeTab === 'backend' ? 6 : 5} className="p-8 text-center text-slate-500">
+                                    <td colSpan={7} className="p-8 text-center text-slate-500">
                                         <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />
                                         Loading backend logs...
                                     </td>
@@ -283,6 +285,13 @@ const AuditLogs = () => {
                                         <td className="p-4 text-sm text-slate-700 font-medium">
                                             {log.resource}
                                         </td>
+                                        <td className="p-4">
+                                            {log.module && (
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700">
+                                                    {log.module}
+                                                </span>
+                                            )}
+                                        </td>
                                         <td className="p-4 text-sm text-slate-600">
                                             <div className="flex items-center gap-2 max-w-md truncate" title={log.details}>
                                                 <FileText size={14} className="text-slate-400 flex-shrink-0" />
@@ -298,7 +307,7 @@ const AuditLogs = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={activeTab === 'backend' ? 6 : 5} className="p-8 text-center text-slate-500">
+                                    <td colSpan={7} className="p-8 text-center text-slate-500">
                                         No audit logs found matching your criteria.
                                     </td>
                                 </tr>
