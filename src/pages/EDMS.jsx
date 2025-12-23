@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import Button from '@/components/ui/Button';
 import DocumentList from '@/components/edms/DocumentList';
 import DocumentUploadModal from '@/components/edms/DocumentUploadModal';
+import AddVersionModal from '@/components/edms/AddVersionModal';
 import DocumentDetailModal from '@/components/edms/DocumentDetailModal';
 import NewThreadModal from '@/components/communications/NewThreadModal';
 
@@ -41,6 +42,7 @@ const EDMS = () => {
 
     // Modals
     const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showAddVersionModal, setShowAddVersionModal] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [showDiscussModal, setShowDiscussModal] = useState(false);
     const [discussDocument, setDiscussDocument] = useState(null);
@@ -414,14 +416,24 @@ const EDMS = () => {
                             )}
 
                             {currentProject && canUpload && (
-                                <Button
-                                    size="sm"
-                                    onClick={() => setShowUploadModal(true)}
-                                    className="shadow-md shadow-primary-500/20"
-                                >
-                                    <Upload size={16} className="mr-1" />
-                                    Upload
-                                </Button>
+                                <>
+                                    <Button
+                                        size="sm"
+                                        onClick={() => setShowAddVersionModal(true)}
+                                        className="shadow-md shadow-primary-500/20"
+                                    >
+                                        <RefreshCw size={16} className="mr-1" />
+                                        Add Version
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        onClick={() => setShowUploadModal(true)}
+                                        className="shadow-md shadow-primary-500/20"
+                                    >
+                                        <Upload size={16} className="mr-1" />
+                                        Upload
+                                    </Button>
+                                </>
                             )}
                         </div>
                     </div>
@@ -563,6 +575,19 @@ const EDMS = () => {
                     onClose={() => setShowUploadModal(false)}
                     onUploaded={() => {
                         setShowUploadModal(false);
+                        fetchFoldersAndDocuments();
+                    }}
+                />
+            )}
+
+            {/* Add Version Modal */}
+            {showAddVersionModal && currentProject && (
+                <AddVersionModal
+                    projectId={currentProject.id}
+                    currentFolderId={currentFolder?.id}
+                    onClose={() => setShowAddVersionModal(false)}
+                    onVersionAdded={() => {
+                        setShowAddVersionModal(false);
                         fetchFoldersAndDocuments();
                     }}
                 />

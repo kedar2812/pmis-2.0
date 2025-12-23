@@ -15,6 +15,7 @@ import client from '@/api/client';
 import { toast } from 'sonner';
 import Button from '@/components/ui/Button';
 import DocumentDetailModal from '@/components/edms/DocumentDetailModal';
+import ThreadDetail from '@/components/communications/ThreadDetail';
 
 const Approvals = () => {
     const { user } = useAuth();
@@ -23,6 +24,7 @@ const Approvals = () => {
     const [loading, setLoading] = useState(true);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [filter, setFilter] = useState('all');
+    const [discussDocument, setDiscussDocument] = useState(null);
 
     useEffect(() => {
         fetchPendingApprovals();
@@ -50,6 +52,12 @@ const Approvals = () => {
                 label: 'Under Review',
                 action: 'Needs PMNC Review'
             },
+            REVISION_REQUESTED: {
+                color: 'bg-orange-100 text-orange-700 border-orange-200',
+                icon: AlertTriangle,
+                label: 'Revision Requested',
+                action: 'Returned for revision'
+            },
             VALIDATED: {
                 color: 'bg-blue-100 text-blue-700 border-blue-200',
                 icon: CheckCircle,
@@ -65,7 +73,7 @@ const Approvals = () => {
         return doc.status === filter;
     });
 
-    const underReviewCount = documents.filter(d => d.status === 'UNDER_REVIEW').length;
+    const underReviewCount = documents.filter(d => d.status === 'UNDER_REVIEW' || d.status === 'REVISION_REQUESTED').length;
     const validatedCount = documents.filter(d => d.status === 'VALIDATED').length;
 
     // Check if user has any pending approvals based on role
@@ -254,6 +262,26 @@ const Approvals = () => {
                     userRole={user?.role}
                     onClose={() => setSelectedDocument(null)}
                     onUpdate={fetchPendingApprovals}
+                    onViewWithNoting={(doc) => {
+                        // Navigate to document viewer page
+                        navigate(`/edms/view/${doc.id}`);
+                    }}
+                    onDiscuss={(doc) => {
+                        setDiscussDocument(doc);
+                        setSelectedDocument(null);
+                    }}
+                />
+            )}
+
+            {/* Thread Detail for Discussions */}
+            {discussDocument && (
+                <ThreadDetail
+                    thread={{
+                        id: `doc-${discussDocument.id}`,
+                        title: `Discussion: ${discussDocument.title}`,
+                        document_id: discussDocument.id
+                    }}
+                    onClose={() => setDiscussDocument(null)}
                 />
             )}
         </div>

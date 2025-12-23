@@ -107,9 +107,10 @@ const DocumentDetailModal = ({
     const handleValidate = async () => {
         setActionLoading(true);
         try {
-            await client.post(`/edms/documents/${document.id}/validate/`, {
-                comments: approvalComment
-            });
+            await client.post(`/edms/documents/${document.id}/validate/`,
+                { comments: approvalComment },
+                { headers: { 'Content-Type': 'application/json' } }
+            );
             toast.success('Document validated');
             setApprovalComment('');
             fetchDocumentDetails();
@@ -128,9 +129,10 @@ const DocumentDetailModal = ({
         }
         setActionLoading(true);
         try {
-            await client.post(`/edms/documents/${document.id}/request_revision/`, {
-                comments: approvalComment
-            });
+            await client.post(`/edms/documents/${document.id}/request_revision/`,
+                { comments: approvalComment },
+                { headers: { 'Content-Type': 'application/json' } }
+            );
             toast.success('Revision requested');
             setApprovalComment('');
             fetchDocumentDetails();

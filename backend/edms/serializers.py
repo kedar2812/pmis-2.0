@@ -215,16 +215,21 @@ class DocumentDetailSerializer(serializers.ModelSerializer):
 
 
 class DocumentUploadSerializer(serializers.Serializer):
-    """Serializer for document upload."""
-    title = serializers.CharField(max_length=500)
+    """Serializer for document upload with smart versioning support."""
+    title = serializers.CharField(max_length=500, required=False, allow_blank=True)  # Optional - will use filename if not provided
     description = serializers.CharField(required=False, allow_blank=True)
-    document_type = serializers.ChoiceField(choices=Document.DocumentType.choices)
+    document_type = serializers.ChoiceField(
+        choices=Document.DocumentType.choices,
+        required=False,  # Optional - will default to OTHER
+        default=Document.DocumentType.OTHER
+    )
     document_number = serializers.CharField(max_length=100, required=False, allow_blank=True)
     file = serializers.FileField()
     project = serializers.IntegerField()  # Changed from UUID - projects use bigint ID
     folder = serializers.UUIDField(required=False, allow_null=True)
     is_confidential = serializers.BooleanField(default=False)
     metadata = serializers.JSONField(required=False, default=dict)
+    change_notes = serializers.CharField(required=False, allow_blank=True)  # For version updates
     
     def validate_project(self, value):
         from projects.models import Project

@@ -165,10 +165,7 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
             return;
         }
 
-        if (files.length === 1 && !title.trim()) {
-            toast.error('Please enter a title');
-            return;
-        }
+        // Title is now optional - backend will use filename if not provided
 
         setIsUploading(true);
         let successCount = 0;
@@ -387,15 +384,18 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                         {files.length <= 1 && (
                             <div>
                                 <label className="block text-xs font-medium text-slate-700 mb-1">
-                                    Title <span className="text-red-500">*</span>
+                                    Title <span className="text-slate-400">(optional)</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    placeholder="Document title"
+                                    placeholder="Leave blank to use filename"
                                     className="w-full px-3 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 />
+                                <p className="text-xs text-slate-500 mt-1">
+                                    💡 If a document with this name exists, a new version will be created
+                                </p>
                             </div>
                         )}
 

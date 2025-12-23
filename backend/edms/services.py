@@ -59,14 +59,14 @@ class DocumentService:
         """
         import os
         
-        # Create document record
+        # Create document record (auto-submit for approval)
         document = Document.objects.create(
             title=title,
             description=description,
             document_type=document_type,
             project=project,
             folder=folder,
-            status=Document.Status.DRAFT,
+            status=Document.Status.UNDER_REVIEW,  # Auto-submit for approval
             is_confidential=is_confidential,
             metadata=metadata or {},
             uploaded_by=user
@@ -126,12 +126,9 @@ class DocumentService:
         # Update document's current version
         document.current_version = version
         
-        # If document was in REVISION_REQUESTED, move back to DRAFT
-        if document.status == Document.Status.REVISION_REQUESTED:
-            document.status = Document.Status.DRAFT
-            document.save(update_fields=['status', 'current_version'])
-        else:
-            document.save(update_fields=['current_version'])
+        # Set status to UNDER_REVIEW (auto-submit for approval)
+        document.status = Document.Status.UNDER_REVIEW
+        document.save(update_fields=['status', 'current_version'])
         
         # Audit log
         AuditService.log(
@@ -195,6 +192,197 @@ class DocumentService:
             details={'version': version.version_number if version else document.current_version.version_number},
             request=request
         )
+    
+    @staticmethod
+    def upload_or_version_document(user, project, file, title=None, document_type=None,
+                                    folder=None, description='', change_notes='',
+                                    is_confidential=False, metadata=None, request=None):
+        """
+        Smart upload: Creates new document or adds version to existing one.
+        
+        This implements non-destructive versioning for government EDMS compliance.
+        
+        Matching logic:
+        - If title provided: Match by title (case-insensitive)
+        - Else: Match by filename (case-insensitive)
+        - Scope: Same project + folder
+        
+        Returns:
+            Document: The created or updated document
+        """
+        import os
+        
+        # Determine the identifier to match
+        # Strip file extension for matching if using filename
+        if title and title.strip():
+            identifier = title.strip()
+        else:
+            # Use filename without extension for better matching
+            filename = file.name
+            identifier, _ = os.path.splitext(filename)
+        
+        # Look for existing document (case-insensitive match)
+        existing = Document.objects.filter(
+            project=project,
+            folder=folder,
+            title__iexact=identifier
+        ).first()
+        
+        if existing:
+            # Document exists - add new version
+            # Check if user has permission to edit/version this document
+            if not existing.can_be_edited_by(user):
+                raise PermissionError(
+                    f"You cannot upload a new version of '{existing.title}'. "
+                    f"Current status: {existing.get_status_display()}. "
+                    f"Only the document owner or administrators can add versions."
+                )
+            
+            # Create new version
+            version = DocumentService.create_new_version(
+                user=user,
+                document=existing,
+                file=file,
+                change_notes=change_notes or f'Updated from upload',
+                request=request
+            )
+            
+            # Return the document (not the version)
+            existing.refresh_from_db()
+            return existing
+        else:
+            # No existing document - create new one
+            final_title = title.strip() if title and title.strip() else file.name
+            final_doc_type = document_type if document_type else Document.DocumentType.OTHER
+            
+            return DocumentService.upload_document(
+                user=user,
+                project=project,
+                file=file,
+                title=final_title,
+                document_type=final_doc_type,
+                folder=folder,
+                description=description,
+                change_notes='Initial upload',
+                is_confidential=is_confidential,
+                metadata=metadata or {},
+                request=request
+            )
+    
+    @staticmethod
+    def restore_version(user, document, version_number, request=None):
+        """
+        Restore an older version by creating a new version that references the old file.
+        
+        This is used for rollback scenarios (e.g., wrong file uploaded).
+        The system never deletes versions - it creates a new version pointing to the old file.
+        
+        Args:
+            user: User performing the restoration
+            document: Document to restore
+            version_number: Version number to restore from
+            request: HTTP request for audit logging
+            
+        Returns:
+            DocumentVersion: The newly created version (pointing to old file)
+        """
+        # Check if document is editable
+        if not document.can_be_edited_by(user):
+            raise PermissionError("You cannot restore a version of this document in its current state.")
+        
+        # Get the version to restore
+        try:
+            old_version = document.versions.get(version_number=version_number)
+        except DocumentVersion.DoesNotExist:
+            raise ValueError(f"Version {version_number} not found for this document.")
+        
+        # Create NEW version that points to the old file
+        new_version = DocumentVersion.objects.create(
+            document=document,
+            file=old_version.file,  # Reuse the same file
+            file_name=old_version.file_name,
+            file_size=old_version.file_size,
+            file_hash=old_version.file_hash,
+            mime_type=old_version.mime_type,
+            uploaded_by=user,
+            change_notes=f"Restored from version {version_number}"
+        )
+        
+        # Update document's current version
+        document.current_version = new_version
+        
+        # Set status to UNDER_REVIEW (restored content needs re-approval)
+        document.status = Document.Status.UNDER_REVIEW
+        document.save(update_fields=['status', 'current_version'])
+        
+        # Audit log
+        AuditService.log(
+            actor=user,
+            action=DocumentAuditLog.Action.VERSION_CREATED,
+            resource_type='Document',
+            resource_id=document.id,
+            details={
+                'version': new_version.version_number,
+                'restored_from_version': version_number,
+                'file_name': old_version.file_name,
+                'change_notes': new_version.change_notes
+            },
+            request=request
+        )
+        
+        return new_version
+    
+    @staticmethod
+    def compare_versions(document, version_a_number, version_b_number):
+        """
+        Compare two versions of a document and return metadata differences.
+        
+        For government compliance, this helps auditors see what changed between versions.
+        
+        Args:
+            document: Document to compare versions of
+            version_a_number: First version number
+            version_b_number: Second version number
+            
+        Returns:
+            dict: Comparison data including metadata differences
+        """
+        try:
+            version_a = document.versions.get(version_number=version_a_number)
+            version_b = document.versions.get(version_number=version_b_number)
+        except DocumentVersion.DoesNotExist:
+            raise ValueError("One or both versions not found.")
+        
+        comparison = {
+            'version_a': {
+                'number': version_a.version_number,
+                'file_name': version_a.file_name,
+                'file_size': version_a.file_size,
+                'file_hash': version_a.file_hash,
+                'uploaded_by': version_a.uploaded_by.username if version_a.uploaded_by else None,
+                'created_at': version_a.created_at.isoformat(),
+                'change_notes': version_a.change_notes,
+            },
+            'version_b': {
+                'number': version_b.version_number,
+                'file_name': version_b.file_name,
+                'file_size': version_b.file_size,
+                'file_hash': version_b.file_hash,
+                'uploaded_by': version_b.uploaded_by.username if version_b.uploaded_by else None,
+                'created_at': version_b.created_at.isoformat(),
+                'change_notes': version_b.change_notes,
+            },
+            'differences': {
+                'file_name_changed': version_a.file_name != version_b.file_name,
+                'file_size_changed': version_a.file_size != version_b.file_size,
+                'file_content_changed': version_a.file_hash != version_b.file_hash,
+                'uploader_changed': version_a.uploaded_by != version_b.uploaded_by,
+            },
+            'file_identical': version_a.file_hash == version_b.file_hash,
+        }
+        
+        return comparison
+
 
 
 class WorkflowService:
@@ -210,9 +398,11 @@ class WorkflowService:
         """
         Submit document for PMNC review.
         Creates workflow and notifies reviewers.
+        Can be called on DRAFT or UNDER_REVIEW documents.
         """
-        if document.status != Document.Status.DRAFT:
-            raise ValueError("Only DRAFT documents can be submitted for review.")
+        # Allow submission from DRAFT or UNDER_REVIEW (for auto-submission)
+        if document.status not in [Document.Status.DRAFT, Document.Status.UNDER_REVIEW]:
+            raise ValueError("Only DRAFT or UNDER_REVIEW documents can be submitted for review.")
         
         # Update document status
         document.status = Document.Status.UNDER_REVIEW
@@ -395,13 +585,14 @@ class WorkflowService:
     @staticmethod
     def reject_document(user, document, comments, request=None):
         """
-        SPV rejects the document.
+        SPV rejects the document and sends it back to uploader.
+        Uses REVISION_REQUESTED status so it counts as "Under Review".
         """
         if document.status != Document.Status.VALIDATED:
             raise ValueError("Only VALIDATED documents can be rejected at SPV level.")
         
-        # Update document status
-        document.status = Document.Status.REJECTED
+        # Update document status to REVISION_REQUESTED (not REJECTED)
+        document.status = Document.Status.REVISION_REQUESTED
         document.save(update_fields=['status', 'updated_at'])
         
         # Update workflow
@@ -443,15 +634,24 @@ class WorkflowService:
     def get_pending_approvals(user):
         """
         Get documents pending action from this user based on role.
+        Includes REVISION_REQUESTED docs as they need review.
         """
         role = getattr(user, 'role', None)
         
         if role in ['PMNC_Team']:
-            # PMNC sees documents under review
-            return Document.objects.filter(status=Document.Status.UNDER_REVIEW)
+            # PMNC sees documents under review + revision requested
+            return Document.objects.filter(
+                status__in=[Document.Status.UNDER_REVIEW, Document.Status.REVISION_REQUESTED]
+            )
         elif role in ['SPV_Official', 'NICDC_HQ']:
-            # SPV sees validated documents
-            return Document.objects.filter(status=Document.Status.VALIDATED)
+            # SPV sees validated documents + can also see under review/revision requested
+            return Document.objects.filter(
+                status__in=[
+                    Document.Status.VALIDATED,
+                    Document.Status.UNDER_REVIEW,
+                    Document.Status.REVISION_REQUESTED
+                ]
+            )
         
         return Document.objects.none()
     

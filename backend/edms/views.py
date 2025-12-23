@@ -8,7 +8,7 @@ Implements:
 - Workflow actions (submit, validate, approve, reject)
 - Audit log access
 """
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, parsers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -195,7 +195,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
         return DocumentDetailSerializer
     
     def create(self, request, *args, **kwargs):
-        """Upload a new document."""
+        """Upload a new document or add version if exists."""
         if not EDMSPermissions.can_upload(request.user):
             return Response(
                 {'error': 'You do not have permission to upload documents.'},
@@ -215,23 +215,40 @@ class DocumentViewSet(viewsets.ModelViewSet):
             if serializer.validated_data.get('folder'):
                 folder = Folder.objects.get(id=serializer.validated_data['folder'])
             
-            document = DocumentService.upload_document(
+            # Use smart upload/version detection
+            document = DocumentService.upload_or_version_document(
                 user=request.user,
                 project=project,
                 file=serializer.validated_data['file'],
-                title=serializer.validated_data['title'],
-                document_type=serializer.validated_data['document_type'],
+                title=serializer.validated_data.get('title'),  # May be None
+                document_type=serializer.validated_data.get('document_type'),
                 folder=folder,
                 description=serializer.validated_data.get('description', ''),
+                change_notes=serializer.validated_data.get('change_notes', ''),
                 is_confidential=serializer.validated_data.get('is_confidential', False),
                 metadata=serializer.validated_data.get('metadata', {}),
                 request=request
             )
             
+            # Auto-submit for approval (mandatory workflow)
+            try:
+                workflow = WorkflowService.submit_for_review(
+                    user=request.user,
+                    document=document,
+                    request=request
+                )
+            except Exception as e:
+                # If workflow already exists or submission fails, log but continue
+                print(f"Workflow submission note: {e}")
+            
+            document.refresh_from_db()
+            
             return Response(
                 DocumentDetailSerializer(document, context={'request': request}).data,
                 status=status.HTTP_201_CREATED
             )
+        except PermissionError as e:
+            return Response({'error': str(e)}, status=status.HTTP_403_FORBIDDEN)
         except Exception as e:
             import traceback
             traceback.print_exc()
@@ -276,6 +293,21 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 change_notes=serializer.validated_data.get('change_notes', ''),
                 request=request
             )
+            
+            # Auto-submit for approval (mandatory workflow)
+            document.refresh_from_db()
+            try:
+                workflow = WorkflowService.submit_for_review(
+                    user=request.user,
+                    document=document,
+                    request=request
+                )
+            except Exception as e:
+                # If workflow already exists, log but continue
+                print(f"Workflow submission note: {e}")
+            
+            document.refresh_from_db()
+            
             return Response(
                 DocumentVersionSerializer(version, context={'request': request}).data,
                 status=status.HTTP_201_CREATED
@@ -367,7 +399,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], parser_classes=[parsers.JSONParser])
     def validate(self, request, pk=None):
         """PMNC validates the document."""
         if not EDMSPermissions.can_validate(request.user):
@@ -390,7 +422,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], parser_classes=[parsers.JSONParser])
     def request_revision(self, request, pk=None):
         """Request revision from uploader."""
         if not EDMSPermissions.can_validate(request.user):
@@ -418,7 +450,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], parser_classes=[parsers.JSONParser])
     def approve(self, request, pk=None):
         """SPV final approval."""
         if not EDMSPermissions.can_approve(request.user):
@@ -441,7 +473,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], parser_classes=[parsers.JSONParser])
     def reject(self, request, pk=None):
         """SPV rejects the document."""
         if not EDMSPermissions.can_approve(request.user):
@@ -491,6 +523,81 @@ class DocumentViewSet(viewsets.ModelViewSet):
         )
         
         return Response({'status': 'Document archived successfully.'})
+    
+    @action(detail=True, methods=['post'], url_path='versions/(?P<version_number>[0-9]+)/restore')
+    def restore_version(self, request, pk=None, version_number=None):
+        """
+        Restore an older version by creating a new version from it.
+        Government compliance: Rollback capability without destroying history.
+        """
+        document = self.get_object()
+        
+        if not EDMSPermissions.can_edit_document(request.user, document):
+            return Response(
+                {'error': 'You do not have permission to restore versions of this document.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        try:
+            version_number_int = int(version_number)
+            new_version = DocumentService.restore_version(
+                user=request.user,
+                document=document,
+                version_number=version_number_int,
+                request=request
+            )
+            
+            document.refresh_from_db()
+            return Response(
+                {
+                    'message': f'Version {version_number_int} restored successfully as version {new_version.version_number}',
+                    'document': DocumentDetailSerializer(document, context={'request': request}).data
+                },
+                status=status.HTTP_200_OK
+            )
+        except PermissionError as e:
+            return Response({'error': str(e)}, status=status.HTTP_403_FORBIDDEN)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=True, methods=['get'], url_path='versions/compare')
+    def compare_versions(self, request, pk=None):
+        """
+        Compare two versions of a document.
+        Query params: version_a, version_b (version numbers)
+        """
+        document = self.get_object()
+        
+        version_a = request.query_params.get('version_a')
+        version_b = request.query_params.get('version_b')
+        
+        if not version_a or not version_b:
+            return Response(
+                {'error': 'Both version_a and version_b query parameters are required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            version_a_int = int(version_a)
+            version_b_int = int(version_b)
+            
+            comparison = DocumentService.compare_versions(
+                document=document,
+                version_a_number=version_a_int,
+                version_b_number=version_b_int
+            )
+            
+            return Response(comparison, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ApprovalViewSet(viewsets.ReadOnlyModelViewSet):

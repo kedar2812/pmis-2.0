@@ -18,16 +18,13 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
   const [graphMetric, setGraphMetric] = useState('budget');
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
 
-  // EDMS Integration
+  // EDMS Integration - Fetch real pending approvals
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await client.get('/edms/documents/');
-        // Handle pagination (DRF usually returns { results: [...] } if paginated)
+        const res = await client.get('/edms/approvals/pending/');
         const docs = Array.isArray(res.data) ? res.data : (res.data.results || []);
-
-        const pending = docs.filter(d => d.status === 'SUBMITTED' || d.status === 'UNDER_REVIEW').length;
-        setPendingApprovalsCount(pending);
+        setPendingApprovalsCount(docs.length);
       } catch (err) {
         console.error("Failed to load EDMS stats", err);
       }
@@ -205,7 +202,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
             variants={itemVariants}
             whileHover={{ y: -5, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => handleCardClick('approvals')}
+            onClick={() => navigate('/approvals')}
             className="bg-gradient-to-br from-white to-slate-50 border-l-4 border-l-amber-500 cursor-pointer shadow-sm hover:shadow-md transition-all"
           >
             <MotionCardContent className="p-6">
@@ -214,7 +211,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
                   <p className="text-sm font-medium text-slate-500">{t('common.underReview')}</p>
                   <h3 className="text-2xl font-bold text-slate-800 mt-2">{pendingApprovalsCount}</h3>
                   <p className="text-xs text-amber-600 flex items-center mt-1">
-                    {t('common.actions')} {t('common.remaining')}
+                    Click to review documents
                   </p>
                 </div>
                 <div className="p-3 bg-amber-100 rounded-xl">
