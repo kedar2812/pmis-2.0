@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     IndianRupee,
@@ -16,19 +16,50 @@ import {
 import { Card } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { useMockData } from '@/hooks/useMockData';
+import financeService from '@/services/financeService'; // Real Service
+import projectService from '@/services/projectService';
+import userService from '@/services/userService';
 import { GenerateBillModal } from '@/components/billing/GenerateBillModal';
 import { RABillTemplate } from '@/components/billing/RABillTemplate';
 import { useRef } from 'react';
 import { toast } from 'sonner';
 
 const RABilling = () => {
-    const { raBills, addRABill, projects, contractors } = useMockData();
+    // State for Real Data
+    const [raBills, setRaBills] = useState([]);
+    const [projects, setProjects] = useState([]);
+    const [contractors, setContractors] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const [searchQuery, setSearchQuery] = useState('');
     const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
 
     // For printing from the list
     const [selectedBillForPrint, setSelectedBillForPrint] = useState(null);
+
+    // 1. Fetch Data on Mount
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const [billsData, projectsData, usersData] = await Promise.all([
+                    financeService.getBills(),
+                    projectService.getAllProjects(),
+                    userService.getUsers()
+                ]);
+
+                setRaBills(billsData);
+                setProjects(projectsData);
+                setContractors(usersData.filter(u => u.role === 'CONTRACTOR' || true)); // Filter if needed, showing all for now
+            } catch (error) {
+                console.error("Failed to fetch billing data", error);
+                toast.error("Failed to load data");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
 
     // Trigger print when a bill is selected
     const triggerPrint = (bill) => {
@@ -43,10 +74,13 @@ const RABilling = () => {
 
     const handleGenerateBill = async (data) => {
         try {
-            await addRABill(data);
+            // Call API
+            const newBill = await financeService.createBill(data);
+            setRaBills(prev => [newBill, ...prev]); // Add to list (optimistic/immediate)
             toast.success("RA Bill Generated Successfully");
-            // Modal closes itself or changes state
+            // Modal closes itself or changes state via its own onSave verification
         } catch (error) {
+            console.error(error);
             toast.error("Failed to generate bill");
         }
     };

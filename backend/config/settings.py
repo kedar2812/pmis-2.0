@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     'projects',
     'edms',
     'communications',
+    'finance',
+    'scheduling',
 ]
 
 MIDDLEWARE = [
