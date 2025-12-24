@@ -289,6 +289,9 @@ class CommunicationService:
             deep_link=f"/communications/{thread.id}"
         )
         
+        # Explicitly update thread timestamp for sorting
+        thread.save()
+        
         return message
     
     @staticmethod

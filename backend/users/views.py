@@ -43,9 +43,9 @@ class UserProfileView(APIView):
 
 
 class UserListView(ListAPIView):
-    """List all users (Admin only)."""
+    """List all users (Accessible to all authenticated users for chat)."""
     serializer_class = UserSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]
     pagination_class = None
     
     def get_queryset(self):

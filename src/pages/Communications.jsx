@@ -84,8 +84,8 @@ const Communications = () => {
         loadInitialData();
     }, [filters.status, filters.type, threadId]); // Re-run if filters or ID change
 
-    const fetchThreads = async () => {
-        setIsLoading(true);
+    const fetchThreads = async (silent = false) => {
+        if (!silent) setIsLoading(true);
         try {
             const params = new URLSearchParams();
             if (filters.status) params.append('status', filters.status);
@@ -103,16 +103,31 @@ const Communications = () => {
             });
         } catch (error) {
             console.error('Failed to fetch threads:', error);
-            toast.error('Failed to load communications');
+            // Don't toast on silent poll failure to avoid spamming user
+            if (!silent) toast.error('Failed to load communications');
         } finally {
-            setIsLoading(false);
+            if (!silent) setIsLoading(false);
         }
     };
+
+    // Poll for sidebar updates (new threads, unread counts, sorting)
+    useEffect(() => {
+        const interval = setInterval(() => {
+            fetchThreads(true); // Silent poll
+        }, 2000);
+        return () => clearInterval(interval);
+    }, [filters]); // Re-create interval if filters change
 
     const handleThreadSelect = async (thread) => {
         try {
             const res = await client.get(`/communications/threads/${thread.id}/`);
             setSelectedThread(res.data);
+
+            // Optimistically mark as read in the local list list momentarily
+            // The real sync happens when ThreadDetail triggers onThreadRead
+            setThreads(prev => prev.map(t =>
+                t.id === thread.id ? { ...t, unread_count: 0 } : t
+            ));
         } catch (error) {
             console.error('Failed to load thread:', error);
             toast.error('Failed to load conversation');
@@ -132,8 +147,41 @@ const Communications = () => {
         }
     };
 
-    // Permission checks
-    const canInitiateThread = ['SPV_Official', 'PMNC_Team', 'Nodal_Officer', 'Govt_Official'].includes(user?.role);
+    // Real-time updates: Poll for new messages every 3 seconds
+    useEffect(() => {
+        if (!selectedThread) return;
+
+        const pollInterval = setInterval(async () => {
+            try {
+                // Silent fetch to update messages without showing loading state
+                const res = await client.get(`/communications/threads/${selectedThread.id}/`);
+
+                // Only update if there are changes (optimization)
+                // For now, simpler to just update the state to ensure new messages appear
+                setSelectedThread(prev => {
+                    // Prevent update if user closed thread in the meantime
+                    if (!prev || prev.id !== res.data.id) return prev;
+
+                    // Simple check to avoid unnecessary re-renders if nothing changed
+                    // (Deep comparison would be better but this is a basic safe check)
+                    if (JSON.stringify(prev.messages) === JSON.stringify(res.data.messages)) {
+                        return prev;
+                    }
+                    return res.data;
+                });
+            } catch (error) {
+                // Silent failure is intended here - don't disrupt user
+                // Just log to console for debugging
+                console.debug('Background poll failed:', error);
+            }
+        }, 3000);
+
+        return () => clearInterval(pollInterval);
+    }, [selectedThread?.id]); // Re-run only when thread ID changes
+
+
+    // Permission checks - Allow all authenticated users to initiate threads
+    const canInitiateThread = !!user;
 
     return (
         <div className="h-[calc(100vh-4rem)] flex flex-col">

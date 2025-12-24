@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import {
     CheckCircle, ChevronDown, CornerDownRight, FolderOpen, FileText,
     User, Send, Clock, Gavel, Lock, AlertTriangle, X,
-    Pin, BellOff, Bell, UserPlus, LogOut, MoreVertical, Paperclip
+    Pin, BellOff, Bell, UserPlus, LogOut, MoreVertical, Paperclip, MessageSquare, Users
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import AddParticipantsModal from './AddParticipantsModal';
@@ -18,13 +18,13 @@ import AddParticipantsModal from './AddParticipantsModal';
 const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
     const { user } = useAuth();
     const [messageContent, setMessageContent] = useState('');
-    const [messageType, setMessageType] = useState('STANDARD');
+
     const [isSending, setIsSending] = useState(false);
-    const [showTypeMenu, setShowTypeMenu] = useState(false);
     const [showActionsMenu, setShowActionsMenu] = useState(false);
     const [isPinned, setIsPinned] = useState(thread?.is_pinned || false);
     const [isMuted, setIsMuted] = useState(thread?.is_muted || false);
     const [showAddParticipants, setShowAddParticipants] = useState(false);
+    const [showParticipants, setShowParticipants] = useState(false);
     const [attachedFile, setAttachedFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
     const messagesEndRef = useRef(null);
@@ -38,22 +38,19 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
     // Auto-mark messages as read when viewing thread
     useEffect(() => {
         const markMessagesAsRead = async () => {
-            if (!thread?.messages || thread.messages.length === 0) return;
+            if (!thread?.id) return;
 
             try {
-                // Mark all unread messages in this thread as read
-                const promises = thread.messages.map(msg =>
-                    client.post(`/communications/messages/${msg.id}/mark_read/`).catch(() => { })
-                );
-                await Promise.all(promises);
+                // Bulk mark all messages in thread as read
+                await client.post(`/communications/threads/${thread.id}/mark_read/`);
             } catch (error) {
                 // Silent fail - not critical
-                console.log('Could not mark some messages as read:', error);
+                console.log('Could not mark thread as read:', error);
             }
         };
 
         markMessagesAsRead();
-    }, [thread?.id]); // Only run when thread changes
+    }, [thread?.id, thread?.messages?.length]); // Run when thread changes or new messages arrive
 
     // Permission checks
     const canSendMessage = ['SPV_Official', 'PMNC_Team', 'Nodal_Officer', 'EPC_Contractor', 'Consultant', 'Govt_Official'].includes(user?.role);
@@ -99,7 +96,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
             // Send message
             const payload = {
                 content: messageContent || '📎 File attached',
-                message_type: messageType
+                message_type: 'STANDARD'
             };
 
             if (attachmentId) {
@@ -109,7 +106,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
             await client.post(`/communications/threads/${thread.id}/send_message/`, payload);
 
             setMessageContent('');
-            setMessageType('STANDARD');
+
             setAttachedFile(null);
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
@@ -181,7 +178,8 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
     };
 
     const getMessageStyles = (msg) => {
-        const isOwn = msg.sender === user?.id;
+        // Use loose equality to handle potential string/number mismatches
+        const isOwn = msg.sender == user?.id;
         let baseStyles = 'rounded-lg p-4 max-w-[85%] break-words shadow-sm';
 
         switch (msg.message_type) {
@@ -195,8 +193,8 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                 return `${baseStyles} bg-purple-50 border-l-4 border-purple-500`;
             default:
                 return isOwn
-                    ? `${baseStyles} bg-primary-600 text-white ml-auto`
-                    : `${baseStyles} bg-white border border-slate-200`;
+                    ? `${baseStyles} bg-blue-50 text-slate-900 border border-blue-100 ml-auto`
+                    : `${baseStyles} bg-slate-100 text-slate-900 border border-slate-200`;
         }
     };
 
@@ -206,13 +204,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
         return date.toLocaleString();
     };
 
-    const messageTypeOptions = [
-        { value: 'STANDARD', label: 'Standard Message' },
-        ...(canRequestClarification ? [{ value: 'CLARIFICATION_REQUEST', label: 'Clarification Request' }] : []),
-        ...(canSendMessage ? [{ value: 'CLARIFICATION_RESPONSE', label: 'Clarification Response' }] : []),
-        ...(canIssueRuling ? [{ value: 'RULING', label: 'Ruling' }] : []),
-        { value: 'INTERNAL_NOTE', label: 'Internal Note' },
-    ];
+
 
     if (!thread) return null;
 
@@ -233,22 +225,33 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                                 {formatTimestamp(thread.created_at)}
                             </span>
                             <span className={`px-2 py-0.5 rounded text-xs font-medium ${thread.status === 'OPEN' ? 'bg-green-100 text-green-700' :
-                                    thread.status === 'PENDING_RESPONSE' ? 'bg-yellow-100 text-yellow-700' :
-                                        thread.status === 'ESCALATED' ? 'bg-red-100 text-red-700' :
-                                            'bg-gray-100 text-gray-700'
+                                thread.status === 'PENDING_RESPONSE' ? 'bg-yellow-100 text-yellow-700' :
+                                    thread.status === 'ESCALATED' ? 'bg-red-100 text-red-700' :
+                                        'bg-gray-100 text-gray-700'
                                 }`}>
                                 {thread.status}
                             </span>
                         </div>
                     </div>
 
+
+
                     <div className="flex items-center gap-2">
+                        {/* Participants Button (Visible for all chats) */}
+                        <button
+                            onClick={() => setShowParticipants(true)}
+                            className="p-2 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
+                            title="View Participants"
+                        >
+                            <Users size={18} />
+                        </button>
+
                         {/* Pin Button */}
                         <button
                             onClick={handlePin}
                             className={`p-2 rounded-lg transition-colors ${isPinned
-                                    ? 'bg-blue-100 text-blue-700'
-                                    : 'hover:bg-slate-100 text-slate-600'
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'hover:bg-slate-100 text-slate-600'
                                 }`}
                             title={isPinned ? 'Unpin thread' : 'Pin thread'}
                         >
@@ -259,8 +262,8 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                         <button
                             onClick={() => handleMute()}
                             className={`p-2 rounded-lg transition-colors ${isMuted
-                                    ? 'bg-amber-100 text-amber-700'
-                                    : 'hover:bg-slate-100 text-slate-600'
+                                ? 'bg-amber-100 text-amber-700'
+                                : 'hover:bg-slate-100 text-slate-600'
                                 }`}
                             title={isMuted ? 'Unmute thread' : 'Mute thread'}
                         >
@@ -400,42 +403,6 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                     {/* Input Area */}
                     <div className="px-4 py-2">
                         <div className="flex items-center gap-2">
-                            {/* Message Type Selector */}
-                            <div className="relative">
-                                <button
-                                    onClick={() => setShowTypeMenu(!showTypeMenu)}
-                                    className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors"
-                                    title={messageTypeOptions.find(o => o.value === messageType)?.label || 'Standard Message'}
-                                >
-                                    <ChevronDown size={20} />
-                                </button>
-
-                                <AnimatePresence>
-                                    {showTypeMenu && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: 10 }}
-                                            className="absolute bottom-full left-0 mb-2 bg-white border border-slate-200 rounded-lg shadow-lg py-1 min-w-[180px] z-10"
-                                        >
-                                            {messageTypeOptions.map(opt => (
-                                                <button
-                                                    key={opt.value}
-                                                    onClick={() => {
-                                                        setMessageType(opt.value);
-                                                        setShowTypeMenu(false);
-                                                    }}
-                                                    className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-50 ${messageType === opt.value ? 'bg-primary-50 text-primary-700 font-medium' : 'text-slate-700'
-                                                        }`}
-                                                >
-                                                    {opt.label}
-                                                </button>
-                                            ))}
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-
                             {/* File Attachment Button */}
                             <button
                                 onClick={() => fileInputRef.current?.click()}
@@ -503,6 +470,53 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                     }}
                 />
             )}
+            {/* Participants Modal */}
+            <AnimatePresence>
+                {showParticipants && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60]"
+                        onClick={() => setShowParticipants(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-xl shadow-xl w-full max-w-sm max-h-[70vh] flex flex-col overflow-hidden"
+                        >
+                            <div className="flex items-center justify-between p-4 border-b">
+                                <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                                    <Users size={18} className="text-primary-600" />
+                                    Participants ({thread.participants?.length || 0})
+                                </h3>
+                                <button
+                                    onClick={() => setShowParticipants(false)}
+                                    className="p-1 hover:bg-slate-100 rounded-full transition-colors"
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
+                            <div className="overflow-y-auto p-4 space-y-3">
+                                {thread.participants?.map((p) => (
+                                    <div key={p.id} className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg">
+                                        <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600">
+                                            {p.username.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-medium text-slate-900">{p.full_name}</div>
+                                            <div className="text-xs text-slate-500 capitalize">{p.role?.replace(/_/g, ' ')}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
         </div>
     );
 };

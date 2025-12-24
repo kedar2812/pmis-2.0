@@ -57,6 +57,9 @@ class ThreadViewSet(viewsets.ModelViewSet):
         if thread_type:
             queryset = queryset.filter(thread_type=thread_type)
         
+        # Sort by latest activity (optimized native field)
+        queryset = queryset.order_by('-updated_at')
+        
         return queryset.prefetch_related('messages', 'participants')
     
     def get_serializer_class(self):
@@ -204,6 +207,31 @@ class ThreadViewSet(viewsets.ModelViewSet):
         )
         
         return Response(ThreadSerializer(thread).data)
+
+    @action(detail=True, methods=['post'])
+    def mark_read(self, request, pk=None):
+        """Mark all messages in the thread as read for the current user."""
+        thread = self.get_object()
+        user = request.user
+        
+        from .models import MessageReadReceipt
+        
+        # Get all messages in thread not sent by user
+        messages = thread.messages.exclude(sender=user)
+        
+        # Find messages that don't have a read receipt from this user
+        unread_messages = messages.exclude(read_receipts__user=user)
+        
+        # Bulk create receipts
+        receipts = [
+            MessageReadReceipt(message=msg, user=user)
+            for msg in unread_messages
+        ]
+        
+        if receipts:
+            MessageReadReceipt.objects.bulk_create(receipts, ignore_conflicts=True)
+            
+        return Response({'status': 'marked as read', 'count': len(receipts)})
     
     @action(detail=False, methods=['post'])
     def start_dm(self, request):

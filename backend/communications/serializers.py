@@ -71,6 +71,7 @@ class ThreadSerializer(serializers.ModelSerializer):
     last_message_at = serializers.SerializerMethodField()
     is_pinned = serializers.SerializerMethodField()
     is_muted = serializers.SerializerMethodField()
+    participants = serializers.SerializerMethodField()
     
     class Meta:
         model = Thread
@@ -79,11 +80,23 @@ class ThreadSerializer(serializers.ModelSerializer):
             'thread_type', 'status', 'initiated_by', 'initiated_by_name',
             'initiated_by_role', 'sla_deadline', 'created_at', 'closed_at',
             'closed_by', 'messages', 'message_count', 'last_message_at',
-            'is_pinned', 'is_muted'
+            'is_pinned', 'is_muted', 'participants'
         ]
         read_only_fields = [
             'id', 'initiated_by', 'initiated_by_role', 'created_at',
             'closed_at', 'closed_by'
+        ]
+
+    def get_participants(self, obj):
+        return [
+            {
+                'id': p.id,
+                'username': p.username,
+                'email': p.email,
+                'role': p.role,
+                'full_name': f"{p.first_name} {p.last_name}".strip() or p.username
+            }
+            for p in obj.participants.all()
         ]
     
     def get_initiated_by_name(self, obj):
@@ -172,7 +185,7 @@ class ThreadListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'subject', 'context_type', 'context_id',
             'thread_type', 'status', 'initiated_by_name',
-            'initiated_by_role', 'sla_deadline', 'created_at',
+            'initiated_by_role', 'sla_deadline', 'created_at', 'updated_at',
             'message_count', 'last_message_preview', 'unread_count'
         ]
     
@@ -196,8 +209,18 @@ class ThreadListSerializer(serializers.ModelSerializer):
         return None
     
     def get_unread_count(self, obj):
-        # This would need user context to calculate
-        return 0
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return 0
+            
+        from .models import MessageReadReceipt
+        
+        # Count messages not sent by user and not read by user
+        unread_count = obj.messages.exclude(sender=request.user).exclude(
+            read_receipts__user=request.user
+        ).count()
+        
+        return unread_count
 
 
 class ThreadCreateSerializer(serializers.Serializer):

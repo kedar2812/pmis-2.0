@@ -41,11 +41,15 @@ class CommunicationPermissions:
 
     @classmethod
     def can_initiate_thread(cls, user):
-        return user.role in cls.CAN_INITIATE_THREAD
+        # Allow all authenticated users to initiate threads
+        return True
+        # return user.role in cls.CAN_INITIATE_THREAD
 
     @classmethod
     def can_send_message(cls, user):
-        return user.role in cls.CAN_SEND_MESSAGE
+        # Allow all authenticated users to send messages
+        return True
+        # return user.role in cls.CAN_SEND_MESSAGE
 
     @classmethod
     def can_request_clarification(cls, user):
