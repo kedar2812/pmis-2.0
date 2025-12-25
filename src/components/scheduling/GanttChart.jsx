@@ -1,412 +1,139 @@
-import { useMemo, useState, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
-import { getStatusColor } from '@/lib/colors';
+import { Calendar, ChevronLeft, ChevronRight, Flag, Layers } from 'lucide-react';
+import { format, addMonths, startOfMonth, getDaysInMonth, differenceInDays } from 'date-fns';
 
-const DAY_WIDTH = 4; // Base width per day in pixels
-const ROW_HEIGHT = 60;
-const HEADER_HEIGHT = 80;
-const SIDEBAR_WIDTH = 250;
+export const GanttChart = ({ tasks, onTaskClick }) => {
+  const [viewDate, setViewDate] = useState(new Date());
 
-export const GanttChart = ({ projects, tasks, selectedProjectId }) => {
-  const [zoom, setZoom] = useState(1);
-  const chartRef = useRef(null);
-  const scrollRef = useRef(null);
+  // 1. Calculate Timeline Range (View Month)
+  const startDate = startOfMonth(viewDate);
+  const totalDays = getDaysInMonth(viewDate);
 
-  // Calculate date range from all tasks
-  const calculatedDateRange = useMemo(() => {
-    if (tasks.length === 0) {
-      const today = new Date();
-      return {
-        start: new Date(today.getFullYear(), today.getMonth(), 1),
-        end: new Date(today.getFullYear() + 1, today.getMonth(), 31),
-      };
-    }
+  // 2. Helper to position bars
+  const getBarPosition = (taskStart, taskEnd) => {
+    const start = new Date(taskStart);
+    const end = new Date(taskEnd);
 
-    const allDates = tasks.flatMap((task) => [
-      new Date(task.startDate),
-      new Date(task.endDate),
-    ]);
+    // Clamp to current view
+    const effectiveStart = start < startDate ? startDate : start;
+    const effectiveEnd = end > addMonths(startDate, 1) ? addMonths(startDate, 1) : end;
 
-    const minDate = new Date(Math.min(...allDates.map((d) => d.getTime())));
-    const maxDate = new Date(Math.max(...allDates.map((d) => d.getTime())));
+    if (end < startDate || start > addMonths(startDate, 1)) return null; // Not visible
 
-    // Add padding
-    minDate.setMonth(minDate.getMonth() - 1);
-    maxDate.setMonth(maxDate.getMonth() + 1);
+    const startOffset = differenceInDays(effectiveStart, startDate);
+    const duration = differenceInDays(effectiveEnd, effectiveStart) + 1;
 
-    return { start: minDate, end: maxDate };
-  }, [tasks]);
-
-  const finalDateRange = calculatedDateRange;
-
-  // Filter tasks by selected project
-  const filteredTasks = useMemo(() => {
-    if (selectedProjectId) {
-      return tasks.filter((task) => task.projectId === selectedProjectId);
-    }
-    return tasks;
-  }, [tasks, selectedProjectId]);
-
-  // Group tasks by project
-  const tasksByProject = useMemo(() => {
-    const grouped = {};
-
-    filteredTasks.forEach((task) => {
-      const project = projects.find((p) => p.id === task.projectId);
-      if (project) {
-        if (!grouped[project.id]) {
-          grouped[project.id] = { project, tasks: [] };
-        }
-        grouped[project.id].tasks.push(task);
-      }
-    });
-
-    return Object.values(grouped);
-  }, [filteredTasks, projects]);
-
-  // Calculate days between dates
-  const daysBetween = (start, end) => {
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return {
+      left: `${(startOffset / totalDays) * 100}%`,
+      width: `${(duration / totalDays) * 100}%`
+    };
   };
 
-  // Get position for a date
-  const getDatePosition = (date) => {
-    const days = daysBetween(finalDateRange.start, date);
-    return days * DAY_WIDTH * zoom;
-  };
-
-  // Get width for a task
-  const getTaskWidth = (task) => {
-    const start = new Date(task.startDate);
-    const end = new Date(task.endDate);
-    const days = daysBetween(start, end);
-    return Math.max(days * DAY_WIDTH * zoom, 20); // Minimum 20px width
-  };
-
-  // Generate month markers
-  const monthMarkers = useMemo(() => {
-    const markers = [];
-    const current = new Date(finalDateRange.start);
-    current.setDate(1); // Start of month
-
-    while (current <= finalDateRange.end) {
-      const position = getDatePosition(current);
-      markers.push({
-        date: new Date(current),
-        label: current.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-        position,
-      });
-      current.setMonth(current.getMonth() + 1);
-    }
-
-    return markers;
-  }, [finalDateRange, zoom]);
-
-  // Generate day markers for current view
-  const dayMarkers = useMemo(() => {
-    const markers = [];
-    const current = new Date(finalDateRange.start);
-    const end = new Date(finalDateRange.end);
-
-    while (current <= end) {
-      const position = getDatePosition(current);
-      markers.push({
-        date: new Date(current),
-        position,
-      });
-      current.setDate(current.getDate() + 7); // Weekly markers
-    }
-
-    return markers;
-  }, [finalDateRange, zoom]);
-
-  const handleZoomIn = () => {
-    setZoom((prev) => Math.min(prev + 0.2, 3));
-  };
-
-  const handleZoomOut = () => {
-    setZoom((prev) => Math.max(prev - 0.2, 0.5));
-  };
-
-  const handleScroll = (direction) => {
-    if (scrollRef.current) {
-      const scrollAmount = 200;
-      scrollRef.current.scrollLeft += direction === 'left' ? -scrollAmount : scrollAmount;
-    }
-  };
-
-  const totalWidth = getDatePosition(finalDateRange.end);
-  const totalHeight = tasksByProject.length * ROW_HEIGHT + HEADER_HEIGHT;
+  const nextMonth = () => setViewDate(addMonths(viewDate, 1));
+  const prevMonth = () => setViewDate(addMonths(viewDate, -1));
 
   return (
-    <div className="w-full h-full flex flex-col bg-white rounded-lg border border-gray-200 overflow-hidden">
-      {/* Controls */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-full overflow-hidden">
+      {/* Header / Controls */}
+      <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleZoomOut}
-            className="p-2 rounded-md hover:bg-gray-200 transition-colors"
-            aria-label="Zoom out"
-          >
-            <ZoomOut size={18} />
-          </button>
-          <span className="text-sm font-medium text-gray-700 min-w-[60px] text-center">
-            {Math.round(zoom * 100)}%
-          </span>
-          <button
-            onClick={handleZoomIn}
-            className="p-2 rounded-md hover:bg-gray-200 transition-colors"
-            aria-label="Zoom in"
-          >
-            <ZoomIn size={18} />
-          </button>
+          <Layers size={20} className="text-primary-600" />
+          <h3 className="font-bold text-slate-700">Project Timeline</h3>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => handleScroll('left')}
-            className="p-2 rounded-md hover:bg-gray-200 transition-colors"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <button
-            onClick={() => handleScroll('right')}
-            className="p-2 rounded-md hover:bg-gray-200 transition-colors"
-            aria-label="Scroll right"
-          >
-            <ChevronRight size={18} />
-          </button>
+        <div className="flex items-center gap-4 bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-sm">
+          <button onClick={prevMonth} className="p-1 hover:bg-slate-100 rounded"><ChevronLeft size={18} /></button>
+          <span className="text-sm font-semibold w-32 text-center text-slate-800">
+            {format(viewDate, 'MMMM yyyy')}
+          </span>
+          <button onClick={nextMonth} className="p-1 hover:bg-slate-100 rounded"><ChevronRight size={18} /></button>
         </div>
       </div>
 
-      {/* Gantt Chart */}
-      <div
-        ref={chartRef}
-        className="flex-1 overflow-auto relative"
-        style={{ height: `${Math.min(totalHeight, 600)}px` }}
-      >
-        <div
-          ref={scrollRef}
-          className="relative"
-          style={{ width: `${totalWidth + SIDEBAR_WIDTH}px`, height: `${totalHeight}px` }}
-        >
-          {/* Fixed Sidebar */}
-          <div
-            className="absolute left-0 top-0 bg-white border-r border-gray-200 z-10"
-            style={{ width: `${SIDEBAR_WIDTH}px`, height: `${totalHeight}px` }}
-          >
-            {/* Header */}
-            <div
-              className="border-b border-gray-200 bg-gray-50 font-semibold text-sm text-gray-700 px-4 py-2"
-              style={{ height: `${HEADER_HEIGHT}px` }}
-            >
-              Tasks
+      {/* Timeline Header (Days) */}
+      <div className="flex-1 overflow-auto relative custom-scrollbar">
+        <div className="min-w-[800px]">
+          <div className="grid grid-cols-[250px_1fr] bg-slate-50 sticky top-0 z-20 border-b border-slate-200">
+            <div className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider border-r border-slate-200 bg-slate-50">
+              Task Name
             </div>
-            {/* Task Names */}
-            {tasksByProject.map(({ project, tasks: projectTasks }) => (
-              <div key={project.id}>
-                {/* Project Header */}
-                <div
-                  className="border-b border-gray-200 bg-primary-50 px-4 py-2 font-medium text-sm text-primary-900"
-                  style={{ height: `${ROW_HEIGHT / 2}px` }}
-                >
-                  {project.name}
-                </div>
-                {/* Tasks */}
-                {projectTasks.map((task) => (
+            <div className="relative h-10 bg-slate-50">
+              {/* Render Day Markers roughly every 5 days to avoid clutter */}
+              {Array.from({ length: totalDays }).map((_, i) => (
+                (i % 5 === 0 || i === totalDays - 1) && (
                   <div
-                    key={task.id}
-                    className="border-b border-gray-100 px-4 py-2 text-sm text-gray-700 flex items-center"
-                    style={{ height: `${ROW_HEIGHT / 2}px` }}
+                    key={i}
+                    className="absolute text-[10px] text-slate-400 border-l border-slate-200 pl-1 h-full flex items-center"
+                    style={{ left: `${(i / totalDays) * 100}%` }}
                   >
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <div
-                        className={`w-2 h-2 rounded-full ${
-                          task.priority === 'Critical'
-                            ? 'bg-error-600'
-                            : task.priority === 'High'
-                            ? 'bg-accent-600'
-                            : task.priority === 'Medium'
-                            ? 'bg-warning-600'
-                            : 'bg-success-600'
-                        }`}
-                      />
-                      <span className="truncate">{task.name}</span>
-                    </div>
+                    {i + 1}
                   </div>
-                ))}
-              </div>
-            ))}
+                )
+              ))}
+            </div>
           </div>
 
-          {/* Scrollable Timeline */}
-          <div
-            className="absolute"
-            style={{ left: `${SIDEBAR_WIDTH}px`, width: `${totalWidth}px`, height: `${totalHeight}px` }}
-          >
-            {/* Timeline Header */}
-            <div
-              className="absolute top-0 left-0 right-0 border-b border-gray-200 bg-gray-50"
-              style={{ height: `${HEADER_HEIGHT}px` }}
-            >
-              {/* Month Markers */}
-              {monthMarkers.map((marker, index) => (
-                <div
-                  key={index}
-                  className="absolute top-0 border-l border-gray-300"
-                  style={{
-                    left: `${marker.position}px`,
-                    height: `${HEADER_HEIGHT / 2}px`,
-                  }}
-                >
-                  <div className="absolute top-1 left-2 text-xs font-medium text-gray-700">
-                    {marker.label}
-                  </div>
-                </div>
-              ))}
-              {/* Day Markers */}
-              {dayMarkers.map((marker, index) => (
-                <div
-                  key={index}
-                  className="absolute border-l border-gray-200"
-                  style={{
-                    left: `${marker.position}px`,
-                    top: `${HEADER_HEIGHT / 2}px`,
-                    height: `${HEADER_HEIGHT / 2}px`,
-                  }}
-                >
-                  <div className="absolute top-1 left-1 text-xs text-gray-500">
-                    {marker.date.getDate()}
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* Task Rows */}
+          <div className="divide-y divide-slate-100">
+            {tasks.map(task => {
+              const pos = getBarPosition(task.startDate, task.endDate);
+              const isOverdue = new Date(task.endDate) < new Date() && task.progress < 100;
 
-            {/* Today Line */}
-            <div
-              className="absolute top-0 bottom-0 w-0.5 bg-accent-500 z-20"
-              style={{
-                left: `${getDatePosition(new Date())}px`,
-                height: `${totalHeight}px`,
-              }}
-            >
-              <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-accent-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                Today
-              </div>
-            </div>
-
-            {/* Task Bars */}
-            {tasksByProject.map(({ project, tasks: projectTasks }, projectIndex) => {
-              let taskRowIndex = 0;
               return (
-                <div key={project.id}>
-                  {/* Project Row Background */}
-                  <div
-                    className="absolute border-b border-gray-200 bg-gray-50/50"
-                    style={{
-                      top: `${HEADER_HEIGHT + projectIndex * ROW_HEIGHT}px`,
-                      left: '0px',
-                      width: `${totalWidth}px`,
-                      height: `${ROW_HEIGHT}px`,
-                    }}
-                  />
-                  {/* Tasks */}
-                  {projectTasks.map((task) => {
-                    const taskStart = new Date(task.startDate);
-                    const taskEnd = new Date(task.endDate);
-                    const left = getDatePosition(taskStart);
-                    const width = getTaskWidth(task);
-                    const top =
-                      HEADER_HEIGHT +
-                      projectIndex * ROW_HEIGHT +
-                      (taskRowIndex * ROW_HEIGHT) / projectTasks.length +
-                      4;
-                    const height = ROW_HEIGHT / projectTasks.length - 8;
+                <div key={task.id} className="grid grid-cols-[250px_1fr] hover:bg-slate-50 group">
+                  {/* Task Info Column */}
+                  <div className="p-3 border-r border-slate-200 flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      {task.isMilestone && <Flag size={14} className="text-amber-500 fill-amber-500 flex-shrink-0" />}
+                      <span className="truncate font-medium text-slate-700">{task.name}</span>
+                    </div>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${task.progress === 100 ? 'bg-emerald-100 text-emerald-700' :
+                      'bg-slate-100 text-slate-600'
+                      }`}>
+                      {task.progress}%
+                    </span>
+                  </div>
 
-                    const statusColors = getStatusColor(task.status);
-                    const isCritical = task.priority === 'Critical';
-                    const progressWidth = (width * task.progress) / 100;
+                  {/* Timeline Bar Column */}
+                  <div className="relative h-12">
+                    {/* Grid Lines */}
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div key={i} className="absolute h-full border-r border-slate-100" style={{ left: `${i * 20}%` }} />
+                    ))}
 
-                    taskRowIndex++;
-                    return (
-                      <div
-                        key={task.id}
-                        className="absolute group"
-                        style={{
-                          left: `${left}px`,
-                          top: `${top}px`,
-                          width: `${width}px`,
-                          height: `${height}px`,
-                        }}
+                    {/* The Bar */}
+                    {pos && (
+                      <motion.div
+                        layoutId={task.id}
+                        className={`absolute top-3 h-6 rounded-md shadow-sm cursor-pointer border border-white/20 flex items-center px-2 text-xs text-white overflow-hidden whitespace-nowrap
+                                                    ${isOverdue ? 'bg-red-500' :
+                            task.isMilestone ? 'bg-amber-500' : 'bg-blue-500'}
+                                                    hover:brightness-110 transition-all
+                                                `}
+                        style={{ left: pos.left, width: pos.width }}
+                        onClick={() => onTaskClick(task)}
+                        whileHover={{ scale: 1.02 }}
                       >
-                        {/* Task Bar Background */}
-                        <div
-                          className={`absolute inset-0 rounded ${
-                            isCritical ? 'border-2 border-error-500' : 'border border-gray-300'
-                          } ${statusColors.bg} ${statusColors.border} transition-all hover:shadow-md`}
-                          style={{
-                            backgroundColor: isCritical
-                              ? 'rgba(239, 68, 68, 0.2)'
-                              : statusColors.bg.includes('success')
-                              ? 'rgba(16, 185, 129, 0.2)'
-                              : statusColors.bg.includes('warning')
-                              ? 'rgba(245, 158, 11, 0.2)'
-                              : statusColors.bg.includes('info')
-                              ? 'rgba(2, 132, 199, 0.2)'
-                              : 'rgba(107, 114, 128, 0.2)',
-                          }}
-                        >
-                          {/* Progress Bar */}
-                          {task.progress > 0 && (
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${progressWidth}px` }}
-                              transition={{ duration: 0.5 }}
-                              className={`absolute left-0 top-0 bottom-0 rounded-l ${
-                                task.progress === 100
-                                  ? 'bg-success-600'
-                                  : task.status === 'In Progress'
-                                  ? 'bg-primary-600'
-                                  : 'bg-warning-500'
-                              }`}
-                              style={{ width: `${progressWidth}px` }}
-                            />
-                          )}
-                          {/* Task Label */}
-                          <div className="absolute inset-0 flex items-center px-2 text-xs font-medium text-gray-900 z-10">
-                            <span className="truncate">{task.name}</span>
-                            <span className="ml-2 text-gray-600">{task.progress}%</span>
-                          </div>
-                        </div>
-                        {/* Tooltip on Hover */}
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-30">
-                          <div className="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
-                            <div className="font-semibold mb-1">{task.name}</div>
-                            <div>Start: {taskStart.toLocaleDateString()}</div>
-                            <div>End: {taskEnd.toLocaleDateString()}</div>
-                            <div>Progress: {task.progress}%</div>
-                            <div>Status: {task.status}</div>
-                            <div>Priority: {task.priority}</div>
-                            <div>Assigned: {task.assignedTo}</div>
-                          </div>
-                        </div>
+                        {task.name}
+                      </motion.div>
+                    )}
+                    {!pos && (
+                      <div className="text-[10px] text-slate-300 italic p-4">
+                        (Outside View)
                       </div>
-                    );
-                  })}
+                    )}
+                  </div>
                 </div>
               );
             })}
+            {tasks.length === 0 && (
+              <div className="p-8 text-center text-slate-400 text-sm">
+                No tasks found for this period. Add a task to get started.
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 };
-
-
-
-
-
-

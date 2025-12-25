@@ -15,10 +15,14 @@ const financeService = {
     // --- BUDGETING ---
     getBudgets: async (projectId) => {
         const response = await api.get('/finance/budgets/', { params: { project: projectId } });
+        // Map response to include fund details if needed, though backend serializer key is 'fund_head' (ID)
+        // If we need the name, we might need a nested serializer or separate fetch.
+        // For now, return as is.
         return response.data;
     },
 
     createBudget: async (data) => {
+        // Data should include { project, milestone, fund_head, cost_category, amount }
         const response = await api.post('/finance/budgets/', data);
         return response.data;
     },

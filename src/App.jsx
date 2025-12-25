@@ -10,7 +10,10 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
 
-import Scheduling from './pages/Scheduling';
+import RABilling from '@/pages/RABilling';
+import FundManagement from '@/pages/FundManagement';
+import Budgeting from '@/pages/Budgeting';
+import Scheduling from '@/pages/Scheduling';
 import CostManagement from './pages/CostManagement';
 import RiskManagement from './pages/RiskManagement';
 import GIS from './pages/GIS';
@@ -20,7 +23,6 @@ import Procurement from './pages/Procurement';
 import Reimbursement from './pages/Reimbursement';
 import RoleManager from './pages/RoleManager';
 import ProjectDetailsPage from './pages/ProjectDetailsPage';
-import RABilling from './pages/RABilling';
 import AuditLogs from './pages/admin/AuditLogs';
 import UserManagement from './pages/UserManagement';
 
@@ -55,7 +57,10 @@ const AppRoutes = () => {
         <Route path="projects" element={<Projects />} />
         <Route path="projects/:id" element={<ProjectDetailsPage />} />
         <Route path="procurement" element={<Procurement />} />
-        <Route path="ra-billing" element={<RABilling />} />
+        <Route path="procurement" element={<Procurement />} />
+        <Route path="cost/billing" element={<RABilling />} />
+        <Route path="cost/funds" element={<FundManagement />} />
+        <Route path="cost/budgeting" element={<Budgeting />} />
         <Route path="admin/audit-logs" element={<AuditLogs />} />
 
         <Route path="scheduling" element={<Scheduling />} />

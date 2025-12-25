@@ -14,6 +14,7 @@ class ProjectFinanceSettingsSerializer(serializers.ModelSerializer):
 
 class BudgetLineItemSerializer(serializers.ModelSerializer):
     milestone_name = serializers.CharField(source='milestone.name', read_only=True)
+    fund_name = serializers.CharField(source='fund_head.name', read_only=True)
     class Meta:
         model = BudgetLineItem
         fields = '__all__'

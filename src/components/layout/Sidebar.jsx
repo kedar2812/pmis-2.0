@@ -22,6 +22,7 @@ import {
   Clock,
   Users,
   Building2,
+  PieChart,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -164,11 +165,25 @@ const Sidebar = () => {
       permission: 'dashboard:view',
     },
     {
+      id: 'cost-funds',
+      label: 'Fund Management',
+      icon: IndianRupee,
+      path: '/cost/funds',
+      permission: 'cost:view',
+    },
+    {
+      id: 'cost-budgeting',
+      label: 'Budgeting',
+      icon: PieChart, // Changed icon to distinguish
+      path: '/cost/budgeting',
+      permission: 'cost:view',
+    },
+    {
       id: 'ra-billing',
       label: 'RA Billing',
-      icon: IndianRupee,
-      path: '/ra-billing',
-      permission: 'dashboard:view', // Accessible to dashboard viewers
+      icon: FileText,
+      path: '/cost/billing', // Updated path
+      permission: 'dashboard:view',
     },
     {
       id: 'workflow',

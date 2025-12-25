@@ -23,6 +23,7 @@ import { GenerateBillModal } from '@/components/billing/GenerateBillModal';
 import { RABillTemplate } from '@/components/billing/RABillTemplate';
 import { useRef } from 'react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 const RABilling = () => {
     // State for Real Data
@@ -37,6 +38,9 @@ const RABilling = () => {
     // For printing from the list
     const [selectedBillForPrint, setSelectedBillForPrint] = useState(null);
 
+    const { user } = useAuth();
+    const canCreateBill = user?.role === 'EPC_Contractor';
+
     // 1. Fetch Data on Mount
     useEffect(() => {
         const fetchData = async () => {
@@ -50,7 +54,15 @@ const RABilling = () => {
 
                 setRaBills(billsData);
                 setProjects(projectsData);
-                setContractors(usersData.filter(u => u.role === 'CONTRACTOR' || true)); // Filter if needed, showing all for now
+
+                // Filter only EPC Contractors and format for dropdown
+                const validContractors = usersData
+                    .filter(u => u.role === 'EPC_Contractor')
+                    .map(u => ({
+                        ...u,
+                        contractorName: u.company_name || u.username // Fallback if company name missing
+                    }));
+                setContractors(validContractors);
             } catch (error) {
                 console.error("Failed to fetch billing data", error);
                 toast.error("Failed to load data");
@@ -146,12 +158,14 @@ const RABilling = () => {
                     <Button variant="outline" onClick={handleExportSummary} className="gap-2">
                         <Download size={18} /> Export Summary
                     </Button>
-                    <Button
-                        onClick={() => setIsGenerateModalOpen(true)}
-                        className="flex items-center gap-2 bg-primary-950 text-white hover:bg-primary-900 shadow-lg"
-                    >
-                        <Plus size={18} /> Generate New Bill
-                    </Button>
+                    {canCreateBill && (
+                        <Button
+                            onClick={() => setIsGenerateModalOpen(true)}
+                            className="flex items-center gap-2 bg-primary-950 text-white hover:bg-primary-900 shadow-lg"
+                        >
+                            <Plus size={18} /> Generate New Bill
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -259,9 +273,13 @@ const RABilling = () => {
                 <EmptyState
                     icon={Calculator}
                     title="No RA Bills Generated"
-                    description={searchQuery ? "No bills match your search." : "Generate your first RA Bill to get started."}
-                    actionLabel="Generate New Bill"
-                    onAction={() => setIsGenerateModalOpen(true)}
+                    description={
+                        searchQuery
+                            ? "No bills match your search."
+                            : (canCreateBill ? "Generate your first RA Bill to get started." : "No bills have been submitted yet.")
+                    }
+                    actionLabel={canCreateBill ? "Generate New Bill" : undefined}
+                    onAction={canCreateBill ? () => setIsGenerateModalOpen(true) : undefined}
                 />
             )}
 

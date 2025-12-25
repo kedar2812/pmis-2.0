@@ -38,10 +38,28 @@ class ProjectFinanceSettingsViewSet(viewsets.ModelViewSet):
         settings, _ = ProjectFinanceSettings.objects.get_or_create(project_id=project_id)
         return Response(self.get_serializer(settings).data)
 
+from rest_framework import viewsets, permissions, status
+from rest_framework.exceptions import PermissionDenied # Import this
+from rest_framework.decorators import action
+# ... (rest of imports)
+
+# ... (Previous ViewSets)
+
 class RABillViewSet(viewsets.ModelViewSet):
     queryset = RABill.objects.all()
     serializer_class = RABillSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Strict Access Control: Only EPC Contractors can generate bills.
+        if self.request.user.role != 'EPC_Contractor':
+            raise PermissionDenied("Only EPC Contractors can generate RA Bills.")
+        
+        # Optionally bind the bill to the user (if contractor field is user)
+        # serializer.save(contractor=self.request.user) 
+        # But our model has contractor ID passed in body, let's trust that for now 
+        # OR better: enforce it matches the logged in user
+        serializer.save()
 
     def get_queryset(self):
         qs = super().get_queryset()

@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 import uuid
 
 class FundHead(models.Model):
@@ -8,14 +9,21 @@ class FundHead(models.Model):
     Tracks the source of funds (e.g., Grants, Loans, Budget Allocations).
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    source_name = models.CharField(max_length=255, help_text="e.g. World Bank Loan, State Budget")
+    name = models.CharField(max_length=255, help_text="e.g. World Bank Loan, State Budget")
+    allocating_authority = models.CharField(max_length=255, help_text="e.g. Dept of Finance", default="Government")
     total_amount = models.DecimalField(max_digits=15, decimal_places=2)
-    balance_available = models.DecimalField(max_digits=15, decimal_places=2)
-    allocation_date = models.DateField()
+    balance_available = models.DecimalField(max_digits=15, decimal_places=2, blank=True)
+    start_date = models.DateField(default=timezone.now)
+    end_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        if self.balance_available is None:
+            self.balance_available = self.total_amount
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.source_name} (₹{self.balance_available})"
+        return f"{self.name} (₹{self.balance_available})"
 
 class ProjectFinanceSettings(models.Model):
     """
@@ -45,6 +53,7 @@ class BudgetLineItem(models.Model):
     project = models.ForeignKey('projects.Project', on_delete=models.CASCADE, related_name='budget_items')
     # Strict Linkage: Budget must have a milestone (No Money Without Time)
     milestone = models.ForeignKey('scheduling.ScheduleTask', on_delete=models.CASCADE, related_name='budget_allocations')
+    fund_head = models.ForeignKey(FundHead, on_delete=models.CASCADE, related_name='allocations', null=True, blank=True)
     
     cost_category = models.CharField(max_length=50, choices=CostCategory.choices)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
