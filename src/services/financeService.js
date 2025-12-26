@@ -54,6 +54,35 @@ const financeService = {
     getSettings: async (projectId) => {
         const response = await api.get('/finance/settings/by_project/', { params: { project: projectId } });
         return response.data;
+    },
+
+    // --- SCHEDULING ---
+    getScheduleTasks: async (projectId) => {
+        const response = await api.get('/scheduling/tasks/', { params: { project: projectId } });
+        return response.data;
+    },
+
+    // --- BOQ ---
+    getBOQItems: async (projectId) => {
+        const response = await api.get('/finance/boq/', { params: { project: projectId } });
+        return response.data;
+    },
+
+    analyzeBOQFile: async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await api.post('/finance/boq/analyze_file/', formData);
+        return response.data;
+    },
+
+    importBOQFile: async (projectId, file, mapping) => {
+        const formData = new FormData();
+        formData.append('project_id', projectId);
+        formData.append('file', file);
+        formData.append('mapping', JSON.stringify(mapping));
+
+        const response = await api.post('/finance/boq/import_file/', formData);
+        return response.data;
     }
 };
 

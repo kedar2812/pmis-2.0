@@ -144,6 +144,8 @@ class RABill(models.Model):
     
     status = models.CharField(max_length=20, choices=BillStatus.choices, default=BillStatus.DRAFT)
     
+    metadata = models.JSONField(default=dict, blank=True, help_text="Store override flags or extra sync data")
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -164,4 +166,64 @@ class RetentionLedger(models.Model):
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.HELD)
     
     release_date = models.DateField(null=True, blank=True)
-    remarks = models.TextField(blank=True)
+
+class BOQItem(models.Model):
+    """
+    Contract Baseline: The Sanctioned Bill of Quantities.
+    Immutable once 'FROZEN'.
+    """
+    class Status(models.TextChoices):
+        DRAFT = 'DRAFT', _('Draft')
+        FROZEN = 'FROZEN', _('Frozen (Immutable)')
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    project = models.ForeignKey('projects.Project', on_delete=models.CASCADE, related_name='boq_items')
+    
+    item_code = models.CharField(max_length=50, help_text="e.g. 2.1.1")
+    description = models.TextField()
+    uom = models.CharField(max_length=20, help_text="Unit of Measurement")
+    
+    quantity = models.DecimalField(max_digits=15, decimal_places=4)
+    rate = models.DecimalField(max_digits=15, decimal_places=2)
+    amount = models.DecimalField(max_digits=15, decimal_places=2, help_text="Qty * Rate")
+    
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        # Prevent duplicates of item code per project
+        unique_together = ['project', 'item_code']
+        ordering = ['item_code']
+
+    def save(self, *args, **kwargs):
+        # Auto-calculate amount
+        self.amount = self.quantity * self.rate
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.item_code} - {self.description[:50]}..."
+
+class BOQMilestoneMapping(models.Model):
+    """
+    Budgeting Link: Money (BOQ) <-> Time (Schedule).
+    Allows mapping a percentage of a BOQ Item to a specific Milestone.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    boq_item = models.ForeignKey(BOQItem, on_delete=models.CASCADE, related_name='milestone_mappings')
+    milestone = models.ForeignKey('scheduling.ScheduleTask', on_delete=models.CASCADE, related_name='boq_mappings')
+    
+    percentage_allocated = models.DecimalField(
+        max_digits=5, decimal_places=2, 
+        help_text="How much of this BOQ item is consumed by this milestone?"
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # A BOQ item can be mapped to multiple milestones, but not the same one twice
+        unique_together = ['boq_item', 'milestone']
+
+    def __str__(self):
+        return f"{self.boq_item.item_code} -> {self.milestone.name} ({self.percentage_allocated}%)"
+

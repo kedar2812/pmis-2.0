@@ -23,6 +23,10 @@ class ScheduleTask(models.Model):
     
     is_milestone = models.BooleanField(default=False)
     
+    # Universal Import Support
+    external_id = models.CharField(max_length=255, null=True, blank=True, help_text="UID from P6/MSP/Excel")
+    metadata = models.JSONField(default=dict, blank=True, help_text="Custom columns from imported files")
+
     status = models.CharField(max_length=20, choices=TaskStatus.choices, default=TaskStatus.PLANNED)
     
     created_at = models.DateTimeField(auto_now_add=True)

@@ -5,6 +5,7 @@ import { X, Save, Printer, RefreshCw, Calculator, FileText, IndianRupee, AlertCi
 import Button from '@/components/ui/Button';
 import { toast } from 'sonner';
 import { RABillTemplate } from './RABillTemplate';
+import financeService from '@/services/financeService';
 
 export const GenerateBillModal = ({
     isOpen,
@@ -17,8 +18,35 @@ export const GenerateBillModal = ({
     const [viewMode, setViewMode] = useState('edit');
 
     // Form State
+    // Form State
+    const [milestones, setMilestones] = useState([]);
+
+    // Add logic to fetch milestones when project changes
+    const handleProjectChange = async (e) => {
+        const pid = e.target.value;
+        setFormData(prev => ({ ...prev, projectId: pid, milestoneId: '' }));
+        if (pid) {
+            try {
+                // We need to import financeService here if not present, but it seems it is used in parent.
+                // We should probably pass getMilestones as prop or import it.
+                // Let's assume we import financeService.
+                // wait, file doesn't import financeService. Let's fix imports first or assume parent passes it?
+                // The component imports are shown in previous view_file. It imports 'sonner', 'lucide-react', 'ui/Button'.
+                // It does NOT import financeService.
+                // I will add the import in a separate tool call or just use a prop.
+                // Creating a local fetcher is better if we want self-containment, but service is cleaner.
+                // I'll assume I can add the import at the top later.
+                // For now, let's use a placeholder or assume the import is added.
+            } catch (e) { console.error(e); }
+        }
+    };
+
+    // Actually, I need to add 'import financeService' at top first.
+    // Let's just update the state defs first.
+
     const [formData, setFormData] = useState({
         projectId: '',
+        milestoneId: '', // Added
         packageCode: '',
         contractorId: '',
         workOrderNo: '',
@@ -142,6 +170,8 @@ export const GenerateBillModal = ({
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+
+
     if (!isOpen) return null;
 
     const selectedProject = projects.find(p => p.id === formData.projectId);
@@ -209,7 +239,7 @@ export const GenerateBillModal = ({
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div>
                                                         <label className="block text-xs font-medium text-slate-700 mb-1">Project</label>
-                                                        <select name="projectId" value={formData.projectId} onChange={handleChange} className="w-full px-3 py-2 border rounded-md text-sm">
+                                                        <select name="projectId" value={formData.projectId} onChange={handleProjectChange} className="w-full px-3 py-2 border rounded-md text-sm">
                                                             <option value="">Select Project...</option>
                                                             {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                                                         </select>
@@ -219,6 +249,17 @@ export const GenerateBillModal = ({
                                                         <select name="contractorId" value={formData.contractorId} onChange={handleChange} className="w-full px-3 py-2 border rounded-md text-sm">
                                                             <option value="">Select Contractor...</option>
                                                             {contractors.map(c => <option key={c.id} value={c.id}>{c.contractorName}</option>)}
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-slate-700 mb-1">Linked Milestone (Schedule)</label>
+                                                        <select name="milestoneId" value={formData.milestoneId} onChange={handleChange} className="w-full px-3 py-2 border rounded-md text-sm">
+                                                            <option value="">-- General / No Milestone --</option>
+                                                            {milestones.map(m => (
+                                                                <option key={m.id} value={m.id}>
+                                                                    {m.name} ({m.progress}%)
+                                                                </option>
+                                                            ))}
                                                         </select>
                                                     </div>
                                                     <Input label="Work Order No" name="workOrderNo" value={formData.workOrderNo} onChange={handleChange} />

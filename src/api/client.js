@@ -7,13 +7,20 @@ const client = axios.create({
     },
 });
 
-// Add a request interceptor to attach the token
+// Add a request interceptor to attach the token and handle FormData
 client.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('access_token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+
+        // If the request body is FormData, let the browser set the Content-Type
+        // (it needs to add the boundary parameter for multipart/form-data)
+        if (config.data instanceof FormData) {
+            delete config.headers['Content-Type'];
+        }
+
         return config;
     },
     (error) => {

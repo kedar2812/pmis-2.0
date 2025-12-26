@@ -13,6 +13,7 @@ import Projects from './pages/Projects';
 import RABilling from '@/pages/RABilling';
 import FundManagement from '@/pages/FundManagement';
 import Budgeting from '@/pages/Budgeting';
+import BOQManagement from '@/pages/BOQManagement';
 import Scheduling from '@/pages/Scheduling';
 import CostManagement from './pages/CostManagement';
 import RiskManagement from './pages/RiskManagement';
@@ -61,6 +62,7 @@ const AppRoutes = () => {
         <Route path="cost/billing" element={<RABilling />} />
         <Route path="cost/funds" element={<FundManagement />} />
         <Route path="cost/budgeting" element={<Budgeting />} />
+        <Route path="cost/boq" element={<BOQManagement />} />
         <Route path="admin/audit-logs" element={<AuditLogs />} />
 
         <Route path="scheduling" element={<Scheduling />} />

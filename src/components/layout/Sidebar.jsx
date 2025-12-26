@@ -165,6 +165,13 @@ const Sidebar = () => {
       permission: 'dashboard:view',
     },
     {
+      id: 'cost-boq',
+      label: 'BOQ Management',
+      icon: FileText,
+      path: '/cost/boq',
+      permission: 'cost:view',
+    },
+    {
       id: 'cost-funds',
       label: 'Fund Management',
       icon: IndianRupee,

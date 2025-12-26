@@ -1,6 +1,20 @@
 from rest_framework import serializers
-from .models import FundHead, BudgetLineItem, RABill, RetentionLedger, ProjectFinanceSettings, VariationRequest
+from .models import FundHead, BudgetLineItem, RABill, RetentionLedger, ProjectFinanceSettings, VariationRequest, BOQItem, BOQMilestoneMapping
 from scheduling.models import ScheduleTask
+
+class BOQItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BOQItem
+        fields = '__all__'
+        read_only_fields = ['amount', 'created_at', 'updated_at']
+
+class BOQMilestoneMappingSerializer(serializers.ModelSerializer):
+    milestone_name = serializers.CharField(source='milestone.name', read_only=True)
+    boq_item_code = serializers.CharField(source='boq_item.item_code', read_only=True)
+    
+    class Meta:
+        model = BOQMilestoneMapping
+        fields = '__all__'
 
 class FundHeadSerializer(serializers.ModelSerializer):
     class Meta:
