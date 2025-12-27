@@ -27,6 +27,14 @@ class BaseImporter(abc.ABC):
         pass
 
 class ExcelImporter(BaseImporter):
+    def _serialize_value(self, val):
+        """Convert values to JSON-serializable types."""
+        if val is None:
+            return None
+        if isinstance(val, datetime):
+            return val.isoformat()
+        return val
+
     def read_headers(self, file_path: str) -> List[str]:
         if hasattr(file_path, 'seek'):
             file_path.seek(0)
@@ -80,16 +88,17 @@ class ExcelImporter(BaseImporter):
                 # If no mapping provided, yield raw dict using headers
                 for i, val in enumerate(row):
                     if i < len(file_headers):
-                        data[file_headers[i]] = val
+                        data[file_headers[i]] = self._serialize_value(val)
             else:
                 # Use mapping to extract specific fields
                 for db_field, col_idx in db_to_col_index.items():
                     if col_idx < len(row):
-                        data[db_field] = row[col_idx]
+                        data[db_field] = self._serialize_value(row[col_idx])
             
             yield data
         
         wb.close()
+
 
 class MSPImporter(BaseImporter):
     """

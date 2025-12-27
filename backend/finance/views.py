@@ -1,14 +1,16 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
 from django.utils import timezone
-from .models import FundHead, BudgetLineItem, RABill, RetentionLedger, ProjectFinanceSettings, BOQMilestoneMapping
+from .models import FundHead, BudgetLineItem, RABill, RetentionLedger, ProjectFinanceSettings, BOQMilestoneMapping, ApprovalRequest, Notification
 from .serializers import (
     FundHeadSerializer, BudgetLineItemSerializer, 
     RABillSerializer, ProjectFinanceSettingsSerializer,
-    BOQMilestoneMappingSerializer
+    BOQMilestoneMappingSerializer, ApprovalRequestSerializer, NotificationSerializer
 )
 from django.db import models
+from users.models import User
 
 class FundHeadViewSet(viewsets.ModelViewSet):
     queryset = FundHead.objects.all()
@@ -66,23 +68,127 @@ class BOQItemViewSet(viewsets.ModelViewSet):
     
     def perform_update(self, serializer):
         if self.get_object().status == BOQItem.Status.FROZEN:
-             # Allow status change back to Draft? Maybe only Admin.
-             # For now, strict: Immutable.
-             # Exception: unless we are 'unfreezing' it?
-             # Let's block update if current status is frozen.
-             pass 
-             # Actually, let's Raise error if NOT admin.
-             # But prompt says "Once ... approved by admin ... Read-Only".
-             # So only admin can unfreeze? 
-             # Let's enforce: If Frozen, no edits allow.
-             pass
+            raise PermissionDenied("Cannot update a Frozen BOQ Item.")
         serializer.save()
+
+    @action(detail=False, methods=['post'])
+    def request_freeze(self, request):
+        """
+        Request approval to freeze selected BOQ items.
+        Creates an ApprovalRequest and notifies admins.
+        """
+        try:
+            item_ids = request.data.get('item_ids', [])
+            project_id = request.data.get('project_id')
+            description = request.data.get('description', '')
+            
+            if not item_ids:
+                return Response({'error': 'No items selected'}, status=400)
+            if not project_id:
+                return Response({'error': 'Project ID is required'}, status=400)
+            
+            # Validate items exist and are in DRAFT status
+            items = BOQItem.objects.filter(id__in=item_ids, project_id=project_id, status='DRAFT')
+            found_count = items.count()
+            
+            if found_count == 0:
+                return Response({'error': 'No matching draft items found'}, status=400)
+            
+            # Create approval request with found items only
+            approval_request = ApprovalRequest.objects.create(
+                request_type=ApprovalRequest.RequestType.BOQ_FREEZE,
+                entity_ids=[str(item.id) for item in items],
+                entity_type='BOQItem',
+                project_id=project_id,
+                requested_by=request.user,
+                title=f"BOQ Freeze Request - {found_count} items",
+                description=description or f"Request to freeze {found_count} BOQ items as baseline."
+            )
+            
+            # Notify all admin users
+            admin_users = User.objects.filter(role__in=['NICDC_HQ', 'SPV_Official', 'PMNC_Team'])
+            notifications = []
+            for admin in admin_users:
+                notifications.append(Notification(
+                    user=admin,
+                    notification_type=Notification.NotificationType.APPROVAL_REQUEST,
+                    title="New BOQ Freeze Request",
+                    message=f"{request.user.username} has requested to freeze {found_count} BOQ items. Awaiting your approval.",
+                    related_url="/approvals",
+                    related_request=approval_request
+                ))
+            if notifications:
+                Notification.objects.bulk_create(notifications)
+            
+            return Response({
+                'status': 'success',
+                'message': f'Freeze request submitted for {found_count} items',
+                'request_id': str(approval_request.id)
+            })
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response({'error': f'Server error: {str(e)}'}, status=500)
+
+    @action(detail=False, methods=['post'])
+    def request_unfreeze(self, request):
+        """
+        Request approval to unfreeze selected BOQ items.
+        """
+        try:
+            item_ids = request.data.get('item_ids', [])
+            project_id = request.data.get('project_id')
+            description = request.data.get('description', '')
+            
+            if not item_ids:
+                return Response({'error': 'No items selected'}, status=400)
+            if not project_id:
+                return Response({'error': 'Project ID is required'}, status=400)
+            
+            items = BOQItem.objects.filter(id__in=item_ids, project_id=project_id, status='FROZEN')
+            found_count = items.count()
+            
+            if found_count == 0:
+                return Response({'error': 'No matching frozen items found'}, status=400)
+            
+            approval_request = ApprovalRequest.objects.create(
+                request_type=ApprovalRequest.RequestType.BOQ_UNFREEZE,
+                entity_ids=[str(item.id) for item in items],
+                entity_type='BOQItem',
+                project_id=project_id,
+                requested_by=request.user,
+                title=f"BOQ Unfreeze Request - {found_count} items",
+                description=description or f"Request to unfreeze {found_count} BOQ items for modification."
+            )
+            
+            admin_users = User.objects.filter(role__in=['NICDC_HQ', 'SPV_Official', 'PMNC_Team'])
+            notifications = []
+            for admin in admin_users:
+                notifications.append(Notification(
+                    user=admin,
+                    notification_type=Notification.NotificationType.APPROVAL_REQUEST,
+                    title="New BOQ Unfreeze Request",
+                    message=f"{request.user.username} has requested to unfreeze {found_count} BOQ items.",
+                    related_url="/approvals",
+                    related_request=approval_request
+                ))
+            if notifications:
+                Notification.objects.bulk_create(notifications)
+            
+            return Response({
+                'status': 'success',
+                'message': f'Unfreeze request submitted for {found_count} items',
+                'request_id': str(approval_request.id)
+            })
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response({'error': f'Server error: {str(e)}'}, status=500)
 
     @action(detail=False, methods=['post'])
     def analyze_file(self, request):
         """
         Analyzes an uploaded Excel file and returns its column headers.
-        Uses a temporary file for robust compatibility with openpyxl.
         """
         import tempfile
         import os
@@ -95,13 +201,11 @@ class BOQItemViewSet(viewsets.ModelViewSet):
         
         temp_path = None
         try:
-            # Save to a temporary file
             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
                 for chunk in file_obj.chunks():
                     tmp.write(chunk)
                 temp_path = tmp.name
             
-            # Read headers using the importer
             headers = ExcelImporter().read_headers(temp_path)
             return Response({'headers': headers, 'filename': file_obj.name})
         except Exception as e:
@@ -116,7 +220,6 @@ class BOQItemViewSet(viewsets.ModelViewSet):
     def import_file(self, request):
         """
         Imports BOQ data from an uploaded Excel file.
-        Uses a temporary file for robust compatibility with openpyxl.
         """
         import tempfile
         import os
@@ -134,7 +237,6 @@ class BOQItemViewSet(viewsets.ModelViewSet):
         try:
             mapping = json.loads(mapping_str)
             
-            # Save to a temporary file
             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
                 for chunk in file_obj.chunks():
                     tmp.write(chunk)
@@ -172,7 +274,7 @@ class BOQItemViewSet(viewsets.ModelViewSet):
             
             response_data = {'status': 'success', 'imported': count}
             if errors:
-                response_data['errors'] = errors[:5]  # Return first 5 errors
+                response_data['errors'] = errors[:5]
             return Response(response_data)
             
         except json.JSONDecodeError:
@@ -184,10 +286,6 @@ class BOQItemViewSet(viewsets.ModelViewSet):
         finally:
             if temp_path and os.path.exists(temp_path):
                 os.remove(temp_path)
-            
-
-
-# ... (Previous ViewSets)
 
 
 class BOQMilestoneMappingViewSet(viewsets.ModelViewSet):
@@ -195,25 +293,145 @@ class BOQMilestoneMappingViewSet(viewsets.ModelViewSet):
     serializer_class = BOQMilestoneMappingSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
+class ApprovalRequestViewSet(viewsets.ModelViewSet):
+    queryset = ApprovalRequest.objects.all()
+    serializer_class = ApprovalRequestSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+        status_param = self.request.query_params.get('status')
+        
+        # Regular users see their own requests
+        # Admins see pending requests for their approval
+        if hasattr(user, 'role') and user.role in ['NICDC_HQ', 'SPV_Official', 'PMNC_Team']:
+            pass  # Admins see all
+        else:
+            qs = qs.filter(requested_by=user)
+            
+        if status_param:
+            qs = qs.filter(status=status_param)
+        
+        return qs
+
+    @action(detail=False, methods=['get'])
+    def pending(self, request):
+        """Get all pending approval requests for admin users."""
+        user = request.user
+        if not hasattr(user, 'role') or user.role not in ['NICDC_HQ', 'SPV_Official', 'PMNC_Team']:
+            return Response([], status=200)
+        
+        pending = ApprovalRequest.objects.filter(status='PENDING')
+        return Response(ApprovalRequestSerializer(pending, many=True).data)
+
+    @action(detail=True, methods=['post'])
+    def approve(self, request, pk=None):
+        """Approve the request and apply the changes."""
+        approval = self.get_object()
+        user = request.user
+        
+        # Check admin permission
+        if not hasattr(user, 'role') or user.role not in ['NICDC_HQ', 'SPV_Official', 'PMNC_Team']:
+            return Response({'error': 'You do not have permission to approve requests'}, status=403)
+        
+        if approval.status != 'PENDING':
+            return Response({'error': 'Request is not pending'}, status=400)
+        
+        notes = request.data.get('notes', '')
+        
+        # Apply the changes based on request type
+        if approval.request_type == 'BOQ_FREEZE':
+            BOQItem.objects.filter(id__in=approval.entity_ids).update(status='FROZEN')
+        elif approval.request_type == 'BOQ_UNFREEZE':
+            BOQItem.objects.filter(id__in=approval.entity_ids).update(status='DRAFT')
+        
+        # Update approval record
+        approval.status = 'APPROVED'
+        approval.reviewed_by = user
+        approval.reviewed_at = timezone.now()
+        approval.review_notes = notes
+        approval.save()
+        
+        # Notify the requester
+        Notification.objects.create(
+            user=approval.requested_by,
+            notification_type=Notification.NotificationType.APPROVAL_RESULT,
+            title=f"Request Approved: {approval.title}",
+            message=f"Your {approval.get_request_type_display()} has been approved by {user.username}.",
+            related_url="/cost/boq",
+            related_request=approval
+        )
+        
+        return Response({'status': 'approved', 'message': 'Request approved successfully'})
+
+    @action(detail=True, methods=['post'])
+    def reject(self, request, pk=None):
+        """Reject the request."""
+        approval = self.get_object()
+        user = request.user
+        
+        if not hasattr(user, 'role') or user.role not in ['NICDC_HQ', 'SPV_Official', 'PMNC_Team']:
+            return Response({'error': 'You do not have permission to reject requests'}, status=403)
+        
+        if approval.status != 'PENDING':
+            return Response({'error': 'Request is not pending'}, status=400)
+        
+        notes = request.data.get('notes', 'No reason provided')
+        
+        approval.status = 'REJECTED'
+        approval.reviewed_by = user
+        approval.reviewed_at = timezone.now()
+        approval.review_notes = notes
+        approval.save()
+        
+        # Notify the requester
+        Notification.objects.create(
+            user=approval.requested_by,
+            notification_type=Notification.NotificationType.APPROVAL_RESULT,
+            title=f"Request Rejected: {approval.title}",
+            message=f"Your {approval.get_request_type_display()} has been rejected. Reason: {notes}",
+            related_url="/cost/boq",
+            related_request=approval
+        )
+        
+        return Response({'status': 'rejected', 'message': 'Request rejected'})
+
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user)
+
+    @action(detail=False, methods=['get'])
+    def unread_count(self, request):
+        count = Notification.objects.filter(user=request.user, is_read=False).count()
+        return Response({'count': count})
+
+    @action(detail=True, methods=['post'])
+    def mark_read(self, request, pk=None):
+        notification = self.get_object()
+        notification.is_read = True
+        notification.save()
+        return Response({'status': 'marked_read'})
+
+    @action(detail=False, methods=['post'])
+    def mark_all_read(self, request):
+        Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+        return Response({'status': 'all_marked_read'})
+
+
 class RABillViewSet(viewsets.ModelViewSet):
     queryset = RABill.objects.all()
     serializer_class = RABillSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        # Strict Access Control: Only EPC Contractors can generate bills.
         user = self.request.user
-        # Assuming user model has role or we check group. 
-        # Requirement said "Contractor Access... Only Create/Upload Bills".
-        # We enforce strict check if role field exists.
-        if hasattr(user, 'role') and user.role != 'EPC_Contractor':
-             # Allow admin or others? "Admin... Cannot generate bills themselves".
-             # So strictly EPC_Contractor.
-             pass 
-             # raise PermissionDenied("Only EPC Contractors can generate RA Bills.")
-             # Commented out for dev ease unless role strictly set.
         
-        # EVM Validation (The "Schedule Guardrail")
         milestone = serializer.validated_data.get('milestone')
         gross_amount = serializer.validated_data.get('gross_amount')
         
@@ -221,16 +439,13 @@ class RABillViewSet(viewsets.ModelViewSet):
         warnings = []
         
         if milestone and gross_amount:
-            # Fetch total budget for this milestone
             total_budget = BudgetLineItem.objects.filter(milestone=milestone).aggregate(models.Sum('amount'))['amount__sum'] or 0
             
             if total_budget > 0:
                 billed_pct = (gross_amount / total_budget) * 100
                 physical_pct = milestone.progress
                 
-                # Rule: "If contractor tries to bill for 80% ... but schedule shows 50%"
-                # We add a buffer? Or strict.
-                if billed_pct > (physical_pct + 5): # 5% buffer
+                if billed_pct > (physical_pct + 5):
                     warnings.append(f"High Risk: Billing {billed_pct:.1f}% (of budget) but Physical Progress is only {physical_pct}%.")
         
         if warnings:
@@ -250,45 +465,30 @@ class RABillViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def verify(self, request, pk=None):
-        """
-        Mark bill as VERIFIED after checking physical progress.
-        """
         bill = self.get_object()
-        
-        # Double check warnings if needed
         bill.status = 'VERIFIED'
         bill.save()
-        
-        return Response({
-            'status': 'verified',
-            'message': 'Bill verified successfully.'
-        })
+        return Response({'status': 'verified', 'message': 'Bill verified successfully.'})
 
     @action(detail=True, methods=['post'])
     def pay(self, request, pk=None):
-        """
-        Mark bill as PAID and deduct from Fund.
-        """
         bill = self.get_object()
         if bill.status == 'PAID':
             return Response({'error': 'Bill already paid'}, status=400)
         
-        # Fund Deduction Logic
         budget_items = BudgetLineItem.objects.filter(milestone=bill.milestone)
         if not budget_items.exists():
             return Response({'error': 'No linked Budget/Fund found for this Milestone'}, status=400)
         
-        # Deduct from first found fund
         budget = budget_items.first() 
         fund = budget.fund_head
         
         if not fund:
-             return Response({'error': 'Budget has no linked Fund Source'}, status=400)
+            return Response({'error': 'Budget has no linked Fund Source'}, status=400)
              
         if fund.balance_available < bill.net_payable:
             return Response({'error': f"Insufficient Funds in {fund.name}. Available: {fund.balance_available}"}, status=400)
             
-        # Deduct
         fund.balance_available -= bill.net_payable
         fund.save()
         
@@ -296,3 +496,4 @@ class RABillViewSet(viewsets.ModelViewSet):
         bill.save()
         
         return Response({'status': 'paid', 'fund_balance': fund.balance_available})
+

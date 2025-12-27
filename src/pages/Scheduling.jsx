@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Filter, Calendar } from 'lucide-react';
+import { Plus, Filter, Calendar, FileUp } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { GanttChart } from '@/components/scheduling/GanttChart';
+import ImportScheduleModal from '@/components/scheduling/ImportScheduleModal';
 import schedulingService from '@/services/schedulingService';
 import projectService from '@/services/projectService';
 import { toast } from 'sonner';
@@ -12,6 +13,7 @@ const Scheduling = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   // Initial Load
   useEffect(() => {
@@ -89,6 +91,13 @@ const Scheduling = () => {
           >
             {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
+          <Button
+            variant="outline"
+            onClick={() => setIsImportModalOpen(true)}
+            className="border-primary-200 text-primary-700 hover:bg-primary-50"
+          >
+            <FileUp size={18} className="mr-2" /> Import Schedule
+          </Button>
           <Button onClick={() => setIsModalOpen(true)} className="bg-primary-600 text-white">
             <Plus size={18} className="mr-2" /> Add Task
           </Button>
@@ -142,6 +151,15 @@ const Scheduling = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Import Schedule Modal */}
+      {isImportModalOpen && selectedProject && (
+        <ImportScheduleModal
+          projectId={selectedProject}
+          onClose={() => setIsImportModalOpen(false)}
+          onImported={() => loadTasks(selectedProject)}
+        />
       )}
     </div>
   );

@@ -83,6 +83,106 @@ const financeService = {
 
         const response = await api.post('/finance/boq/import_file/', formData);
         return response.data;
+    },
+
+    requestBOQFreeze: async (projectId, itemIds, description = '') => {
+        const response = await api.post('/finance/boq/request_freeze/', {
+            project_id: projectId,
+            item_ids: itemIds,
+            description
+        });
+        return response.data;
+    },
+
+    requestBOQUnfreeze: async (projectId, itemIds, description = '') => {
+        const response = await api.post('/finance/boq/request_unfreeze/', {
+            project_id: projectId,
+            item_ids: itemIds,
+            description
+        });
+        return response.data;
+    },
+
+    // --- Approval Requests ---
+    getPendingApprovals: async () => {
+        const response = await api.get('/finance/approval-requests/pending/');
+        return response.data;
+    },
+
+    approveRequest: async (requestId, notes = '') => {
+        const response = await api.post(`/finance/approval-requests/${requestId}/approve/`, { notes });
+        return response.data;
+    },
+
+    rejectRequest: async (requestId, notes = '') => {
+        const response = await api.post(`/finance/approval-requests/${requestId}/reject/`, { notes });
+        return response.data;
+    },
+
+    // --- Notifications ---
+    getNotifications: async () => {
+        const response = await api.get('/finance/notifications/');
+        return response.data;
+    },
+
+    getUnreadNotificationCount: async () => {
+        const response = await api.get('/finance/notifications/unread_count/');
+        return response.data.count;
+    },
+
+    markNotificationRead: async (notificationId) => {
+        const response = await api.post(`/finance/notifications/${notificationId}/mark_read/`);
+        return response.data;
+    },
+
+    markAllNotificationsRead: async () => {
+        const response = await api.post('/finance/notifications/mark_all_read/');
+        return response.data;
+    },
+
+    // --- BOQ-MILESTONE MAPPINGS ---
+    /**
+     * Get all milestone mappings for a BOQ item
+     */
+    getBOQMappings: async (boqItemId) => {
+        const response = await api.get('/finance/mappings/', {
+            params: { boq_item: boqItemId }
+        });
+        return response.data;
+    },
+
+    /**
+     * Get all mappings for a project (via BOQ items)
+     */
+    getAllMappingsForProject: async (projectId) => {
+        const response = await api.get('/finance/mappings/', {
+            params: { project: projectId }
+        });
+        return response.data;
+    },
+
+    /**
+     * Create a new BOQ-Milestone mapping
+     * @param {Object} data - { boq_item, milestone, percentage_allocated }
+     */
+    createBOQMapping: async (data) => {
+        const response = await api.post('/finance/mappings/', data);
+        return response.data;
+    },
+
+    /**
+     * Update a BOQ-Milestone mapping
+     */
+    updateBOQMapping: async (mappingId, data) => {
+        const response = await api.patch(`/finance/mappings/${mappingId}/`, data);
+        return response.data;
+    },
+
+    /**
+     * Delete a BOQ-Milestone mapping
+     */
+    deleteBOQMapping: async (mappingId) => {
+        await api.delete(`/finance/mappings/${mappingId}/`);
     }
 };
 

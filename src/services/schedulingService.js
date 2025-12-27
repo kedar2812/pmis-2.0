@@ -20,6 +20,65 @@ const schedulingService = {
 
     deleteTask: async (id) => {
         await api.delete(`/scheduling/tasks/${id}/`);
+    },
+
+    /**
+     * Analyze uploaded schedule file and return headers for column mapping.
+     * Supports: .xlsx (Excel), .xml (MS Project), .xer (Primavera P6)
+     * @param {File} file - The schedule file to analyze
+     * @returns {Promise<{headers: string[], filename: string}>}
+     */
+    analyzeFile: async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await api.post('/scheduling/tasks/analyze_file/', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            timeout: 30000, // 30s timeout for large files
+        });
+        return response.data;
+    },
+
+    /**
+     * Import schedule data from file using the provided column mapping.
+     * @param {File} file - The schedule file to import
+     * @param {string} projectId - Target project UUID
+     * @param {Object} mapping - Column mapping { dbField: fileHeader }
+     * @param {Function} onProgress - Optional progress callback
+     * @returns {Promise<{status: string, created: number, updated: number}>}
+     */
+    importFile: async (file, projectId, mapping, onProgress = null) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('project_id', projectId);
+        formData.append('mapping', JSON.stringify(mapping));
+
+        const config = {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            timeout: 120000, // 2min timeout for large imports
+        };
+
+        if (onProgress) {
+            config.onUploadProgress = (progressEvent) => {
+                const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                onProgress(percent);
+            };
+        }
+
+        const response = await api.post('/scheduling/tasks/import_file/', formData, config);
+        return response.data;
+    },
+
+    /**
+     * Get only milestone tasks (for budget/billing linkage)
+     */
+    getMilestones: async (projectId) => {
+        const response = await api.get('/scheduling/tasks/', {
+            params: { project: projectId }
+        });
+        return response.data
+            .filter(t => t.is_milestone)
+            .map(transformTaskToFrontend);
     }
 };
 

@@ -18,31 +18,49 @@ export const GenerateBillModal = ({
     const [viewMode, setViewMode] = useState('edit');
 
     // Form State
-    // Form State
     const [milestones, setMilestones] = useState([]);
+    const [milestoneBudgets, setMilestoneBudgets] = useState({}); // {milestoneId: totalBudget}
+    const [budgetWarning, setBudgetWarning] = useState(null);
 
-    // Add logic to fetch milestones when project changes
+    // Fetch milestones and their budget allocations when project changes
     const handleProjectChange = async (e) => {
         const pid = e.target.value;
         setFormData(prev => ({ ...prev, projectId: pid, milestoneId: '' }));
+        setMilestones([]);
+        setMilestoneBudgets({});
+        setBudgetWarning(null);
+
         if (pid) {
             try {
-                // We need to import financeService here if not present, but it seems it is used in parent.
-                // We should probably pass getMilestones as prop or import it.
-                // Let's assume we import financeService.
-                // wait, file doesn't import financeService. Let's fix imports first or assume parent passes it?
-                // The component imports are shown in previous view_file. It imports 'sonner', 'lucide-react', 'ui/Button'.
-                // It does NOT import financeService.
-                // I will add the import in a separate tool call or just use a prop.
-                // Creating a local fetcher is better if we want self-containment, but service is cleaner.
-                // I'll assume I can add the import at the top later.
-                // For now, let's use a placeholder or assume the import is added.
-            } catch (e) { console.error(e); }
+                // Fetch milestones for the project
+                const tasksData = await financeService.getScheduleTasks(pid);
+                const milestonesOnly = tasksData.filter(t => t.is_milestone);
+
+                // Fetch budget allocations
+                const budgetsData = await financeService.getBudgets(pid);
+
+                // Sum budget amounts per milestone
+                const budgetMap = {};
+                budgetsData.forEach(b => {
+                    if (b.milestone) {
+                        budgetMap[b.milestone] = (budgetMap[b.milestone] || 0) + parseFloat(b.amount || 0);
+                    }
+                });
+
+                // Enhance milestones with budget info
+                const enhancedMilestones = milestonesOnly.map(m => ({
+                    ...m,
+                    allocatedBudget: budgetMap[m.id] || 0,
+                    hasBudget: !!budgetMap[m.id]
+                }));
+
+                setMilestones(enhancedMilestones);
+                setMilestoneBudgets(budgetMap);
+            } catch (err) {
+                console.error('Failed to fetch milestones:', err);
+            }
         }
     };
-
-    // Actually, I need to add 'import financeService' at top first.
-    // Let's just update the state defs first.
 
     const [formData, setFormData] = useState({
         projectId: '',
@@ -136,6 +154,30 @@ export const GenerateBillModal = ({
         });
 
     }, [formData]);
+
+    // Check for budget overspend when milestoneId or grossAmount changes
+    useEffect(() => {
+        if (formData.milestoneId && formData.grossAmount > 0) {
+            const allocatedBudget = milestoneBudgets[formData.milestoneId] || 0;
+            const billAmount = parseFloat(formData.grossAmount) || 0;
+
+            if (allocatedBudget > 0 && billAmount > allocatedBudget) {
+                setBudgetWarning({
+                    message: `Bill amount (₹${billAmount.toLocaleString('en-IN')}) exceeds allocated budget (₹${allocatedBudget.toLocaleString('en-IN')})`,
+                    severity: 'warning'
+                });
+            } else if (allocatedBudget > 0 && billAmount > allocatedBudget * 0.8) {
+                setBudgetWarning({
+                    message: `Bill amount is over 80% of allocated budget (₹${allocatedBudget.toLocaleString('en-IN')})`,
+                    severity: 'caution'
+                });
+            } else {
+                setBudgetWarning(null);
+            }
+        } else {
+            setBudgetWarning(null);
+        }
+    }, [formData.milestoneId, formData.grossAmount, milestoneBudgets]);
 
     const handlePrint = () => {
         window.print();
@@ -253,14 +295,34 @@ export const GenerateBillModal = ({
                                                     </div>
                                                     <div>
                                                         <label className="block text-xs font-medium text-slate-700 mb-1">Linked Milestone (Schedule)</label>
-                                                        <select name="milestoneId" value={formData.milestoneId} onChange={handleChange} className="w-full px-3 py-2 border rounded-md text-sm">
+                                                        <select
+                                                            name="milestoneId"
+                                                            value={formData.milestoneId}
+                                                            onChange={handleChange}
+                                                            className={`w-full px-3 py-2 border rounded-md text-sm ${budgetWarning ? (budgetWarning.severity === 'warning' ? 'border-red-300 bg-red-50' : 'border-amber-300 bg-amber-50') : ''}`}
+                                                        >
                                                             <option value="">-- General / No Milestone --</option>
-                                                            {milestones.map(m => (
+                                                            {milestones.filter(m => m.hasBudget).map(m => (
                                                                 <option key={m.id} value={m.id}>
-                                                                    {m.name} ({m.progress}%)
+                                                                    {m.name} • {m.progress}% done • ₹{(m.allocatedBudget / 100000).toFixed(1)}L budget
                                                                 </option>
                                                             ))}
+                                                            {milestones.filter(m => !m.hasBudget).length > 0 && (
+                                                                <optgroup label="No Budget Allocated">
+                                                                    {milestones.filter(m => !m.hasBudget).map(m => (
+                                                                        <option key={m.id} value={m.id} className="text-slate-400">
+                                                                            {m.name} • {m.progress}% done • No budget
+                                                                        </option>
+                                                                    ))}
+                                                                </optgroup>
+                                                            )}
                                                         </select>
+                                                        {budgetWarning && (
+                                                            <p className={`mt-1 text-xs flex items-center gap-1 ${budgetWarning.severity === 'warning' ? 'text-red-600' : 'text-amber-600'}`}>
+                                                                <AlertCircle size={12} />
+                                                                {budgetWarning.message}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                     <Input label="Work Order No" name="workOrderNo" value={formData.workOrderNo} onChange={handleChange} />
                                                     <Input label="RA Bill No" name="billNo" value={formData.billNo} onChange={handleChange} />

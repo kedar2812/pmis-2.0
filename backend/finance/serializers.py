@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import FundHead, BudgetLineItem, RABill, RetentionLedger, ProjectFinanceSettings, VariationRequest, BOQItem, BOQMilestoneMapping
+from .models import FundHead, BudgetLineItem, RABill, RetentionLedger, ProjectFinanceSettings, VariationRequest, BOQItem, BOQMilestoneMapping, ApprovalRequest, Notification
 from scheduling.models import ScheduleTask
 
 class BOQItemSerializer(serializers.ModelSerializer):
@@ -47,19 +47,9 @@ class RABillSerializer(serializers.ModelSerializer):
         return obj.contractor.username if obj.contractor else 'Unknown'
 
     def validate(self, data):
-        # The Government-Grade "Soft Warning" Logic check
-        # We can't easily do a "soft warning" in a serializer (it either passes or fails).
-        # So we allow it, but maybe tag it? 
-        # For now, let's just validate math consistency.
-        
-        # Physical Progress Check (Strict or Warning? User said "Soft Warning")
-        # Since it's a warning, we don't raise ValidationError here.
-        # We handle the warning in the View/Frontend response.
         return data
 
     def create(self, validated_data):
-        # Auto-Calculate Fields
-        # 1. Total Amount
         gross = validated_data.get('gross_amount', 0)
         gst_pc = validated_data.get('gst_percentage', 18)
         gst_amt = (gross * gst_pc) / 100
@@ -67,18 +57,15 @@ class RABillSerializer(serializers.ModelSerializer):
         total = gross + gst_amt
         validated_data['total_amount'] = total
 
-        # 2. Statutory Deductions
         tds_amt = validated_data.get('tds_amount', 0)
         cess_amt = validated_data.get('labour_cess_amount', 0)
         
-        # 3. Retention (Check Settings)
         project = validated_data.get('project')
         retention_amt = validated_data.get('retention_amount', 0)
         
         try:
             settings = ProjectFinanceSettings.objects.get(project=project)
             if settings.enable_auto_retention and retention_amt == 0:
-                # Auto calc 5% if not manually provided
                 retention_amt = (gross * settings.default_retention_rate) / 100
                 validated_data['retention_percentage'] = settings.default_retention_rate
         except ProjectFinanceSettings.DoesNotExist:
@@ -86,7 +73,6 @@ class RABillSerializer(serializers.ModelSerializer):
         
         validated_data['retention_amount'] = retention_amt
 
-        # 4. Net Payable
         recoveries = (
             validated_data.get('mobilization_advance_recovery', 0) + 
             validated_data.get('material_advance_recovery', 0) +
@@ -100,7 +86,6 @@ class RABillSerializer(serializers.ModelSerializer):
 
         bill = super().create(validated_data)
         
-        # Create Ledger Entry if retention > 0
         if retention_amt > 0:
             RetentionLedger.objects.create(
                 bill=bill,
@@ -108,3 +93,24 @@ class RABillSerializer(serializers.ModelSerializer):
             )
         
         return bill
+
+
+class ApprovalRequestSerializer(serializers.ModelSerializer):
+    requested_by_name = serializers.CharField(source='requested_by.username', read_only=True)
+    reviewed_by_name = serializers.CharField(source='reviewed_by.username', read_only=True)
+    project_name = serializers.CharField(source='project.name', read_only=True)
+    request_type_display = serializers.CharField(source='get_request_type_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    
+    class Meta:
+        model = ApprovalRequest
+        fields = '__all__'
+        read_only_fields = ['requested_by', 'reviewed_by', 'reviewed_at', 'created_at', 'updated_at']
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'
+        read_only_fields = ['created_at']
+

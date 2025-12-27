@@ -227,3 +227,79 @@ class BOQMilestoneMapping(models.Model):
     def __str__(self):
         return f"{self.boq_item.item_code} -> {self.milestone.name} ({self.percentage_allocated}%)"
 
+
+class ApprovalRequest(models.Model):
+    """
+    Generic approval request for various entity types (BOQ Freeze, Budget Change, etc.)
+    """
+    class RequestType(models.TextChoices):
+        BOQ_FREEZE = 'BOQ_FREEZE', _('BOQ Freeze Request')
+        BOQ_UNFREEZE = 'BOQ_UNFREEZE', _('BOQ Unfreeze Request')
+        BUDGET_CHANGE = 'BUDGET_CHANGE', _('Budget Change Request')
+        VARIATION = 'VARIATION', _('Variation Request')
+
+    class Status(models.TextChoices):
+        PENDING = 'PENDING', _('Pending')
+        APPROVED = 'APPROVED', _('Approved')
+        REJECTED = 'REJECTED', _('Rejected')
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    request_type = models.CharField(max_length=50, choices=RequestType.choices)
+    
+    # Generic reference to related items (stored as JSON array of IDs)
+    entity_ids = models.JSONField(default=list, help_text="List of entity UUIDs this request affects")
+    entity_type = models.CharField(max_length=50, help_text="e.g., 'BOQItem', 'BudgetLineItem'")
+    
+    project = models.ForeignKey('projects.Project', on_delete=models.CASCADE, related_name='approval_requests')
+    requested_by = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, related_name='submitted_requests')
+    
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    
+    reviewed_by = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_requests')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    review_notes = models.TextField(blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.get_request_type_display()} - {self.status}"
+
+
+class Notification(models.Model):
+    """
+    System notifications for users.
+    """
+    class NotificationType(models.TextChoices):
+        APPROVAL_REQUEST = 'APPROVAL_REQUEST', _('New Approval Request')
+        APPROVAL_RESULT = 'APPROVAL_RESULT', _('Approval Result')
+        SYSTEM = 'SYSTEM', _('System Notification')
+        INFO = 'INFO', _('Information')
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='finance_notifications')
+    
+    notification_type = models.CharField(max_length=50, choices=NotificationType.choices, default=NotificationType.INFO)
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    
+    # Optional link to related entity
+    related_url = models.CharField(max_length=500, blank=True, help_text="URL to navigate to when clicked")
+    related_request = models.ForeignKey(ApprovalRequest, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {'Read' if self.is_read else 'Unread'}"
+

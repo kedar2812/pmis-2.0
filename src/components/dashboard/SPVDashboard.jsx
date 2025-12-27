@@ -7,8 +7,9 @@ import { TrendingUp, TrendingDown, DollarSign, AlertTriangle, CheckCircle, Activ
 import { CalculationRules } from '@/lib/calculations';
 import MetricsDetailModal from '@/components/ui/MetricsDetailModal';
 import GraphAnalysisModal from '@/components/ui/GraphAnalysisModal';
+import MilestonePerformanceCard from '@/components/dashboard/MilestonePerformanceCard';
 import { useNavigate } from 'react-router-dom';
-import client from '@/api/client'; // Moved to top-level imports
+import client from '@/api/client';
 
 const SPVDashboard = ({ projects, kpis, risks }) => {
   const { t } = useLanguage();
@@ -292,6 +293,25 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
             </MotionCardContent>
           </MotionCard>
         </div>
+
+        {/* Milestone Performance Section */}
+        {runningProjects.length > 0 && (
+          <motion.div variants={itemVariants} className="mt-6">
+            <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+              <Activity size={18} className="text-primary-500" />
+              Cost Performance by Milestone
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {runningProjects.slice(0, 3).map(project => (
+                <MilestonePerformanceCard
+                  key={project.id}
+                  projectId={project.id}
+                  projectName={project.name}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
       </motion.div>
 
       <MetricsDetailModal

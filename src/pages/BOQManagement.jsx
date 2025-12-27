@@ -1,10 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import financeService from '@/services/financeService';
 import projectService from '@/services/projectService';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { Upload, FileSpreadsheet, Check, AlertTriangle, Save, ArrowRight, ArrowLeft, RefreshCw, Loader2 } from 'lucide-react';
+import BOQMilestoneMappingModal from '@/components/cost/BOQMilestoneMappingModal';
+import {
+    Upload, FileSpreadsheet, Check, AlertTriangle, Save, ArrowLeft,
+    RefreshCw, Loader2, ChevronUp, ChevronDown, ChevronsUpDown, Search, X, Filter,
+    Download, ChevronLeft, ChevronRight, MoreHorizontal, Link2
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -18,16 +23,35 @@ const BOQManagement = () => {
     const [boqItems, setBoqItems] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    // Milestone Mapping Modal State
+    const [mappingModalItem, setMappingModalItem] = useState(null);
+
+    // Sorting State
+    const [sortConfig, setSortConfig] = useState({ key: 'item_code', direction: 'asc' });
+
+    // Filter State
+    const [showFilters, setShowFilters] = useState(false);
+    const [filters, setFilters] = useState({
+        item_code: '',
+        description: '',
+        uom: '',
+        status: ''
+    });
+
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(25);
+
     // Import Wizard State
     const [importMode, setImportMode] = useState(false);
-    const [impStep, setImpStep] = useState(1); // 1: Upload, 2: Map, 3: Confirm/Success
+    const [impStep, setImpStep] = useState(1);
     const [impFile, setImpFile] = useState(null);
     const [fileHeaders, setFileHeaders] = useState([]);
     const [analyzing, setAnalyzing] = useState(false);
     const [importing, setImporting] = useState(false);
     const [importResult, setImportResult] = useState(null);
 
-    // Column Mapping: { dbField: fileHeader }
+    // Column Mapping
     const [mapping, setMapping] = useState({
         item_code: '',
         description: '',
@@ -41,7 +65,19 @@ const BOQManagement = () => {
         { key: 'description', label: 'Description / Particulars', required: true, hint: 'Work description' },
         { key: 'uom', label: 'Unit of Measurement', required: false, hint: 'e.g., Cum, Sqm, RM, LS' },
         { key: 'quantity', label: 'Quantity', required: true, hint: 'Sanctioned quantity' },
-        { key: 'rate', label: 'Rate / Unit Price', required: true, hint: 'Rate per unit (₹)' }
+        { key: 'rate', label: 'Rate / Unit Price', required: true, hint: 'Rate per unit (â‚¹)' }
+    ];
+
+    // Table Columns Configuration
+    const columns = [
+        { key: 'item_code', label: 'Item Code', align: 'left', sortable: true, filterable: true },
+        { key: 'description', label: 'Description', align: 'left', sortable: true, filterable: true },
+        { key: 'uom', label: 'UOM', align: 'left', sortable: true, filterable: true },
+        { key: 'quantity', label: 'Quantity', align: 'right', sortable: true, filterable: false, numeric: true },
+        { key: 'rate', label: 'Rate', align: 'right', sortable: true, filterable: false, numeric: true },
+        { key: 'amount', label: 'Amount', align: 'right', sortable: true, filterable: false, numeric: true },
+        { key: 'status', label: 'Status', align: 'center', sortable: true, filterable: true },
+        { key: 'actions', label: 'Actions', align: 'center', sortable: false, filterable: false }
     ];
 
     useEffect(() => {
@@ -53,6 +89,11 @@ const BOQManagement = () => {
             fetchBOQ();
         }
     }, [selectedProject, importMode]);
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filters, sortConfig]);
 
     const fetchProjects = async () => {
         try {
@@ -76,6 +117,122 @@ const BOQManagement = () => {
         }
     };
 
+    // --- SORTING & FILTERING LOGIC ---
+
+    const handleSort = (key) => {
+        setSortConfig(prev => ({
+            key,
+            direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+        }));
+    };
+
+    const handleFilterChange = (key, value) => {
+        setFilters(prev => ({ ...prev, [key]: value }));
+    };
+
+    const clearFilters = () => {
+        setFilters({ item_code: '', description: '', uom: '', status: '' });
+    };
+
+    const hasActiveFilters = Object.values(filters).some(v => v !== '');
+
+    // Get unique values for dropdowns
+    const uniqueUOMs = useMemo(() => {
+        return [...new Set(boqItems.map(item => item.uom).filter(Boolean))].sort();
+    }, [boqItems]);
+
+    const uniqueStatuses = useMemo(() => {
+        return [...new Set(boqItems.map(item => item.status).filter(Boolean))].sort();
+    }, [boqItems]);
+
+    // Apply filters and sorting
+    const filteredAndSortedItems = useMemo(() => {
+        let items = [...boqItems];
+
+        // Apply filters
+        if (filters.item_code) {
+            items = items.filter(item =>
+                item.item_code?.toLowerCase().includes(filters.item_code.toLowerCase())
+            );
+        }
+        if (filters.description) {
+            items = items.filter(item =>
+                item.description?.toLowerCase().includes(filters.description.toLowerCase())
+            );
+        }
+        if (filters.uom) {
+            items = items.filter(item => item.uom === filters.uom);
+        }
+        if (filters.status) {
+            items = items.filter(item => item.status === filters.status);
+        }
+
+        // Apply sorting
+        items.sort((a, b) => {
+            let aVal = a[sortConfig.key];
+            let bVal = b[sortConfig.key];
+
+            if (['quantity', 'rate', 'amount'].includes(sortConfig.key)) {
+                aVal = parseFloat(aVal) || 0;
+                bVal = parseFloat(bVal) || 0;
+            } else {
+                aVal = String(aVal || '').toLowerCase();
+                bVal = String(bVal || '').toLowerCase();
+            }
+
+            if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return items;
+    }, [boqItems, filters, sortConfig]);
+
+    // Pagination
+    const totalPages = Math.ceil(filteredAndSortedItems.length / itemsPerPage);
+    const paginatedItems = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return filteredAndSortedItems.slice(start, start + itemsPerPage);
+    }, [filteredAndSortedItems, currentPage, itemsPerPage]);
+
+    // --- EXPORT TO EXCEL ---
+
+    const exportToExcel = () => {
+        if (filteredAndSortedItems.length === 0) {
+            return toast.error('No data to export');
+        }
+
+        // Create CSV content
+        const headers = ['Item Code', 'Description', 'UOM', 'Quantity', 'Rate', 'Amount', 'Status'];
+        const rows = filteredAndSortedItems.map(item => [
+            item.item_code,
+            `"${(item.description || '').replace(/"/g, '""')}"`, // Escape quotes
+            item.uom,
+            item.quantity,
+            item.rate,
+            item.amount,
+            item.status
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.join(','))
+        ].join('\n');
+
+        // Create and download file
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `BOQ_Export_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast.success(`Exported ${filteredAndSortedItems.length} items to CSV`);
+    };
+
     // --- IMPORT WIZARD HANDLERS ---
 
     const handleFileSelect = (e) => {
@@ -84,7 +241,6 @@ const BOQManagement = () => {
             setImpFile(file);
             setFileHeaders([]);
             setImportResult(null);
-            // Auto-analyze on file select
             analyzeFile(file);
         }
     };
@@ -101,27 +257,21 @@ const BOQManagement = () => {
             const res = await financeService.analyzeBOQFile(file);
             setFileHeaders(res.headers || []);
 
-            // Auto-Map using fuzzy matching
             const newMapping = { item_code: '', description: '', uom: '', quantity: '', rate: '' };
             (res.headers || []).forEach(h => {
                 const lower = h.toLowerCase();
-                // Item Code matching
                 if (!newMapping.item_code && (lower.includes('code') || lower.includes('s.no') || lower.includes('sno') || lower.includes('sl.no') || lower === 'no' || lower === 'id')) {
                     newMapping.item_code = h;
                 }
-                // Description matching
                 if (!newMapping.description && (lower.includes('desc') || lower.includes('particular') || lower.includes('item') || lower.includes('work'))) {
                     newMapping.description = h;
                 }
-                // UOM matching
                 if (!newMapping.uom && (lower.includes('unit') || lower.includes('uom') || lower === 'u/m')) {
                     newMapping.uom = h;
                 }
-                // Quantity matching
                 if (!newMapping.quantity && (lower.includes('qty') || lower.includes('quant') || lower.includes('nos'))) {
                     newMapping.quantity = h;
                 }
-                // Rate matching
                 if (!newMapping.rate && (lower.includes('rate') || lower.includes('price') || lower.includes('cost'))) {
                     newMapping.rate = h;
                 }
@@ -131,7 +281,7 @@ const BOQManagement = () => {
             toast.success(`Found ${res.headers.length} columns in ${file.name}`);
         } catch (err) {
             console.error('Analyze error:', err);
-            toast.error(err.response?.data?.error || 'Failed to analyze file. Check the file format.');
+            toast.error(err.response?.data?.error || 'Failed to analyze file.');
             setImpStep(1);
         } finally {
             setAnalyzing(false);
@@ -139,7 +289,6 @@ const BOQManagement = () => {
     };
 
     const handleImport = async () => {
-        // Validate Mapping
         const missing = [];
         if (!mapping.item_code) missing.push('Item Code');
         if (!mapping.quantity) missing.push('Quantity');
@@ -157,7 +306,7 @@ const BOQManagement = () => {
             toast.success(`Successfully imported ${res.imported} BOQ items!`);
         } catch (err) {
             console.error('Import error:', err);
-            toast.error(err.response?.data?.error || 'Import failed. Check column mapping.');
+            toast.error(err.response?.data?.error || 'Import failed.');
         } finally {
             setImporting(false);
         }
@@ -177,6 +326,127 @@ const BOQManagement = () => {
         return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
     };
 
+    // --- RENDER SORT ICON ---
+    const SortIcon = ({ columnKey }) => {
+        if (sortConfig.key !== columnKey) {
+            return <ChevronsUpDown className="w-3.5 h-3.5 text-slate-300" />;
+        }
+        return sortConfig.direction === 'asc'
+            ? <ChevronUp className="w-3.5 h-3.5 text-primary-600" />
+            : <ChevronDown className="w-3.5 h-3.5 text-primary-600" />;
+    };
+
+    // --- PAGINATION CONTROLS ---
+    const PaginationControls = () => {
+        const pageNumbers = [];
+        const maxVisiblePages = 5;
+
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pageNumbers.push(i);
+        }
+
+        return (
+            <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-t border-slate-200">
+                <div className="flex items-center gap-4">
+                    <span className="text-sm text-slate-600">
+                        Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredAndSortedItems.length)} of {filteredAndSortedItems.length}
+                    </span>
+                    <select
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                            setItemsPerPage(Number(e.target.value));
+                            setCurrentPage(1);
+                        }}
+                        className="px-2 py-1 text-sm border border-slate-200 rounded bg-white"
+                    >
+                        <option value={10}>10 per page</option>
+                        <option value={25}>25 per page</option>
+                        <option value={50}>50 per page</option>
+                        <option value={100}>100 per page</option>
+                    </select>
+                </div>
+
+                <div className="flex items-center gap-1">
+                    <button
+                        onClick={() => setCurrentPage(1)}
+                        disabled={currentPage === 1}
+                        className="p-1.5 rounded hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <ChevronLeft className="w-4 h-4" />
+                        <ChevronLeft className="w-4 h-4 -ml-2" />
+                    </button>
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        disabled={currentPage === 1}
+                        className="p-1.5 rounded hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <ChevronLeft className="w-4 h-4" />
+                    </button>
+
+                    {startPage > 1 && (
+                        <>
+                            <button
+                                onClick={() => setCurrentPage(1)}
+                                className="px-3 py-1 text-sm rounded hover:bg-slate-200"
+                            >
+                                1
+                            </button>
+                            {startPage > 2 && <MoreHorizontal className="w-4 h-4 text-slate-400" />}
+                        </>
+                    )}
+
+                    {pageNumbers.map(num => (
+                        <button
+                            key={num}
+                            onClick={() => setCurrentPage(num)}
+                            className={`px-3 py-1 text-sm rounded transition-colors ${currentPage === num
+                                ? 'bg-primary-600 text-white'
+                                : 'hover:bg-slate-200'
+                                }`}
+                        >
+                            {num}
+                        </button>
+                    ))}
+
+                    {endPage < totalPages && (
+                        <>
+                            {endPage < totalPages - 1 && <MoreHorizontal className="w-4 h-4 text-slate-400" />}
+                            <button
+                                onClick={() => setCurrentPage(totalPages)}
+                                className="px-3 py-1 text-sm rounded hover:bg-slate-200"
+                            >
+                                {totalPages}
+                            </button>
+                        </>
+                    )}
+
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                        disabled={currentPage === totalPages}
+                        className="p-1.5 rounded hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <ChevronRight className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => setCurrentPage(totalPages)}
+                        disabled={currentPage === totalPages}
+                        className="p-1.5 rounded hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <ChevronRight className="w-4 h-4" />
+                        <ChevronRight className="w-4 h-4 -ml-2" />
+                    </button>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="p-6 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
             {/* Header */}
@@ -188,23 +458,50 @@ const BOQManagement = () => {
                     <p className="text-slate-500 mt-1">Manage Contract Baselines and Sanctioned Quantities</p>
                 </div>
 
-                <div className="flex gap-3 items-center">
+                <div className="flex gap-2 items-center flex-wrap">
                     <select
-                        className="px-4 py-2 border border-slate-200 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                        className="px-3 py-2 border border-slate-200 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm"
                         value={selectedProject}
                         onChange={(e) => setSelectedProject(e.target.value)}
                     >
                         {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                     </select>
 
-                    {!importMode ? (
-                        <Button onClick={() => setImportMode(true)} className="flex items-center gap-2">
-                            <Upload className="w-4 h-4" />
-                            Import BOQ
-                        </Button>
-                    ) : (
-                        <Button variant="secondary" onClick={resetWizard}>
-                            Cancel Import
+                    {!importMode && (
+                        <>
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => setShowFilters(!showFilters)}
+                                className={`flex items-center gap-1.5 ${showFilters ? 'bg-primary-50 text-primary-700' : ''}`}
+                            >
+                                <Filter className="w-4 h-4" />
+                                Filters
+                                {hasActiveFilters && (
+                                    <span className="w-2 h-2 rounded-full bg-primary-500"></span>
+                                )}
+                            </Button>
+
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={exportToExcel}
+                                className="flex items-center gap-1.5"
+                            >
+                                <Download className="w-4 h-4" />
+                                Export
+                            </Button>
+
+                            <Button onClick={() => setImportMode(true)} size="sm" className="flex items-center gap-1.5">
+                                <Upload className="w-4 h-4" />
+                                Import
+                            </Button>
+                        </>
+                    )}
+
+                    {importMode && (
+                        <Button variant="secondary" size="sm" onClick={resetWizard}>
+                            Cancel
                         </Button>
                     )}
                 </div>
@@ -300,7 +597,7 @@ const BOQManagement = () => {
                                             <div>
                                                 <h4 className="font-semibold text-amber-800">Verify Column Mapping</h4>
                                                 <p className="text-sm text-amber-700">
-                                                    We auto-detected columns based on header names. Please verify and correct if needed.
+                                                    We auto-detected columns. Please verify and correct if needed.
                                                 </p>
                                             </div>
                                         </div>
@@ -311,24 +608,16 @@ const BOQManagement = () => {
                                                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                                                         {field.label}
                                                         {field.required && <span className="text-red-500">*</span>}
-                                                        {mapping[field.key] && (
-                                                            <Check className="w-4 h-4 text-green-500" />
-                                                        )}
+                                                        {mapping[field.key] && <Check className="w-4 h-4 text-green-500" />}
                                                     </label>
                                                     <select
-                                                        className={`w-full px-3 py-2.5 border rounded-lg bg-white transition-all focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${mapping[field.key]
-                                                                ? 'border-green-300 bg-green-50/50'
-                                                                : field.required
-                                                                    ? 'border-amber-300'
-                                                                    : 'border-slate-200'
+                                                        className={`w-full px-3 py-2.5 border rounded-lg bg-white transition-all focus:ring-2 focus:ring-primary-500 ${mapping[field.key] ? 'border-green-300 bg-green-50/50' : field.required ? 'border-amber-300' : 'border-slate-200'
                                                             }`}
                                                         value={mapping[field.key]}
                                                         onChange={(e) => setMapping({ ...mapping, [field.key]: e.target.value })}
                                                     >
                                                         <option value="">-- Select Column --</option>
-                                                        {fileHeaders.map(h => (
-                                                            <option key={h} value={h}>{h}</option>
-                                                        ))}
+                                                        {fileHeaders.map(h => <option key={h} value={h}>{h}</option>)}
                                                     </select>
                                                     <p className="text-xs text-slate-400">{field.hint}</p>
                                                 </div>
@@ -342,15 +631,9 @@ const BOQManagement = () => {
                                             </Button>
                                             <Button onClick={handleImport} disabled={importing}>
                                                 {importing ? (
-                                                    <>
-                                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                                        Importing...
-                                                    </>
+                                                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Importing...</>
                                                 ) : (
-                                                    <>
-                                                        <Save className="w-4 h-4 mr-2" />
-                                                        Import BOQ Items
-                                                    </>
+                                                    <><Save className="w-4 h-4 mr-2" />Import BOQ Items</>
                                                 )}
                                             </Button>
                                         </div>
@@ -367,16 +650,14 @@ const BOQManagement = () => {
                                         <p className="text-slate-500 mb-6">
                                             Successfully imported <span className="font-bold text-primary-600">{importResult.imported}</span> BOQ items.
                                         </p>
-
-                                        {importResult.errors && importResult.errors.length > 0 && (
+                                        {importResult.errors?.length > 0 && (
                                             <div className="mb-6 p-4 bg-amber-50 rounded-lg text-left">
                                                 <p className="text-sm font-medium text-amber-800 mb-2">Some rows had issues:</p>
                                                 <ul className="text-xs text-amber-700 space-y-1">
-                                                    {importResult.errors.map((e, i) => <li key={i}>• {e}</li>)}
+                                                    {importResult.errors.map((e, i) => <li key={i}>â€¢ {e}</li>)}
                                                 </ul>
                                             </div>
                                         )}
-
                                         <Button onClick={resetWizard}>
                                             <RefreshCw className="w-4 h-4 mr-2" />
                                             View Imported Data
@@ -391,86 +672,236 @@ const BOQManagement = () => {
 
             {/* --- BOQ TABLE --- */}
             {!importMode && (
-                <Card className="shadow-lg">
-                    <CardContent className="p-0 overflow-hidden">
+                <Card className="shadow-lg overflow-hidden">
+                    <CardContent className="p-0">
                         {loading ? (
                             <div className="flex items-center justify-center py-20">
                                 <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
                             </div>
                         ) : (
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
-                                    <thead className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider border-b">
-                                        <tr>
-                                            <th className="px-6 py-4 text-left font-semibold">Item Code</th>
-                                            <th className="px-6 py-4 text-left font-semibold">Description</th>
-                                            <th className="px-6 py-4 text-left font-semibold">UOM</th>
-                                            <th className="px-6 py-4 text-right font-semibold">Quantity</th>
-                                            <th className="px-6 py-4 text-right font-semibold">Rate</th>
-                                            <th className="px-6 py-4 text-right font-semibold">Amount</th>
-                                            <th className="px-6 py-4 text-center font-semibold">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100">
-                                        {boqItems.length === 0 ? (
-                                            <tr>
-                                                <td colSpan="7" className="px-6 py-16 text-center">
-                                                    <div className="flex flex-col items-center">
-                                                        <FileSpreadsheet className="w-12 h-12 text-slate-300 mb-4" />
-                                                        <p className="text-slate-500 font-medium">No BOQ Items Found</p>
-                                                        <p className="text-slate-400 text-sm">Import an Excel file to get started</p>
-                                                    </div>
-                                                </td>
+                            <>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm">
+                                        <thead>
+                                            {/* Column Headers */}
+                                            <tr className="bg-slate-50 border-b border-slate-200">
+                                                {columns.map(col => (
+                                                    <th
+                                                        key={col.key}
+                                                        className={`px-4 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
+                                                            } ${col.sortable ? 'cursor-pointer hover:bg-slate-100 select-none transition-colors' : ''}`}
+                                                        onClick={() => col.sortable && handleSort(col.key)}
+                                                    >
+                                                        <div className={`flex items-center gap-1.5 ${col.align === 'right' ? 'justify-end' : col.align === 'center' ? 'justify-center' : ''}`}>
+                                                            <span>{col.label}</span>
+                                                            {col.sortable && <SortIcon columnKey={col.key} />}
+                                                        </div>
+                                                    </th>
+                                                ))}
                                             </tr>
-                                        ) : (
-                                            boqItems.map((item) => (
-                                                <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                                                    <td className="px-6 py-4 font-medium text-primary-700">{item.item_code}</td>
-                                                    <td className="px-6 py-4 text-slate-600 max-w-md">
-                                                        <span className="line-clamp-2" title={item.description}>
-                                                            {item.description}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-slate-500">{item.uom}</td>
-                                                    <td className="px-6 py-4 text-right font-mono text-slate-700">
-                                                        {parseFloat(item.quantity).toLocaleString('en-IN')}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-right font-mono text-slate-700">
-                                                        {formatCurrency(item.rate)}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-right font-mono font-bold text-slate-900">
-                                                        {formatCurrency(item.amount)}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-center">
-                                                        <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${item.status === 'FROZEN'
-                                                                ? 'bg-blue-100 text-blue-700'
-                                                                : 'bg-slate-100 text-slate-600'
-                                                            }`}>
-                                                            {item.status}
-                                                        </span>
+
+                                            {/* Filter Row */}
+                                            <AnimatePresence>
+                                                {showFilters && (
+                                                    <motion.tr
+                                                        initial={{ opacity: 0, height: 0 }}
+                                                        animate={{ opacity: 1, height: 'auto' }}
+                                                        exit={{ opacity: 0, height: 0 }}
+                                                        className="bg-slate-50/50 border-b border-slate-200"
+                                                    >
+                                                        <td className="px-3 py-2">
+                                                            <div className="relative">
+                                                                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Search..."
+                                                                    value={filters.item_code}
+                                                                    onChange={(e) => handleFilterChange('item_code', e.target.value)}
+                                                                    className="w-full pl-7 pr-2 py-1.5 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-primary-500"
+                                                                />
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-3 py-2">
+                                                            <div className="relative">
+                                                                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Search..."
+                                                                    value={filters.description}
+                                                                    onChange={(e) => handleFilterChange('description', e.target.value)}
+                                                                    className="w-full pl-7 pr-2 py-1.5 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-primary-500"
+                                                                />
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-3 py-2">
+                                                            <select
+                                                                value={filters.uom}
+                                                                onChange={(e) => handleFilterChange('uom', e.target.value)}
+                                                                className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-primary-500 bg-white"
+                                                            >
+                                                                <option value="">All</option>
+                                                                {uniqueUOMs.map(u => <option key={u} value={u}>{u}</option>)}
+                                                            </select>
+                                                        </td>
+                                                        <td className="px-3 py-2"></td>
+                                                        <td className="px-3 py-2"></td>
+                                                        <td className="px-3 py-2"></td>
+                                                        <td className="px-3 py-2">
+                                                            <select
+                                                                value={filters.status}
+                                                                onChange={(e) => handleFilterChange('status', e.target.value)}
+                                                                className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-primary-500 bg-white"
+                                                            >
+                                                                <option value="">All</option>
+                                                                {uniqueStatuses.map(s => <option key={s} value={s}>{s}</option>)}
+                                                            </select>
+                                                        </td>
+                                                    </motion.tr>
+                                                )}
+                                            </AnimatePresence>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100">
+                                            {paginatedItems.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan="7" className="px-6 py-16 text-center">
+                                                        <div className="flex flex-col items-center">
+                                                            <FileSpreadsheet className="w-12 h-12 text-slate-300 mb-4" />
+                                                            <p className="text-slate-500 font-medium">
+                                                                {hasActiveFilters ? 'No items match your filters' : 'No BOQ Items Found'}
+                                                            </p>
+                                                            <p className="text-slate-400 text-sm">
+                                                                {hasActiveFilters ? (
+                                                                    <button onClick={clearFilters} className="text-primary-600 hover:underline">
+                                                                        Clear all filters
+                                                                    </button>
+                                                                ) : 'Import an Excel file to get started'}
+                                                            </p>
+                                                        </div>
                                                     </td>
                                                 </tr>
-                                            ))
+                                            ) : (
+                                                paginatedItems.map((item) => (
+                                                    <tr
+                                                        key={item.id}
+                                                        className="hover:bg-slate-50/50 transition-colors"
+                                                    >
+                                                        <td className="px-4 py-3 font-medium text-primary-700">{item.item_code}</td>
+                                                        <td className="px-4 py-3 text-slate-600 max-w-md">
+                                                            <span className="line-clamp-2" title={item.description}>{item.description}</span>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-slate-500">{item.uom}</td>
+                                                        <td className="px-4 py-3 text-right font-mono text-slate-700">
+                                                            {parseFloat(item.quantity).toLocaleString('en-IN')}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-right font-mono text-slate-700">
+                                                            {formatCurrency(item.rate)}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-right font-mono font-bold text-slate-900">
+                                                            {formatCurrency(item.amount)}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-center">
+                                                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${item.status === 'FROZEN' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'
+                                                                }`}>
+                                                                {item.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-center">
+                                                            <button
+                                                                onClick={() => setMappingModalItem(item)}
+                                                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors"
+                                                                title="Link to Milestones"
+                                                            >
+                                                                <Link2 size={12} />
+                                                                Link
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                        {paginatedItems.length > 0 && (
+                                            <tfoot className="bg-slate-50 border-t-2 border-slate-200">
+                                                <tr>
+                                                    <td colSpan="5" className="px-4 py-4 text-right font-bold text-slate-700">
+                                                        {hasActiveFilters && (
+                                                            <span className="text-sm font-normal text-slate-500 mr-2">
+                                                                (Filtered: {filteredAndSortedItems.length} of {boqItems.length})
+                                                            </span>
+                                                        )}
+                                                        Total Contract Value:
+                                                    </td>
+                                                    <td className="px-4 py-4 text-right font-mono font-bold text-lg text-primary-700">
+                                                        {formatCurrency(filteredAndSortedItems.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0))}
+                                                    </td>
+                                                    <td></td>
+                                                </tr>
+                                            </tfoot>
                                         )}
-                                    </tbody>
-                                    {boqItems.length > 0 && (
-                                        <tfoot className="bg-slate-50 border-t-2 border-slate-200">
-                                            <tr>
-                                                <td colSpan="5" className="px-6 py-4 text-right font-bold text-slate-700">
-                                                    Total Contract Value:
-                                                </td>
-                                                <td className="px-6 py-4 text-right font-mono font-bold text-lg text-primary-700">
-                                                    {formatCurrency(boqItems.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0))}
-                                                </td>
-                                                <td></td>
-                                            </tr>
-                                        </tfoot>
-                                    )}
-                                </table>
-                            </div>
+                                    </table>
+                                </div>
+
+                                {/* Pagination */}
+                                {filteredAndSortedItems.length > itemsPerPage && <PaginationControls />}
+                            </>
                         )}
                     </CardContent>
                 </Card>
+            )}
+
+            {/* Active Filters Summary */}
+            {!importMode && hasActiveFilters && (
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 flex-wrap"
+                >
+                    <span className="text-sm text-slate-500">Active filters:</span>
+                    {filters.item_code && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-xs">
+                            Code: {filters.item_code}
+                            <button onClick={() => handleFilterChange('item_code', '')} className="hover:bg-primary-100 rounded-full p-0.5">
+                                <X className="w-3 h-3" />
+                            </button>
+                        </span>
+                    )}
+                    {filters.description && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-xs">
+                            Desc: {filters.description}
+                            <button onClick={() => handleFilterChange('description', '')} className="hover:bg-primary-100 rounded-full p-0.5">
+                                <X className="w-3 h-3" />
+                            </button>
+                        </span>
+                    )}
+                    {filters.uom && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-xs">
+                            UOM: {filters.uom}
+                            <button onClick={() => handleFilterChange('uom', '')} className="hover:bg-primary-100 rounded-full p-0.5">
+                                <X className="w-3 h-3" />
+                            </button>
+                        </span>
+                    )}
+                    {filters.status && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-xs">
+                            Status: {filters.status}
+                            <button onClick={() => handleFilterChange('status', '')} className="hover:bg-primary-100 rounded-full p-0.5">
+                                <X className="w-3 h-3" />
+                            </button>
+                        </span>
+                    )}
+                    <button onClick={clearFilters} className="text-xs text-slate-500 hover:text-primary-600 underline">
+                        Clear all
+                    </button>
+                </motion.div>
+            )}
+
+            {/* BOQ-Milestone Mapping Modal */}
+            {mappingModalItem && (
+                <BOQMilestoneMappingModal
+                    boqItem={mappingModalItem}
+                    projectId={selectedProject}
+                    onClose={() => setMappingModalItem(null)}
+                    onUpdated={() => {}}
+                />
             )}
         </div>
     );
