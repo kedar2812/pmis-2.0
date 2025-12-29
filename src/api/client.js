@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+// Use environment variable in production, fall back to localhost in development
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
 const client = axios.create({
-    baseURL: 'http://localhost:8000/api',
+    baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -43,7 +46,7 @@ client.interceptors.response.use(
                 try {
                     // Start refreshing
                     // We use axios directly or a separate instance to avoid infinite loops if this fails
-                    const response = await axios.post('http://localhost:8000/api/auth/refresh/', {
+                    const response = await axios.post(`${API_BASE_URL.replace('/api', '')}/api/auth/refresh/`, {
                         refresh: refreshToken
                     });
 

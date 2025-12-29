@@ -332,29 +332,31 @@ const EDMS = () => {
                 </div>
             )}
 
-            {/* Documents Section */}
-            <div className="space-y-3">
-                {folders.length > 0 && documents.length > 0 && (
-                    <div className="flex items-center gap-2 pt-4 border-t border-slate-200/60">
-                        <FileText size={16} className="text-primary-500" />
-                        <h3 className="text-sm font-bold text-slate-800 tracking-wide">
-                            Documents
-                        </h3>
+            {/* Documents Section - Only show if documents exist OR no folders exist */}
+            {(documents.length > 0 || folders.length === 0) && (
+                <div className="space-y-3">
+                    {folders.length > 0 && documents.length > 0 && (
+                        <div className="flex items-center gap-2 pt-4 border-t border-slate-200/60">
+                            <FileText size={16} className="text-primary-500" />
+                            <h3 className="text-sm font-bold text-slate-800 tracking-wide">
+                                Documents
+                            </h3>
+                        </div>
+                    )}
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <DocumentList
+                            documents={documents}
+                            loading={loading && folders.length === 0}
+                            viewMode={viewMode}
+                            selectedDocId={selectedDocument?.id}
+                            onView={(doc) => setSelectedDocument(doc)}
+                            onViewWithNoting={(doc) => navigate(`/edms/view/${doc.id}`)}
+                            onDownload={handleDownload}
+                            onDiscuss={handleDiscuss}
+                        />
                     </div>
-                )}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <DocumentList
-                        documents={documents}
-                        loading={loading && folders.length === 0}
-                        viewMode={viewMode}
-                        selectedDocId={selectedDocument?.id}
-                        onView={(doc) => setSelectedDocument(doc)}
-                        onViewWithNoting={(doc) => navigate(`/edms/view/${doc.id}`)}
-                        onDownload={handleDownload}
-                        onDiscuss={handleDiscuss}
-                    />
                 </div>
-            </div>
+            )}
         </div>
     );
 
