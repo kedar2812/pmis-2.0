@@ -1,30 +1,34 @@
+"""
+Create initial superuser automatically if none exists.
+Safe to run multiple times - only creates user if database is empty.
+"""
 import os
 import django
-from decouple import config
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
-from django.contrib.auth import get_user_model
-User = get_user_model()
+from users.models import User
 
-def create_spv_admin():
-    username = 'admin'
-    email = 'rajesh.kumar@spv.gov.in'
-    password = 'admin'
-
-    if not User.objects.filter(username=username).exists():
-        print(f"Creating superuser {username}...")
+def create_superuser_if_needed():
+    """Create superuser from environment variables if no users exist."""
+    if User.objects.count() == 0:
+        username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
+        email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@pmis.local')
+        password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'changeme123')
+        
         User.objects.create_superuser(
             username=username,
             email=email,
             password=password,
             role='SPV_Official',
-            department='SPV Administration'
+            is_approved=True
         )
-        print("Superuser created successfully.")
+        print(f'✓ Superuser created: {username}')
+        print(f'✓ Email: {email}')
+        print('✓ Please change the password after first login!')
     else:
-        print("Superuser already exists.")
+        print(f'✓ Users already exist ({User.objects.count()} total). Skipping superuser creation.')
 
-if __name__ == "__main__":
-    create_spv_admin()
+if __name__ == '__main__':
+    create_superuser_if_needed()
