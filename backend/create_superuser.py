@@ -17,13 +17,18 @@ def create_superuser_if_needed():
         email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@pmis.local')
         password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'changeme123')
         
-        User.objects.create_superuser(
+        # Create superuser
+        user = User.objects.create_superuser(
             username=username,
             email=email,
             password=password,
-            role='SPV_Official',
-            is_approved=True
+            role='SPV_Official'
         )
+        
+        # Set additional fields after creation
+        user.is_approved = True
+        user.save()
+        
         print(f'✓ Superuser created: {username}')
         print(f'✓ Email: {email}')
         print('✓ Please change the password after first login!')
