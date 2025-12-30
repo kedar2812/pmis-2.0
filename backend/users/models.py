@@ -150,6 +150,7 @@ class User(AbstractUser):
         
         self.set_password(password)
         self.account_status = self.AccountStatus.ACTIVE
+        self.is_active = True  # Enable login
         self.invite_token = None
         self.invite_expires_at = None
         self.save()
