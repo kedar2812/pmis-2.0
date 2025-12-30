@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'communications',
     'finance',
     'scheduling',
+    'banks.apps.BanksConfig',
 ]
 
 MIDDLEWARE = [

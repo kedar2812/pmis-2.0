@@ -20,6 +20,7 @@ urlpatterns = [
     path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/users/', include('users.urls')),
+    path('api/banks/', include('banks.urls')),  # Bank and IFSC lookup APIs
     path('api/projects/', include('projects.urls')),
     path('api/edms/', include('edms.urls')),
     path('api/communications/', include('communications.urls')),
