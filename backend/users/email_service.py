@@ -245,7 +245,7 @@ Zaheerabad Industrial Area
     """
     
     try:
-        email = EmailMulti Alternates(subject=subject, body=text_content, from_email=settings.DEFAULT_FROM_EMAIL, to=[user.email])
+        email = EmailMultiAlternatives(subject=subject, body=text_content, from_email=settings.DEFAULT_FROM_EMAIL, to=[user.email])
         email.attach_alternative(html_content, "text/html")
         email.send()
         print(f"[EMAIL] Welcome email sent to {user.email}")
