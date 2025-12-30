@@ -24,7 +24,7 @@ Department: {user.department or 'N/A'}
 Please click the link below to set your password and activate your account:
 {invite_url}
 
-This link will expire in 7 days.
+This link will expire in 24 hours.
 
 If you did not expect this invitation, please ignore this email.
 
@@ -96,7 +96,7 @@ Zaheerabad Industrial Area
                             </table>
                             
                             <p style="margin: 24px 0 0 0; color: #6b7280; font-size: 14px; line-height: 1.5;">
-                                This link will expire in <strong>7 days</strong>.
+                                This link will expire in <strong>24 hours</strong>.
                             </p>
                             
                             <p style="margin: 16px 0 0 0; color: #6b7280; font-size: 14px; line-height: 1.5;">
