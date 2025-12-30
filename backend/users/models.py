@@ -134,7 +134,7 @@ class User(AbstractUser):
         from datetime import timedelta
         
         self.invite_token = uuid.uuid4()
-        self.invite_expires_at = timezone.now() + timedelta(days=7)  # 7 day expiry
+        self.invite_expires_at = timezone.now() + timedelta(days=1)  # 24 hour expiry
         self.save(update_fields=['invite_token', 'invite_expires_at'])
         return self.invite_token
     
