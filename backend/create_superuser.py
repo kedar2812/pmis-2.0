@@ -15,7 +15,7 @@ def create_superuser_if_needed():
     if User.objects.count() == 0:
         username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
         email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@pmis.local')
-        password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'changeme123')
+        password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'admin')
         
         # Create superuser
         user = User.objects.create_superuser(
