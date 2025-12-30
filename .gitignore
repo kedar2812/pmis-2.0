@@ -49,3 +49,18 @@ __pycache__/
 env/
 venv/
 .venv/
+
+# Django
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+
+# Temporary data directories
+temp_*/
+data/
+downloads/
+
+# IDE
+.vscode/
+.idea/
