@@ -156,9 +156,17 @@ class AcceptInviteView(APIView):
         
         user.accept_invite(password)
         
+        # Send welcome email
+        try:
+            from .email_service import send_welcome_email
+            send_welcome_email(user)
+        except Exception as e:
+            print(f"Failed to send welcome email: {e}")
+        
         return Response({
             'message': 'Account activated successfully. You can now login.',
-            'username': user.username
+            'username': user.username,
+            'email': user.email
         })
     
     def get(self, request):
@@ -177,6 +185,7 @@ class AcceptInviteView(APIView):
             
             return Response({
                 'valid': True,
+                'username': user.username,
                 'email': user.email,
                 'first_name': user.first_name,
                 'last_name': user.last_name,

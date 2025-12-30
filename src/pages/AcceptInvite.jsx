@@ -145,10 +145,10 @@ const AcceptInvite = () => {
                 {/* Header */}
                 <div className="bg-gradient-to-r from-primary-600 to-primary-700 p-6 text-white text-center">
                     <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <Shield className="w-8 h-8" />
+                        <Shield className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-xl font-bold">Complete Your Registration</h1>
-                    <p className="text-primary-100 text-sm mt-2">PMIS - Zaheerabad Industrial Area</p>
+                    <h1 className="text-xl font-bold text-white">Complete Your Registration</h1>
+                    <p className="text-white text-sm mt-2 opacity-90">PMIS - Zaheerabad Industrial Area</p>
                 </div>
 
                 {/* User Info */}
@@ -159,6 +159,9 @@ const AcceptInvite = () => {
                             {inviteInfo?.first_name} {inviteInfo?.last_name}
                         </p>
                         <p className="text-sm text-slate-500 mt-1">{inviteInfo?.email}</p>
+                        <div className="mt-2 text-sm text-slate-600">
+                            <span className="font-medium">Username:</span> <span className="text-slate-900 font-semibold">{inviteInfo?.username}</span>
+                        </div>
                         <span className="inline-block mt-2 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
                             {inviteInfo?.role}
                         </span>
@@ -186,8 +189,8 @@ const AcceptInvite = () => {
                                 }}
                                 placeholder="Enter password (min 8 characters)"
                                 className={`w-full px-4 py-2.5 pl-10 pr-10 rounded-xl border transition-all outline-none focus:ring-2 ${errors.password
-                                        ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
-                                        : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
+                                    ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
+                                    : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
                                     }`}
                             />
                             <button
@@ -220,8 +223,8 @@ const AcceptInvite = () => {
                                 }}
                                 placeholder="Confirm password"
                                 className={`w-full px-4 py-2.5 pl-10 pr-10 rounded-xl border transition-all outline-none focus:ring-2 ${errors.confirmPassword
-                                        ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
-                                        : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
+                                    ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
+                                    : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
                                     }`}
                             />
                             <button
@@ -242,7 +245,7 @@ const AcceptInvite = () => {
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 hover:shadow-lg active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                         {isSubmitting ? (
                             <>

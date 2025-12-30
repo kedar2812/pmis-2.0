@@ -20,6 +20,7 @@ for Zaheerabad Industrial Area.
 
 Your Role: {user.get_role_display()}
 Department: {user.department or 'N/A'}
+Username: {user.username}
 
 Please click the link below to set your password and activate your account:
 {invite_url}
@@ -77,6 +78,12 @@ Zaheerabad Industrial Area
                                     <td style="padding: 4px 0;">
                                         <strong style="color: #1f2937;">Department:</strong>
                                         <span style="color: #374151;">{user.department or 'N/A'}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px 0;">
+                                        <strong style="color: #1f2937;">Username:</strong>
+                                        <span style="color: #374151;">{user.username}</span>
                                     </td>
                                 </tr>
                             </table>
@@ -137,6 +144,113 @@ Zaheerabad Industrial Area
     except Exception as e:
         print(f"[EMAIL ERROR] Failed to send invite to {user.email}: {e}")
         raise
+
+
+def send_welcome_email(user):
+    """Send welcome email after account activation."""
+    subject = 'Welcome to PMIS - Account Activated'
+    
+    login_url = f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')}/login"
+    
+    text_content = f"""
+Dear {user.first_name} {user.last_name},
+
+Welcome to PMIS! Your account has been successfully activated.
+
+Your Account Details:
+- Username: {user.username}
+- Email: {user.email}
+- Role: {user.get_role_display()}
+
+You can now login to the system using your username or email and the password you just set.
+
+Login URL: {login_url}
+
+If you have any questions or need assistance, please contact the PMIS administration team.
+
+Best regards,
+PMIS Administration
+Zaheerabad Industrial Area
+    """
+    
+    html_content = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f3f4f6;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <table role="presentation" style="width: 600px; max-width: 100%; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 32px; text-align: center; border-radius: 12px 12px 0 0;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">Welcome to PMIS!</h1>
+                            <p style="margin: 8px 0 0 0; color: #d1fae5; font-size: 14px;">Your account is now active</p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="padding: 32px;">
+                            <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px;">
+                                Dear <strong>{user.first_name} {user.last_name}</strong>,
+                            </p>
+                            
+                            <p style="margin: 0 0 24px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                                Welcome to the Programme Management Information System (PMIS)! Your account has been successfully activated.
+                            </p>
+                            
+                            <table role="presentation" style="width: 100%; background-color: #f3f4f6; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+                                <tr><td style="padding: 4px 0;"><strong>Username:</strong> {user.username}</td></tr>
+                                <tr><td style="padding: 4px 0;"><strong>Email:</strong> {user.email}</td></tr>
+                                <tr><td style="padding: 4px 0;"><strong>Role:</strong> {user.get_role_display()}</td></tr>
+                            </table>
+                            
+                            <p style="margin: 0 0 24px 0; color: #374151; font-size: 16px;">
+                                You can now login to the system using your username or email and the password you set.
+                            </p>
+                            
+                            <table role="presentation" style="width: 100%;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{login_url}" style="display: inline-block; padding: 14px 32px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                                            Login to PM IS
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="margin: 24px 0 0 0; color: #6b7280; font-size: 14px;">
+                                If you need assistance, please contact the PMIS administration team.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="padding: 24px 32px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; border-radius: 0 0 12px 12px; text-align: center;">
+                            <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                                <strong>PMIS Administration</strong><br>
+                                Zaheerabad Industrial Area
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+    """
+    
+    try:
+        email = EmailMulti Alternates(subject=subject, body=text_content, from_email=settings.DEFAULT_FROM_EMAIL, to=[user.email])
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+        print(f"[EMAIL] Welcome email sent to {user.email}")
+    except Exception as e:
+        print(f"[EMAIL ERROR] Failed to send welcome email to {user.email}: {e}")
 
 
 def send_registration_confirmation(user):
@@ -256,7 +370,7 @@ Company Details:
 - PAN: {user.pan_number}
 - GSTIN: {user.gstin_number}
 
-Please login to PMIS to review and approve/reject this registration.
+Please login to PM IS to review and approve/reject this registration.
 
 Best regards,
 PMIS System
