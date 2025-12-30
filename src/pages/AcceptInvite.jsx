@@ -65,9 +65,23 @@ const AcceptInvite = () => {
         } catch (err) {
             console.error('Accept invite failed:', err);
             if (err.response?.data) {
-                setErrors(err.response.data);
+                // Show specific validation errors
+                const errors = err.response.data;
+                setErrors(errors);
+
+                // Show specific error message
+                if (errors.password) {
+                    toast.error(errors.password[0] || errors.password);
+                } else if (errors.token) {
+                    toast.error(errors.token[0] || errors.token);
+                } else if (errors.confirm_password) {
+                    toast.error(errors.confirm_password[0] || errors.confirm_password);
+                } else {
+                    toast.error('Failed to activate account. Please check your password and try again.');
+                }
+            } else {
+                toast.error('Failed to activate account. Please try again.');
             }
-            toast.error('Failed to activate account. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
