@@ -29,7 +29,10 @@ class ThreadViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        queryset = Thread.objects.all()
+        
+        # 🔒 SECURITY FIX: Only show threads where user is a participant
+        # No exceptions - even SPV can only see their own threads
+        queryset = Thread.objects.filter(participants=user)
         
         # Filter out internal notes for unauthorized roles
         if not CommunicationPermissions.can_view_internal_notes(user):
@@ -146,6 +149,13 @@ class ThreadViewSet(viewsets.ModelViewSet):
         """Send a message to the thread."""
         thread = self.get_object()
         user = request.user
+        
+        # 🔒 SECURITY: Verify user is a participant in this thread
+        if user not in thread.participants.all():
+            return Response(
+                {'error': 'Access denied. You are not a participant in this thread.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
         
         if not CommunicationPermissions.can_send_message(user):
             return Response(

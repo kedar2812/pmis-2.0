@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -9,6 +9,9 @@ import {
 import { toast } from 'sonner';
 import api from '@/api/client';
 import Button from '@/components/ui/Button';
+import SearchableSelect from '@/components/ui/SearchableSelect';
+import IFSCInput from '@/components/contractor/IFSCInput';
+import { fetchBankList } from '@/services/ifscService';
 
 // InputField moved OUTSIDE the main component to prevent re-creation on every render
 const InputField = ({ label, name, value, onChange, error, type = 'text', required = false, icon: Icon, placeholder, ...props }) => (
@@ -46,6 +49,8 @@ const ContractorRegistration = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [bankList, setBankList] = useState([]);
+    const [loadingBanks, setLoadingBanks] = useState(false);
 
     const [formData, setFormData] = useState({
         // Account
@@ -86,6 +91,23 @@ const ContractorRegistration = () => {
         { id: 3, title: 'Address', icon: MapPin },
         { id: 4, title: 'Bank', icon: Landmark },
     ];
+
+    // Load bank list on component mount
+    useEffect(() => {
+        const loadBanks = async () => {
+            setLoadingBanks(true);
+            try {
+                const banks = await fetchBankList();
+                setBankList(banks);
+            } catch (error) {
+                console.error('Failed to load banks:', error);
+                toast.error('Failed to load bank list');
+            } finally {
+                setLoadingBanks(false);
+            }
+        };
+        loadBanks();
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -381,14 +403,54 @@ const ContractorRegistration = () => {
                             <h2 className="text-lg font-semibold text-slate-900 mb-4">Bank Account Details</h2>
                             <p className="text-sm text-slate-500 mb-4">Required for bill payments and financial transactions.</p>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <InputField label="Bank Name" name="bank_name" required icon={Landmark} placeholder="State Bank of India" value={formData.bank_name} onChange={handleChange} error={errors.bank_name} />
-                                <InputField label="Branch" name="bank_branch" placeholder="Industrial Area Branch" value={formData.bank_branch} onChange={handleChange} error={errors.bank_branch} />
-                            </div>
+                            <SearchableSelect
+                                options={bankList}
+                                value={formData.bank_name}
+                                onChange={(value) => {
+                                    setFormData(prev => ({ ...prev, bank_name: value }));
+                                    if (errors.bank_name) setErrors(prev => ({ ...prev, bank_name: '' }));
+                                }}
+                                label="Bank Name"
+                                placeholder="Search bank..."
+                                required
+                                error={errors.bank_name}
+                            />
+
+                            <IFSCInput
+                                value={formData.ifsc_code}
+                                onChange={(value) => {
+                                    setFormData(prev => ({ ...prev, ifsc_code: value }));
+                                    if (errors.ifsc_code) setErrors(prev => ({ ...prev, ifsc_code: '' }));
+                                }}
+                                onBranchDataFetched={(branchData) => {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        bank_name: branchData.bank_name,
+                                        bank_branch: branchData.branch_name
+                                    }));
+                                }}
+                                error={errors.ifsc_code}
+                            />
 
                             <div className="grid grid-cols-2 gap-4">
-                                <InputField label="IFSC Code" name="ifsc_code" required placeholder="SBIN0001234" value={formData.ifsc_code} onChange={handleChange} error={errors.ifsc_code} />
-                                <InputField label="Account Number" name="account_number" required placeholder="1234567890123456" value={formData.account_number} onChange={handleChange} error={errors.account_number} />
+                                <InputField
+                                    label="Branch"
+                                    name="bank_branch"
+                                    placeholder="Auto-filled from IFSC"
+                                    value={formData.bank_branch}
+                                    onChange={handleChange}
+                                    error={errors.bank_branch}
+                                    disabled={formData.bank_branch && formData.ifsc_code}
+                                />
+                                <InputField
+                                    label="Account Number"
+                                    name="account_number"
+                                    required
+                                    placeholder="1234567890123456"
+                                    value={formData.account_number}
+                                    onChange={handleChange}
+                                    error={errors.account_number}
+                                />
                             </div>
 
                             <div>

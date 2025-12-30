@@ -10,18 +10,24 @@ class MessageSerializer(serializers.ModelSerializer):
     """
     Serializer for Message model.
     Read-only for most fields due to immutability.
+    Content is decrypted for authorized users.
     """
     sender_name = serializers.SerializerMethodField()
     references_content = serializers.SerializerMethodField()
+    content = serializers.SerializerMethodField()  # Decrypt on read
     
     class Meta:
         model = Message
         fields = [
             'id', 'thread', 'sender', 'sender_name', 'sender_role',
             'content', 'message_type', 'is_ruling', 'references',
-            'references_content', 'created_at'
+            'references_content', 'created_at', 'is_encrypted'
         ]
-        read_only_fields = ['id', 'sender', 'sender_role', 'is_ruling', 'created_at']
+        read_only_fields = ['id', 'sender', 'sender_role', 'is_ruling', 'created_at', 'is_encrypted']
+    
+    def get_content(self, obj):
+        """Return decrypted message content."""
+        return obj.get_decrypted_content()
     
     def get_sender_name(self, obj):
         if obj.sender:
@@ -30,7 +36,8 @@ class MessageSerializer(serializers.ModelSerializer):
     
     def get_references_content(self, obj):
         if obj.references:
-            return obj.references.content[:100] + '...' if len(obj.references.content) > 100 else obj.references.content
+            decrypted = obj.references.get_decrypted_content()
+            return decrypted[:100] + '...' if len(decrypted) > 100 else decrypted
         return None
 
 
@@ -200,7 +207,9 @@ class ThreadListSerializer(serializers.ModelSerializer):
     def get_last_message_preview(self, obj):
         last_msg = obj.messages.order_by('-created_at').first()
         if last_msg:
-            content = last_msg.content[:80] + '...' if len(last_msg.content) > 80 else last_msg.content
+            # Decrypt content for preview
+            decrypted = last_msg.get_decrypted_content()
+            content = decrypted[:80] + '...' if len(decrypted) > 80 else decrypted
             return {
                 'sender': last_msg.sender.username if last_msg.sender else 'Unknown',
                 'content': content,

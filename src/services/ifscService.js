@@ -3,7 +3,7 @@
  * Uses our self-hosted IFSC database - NO external API dependencies
  * Government-grade security and privacy
  */
-import client from './client';
+import client from '../api/client';
 
 /**
  * Fetch list of all banks for dropdown

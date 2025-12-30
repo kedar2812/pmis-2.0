@@ -3,6 +3,9 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 import uuid
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Thread(models.Model):
@@ -83,7 +86,11 @@ class Message(models.Model):
     sender = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True)
     sender_role = models.CharField(max_length=100, help_text="Role of sender at message creation time")
     
-    content = models.TextField()
+    # Encrypted content storage (AES-256)
+    # The 'content' field stores encrypted data at rest
+    content = models.TextField(help_text="AES-256 encrypted message content")
+    is_encrypted = models.BooleanField(default=False, help_text="Whether content is encrypted")
+    
     message_type = models.CharField(max_length=50, choices=MessageType.choices, default=MessageType.STANDARD)
     is_ruling = models.BooleanField(default=False, help_text="Official ruling flag for govt oversight")
     
@@ -110,8 +117,43 @@ class Message(models.Model):
         # Auto-set is_ruling flag
         if self.message_type == self.MessageType.RULING:
             self.is_ruling = True
+        
+        # Encrypt content before saving (AES-256)
+        # Only encrypt if not already encrypted (avoids double encryption)
+        if self.content and not self.is_encrypted:
+            try:
+                from .encryption import MessageEncryption
+                # Check if content looks like it's already encrypted (base64)
+                if not MessageEncryption.is_encrypted(self.content):
+                    self.content = MessageEncryption.encrypt(self.content)
+                    self.is_encrypted = True
+                else:
+                    # Already encrypted
+                    self.is_encrypted = True
+            except Exception as e:
+                logger.error(f"Failed to encrypt message: {e}")
+                # Store plaintext if encryption fails - audit log will capture
+                self.is_encrypted = False
             
         super().save(*args, **kwargs)
+    
+    def get_decrypted_content(self):
+        """
+        Decrypt and return message content.
+        For use in serializers and views.
+        """
+        if not self.content:
+            return ""
+        
+        if not self.is_encrypted:
+            return self.content
+        
+        try:
+            from .encryption import MessageEncryption
+            return MessageEncryption.decrypt(self.content)
+        except Exception as e:
+            logger.error(f"Failed to decrypt message {self.pk}: {e}")
+            return "[Decryption failed - content unavailable]"
 
     def __str__(self):
         return f"Message by {self.sender} in {self.thread.subject}"

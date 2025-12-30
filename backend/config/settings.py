@@ -189,3 +189,10 @@ if USE_CLOUDINARY:
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
+# ============================================================================
+# SECURITY: AES-256 Message Encryption
+# ============================================================================
+# Encryption key for message content at rest (AES-256)
+# CRITICAL: In production, use a secure 32+ character key from environment
+# Generate a secure key: python -c "import secrets; print(secrets.token_urlsafe(32))"
+MESSAGE_ENCRYPTION_KEY = config('MESSAGE_ENCRYPTION_KEY', default='pmis-dev-key-CHANGE-IN-PRODUCTION-2025')
