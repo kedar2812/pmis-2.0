@@ -97,27 +97,29 @@ const Projects = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-primary-950">{t('projects.title')}</h1>
-          <p className="text-gray-600 mt-1">{t('projects.subtitle')}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary-950">{t('projects.title')}</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">{t('projects.subtitle')}</p>
         </div>
         {canCreateProject && (
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
             <Button
               onClick={() => setIsCreatePackageModalOpen(true)}
               variant="outline"
-              className="border-primary-950 text-primary-950 hover:bg-primary-50"
+              className="flex-1 sm:flex-none border-primary-950 text-primary-950 hover:bg-primary-50 min-h-[44px]"
             >
               <Package size={18} />
-              Create Package
+              <span className="hidden sm:inline ml-2">Create Package</span>
+              <span className="sm:hidden ml-1">Package</span>
             </Button>
             <Button
               onClick={() => setIsCreateModalOpen(true)}
-              className="bg-primary-950 hover:bg-primary-900"
+              className="flex-1 sm:flex-none bg-primary-950 hover:bg-primary-900 min-h-[44px]"
             >
               <Plus size={18} />
-              {t('projects.createProject')}
+              <span className="hidden sm:inline ml-2">{t('projects.createProject')}</span>
+              <span className="sm:hidden ml-1">Project</span>
             </Button>
           </div>
         )}
@@ -125,7 +127,7 @@ const Projects = () => {
 
       {/* Summary Stats */}
       {projects.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           <motion.div
             whileHover={{ y: -4 }}
             whileTap={{ scale: 0.98 }}

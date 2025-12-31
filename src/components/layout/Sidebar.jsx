@@ -24,13 +24,24 @@ import {
   Building2,
   PieChart,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+
+/**
+ * Sidebar Component
+ * 
+ * Features:
+ * - Collapsible on desktop (icons only vs full labels)
+ * - Slide-out drawer on mobile with overlay
+ * - Auto-close when navigating on mobile
+ * - Scrollbar only visible when sidebar is expanded
+ * - Smooth spring animations
+ */
 
 // Sidebar width variants for liquid motion
 const sidebarVariants = {
-  expanded: { width: '18rem' }, // 288px - wider to fit "Integrated Dashboard"
-  collapsed: { width: '6rem' }, // 96px - wider to prevent scrollbar occlusion
+  expanded: { width: '18rem' }, // 288px
+  collapsed: { width: '6rem' }, // 96px
 };
 
 // Text label variants for smooth fade/slide
@@ -75,8 +86,23 @@ const Sidebar = () => {
   const { hasPermission } = useAuth();
   const { t } = useLanguage();
   const location = useLocation();
-  const { isCollapsed, setIsCollapsed } = useSidebar();
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { isCollapsed, setIsCollapsed, isMobileMenuOpen, setIsMobileMenuOpen, isMobile } = useSidebar();
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname, setIsMobileMenuOpen]);
+
+  // Handle link click - close mobile menu
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setIsMobileMenuOpen(false);
+    }
+  };
+
+  // Sidebar should appear expanded on mobile (show labels, not just icons)
+  const shouldShowExpanded = isMobile ? true : !isCollapsed;
+  const animationState = shouldShowExpanded ? 'expanded' : 'collapsed';
 
   const menuItems = [
     {
@@ -91,9 +117,8 @@ const Sidebar = () => {
       label: t('common.projects'),
       icon: FolderOpen,
       path: '/projects',
-      permission: 'dashboard:view', // All users who can view dashboard can view projects
+      permission: 'dashboard:view',
     },
-
     {
       id: 'edms',
       label: 'EDMS',
@@ -106,14 +131,14 @@ const Sidebar = () => {
       label: 'Communications',
       icon: MessageSquare,
       path: '/communications',
-      permission: 'dashboard:view', // All users can access communications
+      permission: 'dashboard:view',
     },
     {
       id: 'approvals',
       label: 'Approvals',
       icon: Clock,
       path: '/approvals',
-      permission: 'dashboard:view', // Permission checked in component
+      permission: 'dashboard:view',
     },
     {
       id: 'scheduling',
@@ -127,7 +152,7 @@ const Sidebar = () => {
       label: 'User Management',
       icon: Users,
       path: '/users',
-      permission: 'users:manage', // Only admins
+      permission: 'users:manage',
     },
     {
       id: 'cost',
@@ -181,7 +206,7 @@ const Sidebar = () => {
     {
       id: 'cost-budgeting',
       label: 'Budgeting',
-      icon: PieChart, // Changed icon to distinguish
+      icon: PieChart,
       path: '/cost/budgeting',
       permission: 'cost:view',
     },
@@ -189,7 +214,7 @@ const Sidebar = () => {
       id: 'ra-billing',
       label: 'RA Billing',
       icon: FileText,
-      path: '/cost/billing', // Updated path
+      path: '/cost/billing',
       permission: 'dashboard:view',
     },
     {
@@ -197,14 +222,14 @@ const Sidebar = () => {
       label: 'Workflow Config',
       icon: Workflow,
       path: '/workflow',
-      permission: 'users:manage', // Only admins
+      permission: 'users:manage',
     },
     {
       id: 'audit-logs',
       label: 'Audit System',
       icon: Shield,
       path: '/admin/audit-logs',
-      permission: 'users:manage', // Only admins
+      permission: 'users:manage',
     },
   ];
 
@@ -212,42 +237,55 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Mobile menu button */}
-      <motion.button
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-white/80 backdrop-blur-md shadow-glass border border-transparent"
-        onClick={() => setIsMobileOpen(!isMobileOpen)}
-        whileTap={{ scale: 0.95 }}
-        whileHover={{ scale: 1.05 }}
-      >
-        {isMobileOpen ? <X size={24} className="text-slate-700" /> : <Menu size={24} className="text-slate-700" />}
-      </motion.button>
+      {/* Mobile menu hamburger button - only visible when sidebar is CLOSED */}
+      {!isMobileMenuOpen && (
+        <motion.button
+          className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-white/80 backdrop-blur-md shadow-glass border border-transparent min-w-[44px] min-h-[44px] flex items-center justify-center"
+          onClick={() => setIsMobileMenuOpen(true)}
+          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.05 }}
+          aria-label="Open menu"
+        >
+          <Menu size={24} className="text-slate-700" />
+        </motion.button>
+      )}
 
       {/* Sidebar */}
       <motion.aside
         layout
         initial={false}
-        animate={isCollapsed ? 'collapsed' : 'expanded'}
+        animate={animationState}
         variants={sidebarVariants}
         transition={sidebarTransition}
         className={cn(
-          'fixed top-4 left-4 z-30 h-[calc(100vh-2rem)]',
+          // Base styles
+          'fixed top-4 left-4 z-40 h-[calc(100vh-2rem)]',
           'bg-white/80 backdrop-blur-xl border border-slate-200/50',
           'rounded-2xl shadow-glass overflow-hidden',
+          // Mobile: slide in/out with smooth transition
+          'transition-transform duration-300 ease-out',
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-[120%]',
+          // Desktop: always visible
           'lg:translate-x-0',
-          isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+          // Print: hidden
           'print:hidden'
         )}
       >
         <div className="h-full flex flex-col overflow-hidden">
-          <div className={cn(
-            "border-b border-slate-200/50 flex items-center justify-between overflow-hidden",
-            isCollapsed ? "p-3" : "p-6"
-          )}>
-            <div className={cn(
-              "flex-1 overflow-hidden",
-              isCollapsed && "flex justify-center"
-            )}>
-              {!isCollapsed ? (
+          {/* Header with logo and collapse button */}
+          <div
+            className={cn(
+              'border-b border-slate-200/50 flex items-center justify-between overflow-hidden flex-shrink-0',
+              shouldShowExpanded ? 'p-6' : 'p-3'
+            )}
+          >
+            <div
+              className={cn(
+                'flex-1 overflow-hidden',
+                !shouldShowExpanded && 'flex justify-center'
+              )}
+            >
+              {shouldShowExpanded ? (
                 <motion.div
                   variants={headerTextVariants}
                   initial="collapsed"
@@ -262,7 +300,9 @@ const Sidebar = () => {
                     <h2 className="text-lg font-heading font-bold text-primary-600 truncate">
                       PMIS
                     </h2>
-                    <p className="text-xs text-slate-500 truncate">Zaheerabad Industrial Area</p>
+                    <p className="text-xs text-slate-500 truncate">
+                      Zaheerabad Industrial Area
+                    </p>
                   </div>
                 </motion.div>
               ) : (
@@ -278,22 +318,49 @@ const Sidebar = () => {
                 </motion.div>
               )}
             </div>
+
+            {/* Mobile close button - inside sidebar header, top right */}
+            {isMobile && isMobileMenuOpen && (
+              <motion.button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="lg:hidden p-2 hover:bg-slate-100/50 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                whileTap={{ scale: 0.9 }}
+                aria-label="Close menu"
+              >
+                <X size={24} className="text-slate-600" />
+              </motion.button>
+            )}
+
+            {/* Collapse/Expand button - desktop only */}
             <motion.button
               layout
               onClick={() => setIsCollapsed(!isCollapsed)}
               className={cn(
-                "hidden lg:flex rounded-lg hover:bg-slate-100/50 transition-colors flex-shrink-0",
-                isCollapsed ? "p-1.5" : "p-2"
+                'hidden lg:flex rounded-lg hover:bg-slate-100/50 transition-colors flex-shrink-0',
+                isCollapsed ? 'p-1.5' : 'p-2'
               )}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               aria-label={isCollapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
             >
-              {isCollapsed ? <ChevronRight size={18} className="text-slate-600" /> : <ChevronLeft size={20} className="text-slate-600" />}
+              {isCollapsed ? (
+                <ChevronRight size={18} className="text-slate-600" />
+              ) : (
+                <ChevronLeft size={20} className="text-slate-600" />
+              )}
             </motion.button>
           </div>
 
-          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          {/* Navigation - Scrollbar only visible when expanded */}
+          <nav
+            className={cn(
+              'flex-1 p-4 space-y-2',
+              // Only show scrollbar when sidebar is expanded
+              shouldShowExpanded
+                ? 'overflow-y-auto overflow-x-hidden'
+                : 'overflow-hidden'
+            )}
+          >
             {visibleItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -307,7 +374,7 @@ const Sidebar = () => {
                 >
                   <Link
                     to={item.path}
-                    onClick={() => setIsMobileOpen(false)}
+                    onClick={handleLinkClick}
                     className={cn(
                       'flex items-center gap-3 rounded-xl transition-all duration-200 overflow-hidden',
                       'focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2',
@@ -315,10 +382,10 @@ const Sidebar = () => {
                         ? 'bg-gradient-to-r from-primary-50 to-blue-50 text-primary-700 font-semibold shadow-sm pl-3 py-3 pr-4'
                         : 'text-slate-700 hover:bg-slate-100/50 hover:text-primary-600 px-4 py-3'
                     )}
-                    title={isCollapsed ? item.label : undefined}
+                    title={!shouldShowExpanded ? item.label : undefined}
                     aria-label={item.label}
                   >
-                    {/* Internal active indicator pill */}
+                    {/* Active indicator pill */}
                     {isActive && (
                       <motion.div
                         className="h-6 w-1 bg-gradient-to-b from-primary-600 to-primary-700 rounded-full shadow-blue-glow flex-shrink-0"
@@ -330,7 +397,7 @@ const Sidebar = () => {
                     )}
                     <Icon size={20} className="flex-shrink-0" />
                     <AnimatePresence mode="wait">
-                      {!isCollapsed && (
+                      {shouldShowExpanded && (
                         <motion.span
                           key="text"
                           variants={textVariants}
@@ -352,22 +419,22 @@ const Sidebar = () => {
         </div>
       </motion.aside>
 
-      {/* Overlay for mobile - must be OUTSIDE the sidebar */}
-      {isMobileOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-20"
-          onClick={() => setIsMobileOpen(false)}
-        />
-      )}
+      {/* Backdrop overlay for mobile */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
+            onClick={() => setisMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 };
 
 export default Sidebar;
-
-
-
-
-
-
-

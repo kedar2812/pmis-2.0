@@ -35,26 +35,26 @@ const MetricsDetailModal = ({ isOpen, onClose, title, description, items, docume
                     initial={{ opacity: 0, scale: 0.9, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    className="relative w-full max-w-2xl bg-white/90 glass-panel rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+                    className="relative w-full max-w-2xl bg-white/90 glass-panel rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[85vh]"
                 >
                     {/* Header */}
-                    <div className="flex justify-between items-center p-6 border-b border-slate-200/50 bg-white/50">
-                        <h3 className="text-xl font-bold text-slate-800 bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
+                    <div className="flex justify-between items-center p-4 sm:p-6 border-b border-slate-200/50 bg-white/50">
+                        <h3 className="text-lg sm:text-xl font-bold text-slate-800 bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
                             {title}
                         </h3>
                         <button
                             onClick={onClose}
-                            className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 hover:text-red-500"
+                            className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 hover:text-red-500 min-w-[44px] min-h-[44px] flex items-center justify-center"
                         >
                             <X size={20} />
                         </button>
                     </div>
 
                     {/* Body */}
-                    <div className="p-6 overflow-y-auto custom-scrollbar space-y-8">
+                    <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar space-y-6 sm:space-y-8">
                         <div>
-                            <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Overview</h4>
-                            <p className="text-slate-600 leading-relaxed text-lg">
+                            <h4 className="text-xs sm:text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Overview</h4>
+                            <p className="text-slate-600 leading-relaxed text-base sm:text-lg">
                                 {description}
                             </p>
                         </div>

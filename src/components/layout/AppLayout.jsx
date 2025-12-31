@@ -4,17 +4,67 @@ import { useSidebar } from '@/contexts/SidebarContext';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { useState, useEffect, useCallback } from 'react';
 
+/**
+ * AppLayout - Main application layout component
+ * 
+ * Handles responsive layout behavior:
+ * - Desktop (≥1024px): Content has left padding for sidebar
+ * - Mobile (<1024px): Content fills full width, sidebar overlays
+ * 
+ * Uses React state to track viewport size for smooth animations
+ */
 const AppLayout = () => {
   const location = useLocation();
   const { isCollapsed } = useSidebar();
+
+  // Track if we're on desktop viewport for responsive layout
+  const [isDesktop, setIsDesktop] = useState(
+    typeof window !== 'undefined' ? window.innerWidth >= 1024 : true
+  );
+
+  // Memoized resize handler for performance
+  const handleResize = useCallback(() => {
+    setIsDesktop(window.innerWidth >= 1024);
+  }, []);
+
+  // Listen for viewport changes
+  useEffect(() => {
+    // Set initial value
+    handleResize();
+
+    // Add resize listener with debounce for performance
+    let timeoutId;
+    const debouncedResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(handleResize, 100);
+    };
+
+    window.addEventListener('resize', debouncedResize);
+    return () => {
+      window.removeEventListener('resize', debouncedResize);
+      clearTimeout(timeoutId);
+    };
+  }, [handleResize]);
+
+  // Calculate content padding based on viewport and sidebar state
+  const getContentPadding = () => {
+    if (!isDesktop) {
+      return '0px'; // Mobile: no sidebar offset
+    }
+    // Desktop: offset based on sidebar state
+    // Collapsed: 96px (sidebar) + 8px (gap) = 104px
+    // Expanded: 288px (sidebar) + 16px (gap) = 304px
+    return isCollapsed ? '104px' : '304px';
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
       <Sidebar />
       <motion.div
         animate={{
-          paddingLeft: isCollapsed ? '104px' : '304px', // 96px (collapsed) + 8px (gap), 288px (expanded) + 16px (gap)
+          paddingLeft: getContentPadding(),
         }}
         transition={{
           type: 'spring',
@@ -22,10 +72,10 @@ const AppLayout = () => {
           damping: 30,
           mass: 0.5,
         }}
-        className="lg:block relative"
+        className="relative min-h-screen"
       >
-        <Header />
-        <main className="p-6 pt-20">
+        <Header isDesktop={isDesktop} />
+        <main className="p-4 sm:p-6 pt-20">
           <Breadcrumbs />
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -48,10 +98,3 @@ const AppLayout = () => {
 };
 
 export default AppLayout;
-
-
-
-
-
-
-

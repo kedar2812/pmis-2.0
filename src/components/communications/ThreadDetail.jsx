@@ -211,16 +211,17 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
     return (
         <div className="flex flex-col h-full bg-white">
             {/* Header */}
-            <div className="p-4 border-b border-slate-200 bg-slate-50">
-                <div className="flex justify-between items-start">
-                    <div>
-                        <h2 className="text-lg font-bold text-slate-800">{thread.subject}</h2>
-                        <div className="flex items-center gap-3 mt-1 text-sm text-slate-500">
+            <div className="p-3 sm:p-4 border-b border-slate-200 bg-slate-50">
+                {/* Top Row: Title and Close button */}
+                <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="min-w-0 flex-1">
+                        <h2 className="text-base sm:text-lg font-bold text-slate-800 truncate">{thread.subject}</h2>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs sm:text-sm text-slate-500">
                             <span className="flex items-center gap-1">
                                 <User size={14} />
-                                {thread.participant_count} participants
+                                {thread.participant_count}
                             </span>
-                            <span className="flex items-center gap-1">
+                            <span className="hidden sm:flex items-center gap-1">
                                 <Clock size={14} />
                                 {formatTimestamp(thread.created_at)}
                             </span>
@@ -233,99 +234,100 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                             </span>
                         </div>
                     </div>
+                    {/* Close Panel Button - always visible */}
+                    <button
+                        onClick={onClose}
+                        className="p-2 hover:bg-slate-200 rounded-lg flex-shrink-0 min-w-[36px] min-h-[36px] flex items-center justify-center"
+                        aria-label="Close"
+                    >
+                        <X size={20} />
+                    </button>
+                </div>
 
+                {/* Action Buttons Row */}
+                <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-1 -mb-1">
+                    {/* Participants Button */}
+                    <button
+                        onClick={() => setShowParticipants(true)}
+                        className="p-2 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center flex-shrink-0"
+                        title="View Participants"
+                    >
+                        <Users size={18} />
+                    </button>
 
+                    {/* Pin Button */}
+                    <button
+                        onClick={handlePin}
+                        className={`p-2 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center flex-shrink-0 ${isPinned ? 'bg-blue-100 text-blue-700' : 'hover:bg-slate-100 text-slate-600'
+                            }`}
+                        title={isPinned ? 'Unpin thread' : 'Pin thread'}
+                    >
+                        <Pin size={18} fill={isPinned ? 'currentColor' : 'none'} />
+                    </button>
 
-                    <div className="flex items-center gap-2">
-                        {/* Participants Button (Visible for all chats) */}
-                        <button
-                            onClick={() => setShowParticipants(true)}
-                            className="p-2 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-                            title="View Participants"
-                        >
-                            <Users size={18} />
-                        </button>
+                    {/* Mute Button */}
+                    <button
+                        onClick={() => handleMute()}
+                        className={`p-2 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center flex-shrink-0 ${isMuted ? 'bg-amber-100 text-amber-700' : 'hover:bg-slate-100 text-slate-600'
+                            }`}
+                        title={isMuted ? 'Unmute thread' : 'Mute thread'}
+                    >
+                        {isMuted ? <BellOff size={18} /> : <Bell size={18} />}
+                    </button>
 
-                        {/* Pin Button */}
-                        <button
-                            onClick={handlePin}
-                            className={`p-2 rounded-lg transition-colors ${isPinned
-                                ? 'bg-blue-100 text-blue-700'
-                                : 'hover:bg-slate-100 text-slate-600'
-                                }`}
-                            title={isPinned ? 'Unpin thread' : 'Pin thread'}
-                        >
-                            <Pin size={18} fill={isPinned ? 'currentColor' : 'none'} />
-                        </button>
+                    {/* More Actions Menu (for group chats only) */}
+                    {thread.thread_type === 'GROUP' && (
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowActionsMenu(!showActionsMenu)}
+                                className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-600 min-w-[36px] min-h-[36px] flex items-center justify-center"
+                            >
+                                <MoreVertical size={18} />
+                            </button>
 
-                        {/* Mute Button */}
-                        <button
-                            onClick={() => handleMute()}
-                            className={`p-2 rounded-lg transition-colors ${isMuted
-                                ? 'bg-amber-100 text-amber-700'
-                                : 'hover:bg-slate-100 text-slate-600'
-                                }`}
-                            title={isMuted ? 'Unmute thread' : 'Mute thread'}
-                        >
-                            {isMuted ? <BellOff size={18} /> : <Bell size={18} />}
-                        </button>
-
-                        {/* More Actions Menu (for group chats only) */}
-                        {thread.thread_type === 'GROUP' && (
-                            <div className="relative">
-                                <button
-                                    onClick={() => setShowActionsMenu(!showActionsMenu)}
-                                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-600"
-                                >
-                                    <MoreVertical size={18} />
-                                </button>
-
-                                <AnimatePresence>
-                                    {showActionsMenu && (
-                                        <motion.div
-                                            initial={{ opacity: 0, scale: 0.95 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0.95 }}
-                                            className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10"
+                            <AnimatePresence>
+                                {showActionsMenu && (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10"
+                                    >
+                                        <button
+                                            onClick={() => {
+                                                setShowActionsMenu(false);
+                                                setShowAddParticipants(true);
+                                            }}
+                                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
                                         >
-                                            <button
-                                                onClick={() => {
-                                                    setShowActionsMenu(false);
-                                                    setShowAddParticipants(true);
-                                                }}
-                                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                            >
-                                                <UserPlus size={16} />
-                                                Add Participants
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    setShowActionsMenu(false);
-                                                    handleLeaveGroup();
-                                                }}
-                                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                                            >
-                                                <LogOut size={16} />
-                                                Leave Group
-                                            </button>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        )}
+                                            <UserPlus size={16} />
+                                            Add Participants
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setShowActionsMenu(false);
+                                                handleLeaveGroup();
+                                            }}
+                                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                        >
+                                            <LogOut size={16} />
+                                            Leave Group
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    )}
 
-                        {/* Close Thread Button */}
-                        {thread.status !== 'CLOSED' && canCloseThread && (
-                            <Button variant="outline" size="sm" onClick={handleCloseThread}>
-                                <CheckCircle size={16} className="mr-1" /> Close
-                            </Button>
-                        )}
+                    {/* Spacer */}
+                    <div className="flex-1" />
 
-                        {/* Close Panel Button */}
-                        <button onClick={onClose} className="p-1 hover:bg-slate-200 rounded">
-                            <X size={20} />
-                        </button>
-                    </div>
+                    {/* Close Thread Button */}
+                    {thread.status !== 'CLOSED' && canCloseThread && (
+                        <Button variant="outline" size="sm" onClick={handleCloseThread} className="flex-shrink-0 text-xs">
+                            <CheckCircle size={14} className="mr-1" /> Close
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -401,12 +403,12 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                     )}
 
                     {/* Input Area */}
-                    <div className="px-4 py-2">
-                        <div className="flex items-center gap-2">
+                    <div className="px-2 sm:px-4 py-2">
+                        <div className="flex items-center gap-1 sm:gap-2">
                             {/* File Attachment Button */}
                             <button
                                 onClick={() => fileInputRef.current?.click()}
-                                className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors"
+                                className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors flex-shrink-0 min-w-[40px] min-h-[40px] flex items-center justify-center"
                                 title="Attach file"
                             >
                                 <Paperclip size={20} />
@@ -431,14 +433,14 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                                     }
                                 }}
                                 placeholder="Type a message"
-                                className="flex-1 px-4 py-2 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                className="flex-1 min-w-0 px-3 sm:px-4 py-2 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
                             />
 
                             {/* Send Button */}
                             <button
                                 onClick={handleSendMessage}
                                 disabled={(!messageContent.trim() && !attachedFile) || isSending || isUploading}
-                                className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0 min-w-[40px] min-h-[40px] flex items-center justify-center"
                             >
                                 {isUploading ? (
                                     <div className="w-[18px] h-[18px] border-2 border-white border-t-transparent rounded-full animate-spin" />
