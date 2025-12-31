@@ -1,7 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSidebar } from '@/contexts/SidebarContext';
-import { Bell, Globe } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Button from '@/components/ui/Button';
@@ -9,11 +9,21 @@ import Select from '@/components/ui/Select';
 import GoogleTranslateWidget from '@/components/ui/GoogleTranslateWidget';
 import NotificationDropdown from '@/components/communications/NotificationDropdown';
 
-
-const Header = () => {
+/**
+ * Header - Top navigation bar component
+ * 
+ * Props:
+ * - isDesktop: boolean - Whether viewport is desktop size (passed from AppLayout)
+ * 
+ * Responsive behavior:
+ * - Desktop: Positioned after sidebar with dynamic left offset
+ * - Mobile: Full width with left margin for hamburger menu
+ * - Hidden when mobile sidebar is open
+ */
+const Header = ({ isDesktop = true }) => {
   const { user, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
-  const { isCollapsed } = useSidebar();
+  const { isCollapsed, isMobileMenuOpen } = useSidebar();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const notificationsRef = useRef(null);
@@ -56,10 +66,28 @@ const Header = () => {
     }
   };
 
+  /**
+   * Calculate header left position based on viewport and sidebar state
+   * - Mobile: 56px (after hamburger menu button)
+   * - Desktop collapsed: 112px (96px sidebar + 16px gap)
+   * - Desktop expanded: 312px (288px sidebar + 24px gap)
+   */
+  const getHeaderLeftPosition = () => {
+    if (!isDesktop) {
+      return '56px'; // Mobile: after hamburger menu
+    }
+    return isCollapsed ? '112px' : '312px';
+  };
+
+  // Hide header when mobile sidebar is open
+  if (isMobileMenuOpen && !isDesktop) {
+    return null;
+  }
+
   return (
     <motion.header
       animate={{
-        left: isCollapsed ? '112px' : '312px', // Sidebar width + 16px gap (collapsed: 96px + 16px, expanded: 288px + 24px)
+        left: getHeaderLeftPosition(),
       }}
       transition={{
         type: 'spring',
@@ -67,36 +95,37 @@ const Header = () => {
         damping: 30,
         mass: 0.5,
       }}
-      className="absolute top-4 right-4 z-40 h-14 bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-sm flex items-center justify-between px-4"
+      className="absolute top-4 right-4 z-40 h-14 bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-sm flex items-center justify-between px-3 sm:px-4"
     >
       <div className="flex-1"></div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
 
-
-        {/* Language Toggle */}
-        <div className="flex items-center gap-2">
+        {/* Language Toggle - Responsive */}
+        <div className="flex items-center gap-1 sm:gap-2">
           <div className="hidden">
             <GoogleTranslateWidget />
           </div>
-          <div className="h-6 w-px bg-slate-200 mx-2"></div> {/* Divider */}
-          <Globe size={18} className="text-slate-600" />
+          {/* Divider - hidden on mobile */}
+          <div className="hidden sm:block h-6 w-px bg-slate-200 mx-1 sm:mx-2"></div>
+          {/* Globe icon - hidden on mobile */}
+          <Globe size={18} className="hidden sm:block text-slate-600" />
           <Select
             value={language}
             onChange={handleLanguageChange}
-            className="w-32 rounded-xl border-slate-200 bg-white/80 backdrop-blur-sm shadow-sm hover:border-slate-300 transition-colors"
+            className="w-20 sm:w-32 text-xs sm:text-sm rounded-xl border-slate-200 bg-white/80 backdrop-blur-sm shadow-sm hover:border-slate-300 transition-colors"
           >
             <option value="en">English</option>
-            <option value="hi">हिंदी (Hindi)</option>
-            <option value="te">తెలుగు (Telugu)</option>
-            <option value="kn">ಕನ್ನಡ (Kannada)</option>
-            <option value="ta">தமிழ் (Tamil)</option>
-            <option value="ml">മലയാളം (Malayalam)</option>
-            <option value="mr">मराठी (Marathi)</option>
+            <option value="hi">हिंदी</option>
+            <option value="te">తెలుగు</option>
+            <option value="kn">ಕನ್ನಡ</option>
+            <option value="ta">தமிழ்</option>
+            <option value="ml">മലയാളം</option>
+            <option value="mr">मराठी</option>
           </Select>
         </div>
 
-        {/* Notifications - Using new Communications NotificationDropdown */}
+        {/* Notifications - Using Communications NotificationDropdown */}
         <NotificationDropdown />
 
         {/* User Profile */}
@@ -104,9 +133,9 @@ const Header = () => {
           <button
             onClick={() => {
               setShowProfile(!showProfile);
-              setShowNotifications(false); // Close notifications when opening profile
+              setShowNotifications(false);
             }}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100/60 transition-all duration-200 hover:scale-105"
+            className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-xl hover:bg-slate-100/60 transition-all duration-200 hover:scale-105"
           >
             <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-600 to-primary-700 flex items-center justify-center text-white text-sm font-semibold shadow-blue-glow ring-2 ring-primary-100">
               {user?.name.charAt(0).toUpperCase()}
@@ -141,10 +170,3 @@ const Header = () => {
 };
 
 export default Header;
-
-
-
-
-
-
-

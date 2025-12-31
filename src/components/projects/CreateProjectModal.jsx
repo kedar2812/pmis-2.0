@@ -148,16 +148,16 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
+          className="w-full max-w-4xl bg-white rounded-xl sm:rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-white z-10">
+          <div className="p-4 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white z-10">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">Create New Project</h2>
-              <p className="text-sm text-slate-500">Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1].title}</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Create New Project</h2>
+              <p className="text-xs sm:text-sm text-slate-500">Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1].title}</p>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
               <X size={24} className="text-slate-500" />
             </button>
           </div>
@@ -173,7 +173,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
           </div>
 
           {/* Form Content */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={currentStep}
@@ -379,21 +379,22 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-between">
+          <div className="p-4 sm:p-6 border-t border-slate-100 bg-slate-50 flex flex-col sm:flex-row justify-between gap-3">
             <Button
               variant="outline"
               onClick={currentStep === 1 ? onClose : handleBack}
               disabled={isSubmitting}
+              className="min-h-[44px]"
             >
               {currentStep === 1 ? 'Cancel' : 'Back'}
             </Button>
 
             {currentStep < STEPS.length ? (
-              <Button onClick={handleNext} className="bg-primary-950 text-white hover:bg-primary-900">
+              <Button onClick={handleNext} className="min-h-[44px] bg-primary-950 text-white hover:bg-primary-900">
                 Next Step <ChevronRight size={16} className="ml-1" />
               </Button>
             ) : (
-              <Button onClick={handleSubmit} disabled={isSubmitting} className="bg-green-600 text-white hover:bg-green-700">
+              <Button onClick={handleSubmit} disabled={isSubmitting} className="min-h-[44px] bg-green-600 text-white hover:bg-green-700">
                 {isSubmitting ? <Loader2 className="animate-spin" /> : 'Create Project'}
               </Button>
             )}
