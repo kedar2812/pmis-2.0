@@ -21,7 +21,7 @@ const MetricsDetailModal = ({ isOpen, onClose, title, description, items, docume
     // Render using portal to escape parent stacking contexts
     return createPortal(
         <AnimatePresence>
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
                 {/* Backdrop */}
                 <motion.div
                     initial={{ opacity: 0 }}

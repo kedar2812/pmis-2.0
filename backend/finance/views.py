@@ -463,6 +463,72 @@ class RABillViewSet(viewsets.ModelViewSet):
             qs = qs.filter(status=status_param)
         return qs.order_by('-created_at')
 
+    @action(detail=False, methods=['post'])
+    def calculate_etp(self, request):
+        """
+        Calculate ETP deductions for a given gross amount.
+        
+        This endpoint fetches active ETP charges from the masters table
+        and calculates all applicable deductions, recoveries, and levies.
+        
+        Request body:
+        {
+            "gross_amount": 1000000,
+            "gst_percentage": 18,
+            "retention_percentage": 5,
+            "other_deductions": 0,
+            "advances_recovery": 0,
+            "works_component": null,
+            "material_cost": null,
+            "labour_cost": null
+        }
+        
+        Returns: Complete bill summary with all calculated charges.
+        """
+        try:
+            from finance.services import ETPCalculationService
+            from decimal import Decimal
+            
+            gross_amount = request.data.get('gross_amount', 0)
+            gst_percentage = request.data.get('gst_percentage', 18)
+            retention_percentage = request.data.get('retention_percentage', 0)
+            other_deductions = request.data.get('other_deductions', 0)
+            advances_recovery = request.data.get('advances_recovery', 0)
+            works_component = request.data.get('works_component')
+            material_cost = request.data.get('material_cost')
+            labour_cost = request.data.get('labour_cost')
+            
+            if not gross_amount or float(gross_amount) <= 0:
+                return Response({'error': 'Valid gross_amount is required'}, status=400)
+            
+            service = ETPCalculationService()
+            
+            summary = service.generate_bill_summary(
+                gross_amount=Decimal(str(gross_amount)),
+                gst_percentage=Decimal(str(gst_percentage)),
+                works_component=Decimal(str(works_component)) if works_component else None,
+                material_cost=Decimal(str(material_cost)) if material_cost else None,
+                labour_cost=Decimal(str(labour_cost)) if labour_cost else None,
+                other_deductions=Decimal(str(other_deductions)),
+                advances_recovery=Decimal(str(advances_recovery)),
+                retention_percentage=Decimal(str(retention_percentage)),
+            )
+            
+            return Response(summary)
+            
+        except ImportError as e:
+            return Response({
+                'error': 'ETP calculation service not available',
+                'detail': str(e)
+            }, status=500)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response({
+                'error': 'Calculation failed',
+                'detail': str(e)
+            }, status=500)
+
     @action(detail=True, methods=['post'])
     def verify(self, request, pk=None):
         bill = self.get_object()
@@ -496,4 +562,5 @@ class RABillViewSet(viewsets.ModelViewSet):
         bill.save()
         
         return Response({'status': 'paid', 'fund_balance': fund.balance_available})
+
 

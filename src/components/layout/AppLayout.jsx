@@ -75,7 +75,7 @@ const AppLayout = () => {
         className="relative min-h-screen"
       >
         <Header isDesktop={isDesktop} />
-        <main className="p-4 sm:p-6 pt-20">
+        <main className="px-4 sm:px-6 pb-4 sm:pb-6" style={{ paddingTop: '88px' }}>
           <Breadcrumbs />
           <AnimatePresence mode="wait" initial={false}>
             <motion.div

@@ -231,6 +231,13 @@ const Sidebar = () => {
       path: '/admin/audit-logs',
       permission: 'users:manage',
     },
+    {
+      id: 'master-data',
+      label: 'Master Data',
+      icon: Building2,
+      path: '/admin/master-data',
+      permission: 'users:manage',
+    },
   ];
 
   const visibleItems = menuItems.filter((item) => hasPermission(item.permission));

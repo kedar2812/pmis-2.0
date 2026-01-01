@@ -108,6 +108,17 @@ export const GenerateBillModal = ({
         }
     }, [isOpen]);
 
+    // ESC key handler
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && isOpen) {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [isOpen, onClose]);
+
     // Update TDS Rate based on Category
     useEffect(() => {
         const categoryMap = {
@@ -227,7 +238,7 @@ export const GenerateBillModal = ({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm print:bg-white print:static print:inset-auto"
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm print:bg-white print:static print:inset-auto"
                 >
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}

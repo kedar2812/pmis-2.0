@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, PieChart, ArrowRight, Coins } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, PieChart, ArrowRight, Coins, X } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import financeService from '@/services/financeService';
 import schedulingService from '@/services/schedulingService';
@@ -20,6 +22,17 @@ const Budgeting = () => {
     useEffect(() => {
         loadInitData();
     }, []);
+
+    // ESC key handler for modal
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && isModalOpen) {
+                setIsModalOpen(false);
+            }
+        };
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [isModalOpen]);
 
     const loadInitData = async () => {
         try {
@@ -157,57 +170,87 @@ const Budgeting = () => {
             </div>
 
             {/* Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl shadow-2xl p-6 w-96">
-                        <h2 className="text-lg font-bold mb-4">Allocate Budget</h2>
-                        <form onSubmit={handleSave} className="space-y-4">
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700">Cost Category</label>
-                                <select name="cost_category" className="w-full border rounded p-2 text-sm">
-                                    <option value="civil_works">Civil Works</option>
-                                    <option value="electrical">Electrical</option>
-                                    <option value="plumbing">Plumbing</option>
-                                    <option value="consultancy">Consultancy</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700">Select Milestone (Required)</label>
-                                <select name="milestone" required className="w-full border rounded p-2 text-sm bg-amber-50 border-amber-200">
-                                    <option value="">Select a Scheduled Milestone...</option>
-                                    {milestones.map(m => (
-                                        <option key={m.id} value={m.id}>{m.name} ({m.progress}%)</option>
-                                    ))}
-                                </select>
-                                {milestones.length === 0 && (
-                                    <p className="text-[10px] text-red-500 mt-1">No Milestones found. Go to Schedule to create one.</p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700">Fund Source</label>
-                                <select name="fund_head" required className="w-full border rounded p-2 text-sm">
-                                    <option value="">Select Fund...</option>
-                                    {funds.map(f => (
-                                        <option key={f.id} value={f.id}>{f.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700">Amount to Allocate (INR)</label>
-                                <input name="amount" type="number" required className="w-full border rounded p-2 text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700">Description</label>
-                                <textarea name="description" className="w-full border rounded p-2 text-sm" rows="2"></textarea>
-                            </div>
+            {createPortal(
+                <AnimatePresence>
+                    {isModalOpen && (
+                        <>
+                            {/* Backdrop */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setIsModalOpen(false)}
+                                className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm"
+                            />
+                            {/* Modal Content */}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                transition={{ duration: 0.2 }}
+                                className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none"
+                            >
+                                <div className="bg-white rounded-xl shadow-2xl p-6 w-96 pointer-events-auto">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h2 className="text-lg font-bold">Allocate Budget</h2>
+                                        <button
+                                            onClick={() => setIsModalOpen(false)}
+                                            className="p-1 hover:bg-slate-100 rounded-full transition-colors"
+                                        >
+                                            <X size={18} className="text-slate-500" />
+                                        </button>
+                                    </div>
+                                    <form onSubmit={handleSave} className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-700">Cost Category</label>
+                                            <select name="cost_category" className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
+                                                <option value="civil_works">Civil Works</option>
+                                                <option value="electrical">Electrical</option>
+                                                <option value="plumbing">Plumbing</option>
+                                                <option value="consultancy">Consultancy</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-700">Select Milestone (Required)</label>
+                                            <select name="milestone" required className="w-full border border-amber-200 bg-amber-50 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
+                                                <option value="">Select a Scheduled Milestone...</option>
+                                                {milestones.map(m => (
+                                                    <option key={m.id} value={m.id}>{m.name} ({m.progress}%)</option>
+                                                ))}
+                                            </select>
+                                            {milestones.length === 0 && (
+                                                <p className="text-[10px] text-red-500 mt-1">No Milestones found. Go to Schedule to create one.</p>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-700">Fund Source</label>
+                                            <select name="fund_head" required className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
+                                                <option value="">Select Fund...</option>
+                                                {funds.map(f => (
+                                                    <option key={f.id} value={f.id}>{f.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-700">Amount to Allocate (INR)</label>
+                                            <input name="amount" type="number" required className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-700">Description</label>
+                                            <textarea name="description" className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none" rows="2"></textarea>
+                                        </div>
 
-                            <div className="grid grid-cols-2 gap-2 pt-4">
-                                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                                <Button type="submit" disabled={milestones.length === 0} className="bg-primary-600 text-white">Allocate</Button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                                        <div className="grid grid-cols-2 gap-2 pt-4">
+                                            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                                            <Button type="submit" disabled={milestones.length === 0} className="bg-primary-600 text-white">Allocate</Button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>,
+                document.body
             )}
         </div>
     );

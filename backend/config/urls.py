@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/communications/', include('communications.urls')),
     path('api/finance/', include('finance.urls')),
     path('api/scheduling/', include('scheduling.urls')),
+    path('api/masters/', include('masters.urls')),
     path('api/audit/logs/', audit_views.unified_audit_logs, name='unified_audit_logs'),
 ]
 

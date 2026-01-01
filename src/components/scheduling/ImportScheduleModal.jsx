@@ -7,7 +7,7 @@
  * 2. Map columns to database fields
  * 3. View import results
  */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
@@ -53,6 +53,17 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [importResult, setImportResult] = useState(null);
     const [importError, setImportError] = useState(null);
+
+    // ESC key handler
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && !importing && !analyzing) {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [onClose, importing, analyzing]);
 
     // File drop handler
     const onDrop = useCallback(async (acceptedFiles, rejections) => {
@@ -187,8 +198,8 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
             {[1, 2, 3].map((s) => (
                 <div key={s} className="flex items-center">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${step >= s
-                            ? 'bg-primary-600 text-white'
-                            : 'bg-slate-200 text-slate-500'
+                        ? 'bg-primary-600 text-white'
+                        : 'bg-slate-200 text-slate-500'
                         }`}>
                         {step > s ? <CheckCircle2 size={16} /> : s}
                     </div>
@@ -211,8 +222,8 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
             <div
                 {...getRootProps()}
                 className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${isDragActive
-                        ? 'border-primary-500 bg-primary-50'
-                        : 'border-slate-300 hover:border-slate-400 hover:bg-slate-50'
+                    ? 'border-primary-500 bg-primary-50'
+                    : 'border-slate-300 hover:border-slate-400 hover:bg-slate-50'
                     }`}
             >
                 <input {...getInputProps()} />
@@ -282,8 +293,8 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
                                 value={mapping[field.key] || ''}
                                 onChange={(e) => handleMappingChange(field.key, e.target.value)}
                                 className={`flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${field.required && !mapping[field.key]
-                                        ? 'border-amber-300 bg-amber-50'
-                                        : 'border-slate-200 bg-white'
+                                    ? 'border-amber-300 bg-amber-50'
+                                    : 'border-slate-200 bg-white'
                                     }`}
                             >
                                 <option value="">-- Select Column --</option>
@@ -356,7 +367,7 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
     );
 
     return createPortal(
-        <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}

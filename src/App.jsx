@@ -25,6 +25,7 @@ import Reimbursement from './pages/Reimbursement';
 import RoleManager from './pages/RoleManager';
 import ProjectDetailsPage from './pages/ProjectDetailsPage';
 import AuditLogs from './pages/admin/AuditLogs';
+import MasterData from './pages/admin/MasterData';
 import UserManagement from './pages/UserManagement';
 
 import EDMS from './pages/EDMS';
@@ -76,6 +77,7 @@ const AppRoutes = () => {
         <Route path="workflow" element={<WorkflowConfig />} />
         <Route path="reimbursement" element={<Reimbursement />} />
         <Route path="admin/roles" element={<RoleManager />} />
+        <Route path="admin/master-data" element={<MasterData />} />
         <Route path="communications" element={<Communications />} />
         <Route path="communications/:threadId" element={<Communications />} />
         <Route path="approvals" element={<Approvals />} />

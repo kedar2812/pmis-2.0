@@ -137,7 +137,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
         className="space-y-6"
       >
         {/* Header Section */}
-        <motion.div variants={itemVariants} className="flex justify-between items-center">
+        <motion.div variants={itemVariants} className="flex justify-between items-center mt-4">
           <div>
             <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
               {t('role.SPV_Official')} {t('dashboard.overview')}

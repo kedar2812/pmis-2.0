@@ -36,6 +36,17 @@ const DocumentDetailModal = ({
         fetchDocumentDetails();
     }, [initialDoc.id]);
 
+    // ESC key handler
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && !actionLoading) {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [onClose, actionLoading]);
+
     const fetchDocumentDetails = async () => {
         try {
             const res = await client.get(`/edms/documents/${initialDoc.id}/`);
@@ -205,7 +216,7 @@ const DocumentDetailModal = ({
 
     if (loading) {
         return createPortal(
-            <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
+            <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
                 <Loader2 size={32} className="animate-spin text-white" />
             </div>,
             window.document.body
@@ -213,7 +224,7 @@ const DocumentDetailModal = ({
     }
 
     return createPortal(
-        <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
