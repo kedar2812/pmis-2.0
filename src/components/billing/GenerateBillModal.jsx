@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save, Printer, RefreshCw, Calculator, FileText, IndianRupee, AlertCircle, Eye, CheckCircle, ArrowLeft } from 'lucide-react';
+import { X, Save, Printer, RefreshCw, Calculator, FileText, IndianRupee, AlertCircle, Eye, CheckCircle, ArrowLeft, Loader2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { toast } from 'sonner';
 import { RABillTemplate } from './RABillTemplate';
-import financeService from '@/services/financeService';
+import financeService from '@/api/services/financeService';
 
 export const GenerateBillModal = ({
     isOpen,
@@ -64,7 +64,7 @@ export const GenerateBillModal = ({
 
     const [formData, setFormData] = useState({
         projectId: '',
-        milestoneId: '', // Added
+        milestoneId: '',
         packageCode: '',
         contractorId: '',
         workOrderNo: '',
@@ -74,9 +74,6 @@ export const GenerateBillModal = ({
         submissionDate: new Date().toISOString().split('T')[0],
         grossAmount: 0,
         gstRate: 18,
-        tdsCategory: '194C - Individual / HUF (1%)', // Default
-        tdsRate: 1,
-        labourCessRate: 1,
         retentionRate: 5,
         mobilizationRecovery: 0,
         materialRecovery: 0,
@@ -89,13 +86,18 @@ export const GenerateBillModal = ({
 
     const [calculations, setCalculations] = useState({
         gstAmount: 0,
-        totalAmount: 0, // Gross + GST
-        tdsAmount: 0,
-        labourCessAmount: 0,
+        totalAmount: 0,
+        statutoryDeductions: [], // Dynamic from ETPMaster
+        totalStatutoryDeductions: 0,
         retentionAmount: 0,
         totalDeductions: 0,
         netPayable: 0
     });
+
+    // ETP Calculation State
+    const [etpLoading, setEtpLoading] = useState(false);
+    const [etpError, setEtpError] = useState(null);
+    const etpDebounceRef = useRef(null);
 
     // Reset on open
     useEffect(() => {
@@ -119,52 +121,117 @@ export const GenerateBillModal = ({
         return () => window.removeEventListener('keydown', handleEscape);
     }, [isOpen, onClose]);
 
-    // Update TDS Rate based on Category
+    // MAIN CALCULATION LOGIC - Uses Backend ETP Service
+    const calculateETP = useCallback(async (grossAmount, gstRate, retentionRate) => {
+        if (!grossAmount || grossAmount <= 0) {
+            setCalculations(prev => ({
+                ...prev,
+                gstAmount: 0,
+                totalAmount: 0,
+                statutoryDeductions: [],
+                totalStatutoryDeductions: 0,
+                retentionAmount: 0,
+                totalDeductions: 0,
+                netPayable: 0
+            }));
+            return;
+        }
+
+        setEtpLoading(true);
+        setEtpError(null);
+
+        try {
+            // Calculate manual deductions
+            const manualDeductions =
+                (parseFloat(formData.mobilizationRecovery) || 0) +
+                (parseFloat(formData.materialRecovery) || 0) +
+                (parseFloat(formData.penaltyAmount) || 0) +
+                (parseFloat(formData.priceAdjustment) || 0) +
+                (parseFloat(formData.insuranceRecovery) || 0) +
+                (parseFloat(formData.otherDeductions) || 0);
+
+            // Call backend ETP calculation API
+            const response = await financeService.calculateETP({
+                gross_amount: grossAmount,
+                gst_percentage: gstRate,
+                retention_percentage: retentionRate,
+                other_deductions: manualDeductions,
+                advances_recovery: (parseFloat(formData.mobilizationRecovery) || 0) + (parseFloat(formData.materialRecovery) || 0)
+            });
+
+            const summary = response.data;
+
+            // Extract all statutory charges (deductions + levies + recoveries)
+            const allCharges = [
+                ...(summary.statutory_charges?.deductions || []),
+                ...(summary.statutory_charges?.recoveries || []),
+                ...(summary.statutory_charges?.levies || [])
+            ];
+
+            setCalculations({
+                gstAmount: summary.gst_amount || 0,
+                totalAmount: summary.total_before_deductions || (grossAmount + (grossAmount * gstRate / 100)),
+                statutoryDeductions: allCharges,
+                totalStatutoryDeductions: summary.total_statutory_deductions || 0,
+                retentionAmount: summary.retention_amount || 0,
+                totalDeductions: summary.total_deductions || 0,
+                netPayable: summary.net_payable || 0
+            });
+
+        } catch (err) {
+            console.error('ETP calculation failed:', err);
+            setEtpError('Failed to calculate statutory deductions');
+
+            // Fallback to basic calculation if API fails
+            const gross = parseFloat(grossAmount) || 0;
+            const gstAmount = (gross * gstRate) / 100;
+            const totalAmount = gross + gstAmount;
+            const retentionAmount = (gross * retentionRate) / 100;
+
+            const manualDeductions =
+                (parseFloat(formData.mobilizationRecovery) || 0) +
+                (parseFloat(formData.materialRecovery) || 0) +
+                (parseFloat(formData.penaltyAmount) || 0) +
+                (parseFloat(formData.priceAdjustment) || 0) +
+                (parseFloat(formData.insuranceRecovery) || 0) +
+                (parseFloat(formData.otherDeductions) || 0);
+
+            setCalculations({
+                gstAmount,
+                totalAmount,
+                statutoryDeductions: [],
+                totalStatutoryDeductions: 0,
+                retentionAmount,
+                totalDeductions: retentionAmount + manualDeductions,
+                netPayable: totalAmount - retentionAmount - manualDeductions
+            });
+        } finally {
+            setEtpLoading(false);
+        }
+    }, [formData.mobilizationRecovery, formData.materialRecovery, formData.penaltyAmount, formData.priceAdjustment, formData.insuranceRecovery, formData.otherDeductions]);
+
+    // Debounced ETP calculation trigger
     useEffect(() => {
-        const categoryMap = {
-            '194C - Individual / HUF (1%)': 1,
-            '194C - Others (2%)': 2,
-            '194J - Professional Fees (10%)': 10
+        // Clear existing timeout
+        if (etpDebounceRef.current) {
+            clearTimeout(etpDebounceRef.current);
+        }
+
+        // Set new debounced calculation (500ms delay)
+        etpDebounceRef.current = setTimeout(() => {
+            calculateETP(
+                parseFloat(formData.grossAmount) || 0,
+                parseFloat(formData.gstRate) || 18,
+                parseFloat(formData.retentionRate) || 0
+            );
+        }, 500);
+
+        return () => {
+            if (etpDebounceRef.current) {
+                clearTimeout(etpDebounceRef.current);
+            }
         };
-        setFormData(prev => ({
-            ...prev,
-            tdsRate: categoryMap[prev.tdsCategory] || 0
-        }));
-    }, [formData.tdsCategory]);
-
-    // MAIN CALCULATION LOGIC
-    useEffect(() => {
-        const gross = parseFloat(formData.grossAmount) || 0;
-        const gstAmount = (gross * formData.gstRate) / 100;
-        const totalAmount = gross + gstAmount;
-        const tdsAmount = (gross * formData.tdsRate) / 100;
-        const labourCessAmount = (gross * formData.labourCessRate) / 100;
-        const retentionAmount = (gross * formData.retentionRate) / 100;
-
-        const totalDeductions =
-            tdsAmount +
-            labourCessAmount +
-            retentionAmount +
-            (parseFloat(formData.mobilizationRecovery) || 0) +
-            (parseFloat(formData.materialRecovery) || 0) +
-            (parseFloat(formData.penaltyAmount) || 0) +
-            (parseFloat(formData.priceAdjustment) || 0) +
-            (parseFloat(formData.insuranceRecovery) || 0) +
-            (parseFloat(formData.otherDeductions) || 0);
-
-        const netPayable = totalAmount - totalDeductions;
-
-        setCalculations({
-            gstAmount,
-            totalAmount,
-            tdsAmount,
-            labourCessAmount,
-            retentionAmount,
-            totalDeductions,
-            netPayable
-        });
-
-    }, [formData]);
+    }, [formData.grossAmount, formData.gstRate, formData.retentionRate, formData.mobilizationRecovery, formData.materialRecovery, formData.penaltyAmount, formData.priceAdjustment, formData.insuranceRecovery, formData.otherDeductions, calculateETP]);
 
     // Check for budget overspend when milestoneId or grossAmount changes
     useEffect(() => {
@@ -357,25 +424,31 @@ export const GenerateBillModal = ({
 
                                             {/* Section 3: Deductions */}
                                             <div className="space-y-4">
-                                                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 flex items-center gap-2"><AlertCircle size={16} /> Deductions</h3>
+                                                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 flex items-center gap-2"><AlertCircle size={16} /> Deductions & Recoveries</h3>
 
-                                                <div className="bg-slate-50 p-3 rounded-lg space-y-3">
-                                                    <label className="block text-xs font-bold text-slate-700">TDS Category</label>
-                                                    <select name="tdsCategory" value={formData.tdsCategory} onChange={handleChange} className="w-full px-3 py-2 border rounded-md text-sm">
-                                                        <option>194C - Individual / HUF (1%)</option>
-                                                        <option>194C - Others (2%)</option>
-                                                        <option>194J - Professional Fees (10%)</option>
-                                                    </select>
+                                                {/* Statutory Deductions Info */}
+                                                <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                                                    <div className="flex items-start gap-2">
+                                                        <Calculator size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                                                        <div>
+                                                            <p className="text-xs font-semibold text-blue-800">Statutory Deductions (Auto-Calculated)</p>
+                                                            <p className="text-xs text-blue-600 mt-1">
+                                                                TDS, Labour Cess, and other statutory charges are automatically calculated based on
+                                                                <span className="font-semibold"> ETP Master</span> rates configured in Admin → Master Data.
+                                                            </p>
+                                                        </div>
+                                                    </div>
                                                 </div>
 
+                                                {/* Retention Rate - User configurable per project */}
                                                 <div className="grid grid-cols-2 gap-4">
-                                                    <Input label="Labour Cess Rate (%)" name="labourCessRate" type="number" value={formData.labourCessRate} onChange={handleChange} />
-                                                    <Input label="Retention Rate (%)" name="retentionRate" type="number" value={formData.retentionRate} onChange={handleChange} />
+                                                    <Input label="Security Deposit / Retention (%)" name="retentionRate" type="number" value={formData.retentionRate} onChange={handleChange} />
                                                 </div>
 
+                                                {/* Advance Recoveries */}
                                                 <div className="grid grid-cols-2 gap-4 bg-orange-50/50 p-2 rounded">
-                                                    <Input label="Mobilization Recoveries" name="mobilizationRecovery" type="number" value={formData.mobilizationRecovery} onChange={handleChange} />
-                                                    <Input label="Material Recoveries" name="materialRecovery" type="number" value={formData.materialRecovery} onChange={handleChange} />
+                                                    <Input label="Mobilization Advance Recovery" name="mobilizationRecovery" type="number" value={formData.mobilizationRecovery} onChange={handleChange} />
+                                                    <Input label="Material Advance Recovery" name="materialRecovery" type="number" value={formData.materialRecovery} onChange={handleChange} />
                                                 </div>
 
                                                 <div className="grid grid-cols-2 gap-4 bg-red-50/50 p-2 rounded">
@@ -399,12 +472,40 @@ export const GenerateBillModal = ({
                                             <div className="h-px bg-slate-300 my-2" />
                                             <SummaryRow label="Total (Incl. GST)" value={calculations.totalAmount} bold />
 
-                                            <div className="mt-6 mb-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Deductions</div>
-                                            <SummaryRow label="TDS" value={calculations.tdsAmount} isDeduction />
-                                            <SummaryRow label="Labour Cess" value={calculations.labourCessAmount} isDeduction />
-                                            <SummaryRow label="Retention" value={calculations.retentionAmount} isDeduction />
-                                            <SummaryRow label="Recoveries" value={(parseFloat(formData.mobilizationRecovery) || 0) + (parseFloat(formData.materialRecovery) || 0)} isDeduction />
-                                            <SummaryRow label="Other Deductions" value={(parseFloat(formData.penaltyAmount) || 0) + (parseFloat(formData.priceAdjustment) || 0) + (parseFloat(formData.insuranceRecovery) || 0) + (parseFloat(formData.otherDeductions) || 0)} isDeduction />
+                                            <div className="mt-6 mb-2 text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                                                Statutory Deductions
+                                                {etpLoading && <Loader2 size={12} className="animate-spin text-primary-500" />}
+                                            </div>
+
+                                            {etpError && (
+                                                <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded mb-2 flex items-center gap-1">
+                                                    <AlertCircle size={12} />
+                                                    {etpError} - Using fallback calculation
+                                                </div>
+                                            )}
+
+                                            {/* Dynamic Statutory Charges from ETPMaster */}
+                                            {calculations.statutoryDeductions.length > 0 ? (
+                                                calculations.statutoryDeductions.map((charge, idx) => (
+                                                    <SummaryRow
+                                                        key={charge.code || idx}
+                                                        label={`${charge.name} (${charge.rate_percentage}%)`}
+                                                        value={charge.calculated_amount}
+                                                        subtext={charge.basis}
+                                                        isDeduction
+                                                    />
+                                                ))
+                                            ) : (
+                                                <p className="text-xs text-slate-400 italic">No statutory charges configured</p>
+                                            )}
+
+                                            {/* Retention / Security Deposit */}
+                                            <SummaryRow label={`Retention (${formData.retentionRate}%)`} value={calculations.retentionAmount} isDeduction />
+
+                                            {/* Manual Deductions */}
+                                            <div className="mt-4 mb-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Recoveries & Other</div>
+                                            <SummaryRow label="Advance Recoveries" value={(parseFloat(formData.mobilizationRecovery) || 0) + (parseFloat(formData.materialRecovery) || 0)} isDeduction />
+                                            <SummaryRow label="Penalties & Adjustments" value={(parseFloat(formData.penaltyAmount) || 0) + (parseFloat(formData.priceAdjustment) || 0) + (parseFloat(formData.insuranceRecovery) || 0) + (parseFloat(formData.otherDeductions) || 0)} isDeduction />
 
                                             <div className="h-px bg-slate-300 my-4" />
 
