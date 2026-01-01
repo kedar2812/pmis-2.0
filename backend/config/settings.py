@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'django_filters',
     
     # Local Apps
     # Local Apps
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'finance',
     'scheduling',
     'banks.apps.BanksConfig',
+    'masters',
 ]
 
 MIDDLEWARE = [

@@ -95,7 +95,7 @@ const AddParticipantsModal = ({ thread, onClose, onAdded }) => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]"
                 onClick={onClose}
             >
                 <motion.div
@@ -180,8 +180,8 @@ const AddParticipantsModal = ({ thread, onClose, onAdded }) => {
                                             key={user.id}
                                             onClick={() => toggleUserSelection(user)}
                                             className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all ${isSelected
-                                                    ? 'border-primary-500 bg-primary-50'
-                                                    : 'border-slate-200 hover:border-primary-300 hover:bg-slate-50'
+                                                ? 'border-primary-500 bg-primary-50'
+                                                : 'border-slate-200 hover:border-primary-300 hover:bg-slate-50'
                                                 }`}
                                         >
                                             <div className="flex items-center gap-3">

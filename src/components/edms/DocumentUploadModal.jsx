@@ -46,6 +46,17 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
         fetchFolders();
     }, [projectId]);
 
+    // ESC key handler
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && !isUploading) {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [onClose, isUploading]);
+
     const fetchFolders = async () => {
         setLoadingFolders(true);
         try {
@@ -233,7 +244,7 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
     };
 
     return createPortal(
-        <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}

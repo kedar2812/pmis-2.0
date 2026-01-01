@@ -122,7 +122,7 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
         animate={{ opacity: 1, backdropFilter: 'blur(12px)' }}
         exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className="fixed inset-0 z-[50] flex items-center justify-center p-4 bg-black/60"
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
         style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
         onClick={onClose}
       >

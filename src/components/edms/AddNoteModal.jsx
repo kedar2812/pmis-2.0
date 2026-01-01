@@ -8,7 +8,7 @@
  * - Ruling action (for RULING type)
  * - Save as Draft vs Submit
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import {
@@ -35,6 +35,17 @@ const AddNoteModal = ({
     });
     const [saving, setSaving] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+
+    // ESC key handler
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && !saving && !submitting) {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [onClose, saving, submitting]);
 
     const noteTypes = [
         { value: 'REMARK', label: 'Remark/Observation', icon: MessageSquare, color: 'text-slate-600' },
@@ -83,7 +94,7 @@ const AddNoteModal = ({
     };
 
     return createPortal(
-        <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}

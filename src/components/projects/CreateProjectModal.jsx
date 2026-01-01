@@ -9,6 +9,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SmartInput } from '@/components/ui/SmartInput';
 import { useModalClose } from '@/hooks/useModalClose';
+import ChainedHierarchySelector from '@/components/masters/ChainedHierarchySelector';
+import GeographySelector from '@/components/masters/GeographySelector';
+import ClassificationSelector from '@/components/masters/ClassificationSelector';
 
 const STEPS = [
   { id: 1, title: 'General Info' },
@@ -38,19 +41,35 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
     budget: '',
     manager: user?.name || '',
 
-    // Step 2: Location
-    division: '',
-    zone: '',
-    subDivision: '',
-    circle: '',
-    district: '',
-    town: '',
+    // Step 2: Location (hierarchy + geography)
+    hierarchy: {
+      zone: '',
+      zoneName: '',
+      circle: '',
+      circleName: '',
+      division: '',
+      divisionName: '',
+      subDivision: '',
+      subDivisionName: '',
+    },
+    geography: {
+      district: '',
+      districtName: '',
+      town: '',
+      townName: '',
+    },
 
     // Step 3: Classification
-    scheme: '',
-    schemeType: '',
-    workType: '',
-    projectCategory: '',
+    classification: {
+      schemeType: '',
+      schemeTypeName: '',
+      scheme: '',
+      schemeName: '',
+      workType: '',
+      workTypeName: '',
+      projectCategory: '',
+      projectCategoryName: '',
+    },
 
     // Step 4: Funding (Array of objects)
     fundingPattern: [
@@ -71,7 +90,6 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
 
   const validateStep = (step) => {
     const newErrors = {};
-    let isValid = true;
 
     if (step === 1) {
       if (!formData.name.trim()) newErrors.name = t('project.projectNameRequired');
@@ -80,8 +98,21 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
       if (!formData.budget) newErrors.budget = t('project.validBudgetRequired');
     }
 
-    // Add validations for other steps as strictly or loosely as needed
-    // For now, keeping it basic to allow navigation
+    if (step === 2) {
+      // Administrative Hierarchy - Zone and Division are mandatory
+      if (!formData.hierarchy.zone) newErrors.zone = 'Zone is required';
+      if (!formData.hierarchy.division) newErrors.division = 'Division is required';
+      // Geography - District is mandatory
+      if (!formData.geography.district) newErrors.district = 'District is required';
+    }
+
+    if (step === 3) {
+      // Classification - all fields required
+      if (!formData.classification.schemeType) newErrors.schemeType = 'Scheme Type is required';
+      if (!formData.classification.scheme) newErrors.scheme = 'Scheme is required';
+      if (!formData.classification.workType) newErrors.workType = 'Work Type is required';
+      if (!formData.classification.projectCategory) newErrors.projectCategory = 'Project Category is required';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -111,17 +142,55 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
 
     setIsSubmitting(true);
     try {
+      // Flatten nested objects for API
       const projectData = {
-        ...formData,
+        name: formData.name,
+        description: formData.description,
+        status: formData.status,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        budget: formData.budget,
+        manager: formData.manager,
+
+        // Hierarchy (store IDs for relations, names for display)
+        zone: formData.hierarchy.zone,
+        zoneName: formData.hierarchy.zoneName,
+        circle: formData.hierarchy.circle,
+        circleName: formData.hierarchy.circleName,
+        division: formData.hierarchy.division,
+        divisionName: formData.hierarchy.divisionName,
+        subDivision: formData.hierarchy.subDivision,
+        subDivisionName: formData.hierarchy.subDivisionName,
+
+        // Geography
+        district: formData.geography.district,
+        districtName: formData.geography.districtName,
+        town: formData.geography.town,
+        townName: formData.geography.townName,
+
+        // Classification
+        schemeType: formData.classification.schemeType,
+        schemeTypeName: formData.classification.schemeTypeName,
+        scheme: formData.classification.scheme,
+        schemeName: formData.classification.schemeName,
+        workType: formData.classification.workType,
+        workTypeName: formData.classification.workTypeName,
+        projectCategory: formData.classification.projectCategory,
+        projectCategoryName: formData.classification.projectCategoryName,
+
+        // Funding & Approvals
+        fundingPattern: formData.fundingPattern,
+        adminApprovalNo: formData.adminApprovalNo,
+        adminApprovalDate: formData.adminApprovalDate,
+
+        // Computed/default fields
         progress: 0,
         spent: 0,
         location: {
-          // Combine detailed location into a display string or object
-          address: `${formData.town}, ${formData.district}, ${formData.state || ''}`,
-          ...formData.location
+          address: `${formData.geography.townName || ''}, ${formData.geography.districtName || ''}`.replace(/^, |, $/g, ''),
         },
         stakeholders: [],
-        category: formData.projectCategory || 'General',
+        category: formData.classification.projectCategoryName || 'General',
       };
 
       await onSave(projectData);
@@ -250,35 +319,65 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
 
                 {/* STEP 2: LOCATION */}
                 {currentStep === 2 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {['Division', 'Zone', 'Sub Division', 'Circle', 'District', 'Town'].map((field) => (
-                      <div key={field}>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">{field}</label>
-                        <input
-                          value={formData[field.toLowerCase().replace(' ', '')]}
-                          onChange={(e) => setFormData({ ...formData, [field.toLowerCase().replace(' ', '')]: e.target.value })}
-                          className="w-full p-2 border border-slate-200 rounded-lg"
-                          placeholder={`Enter ${field}`}
-                        />
+                  <div className="space-y-6">
+                    {/* Validation errors summary */}
+                    {Object.keys(errors).length > 0 && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <p className="text-sm font-medium text-red-800">Please fill in the required fields:</p>
+                        <ul className="mt-1 text-sm text-red-600 list-disc list-inside">
+                          {errors.zone && <li>Zone is required</li>}
+                          {errors.division && <li>Division is required</li>}
+                          {errors.district && <li>District is required</li>}
+                        </ul>
                       </div>
-                    ))}
+                    )}
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-xs">1</span>
+                        Administrative Hierarchy <span className="text-red-500">*</span>
+                      </h3>
+                      <ChainedHierarchySelector
+                        value={formData.hierarchy}
+                        onChange={(val) => setFormData({ ...formData, hierarchy: val })}
+                      />
+                      <p className="text-xs text-slate-400 mt-2">Zone and Division are required</p>
+                    </div>
+                    <div className="border-t border-slate-100 pt-6">
+                      <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs">2</span>
+                        Geographic Location <span className="text-red-500">*</span>
+                      </h3>
+                      <GeographySelector
+                        value={formData.geography}
+                        onChange={(val) => setFormData({ ...formData, geography: val })}
+                      />
+                      <p className="text-xs text-slate-400 mt-2">District is required</p>
+                    </div>
                   </div>
                 )}
 
                 {/* STEP 3: CLASSIFICATION */}
                 {currentStep === 3 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {['Scheme', 'Scheme Type', 'Work Type', 'Project Category'].map((field) => (
-                      <div key={field}>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">{field}</label>
-                        <input
-                          value={formData[field.toLowerCase().replace(' ', '')]}
-                          onChange={(e) => setFormData({ ...formData, [field.toLowerCase().replace(' ', '')]: e.target.value })}
-                          className="w-full p-2 border border-slate-200 rounded-lg"
-                          placeholder={`Enter ${field}`}
-                        />
+                  <div>
+                    {/* Validation errors summary */}
+                    {Object.keys(errors).length > 0 && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                        <p className="text-sm font-medium text-red-800">Please fill in all classification fields:</p>
+                        <ul className="mt-1 text-sm text-red-600 list-disc list-inside">
+                          {errors.schemeType && <li>Scheme Type is required</li>}
+                          {errors.scheme && <li>Scheme is required</li>}
+                          {errors.workType && <li>Work Type is required</li>}
+                          {errors.projectCategory && <li>Project Category is required</li>}
+                        </ul>
                       </div>
-                    ))}
+                    )}
+                    <p className="text-sm text-slate-500 mb-4">
+                      Select the scheme, work type, and category for this project. <span className="text-red-500">All fields are required.</span>
+                    </p>
+                    <ClassificationSelector
+                      value={formData.classification}
+                      onChange={(val) => setFormData({ ...formData, classification: val })}
+                    />
                   </div>
                 )}
 

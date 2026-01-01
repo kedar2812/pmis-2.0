@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Wallet, TrendingUp, Calendar } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Wallet, TrendingUp, Calendar, X } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import financeService from '@/services/financeService';
@@ -13,6 +15,17 @@ const FundManagement = () => {
     useEffect(() => {
         loadFunds();
     }, []);
+
+    // ESC key handler for modal
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && isModalOpen) {
+                setIsModalOpen(false);
+            }
+        };
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [isModalOpen]);
 
     const loadFunds = async () => {
         try {
@@ -108,40 +121,70 @@ const FundManagement = () => {
             </div>
 
             {/* Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl shadow-2xl p-6 w-96">
-                        <h2 className="text-lg font-bold mb-4">Add Fund Source</h2>
-                        <form onSubmit={handleSave} className="space-y-4">
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700">Fund Name</label>
-                                <input name="name" required className="w-full border rounded p-2 text-sm" placeholder="e.g. World Bank Tranche 1" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700">Allocating Authority</label>
-                                <input name="allocating_authority" required className="w-full border rounded p-2 text-sm" placeholder="e.g. Dept of Finance" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700">Total Amount (INR)</label>
-                                <input name="total_amount" type="number" required className="w-full border rounded p-2 text-sm" />
-                            </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-700">Start Date</label>
-                                    <input name="start_date" type="date" required className="w-full border rounded p-2 text-sm" />
+            {createPortal(
+                <AnimatePresence>
+                    {isModalOpen && (
+                        <>
+                            {/* Backdrop */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setIsModalOpen(false)}
+                                className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm"
+                            />
+                            {/* Modal Content */}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                transition={{ duration: 0.2 }}
+                                className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none"
+                            >
+                                <div className="bg-white rounded-xl shadow-2xl p-6 w-96 pointer-events-auto">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h2 className="text-lg font-bold">Add Fund Source</h2>
+                                        <button
+                                            onClick={() => setIsModalOpen(false)}
+                                            className="p-1 hover:bg-slate-100 rounded-full transition-colors"
+                                        >
+                                            <X size={18} className="text-slate-500" />
+                                        </button>
+                                    </div>
+                                    <form onSubmit={handleSave} className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-700">Fund Name</label>
+                                            <input name="name" required className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="e.g. World Bank Tranche 1" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-700">Allocating Authority</label>
+                                            <input name="allocating_authority" required className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="e.g. Dept of Finance" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-700">Total Amount (INR)</label>
+                                            <input name="total_amount" type="number" required className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="block text-xs font-bold text-slate-700">Start Date</label>
+                                                <input name="start_date" type="date" required className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-slate-700">Valid Till</label>
+                                                <input name="end_date" type="date" required className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2 pt-4">
+                                            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                                            <Button type="submit" className="bg-primary-600 text-white">Save Fund</Button>
+                                        </div>
+                                    </form>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-700">Valid Till</label>
-                                    <input name="end_date" type="date" required className="w-full border rounded p-2 text-sm" />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 pt-4">
-                                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                                <Button type="submit" className="bg-primary-600 text-white">Save Fund</Button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>,
+                document.body
             )}
         </div>
     );

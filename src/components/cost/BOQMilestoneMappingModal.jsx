@@ -32,6 +32,17 @@ const BOQMilestoneMappingModal = ({ boqItem, projectId, onClose, onUpdated }) =>
         loadData();
     }, [boqItem.id, projectId]);
 
+    // ESC key handler
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [onClose]);
+
     const loadData = async () => {
         setLoading(true);
         try {
@@ -131,7 +142,7 @@ const BOQMilestoneMappingModal = ({ boqItem, projectId, onClose, onUpdated }) =>
     };
 
     return createPortal(
-        <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
