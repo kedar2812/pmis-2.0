@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Save, Loader2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import UserSelectField from '@/components/masters/UserSelectField';
 
 /**
  * Reusable modal for creating/editing master data records
@@ -160,6 +161,39 @@ const MasterFormModal = ({
                         <span className="text-sm text-slate-600">{field.checkboxLabel || field.label}</span>
                     </label>
                 );
+
+            case 'user-select':
+                return (
+                    <UserSelectField
+                        value={formData[field.name] || null}
+                        onChange={(userId) => handleChange(field.name, userId)}
+                        onUserSelect={(user) => {
+                            // Auto-fill related fields if specified
+                            if (user && field.autoFillFields) {
+                                if (field.autoFillFields.includes('contact_email') && user.email) {
+                                    handleChange('contact_email', user.email);
+                                }
+                                if (field.autoFillFields.includes('contact_phone') && user.phone_number) {
+                                    handleChange('contact_phone', user.phone_number);
+                                }
+                                // Also fill legacy text field with user's full name
+                                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                                if (field.name === 'hod_user') {
+                                    handleChange('hod', fullName);
+                                } else if (field.name === 'reporting_officer_user') {
+                                    handleChange('reporting_officer', fullName);
+                                }
+                            }
+                        }}
+                        label=""
+                        placeholder={field.placeholder}
+                        disabled={loading}
+                        error={errors[field.name]}
+                    />
+                );
+
+            case 'hidden':
+                return null;
 
             default: // text, email, etc.
                 return (

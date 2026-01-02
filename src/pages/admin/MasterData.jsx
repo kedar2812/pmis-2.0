@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
     Building2, MapPin, FileText, Users, Calculator,
-    Plus, Search, Edit2, Trash2, RefreshCw, Database
+    Plus, Search, Edit2, Trash2, RefreshCw, Database,
+    Ban, AlertCircle
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import mastersService from '@/api/services/mastersService';
+import financeService from '@/api/services/financeService';
+import api from '@/api/client';
 import Button from '@/components/ui/Button';
 import MasterFormModal from '@/components/masters/MasterFormModal';
 import DeleteConfirmModal from '@/components/masters/DeleteConfirmModal';
@@ -59,10 +62,46 @@ const MasterData = () => {
         etpCharges: [],
     });
 
+    // Common data needed for dropdowns
+    const [users, setUsers] = useState([]);
+    const [fundingSources, setFundingSources] = useState([]);
+
+    // Blacklist modal state
+    const [blacklistModal, setBlacklistModal] = useState({ open: false, contractor: null });
+    const [blacklistReason, setBlacklistReason] = useState('');
+    const [blacklisting, setBlacklisting] = useState(false);
+
     // Check if user can edit
     const canEdit = user?.is_superuser || user?.role === 'SPV_Official';
 
-    // Fetch data
+    // Fetch common data on mount (users and funding sources)
+    useEffect(() => {
+        fetchCommonData();
+    }, []);
+
+    const fetchCommonData = async () => {
+        try {
+            // Fetch all active users for dropdowns
+            const usersRes = await api.get('/users/');
+            const usersData = Array.isArray(usersRes.data) ? usersRes.data : (usersRes.data.results || []);
+            setUsers(usersData.filter(u => u.account_status === 'ACTIVE' && u.role !== 'EPC_Contractor'));
+
+            // Fetch funding sources from fund management
+            try {
+                const fundsRes = await financeService.getFunds();
+                const funds = fundsRes.data || [];
+                // Extract unique source names
+                const sources = [...new Map(funds.map(f => [f.source_name, f])).values()];
+                setFundingSources(sources);
+            } catch (err) {
+                console.log('Fund sources not available yet');
+            }
+        } catch (err) {
+            console.error('Failed to fetch common data:', err);
+        }
+    };
+
+    // Fetch tab data
     useEffect(() => {
         fetchTabData(activeTab);
     }, [activeTab]);
@@ -210,12 +249,12 @@ const MasterData = () => {
         const configMap = {
             zones: fieldConfigs.zoneFields,
             circles: fieldConfigs.circleFields(data.zones),
-            divisions: fieldConfigs.divisionFields(data.circles),
-            subdivisions: fieldConfigs.subDivisionFields(data.divisions),
+            divisions: fieldConfigs.divisionFields(data.circles, users),
+            subdivisions: fieldConfigs.subDivisionFields(data.divisions, users),
             districts: fieldConfigs.districtFields,
             towns: fieldConfigs.townFields(data.districts),
             schemeTypes: fieldConfigs.schemeTypeFields,
-            schemes: fieldConfigs.schemeFields(data.schemeTypes),
+            schemes: fieldConfigs.schemeFields(data.schemeTypes, fundingSources),
             workTypes: fieldConfigs.workTypeFields,
             projectCategories: fieldConfigs.projectCategoryFields,
             contractors: fieldConfigs.contractorFields,
@@ -430,20 +469,170 @@ const MasterData = () => {
                 );
 
             case 'entities':
-                return renderDataTable('contractors', [
-                    { key: 'code', label: 'Code' },
-                    { key: 'name', label: 'Contractor Name' },
-                    { key: 'contractor_type', label: 'Type' },
-                    { key: 'registration_class', label: 'Class' },
-                    {
-                        key: 'blacklisted', label: 'Status', render: (val) => (
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${val ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'
-                                }`}>
-                                {val ? 'Blacklisted' : 'Active'}
-                            </span>
-                        )
-                    },
-                ], 'Contractors', 'contractors');
+                // Handle contractor blacklist toggle
+                const handleBlacklistToggle = async (contractor) => {
+                    if (contractor.blacklisted) {
+                        // Unblacklist
+                        try {
+                            await mastersService.updateContractor(contractor.id, {
+                                blacklisted: false,
+                                blacklist_reason: ''
+                            });
+                            toast.success('Contractor restored to active status');
+                            fetchTabData('entities');
+                        } catch (err) {
+                            toast.error('Failed to restore contractor');
+                        }
+                    } else {
+                        // Open blacklist modal
+                        setBlacklistModal({ open: true, contractor });
+                        setBlacklistReason('');
+                    }
+                };
+
+                const confirmBlacklist = async () => {
+                    if (!blacklistModal.contractor) return;
+                    setBlacklisting(true);
+                    try {
+                        await mastersService.updateContractor(blacklistModal.contractor.id, {
+                            blacklisted: true,
+                            blacklist_reason: blacklistReason || 'Blacklisted by admin'
+                        });
+                        toast.success('Contractor has been blacklisted');
+                        setBlacklistModal({ open: false, contractor: null });
+                        fetchTabData('entities');
+                    } catch (err) {
+                        toast.error('Failed to blacklist contractor');
+                    } finally {
+                        setBlacklisting(false);
+                    }
+                };
+
+                return (
+                    <>
+                        {/* Contractors Table - No Add button, Blacklist action */}
+                        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <h3 className="font-semibold text-slate-700">Contractors</h3>
+                                    <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                                        {data.contractors?.length || 0}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-slate-500">
+                                    <AlertCircle size={14} />
+                                    Contractors self-register via public registration
+                                </div>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead className="bg-slate-50">
+                                        <tr>
+                                            <th className="text-left px-4 py-3 font-medium text-slate-600">Code</th>
+                                            <th className="text-left px-4 py-3 font-medium text-slate-600">Contractor Name</th>
+                                            <th className="text-left px-4 py-3 font-medium text-slate-600">Type</th>
+                                            <th className="text-left px-4 py-3 font-medium text-slate-600">Class</th>
+                                            <th className="text-left px-4 py-3 font-medium text-slate-600">Status</th>
+                                            {canEdit && <th className="text-center px-4 py-3 font-medium text-slate-600 w-32">Actions</th>}
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {(data.contractors || []).filter(item =>
+                                            Object.values(item).some(val =>
+                                                String(val).toLowerCase().includes(searchQuery.toLowerCase())
+                                            )
+                                        ).map((contractor, idx) => (
+                                            <tr key={contractor.id || idx} className="hover:bg-slate-50 transition-colors">
+                                                <td className="px-4 py-3 font-mono text-slate-700">{contractor.code}</td>
+                                                <td className="px-4 py-3 text-slate-800 font-medium">{contractor.name}</td>
+                                                <td className="px-4 py-3 text-slate-600">{contractor.contractor_type}</td>
+                                                <td className="px-4 py-3 text-slate-600">{contractor.registration_class}</td>
+                                                <td className="px-4 py-3">
+                                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium ${contractor.blacklisted
+                                                            ? 'bg-red-50 text-red-700 border border-red-200'
+                                                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                                        }`}>
+                                                        <span className={`w-1.5 h-1.5 rounded-full ${contractor.blacklisted ? 'bg-red-500' : 'bg-emerald-500'}`}></span>
+                                                        {contractor.blacklisted ? 'Blacklisted' : 'Active'}
+                                                    </span>
+                                                </td>
+                                                {canEdit && (
+                                                    <td className="px-4 py-3 text-center">
+                                                        <button
+                                                            onClick={() => handleBlacklistToggle(contractor)}
+                                                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${contractor.blacklisted
+                                                                    ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
+                                                                    : 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
+                                                                }`}
+                                                        >
+                                                            {contractor.blacklisted ? 'Restore' : 'Blacklist'}
+                                                        </button>
+                                                    </td>
+                                                )}
+                                            </tr>
+                                        ))}
+                                        {(data.contractors || []).length === 0 && (
+                                            <tr>
+                                                <td colSpan={canEdit ? 6 : 5} className="text-center py-8 text-slate-400">
+                                                    <Database size={32} className="mx-auto mb-2 opacity-30" />
+                                                    No contractors registered yet
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* Blacklist Reason Modal */}
+                        {blacklistModal.open && (
+                            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4"
+                                >
+                                    <div className="p-6 border-b border-slate-200">
+                                        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                            <Ban className="text-red-600" size={24} />
+                                            Blacklist Contractor
+                                        </h2>
+                                        <p className="text-sm text-slate-500 mt-1">
+                                            {blacklistModal.contractor?.name}
+                                        </p>
+                                    </div>
+                                    <div className="p-6">
+                                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                                            Reason for Blacklisting <span className="text-red-500">*</span>
+                                        </label>
+                                        <textarea
+                                            value={blacklistReason}
+                                            onChange={(e) => setBlacklistReason(e.target.value)}
+                                            placeholder="Enter reason for blacklisting this contractor..."
+                                            rows={3}
+                                            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                                        />
+                                        <div className="flex justify-end gap-3 mt-6">
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => setBlacklistModal({ open: false, contractor: null })}
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                onClick={confirmBlacklist}
+                                                disabled={!blacklistReason.trim() || blacklisting}
+                                                className="bg-red-600 hover:bg-red-700"
+                                            >
+                                                {blacklisting ? 'Processing...' : 'Confirm Blacklist'}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </div>
+                        )}
+                    </>
+                );
 
             case 'etp':
                 // Helper function for ETP status - considers is_active AND effective_date
@@ -467,9 +656,9 @@ const MasterData = () => {
                     {
                         key: 'charge_type', label: 'Type', render: (val) => (
                             <span className={`px-2.5 py-1 rounded text-xs font-medium ${val === 'Deduction' ? 'bg-red-50 text-red-700 border border-red-200' :
-                                    val === 'Recovery' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                                        val === 'Levy' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
-                                            'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                val === 'Recovery' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                                    val === 'Levy' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                                        'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                 }`}>
                                 {val}
                             </span>
@@ -498,8 +687,8 @@ const MasterData = () => {
                             return (
                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium ${status.style}`}>
                                     <span className={`w-1.5 h-1.5 rounded-full ${status.label === 'Active' ? 'bg-emerald-500' :
-                                            status.label === 'Pending' ? 'bg-amber-500' :
-                                                'bg-slate-400'
+                                        status.label === 'Pending' ? 'bg-amber-500' :
+                                            'bg-slate-400'
                                         }`}></span>
                                     {status.label}
                                 </span>

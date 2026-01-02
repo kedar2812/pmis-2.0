@@ -259,6 +259,11 @@ class ApproveUserView(APIView):
         user.approved_at = timezone.now()
         user.save()
         
+        # If this is a contractor, auto-create contractor master record
+        contractor_created = False
+        if user.role == 'EPC_Contractor':
+            contractor_created = self._create_contractor_record(user)
+        
         # Send approval email
         try:
             from .email_service import send_approval_notification
@@ -268,8 +273,67 @@ class ApproveUserView(APIView):
         
         return Response({
             'message': f'User {user.email} has been approved.',
-            'user': UserDetailSerializer(user).data
+            'user': UserDetailSerializer(user).data,
+            'contractor_created': contractor_created
         })
+    
+    def _create_contractor_record(self, user):
+        """Auto-create contractor master record for approved contractor user."""
+        try:
+            from masters.models.entities import Contractor
+            
+            # Check if contractor already exists linked to this user
+            existing = Contractor.objects.filter(linked_user=user).first()
+            if existing:
+                return True  # Already linked
+            
+            # Check if contractor already exists with same PAN
+            if user.pan_number:
+                existing = Contractor.objects.filter(pan=user.pan_number).first()
+                if existing:
+                    # Link existing contractor to user
+                    existing.linked_user = user
+                    existing.save()
+                    return True
+            
+            # Generate unique contractor code
+            last_contractor = Contractor.objects.order_by('-created_at').last()
+            if last_contractor and last_contractor.code.startswith('CON-'):
+                try:
+                    last_num = int(last_contractor.code.split('-')[1])
+                    next_num = last_num + 1
+                except:
+                    next_num = Contractor.objects.count() + 1
+            else:
+                next_num = Contractor.objects.count() + 1
+            code = f"CON-{next_num:04d}"
+            
+            # Ensure code is unique
+            while Contractor.objects.filter(code=code).exists():
+                next_num += 1
+                code = f"CON-{next_num:04d}"
+            
+            # Create new contractor record using model's actual fields
+            Contractor.objects.create(
+                code=code,
+                name=user.company_name or f"{user.first_name} {user.last_name}",
+                contractor_type='Proprietorship',  # Default, user can update later
+                registration_class=user.registration_class or '',
+                pan=user.pan_number or '',
+                gstin=user.gstin_number or '',
+                contact_person=f"{user.first_name} {user.last_name}",
+                email=user.email,
+                phone=user.phone_number or '',
+                address=user.full_address or '',
+                blacklisted=False,
+                linked_user=user,
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to auto-create contractor record: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
 
 
 class RejectUserView(APIView):

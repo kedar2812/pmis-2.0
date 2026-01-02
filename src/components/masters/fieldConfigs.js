@@ -53,7 +53,7 @@ export const circleFields = (zones = []) => [
     },
 ];
 
-export const divisionFields = (circles = []) => [
+export const divisionFields = (circles = [], users = []) => [
     { name: 'code', label: 'Division Code', required: true, placeholder: 'e.g., DIV-NGR' },
     { name: 'name', label: 'Division Name', required: true, placeholder: 'e.g., North Gandhinagar Division' },
     {
@@ -63,9 +63,17 @@ export const divisionFields = (circles = []) => [
         required: true,
         options: circles.map(c => ({ value: c.id, label: `${c.code} - ${c.name}` }))
     },
-    { name: 'hod', label: 'Head of Division', placeholder: 'HOD name' },
-    { name: 'contact_email', label: 'Contact Email', type: 'email', placeholder: 'division@gov.in' },
-    { name: 'contact_phone', label: 'Contact Phone', placeholder: '+91...' },
+    {
+        name: 'hod_user',
+        label: 'Head of Division (HOD)',
+        type: 'user-select',
+        placeholder: 'Select or invite HOD user',
+        autoFillFields: ['contact_email', 'contact_phone'],
+        helpText: 'Select a user to auto-fill contact details'
+    },
+    { name: 'hod', label: 'HOD Name (Legacy)', type: 'hidden' },
+    { name: 'contact_email', label: 'Contact Email', type: 'email', placeholder: 'Auto-filled from user', helpText: 'You can edit after auto-fill' },
+    { name: 'contact_phone', label: 'Contact Phone', placeholder: 'Auto-filled from user', helpText: 'You can edit after auto-fill' },
     { name: 'effective_date', label: 'Effective Date', type: 'date' },
     {
         name: 'status',
@@ -79,7 +87,7 @@ export const divisionFields = (circles = []) => [
     },
 ];
 
-export const subDivisionFields = (divisions = []) => [
+export const subDivisionFields = (divisions = [], users = []) => [
     { name: 'code', label: 'Sub-Division Code', required: true, placeholder: 'e.g., SD-01-W' },
     { name: 'name', label: 'Sub-Division Name', required: true, placeholder: 'e.g., West Sub-Division' },
     {
@@ -90,7 +98,14 @@ export const subDivisionFields = (divisions = []) => [
         options: divisions.map(d => ({ value: d.id, label: `${d.code} - ${d.name}` }))
     },
     { name: 'jurisdiction_area', label: 'Jurisdiction Area', placeholder: 'Geographic area covered' },
-    { name: 'reporting_officer', label: 'Reporting Officer', placeholder: 'SDE name' },
+    {
+        name: 'reporting_officer_user',
+        label: 'Reporting Officer (SDE)',
+        type: 'user-select',
+        placeholder: 'Select or invite officer',
+        helpText: 'Sub-Divisional Engineer responsible for this area'
+    },
+    { name: 'reporting_officer', label: 'Officer Name (Legacy)', type: 'hidden' },
 ];
 
 // Geography Masters
@@ -146,7 +161,7 @@ export const schemeTypeFields = [
     },
 ];
 
-export const schemeFields = (schemeTypes = []) => [
+export const schemeFields = (schemeTypes = [], fundingSources = []) => [
     { name: 'code', label: 'Scheme Code', required: true, placeholder: 'e.g., PMSGY' },
     { name: 'name', label: 'Scheme Name', required: true, placeholder: 'e.g., Pradhan Mantri Gram Sadak Yojana' },
     {
@@ -156,7 +171,19 @@ export const schemeFields = (schemeTypes = []) => [
         required: true,
         options: schemeTypes.map(st => ({ value: st.id, label: `${st.code} - ${st.name}` }))
     },
-    { name: 'funding_agency', label: 'Funding Agency', placeholder: 'e.g., Central Govt' },
+    {
+        name: 'funding_agency',
+        label: 'Funding Agency',
+        type: 'select',
+        options: [
+            { value: '', label: '-- Select Funding Agency --' },
+            ...fundingSources.map(fs => ({
+                value: fs.source_name || fs.name,
+                label: fs.source_name || fs.name
+            }))
+        ],
+        helpText: 'Linked to Fund Management sources'
+    },
     { name: 'start_date', label: 'Start Date', type: 'date' },
     { name: 'end_date', label: 'End Date', type: 'date' },
     { name: 'budget_head_code', label: 'Budget Head Code', placeholder: 'Accounting code' },
@@ -188,7 +215,22 @@ export const projectCategoryFields = [
     { name: 'code', label: 'Category Code', required: true, placeholder: 'e.g., PC-MAJ' },
     { name: 'name', label: 'Category Name', required: true, placeholder: 'e.g., Major Project' },
     { name: 'threshold_value', label: 'Threshold Value (₹)', type: 'number', step: '0.01', placeholder: 'Minimum value in INR' },
-    { name: 'approval_authority', label: 'Approval Authority', placeholder: 'e.g., Chief Engineer' },
+    {
+        name: 'approval_authority',
+        label: 'Approval Authority',
+        type: 'select',
+        required: true,
+        options: [
+            { value: 'Chief Engineer', label: 'Chief Engineer (CE)' },
+            { value: 'Superintending Engineer', label: 'Superintending Engineer (SE)' },
+            { value: 'Executive Engineer', label: 'Executive Engineer (EE)' },
+            { value: 'Assistant Engineer', label: 'Assistant Engineer (AE)' },
+            { value: 'Sub-Divisional Engineer', label: 'Sub-Divisional Engineer (SDE)' },
+            { value: 'SPV Management', label: 'SPV Management' },
+            { value: 'Board/Committee', label: 'Board/Committee' },
+        ],
+        helpText: 'Authority level for project approvals'
+    },
 ];
 
 // Entity Masters

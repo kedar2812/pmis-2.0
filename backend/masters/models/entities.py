@@ -3,6 +3,7 @@ Entity Models for Contractors
 Links to existing BankBranch model in banks app
 """
 from django.db import models
+from django.conf import settings
 import uuid
 
 
@@ -56,6 +57,16 @@ class Contractor(models.Model):
     blacklisted = models.BooleanField(default=False, help_text="Barred from bidding")
     blacklist_reason = models.TextField(blank=True)
     validity_date = models.DateField(null=True, blank=True, help_text="Registration validity")
+    
+    # Link to User account (for self-registered contractors)
+    linked_user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='contractor_profile',
+        help_text="Linked user account for self-registered contractors"
+    )
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
