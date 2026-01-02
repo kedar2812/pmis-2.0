@@ -77,6 +77,10 @@ const mastersService = {
     createProjectCategory: (data) => client.post('/masters/project-categories/', data),
     updateProjectCategory: (id, data) => client.put(`/masters/project-categories/${id}/`, data),
     deleteProjectCategory: (id) => client.delete(`/masters/project-categories/${id}/`),
+    // Auto-categorization based on contract value
+    suggestProjectCategory: (contractValue) => client.get('/masters/project-categories/suggest_category/', {
+        params: { contract_value: contractValue }
+    }),
 
     // ========== Entities ==========
     // Contractors

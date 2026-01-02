@@ -113,10 +113,22 @@ class ContractorSerializer(serializers.ModelSerializer):
 
 
 class ContractorListSerializer(serializers.ModelSerializer):
-    """Lighter serializer for list views"""
+    """Lighter serializer for list views with blacklist status"""
+    is_valid = serializers.BooleanField(read_only=True)
+    status_label = serializers.SerializerMethodField()
+    
     class Meta:
         model = Contractor
-        fields = ['id', 'code', 'name', 'contractor_type', 'registration_class', 'blacklisted', 'validity_date']
+        fields = ['id', 'code', 'name', 'contractor_type', 'registration_class', 
+                  'blacklisted', 'blacklist_reason', 'validity_date', 'is_valid', 'status_label']
+    
+    def get_status_label(self, obj):
+        """Return user-friendly status label for UI"""
+        if obj.blacklisted:
+            return 'Blacklisted'
+        if not obj.is_valid:
+            return 'Expired'
+        return 'Active'
 
 
 # Finance Config Serializers

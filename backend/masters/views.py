@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from django.db import models
 
 from .models import (
     Zone, Circle, Division, SubDivision,
@@ -164,6 +165,68 @@ class ProjectCategoryViewSet(BaseMasterViewSet):
     serializer_class = ProjectCategorySerializer
     search_fields = ['code', 'name']
     ordering_fields = ['threshold_value', 'code']
+    
+    @action(detail=False, methods=['get'])
+    def suggest_category(self, request):
+        """
+        Auto-suggest project category based on contract value.
+        
+        Query params:
+            contract_value: The project's contract value in INR
+            
+        Returns:
+            Matching category based on threshold comparison.
+            Categories are ordered by threshold (descending), and the first
+            category where contract_value >= threshold is returned.
+        """
+        from decimal import Decimal
+        
+        contract_value = request.query_params.get('contract_value')
+        if not contract_value:
+            return Response({
+                'error': 'contract_value query parameter is required'
+            }, status=400)
+        
+        try:
+            value = Decimal(str(contract_value))
+        except:
+            return Response({
+                'error': 'Invalid contract_value format'
+            }, status=400)
+        
+        # Get categories ordered by threshold descending
+        # Find first category where value >= threshold
+        categories = ProjectCategory.objects.order_by('-threshold_value')
+        
+        matched_category = None
+        for category in categories:
+            if value >= category.threshold_value:
+                matched_category = category
+                break
+        
+        # If no match (value less than all thresholds), use the lowest threshold category
+        if not matched_category and categories.exists():
+            matched_category = categories.last()  # Lowest threshold
+        
+        if matched_category:
+            return Response({
+                'suggested_category': {
+                    'id': str(matched_category.id),
+                    'code': matched_category.code,
+                    'name': matched_category.name,
+                    'threshold_value': float(matched_category.threshold_value),
+                    'approval_authority': matched_category.approval_authority,
+                },
+                'contract_value': float(value),
+                'message': f"Based on ₹{value:,.0f} contract value, suggested category is '{matched_category.name}'"
+            })
+        else:
+            return Response({
+                'suggested_category': None,
+                'contract_value': float(value),
+                'message': 'No project categories configured. Please add categories in Master Data.'
+            })
+
 
 
 # ========== Entity ViewSets ==========
