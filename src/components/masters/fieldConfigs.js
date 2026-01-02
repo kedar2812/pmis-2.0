@@ -234,27 +234,50 @@ export const contractorFields = [
     { name: 'blacklisted', label: 'Blacklisted', type: 'checkbox', checkboxLabel: 'Contractor is blacklisted' },
 ];
 
-// Finance Config
+// Finance Config - ETP Charges
 export const etpFields = [
-    { name: 'code', label: 'ETP Code', required: true, placeholder: 'e.g., LABOUR-CESS' },
-    { name: 'name', label: 'Charge Name', required: true, placeholder: 'e.g., Labour Welfare Cess' },
+    {
+        name: 'code',
+        label: 'ETP Code',
+        required: true,
+        placeholder: 'e.g., LABOUR-CESS',
+        helpText: 'Unique identifier for this charge'
+    },
+    {
+        name: 'name',
+        label: 'Charge Name',
+        required: true,
+        placeholder: 'e.g., Labour Welfare Cess',
+        helpText: 'Official name as per government notification'
+    },
     {
         name: 'charge_type',
         label: 'Charge Type',
         type: 'select',
+        required: true,
         defaultValue: 'Deduction',
         options: [
             { value: 'Deduction', label: 'Deduction' },
             { value: 'Recovery', label: 'Recovery' },
             { value: 'Levy', label: 'Levy' },
             { value: 'Addition', label: 'Addition' },
-        ]
+        ],
+        helpText: 'How this charge affects the bill calculation'
     },
-    { name: 'rate_percentage', label: 'Rate (%)', type: 'number', step: '0.001', required: true, placeholder: 'e.g., 1.000' },
+    {
+        name: 'rate_percentage',
+        label: 'Rate (%)',
+        type: 'number',
+        step: '0.001',
+        required: true,
+        placeholder: 'e.g., 1.000',
+        helpText: 'Percentage rate to apply'
+    },
     {
         name: 'basis_of_calculation',
         label: 'Basis of Calculation',
         type: 'select',
+        required: true,
         defaultValue: 'Gross Bill Value',
         options: [
             { value: 'Gross Bill Value', label: 'Gross Bill Value' },
@@ -262,10 +285,34 @@ export const etpFields = [
             { value: 'Material Cost', label: 'Material Cost' },
             { value: 'Labour Cost', label: 'Labour Cost' },
             { value: 'Net Payable', label: 'Net Payable' },
-        ]
+        ],
+        helpText: 'Which amount the percentage is applied to'
     },
-    { name: 'effective_date', label: 'Effective Date', type: 'date', required: true },
-    { name: 'govt_reference', label: 'Govt. Reference', placeholder: 'Circular/Order number' },
-    { name: 'account_head', label: 'Account Head/Ledger', placeholder: 'Finance code' },
-    { name: 'is_active', label: 'Active', type: 'checkbox', checkboxLabel: 'Charge is currently active', defaultValue: true },
+    {
+        name: 'effective_date',
+        label: 'Effective Date',
+        type: 'date',
+        required: true,
+        helpText: 'Charge becomes active ON this date. Bills before this date will not include this charge.'
+    },
+    {
+        name: 'govt_reference',
+        label: 'Govt. Reference',
+        placeholder: 'Circular/Order number',
+        helpText: 'Government order or circular reference'
+    },
+    {
+        name: 'account_head',
+        label: 'Account Head/Ledger',
+        placeholder: 'Finance code',
+        helpText: 'Internal finance ledger code for accounting'
+    },
+    {
+        name: 'is_active',
+        label: 'Active Status',
+        type: 'checkbox',
+        checkboxLabel: 'Charge is currently active',
+        defaultValue: true,
+        helpText: 'Uncheck to permanently disable this charge'
+    },
 ];

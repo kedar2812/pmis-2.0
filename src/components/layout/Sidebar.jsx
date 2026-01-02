@@ -23,6 +23,7 @@ import {
   Users,
   Building2,
   PieChart,
+  Calculator,
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
@@ -138,6 +139,13 @@ const Sidebar = () => {
       label: 'Approvals',
       icon: Clock,
       path: '/approvals',
+      permission: 'dashboard:view',
+    },
+    {
+      id: 'etp-master',
+      label: 'ETP Charges',
+      icon: Calculator,
+      path: '/etp-master',
       permission: 'dashboard:view',
     },
     {

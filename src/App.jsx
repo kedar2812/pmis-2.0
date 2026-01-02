@@ -34,6 +34,7 @@ import Communications from './pages/Communications';
 import Approvals from './pages/Approvals';
 import ContractorRegistration from './pages/ContractorRegistration';
 import AcceptInvite from './pages/AcceptInvite';
+import ETPMaster from './pages/ETPMaster';
 
 const ProtectedRoute = ({ children, requiredPermission }) => {
   const { user } = useAuth();
@@ -81,6 +82,7 @@ const AppRoutes = () => {
         <Route path="communications" element={<Communications />} />
         <Route path="communications/:threadId" element={<Communications />} />
         <Route path="approvals" element={<Approvals />} />
+        <Route path="etp-master" element={<ETPMaster />} />
       </Route>
     </Routes>
   );

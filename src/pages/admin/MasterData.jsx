@@ -446,22 +446,66 @@ const MasterData = () => {
                 ], 'Contractors', 'contractors');
 
             case 'etp':
+                // Helper function for ETP status - considers is_active AND effective_date
+                const getETPStatus = (item) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const effectiveDate = item.effective_date ? new Date(item.effective_date) : null;
+
+                    if (!item.is_active) {
+                        return { label: 'Inactive', style: 'bg-slate-100 text-slate-600 border border-slate-300' };
+                    }
+                    if (effectiveDate && effectiveDate > today) {
+                        return { label: 'Pending', style: 'bg-amber-50 text-amber-700 border border-amber-300' };
+                    }
+                    return { label: 'Active', style: 'bg-emerald-50 text-emerald-700 border border-emerald-300' };
+                };
+
                 return renderDataTable('etpCharges', [
                     { key: 'code', label: 'Code' },
                     { key: 'name', label: 'Charge Name' },
                     {
                         key: 'charge_type', label: 'Type', render: (val) => (
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${val === 'Deduction' ? 'bg-red-100 text-red-700' :
-                                    val === 'Recovery' ? 'bg-amber-100 text-amber-700' :
-                                        'bg-blue-100 text-blue-700'
+                            <span className={`px-2.5 py-1 rounded text-xs font-medium ${val === 'Deduction' ? 'bg-red-50 text-red-700 border border-red-200' :
+                                    val === 'Recovery' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                                        val === 'Levy' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                                            'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                 }`}>
                                 {val}
                             </span>
                         )
                     },
-                    { key: 'rate_percentage', label: 'Rate', render: (val) => `${val}%` },
+                    {
+                        key: 'rate_percentage', label: 'Rate', render: (val) => (
+                            <span className="font-mono font-medium text-slate-700">{val}%</span>
+                        )
+                    },
                     { key: 'basis_of_calculation', label: 'Basis' },
-                    { key: 'is_active', label: 'Active', render: (val) => val ? '✓' : '✗' },
+                    {
+                        key: 'effective_date',
+                        label: 'Effective From',
+                        render: (val) => val ? new Date(val).toLocaleDateString('en-IN', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                        }) : '-'
+                    },
+                    {
+                        key: 'is_active',
+                        label: 'Status',
+                        render: (val, item) => {
+                            const status = getETPStatus(item);
+                            return (
+                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium ${status.style}`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full ${status.label === 'Active' ? 'bg-emerald-500' :
+                                            status.label === 'Pending' ? 'bg-amber-500' :
+                                                'bg-slate-400'
+                                        }`}></span>
+                                    {status.label}
+                                </span>
+                            );
+                        }
+                    },
                 ], 'ETP Charges', 'etpCharges');
 
             default:
@@ -493,8 +537,8 @@ const MasterData = () => {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${isActive
-                                    ? `bg-${tab.color}-100 text-${tab.color}-700 shadow-sm`
-                                    : 'text-slate-500 hover:bg-slate-100'
+                                ? `bg-${tab.color}-100 text-${tab.color}-700 shadow-sm`
+                                : 'text-slate-500 hover:bg-slate-100'
                                 }`}
                         >
                             <Icon size={18} />
