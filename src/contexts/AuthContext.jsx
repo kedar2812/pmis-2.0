@@ -96,29 +96,115 @@ export const AuthProvider = ({ children }) => {
     const rolePermissions = {
       'SPV_Official': [
         'dashboard:view',
+        'projects:view',
         'projects:manage',
+        'approvals:view',
         'approvals:manage',
+        'users:view',
         'users:manage',
-
+        'masters:view',
+        'masters:manage',
+        'scheduling:view',
+        'scheduling:manage',
+        'cost:view',
+        'cost:manage',
+        'billing:view',
+        'billing:manage',
+        'risk:view',
+        'risk:manage',
+        'gis:view',
+        'bim:view',
+        'reports:view',
+        'reports:create',
+        'edms:view',
+        'edms:upload',
+        'edms:approve',
+        'communications:view',
+        'communications:send',
+        'audit:view'
+      ],
+      'NICDC_HQ': [
+        'dashboard:view',
+        'projects:view',
+        'projects:manage',
+        'approvals:view',
+        'approvals:manage',
+        'users:view',
+        'users:manage',
+        'masters:view',
+        'masters:manage',
         'scheduling:view',
         'cost:view',
+        'cost:manage',
+        'billing:view',
         'risk:view',
         'gis:view',
         'bim:view',
         'reports:view',
         'edms:view',
-        'edms:upload'
+        'edms:approve',
+        'communications:view',
+        'communications:send',
+        'audit:view'
       ],
-      'PMNC_Team': ['dashboard:view', 'projects:edit', 'reports:create', 'scheduling:view', 'risk:view', 'edms:view'],
-      'EPC_Contractor': ['dashboard:view', 'projects:view', 'tasks:update', 'edms:view', 'edms:upload'],
-      'Nodal_Officer': ['dashboard:view', 'approvals:manage', 'reports:view', 'edms:view'],
-      'Govt_Official': ['dashboard:view', 'reports:view', 'gis:view', 'edms:view']
+      'PMNC_Team': [
+        'dashboard:view',
+        'projects:view',
+        'projects:edit',
+        'scheduling:view',
+        'scheduling:manage',
+        'cost:view',
+        'billing:view',
+        'risk:view',
+        'risk:manage',
+        'reports:view',
+        'reports:create',
+        'edms:view',
+        'edms:upload',
+        'communications:view',
+        'communications:send'
+      ],
+      'EPC_Contractor': [
+        'dashboard:view',
+        'projects:view',
+        'tasks:update',
+        'billing:view',
+        'billing:submit',
+        'edms:view',
+        'edms:upload',
+        'communications:view',
+        'communications:send'
+      ],
+      'Consultant_Design': [
+        'dashboard:view',
+        'projects:view',
+        'scheduling:view',
+        'cost:view',
+        'bim:view',
+        'edms:view',
+        'edms:upload',
+        'communications:view',
+        'communications:send'
+      ],
+      'Govt_Department': [
+        'dashboard:view',
+        'projects:view',
+        'reports:view',
+        'gis:view',
+        'edms:view',
+        'communications:view'
+      ]
     };
-    return rolePermissions[role] || [];
+    return rolePermissions[role] || ['dashboard:view'];
   };
 
   const hasPermission = (permission) => {
     return user?.permissions?.includes(permission) || false;
+  };
+
+  // Helper to check if user is admin
+  const isAdmin = () => {
+    return user?.role === 'SPV_Official' || user?.role === 'NICDC_HQ';
   };
 
   return (
@@ -128,7 +214,8 @@ export const AuthProvider = ({ children }) => {
       loading,
       login,
       logout,
-      hasPermission
+      hasPermission,
+      isAdmin
     }}>
       {children}
     </AuthContext.Provider>
