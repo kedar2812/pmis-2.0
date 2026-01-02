@@ -5,6 +5,7 @@ import { SidebarProvider } from './contexts/SidebarContext';
 
 
 import { ToastProvider } from './components/ui/Toast';
+import ErrorBoundary from './components/ui/ErrorBoundary';
 import AppLayout from './components/layout/AppLayout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -99,7 +100,9 @@ function App() {
         <AuthProvider>
           <SidebarProvider>
             <ToastProvider />
-            <AppRoutes />
+            <ErrorBoundary>
+              <AppRoutes />
+            </ErrorBoundary>
           </SidebarProvider>
         </AuthProvider>
       </LanguageProvider>
