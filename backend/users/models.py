@@ -37,6 +37,10 @@ class User(AbstractUser):
     invite_token = models.UUIDField(null=True, blank=True, unique=True)
     invite_expires_at = models.DateTimeField(null=True, blank=True)
     
+    # Password Reset Token
+    password_reset_token = models.UUIDField(null=True, blank=True, unique=True)
+    password_reset_expires_at = models.DateTimeField(null=True, blank=True)
+    
     # Approval Tracking (for contractor approval workflow)
     approved_by = models.ForeignKey(
         'self', 
@@ -153,4 +157,29 @@ class User(AbstractUser):
         self.is_active = True  # Enable login
         self.invite_token = None
         self.invite_expires_at = None
+        self.save()
+    
+    def generate_password_reset_token(self):
+        """Generate a password reset token with 1 hour expiry."""
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        self.password_reset_token = uuid.uuid4()
+        self.password_reset_expires_at = timezone.now() + timedelta(hours=1)
+        self.save(update_fields=['password_reset_token', 'password_reset_expires_at'])
+        return self.password_reset_token
+    
+    def reset_password(self, new_password):
+        """Reset password using token."""
+        from django.utils import timezone
+        
+        if not self.password_reset_token:
+            raise ValueError("No password reset token found.")
+        
+        if self.password_reset_expires_at and timezone.now() > self.password_reset_expires_at:
+            raise ValueError("Password reset link has expired.")
+        
+        self.set_password(new_password)
+        self.password_reset_token = None
+        self.password_reset_expires_at = None
         self.save()

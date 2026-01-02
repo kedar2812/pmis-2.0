@@ -193,6 +193,15 @@ const OtpLogin = () => {
                                             </button>
                                         </motion.div>
                                     </div>
+                                    {/* Forgot Password Link */}
+                                    <div className="text-right mt-2">
+                                        <Link
+                                            to="/forgot-password"
+                                            className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+                                        >
+                                            Forgot password?
+                                        </Link>
+                                    </div>
                                 </div>
 
                                 {/* Submit Button */}

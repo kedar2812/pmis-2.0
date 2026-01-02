@@ -230,3 +230,45 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             # Bank
             'bank_name', 'bank_branch', 'ifsc_code', 'account_number', 'account_type',
         ]
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    """Serializer for requesting password reset email."""
+    email = serializers.EmailField()
+    
+    def validate_email(self, value):
+        try:
+            user = User.objects.get(email=value)
+            if not user.is_active and user.account_status != User.AccountStatus.ACTIVE:
+                raise serializers.ValidationError("This account is not active.")
+        except User.DoesNotExist:
+            # Don't reveal if email exists for security
+            pass
+        return value
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    """Serializer for confirming password reset with token."""
+    token = serializers.UUIDField()
+    password = serializers.CharField(write_only=True, min_length=8)
+    confirm_password = serializers.CharField(write_only=True)
+    
+    def validate(self, data):
+        if data['password'] != data['confirm_password']:
+            raise serializers.ValidationError({"confirm_password": "Passwords do not match."})
+        
+        # Validate password strength
+        validate_password(data['password'])
+        
+        # Validate token
+        try:
+            user = User.objects.get(password_reset_token=data['token'])
+        except User.DoesNotExist:
+            raise serializers.ValidationError({"token": "Invalid or expired reset token."})
+        
+        from django.utils import timezone
+        if user.password_reset_expires_at and timezone.now() > user.password_reset_expires_at:
+            raise serializers.ValidationError({"token": "Password reset link has expired."})
+        
+        data['user'] = user
+        return data

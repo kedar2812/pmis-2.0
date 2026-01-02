@@ -3,7 +3,8 @@ from .views import (
     UserProfileView, UserListView, UserDetailView,
     InviteUserView, AcceptInviteView,
     ContractorRegistrationView, PendingUsersView,
-    ApproveUserView, RejectUserView, ToggleUserStatusView
+    ApproveUserView, RejectUserView, ToggleUserStatusView,
+    PasswordResetRequestView, PasswordResetConfirmView
 )
 
 urlpatterns = [
@@ -22,6 +23,10 @@ urlpatterns = [
     
     # Contractor registration (Public)
     path('register-contractor/', ContractorRegistrationView.as_view(), name='contractor-register'),
+    
+    # Password reset (Public)
+    path('password-reset/', PasswordResetRequestView.as_view(), name='password-reset-request'),
+    path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
     
     # Approval workflow
     path('pending/', PendingUsersView.as_view(), name='user-pending'),

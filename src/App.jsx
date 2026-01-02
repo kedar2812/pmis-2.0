@@ -34,6 +34,8 @@ import Communications from './pages/Communications';
 import Approvals from './pages/Approvals';
 import ContractorRegistration from './pages/ContractorRegistration';
 import AcceptInvite from './pages/AcceptInvite';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import ETPMaster from './pages/ETPMaster';
 
 const ProtectedRoute = ({ children, requiredPermission }) => {
@@ -47,6 +49,8 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<ContractorRegistration />} />
       <Route path="/accept-invite/:token" element={<AcceptInvite />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
       <Route
         path="/"
         element={

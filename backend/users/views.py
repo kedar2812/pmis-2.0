@@ -9,7 +9,8 @@ from django.conf import settings
 from .serializers import (
     UserSerializer, UserDetailSerializer, InviteUserSerializer,
     AcceptInviteSerializer, ContractorRegistrationSerializer,
-    ApproveUserSerializer, RejectUserSerializer, UserUpdateSerializer
+    ApproveUserSerializer, RejectUserSerializer, UserUpdateSerializer,
+    PasswordResetRequestSerializer, PasswordResetConfirmSerializer
 )
 
 User = get_user_model()
@@ -393,3 +394,83 @@ class ToggleUserStatusView(APIView):
             'is_active': user.is_active,
             'account_status': user.account_status
         })
+
+
+class PasswordResetRequestView(APIView):
+    """Request password reset email (Public)."""
+    permission_classes = [permissions.AllowAny]
+    
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        email = serializer.validated_data['email']
+        
+        try:
+            user = User.objects.get(email=email)
+            token = user.generate_password_reset_token()
+            
+            # Send password reset email
+            reset_url = f"{settings.FRONTEND_URL}/reset-password/{token}"
+            self._send_reset_email(user, reset_url)
+            
+        except User.DoesNotExist:
+            # Don't reveal if email exists - still return success
+            pass
+        
+        # Always return success to prevent email enumeration
+        return Response({
+            'message': 'If an account exists with this email, a password reset link has been sent.',
+            'success': True
+        })
+    
+    def _send_reset_email(self, user, reset_url):
+        """Send password reset email."""
+        try:
+            from .email_service import send_password_reset_email
+            send_password_reset_email(user, reset_url)
+        except Exception as e:
+            print(f"Failed to send password reset email: {e}")
+
+
+class PasswordResetConfirmView(APIView):
+    """Confirm password reset with token (Public)."""
+    permission_classes = [permissions.AllowAny]
+    
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = serializer.validated_data['user']
+        new_password = serializer.validated_data['password']
+        
+        user.reset_password(new_password)
+        
+        return Response({
+            'message': 'Password has been reset successfully. You can now login.',
+            'success': True
+        })
+    
+    def get(self, request):
+        """Validate reset token and return user info."""
+        token = request.query_params.get('token')
+        if not token:
+            return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            import uuid
+            token_uuid = uuid.UUID(token)
+            user = User.objects.get(password_reset_token=token_uuid)
+            
+            if user.password_reset_expires_at and timezone.now() > user.password_reset_expires_at:
+                return Response({'error': 'Password reset link has expired'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({
+                'valid': True,
+                'email': user.email,
+                'first_name': user.first_name,
+            })
+        except (ValueError, User.DoesNotExist):
+            return Response({'error': 'Invalid reset token'}, status=status.HTTP_400_BAD_REQUEST)

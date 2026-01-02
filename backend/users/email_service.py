@@ -441,3 +441,111 @@ Zaheerabad Industrial Area
         print(f"[EMAIL] Rejection notification sent to {user.email}")
     except Exception as e:
         print(f"[EMAIL ERROR] Failed to send rejection notification to {user.email}: {e}")
+
+
+def send_password_reset_email(user, reset_url):
+    """Send password reset email with HTML template."""
+    subject = 'Password Reset Request - PMIS Zaheerabad Industrial Area'
+    
+    text_content = f"""
+Dear {user.first_name or 'User'},
+
+We received a request to reset your password for your PMIS account.
+
+Click the link below to reset your password:
+{reset_url}
+
+This link will expire in 1 hour.
+
+If you did not request a password reset, please ignore this email or contact support if you have concerns.
+
+Best regards,
+PMIS Administration
+Zaheerabad Industrial Area
+    """
+    
+    html_content = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <table role="presentation" style="width: 600px; max-width: 100%; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 32px; text-align: center; border-radius: 12px 12px 0 0;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">Password Reset</h1>
+                            <p style="margin: 8px 0 0 0; color: #fef3c7; font-size: 14px;">PMIS - Zaheerabad Industrial Area</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 32px;">
+                            <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px; line-height: 1.5;">
+                                Dear <strong>{user.first_name or 'User'}</strong>,
+                            </p>
+                            
+                            <p style="margin: 0 0 24px 0; color: #374151; font-size: 16px; line-height: 1.5;">
+                                We received a request to reset your password for your PMIS account. Click the button below to create a new password.
+                            </p>
+                            
+                            <table role="presentation" style="width: 100%;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{reset_url}" style="display: inline-block; padding: 14px 32px; background-color: #f59e0b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                                            Reset My Password
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="margin: 24px 0 0 0; color: #6b7280; font-size: 14px; line-height: 1.5;">
+                                This link will expire in <strong>1 hour</strong>.
+                            </p>
+                            
+                            <p style="margin: 16px 0 0 0; color: #6b7280; font-size: 14px; line-height: 1.5;">
+                                If you did not request a password reset, please ignore this email or contact support if you have concerns.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 24px 32px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; border-radius: 0 0 12px 12px;">
+                            <p style="margin: 0; color: #6b7280; font-size: 14px; text-align: center;">
+                                <strong>PMIS Administration</strong><br>
+                                Zaheerabad Industrial Area<br>
+                                This is an automated message, please do not reply.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+    """
+    
+    try:
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[user.email]
+        )
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+        print(f"[EMAIL] Password reset email sent to {user.email}")
+        return True
+    except Exception as e:
+        print(f"[EMAIL ERROR] Failed to send password reset email to {user.email}: {e}")
+        raise
+
