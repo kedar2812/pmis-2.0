@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import projectService from '@/api/services/projectService';
 import dashboardService from '@/api/services/dashboardService';
+import UnifiedDashboard from '@/components/dashboard/UnifiedDashboard';
 import SPVDashboard from '@/components/dashboard/SPVDashboard';
 import PMNCDashboard from '@/components/dashboard/PMNCDashboard';
 import EPCDashboard from '@/components/dashboard/EPCDashboard';
@@ -12,6 +13,20 @@ import { PageLoading } from '@/components/ui/Loading';
 
 const Dashboard = () => {
   const { user } = useAuth();
+
+  // Use the new unified dashboard by default
+  // Set to false to enable role-specific dashboards
+  const useUnifiedDashboard = true;
+
+  // If no user is logged in (should be handled by ProtectedRoute, but safe check)
+  if (!user) return null;
+
+  // New Unified Dashboard for all roles
+  if (useUnifiedDashboard) {
+    return <UnifiedDashboard />;
+  }
+
+  // Legacy role-based dashboards (kept for reference)
   const [projects, setProjects] = useState([]);
   const [dashboardStats, setDashboardStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,17 +34,14 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Fetch projects and dashboard stats in parallel
         const [projectsData, statsData] = await Promise.all([
           projectService.getAllProjects(),
           dashboardService.getStats()
         ]);
-
         setProjects(projectsData);
         setDashboardStats(statsData);
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
-        // Still set projects if available
         try {
           const projectsData = await projectService.getAllProjects();
           setProjects(projectsData);
@@ -43,18 +55,13 @@ const Dashboard = () => {
     fetchDashboardData();
   }, []);
 
-  // If no user is logged in (should be handled by ProtectedRoute, but safe check)
-  if (!user) return null;
-
   if (loading) {
     return <PageLoading text="Loading Dashboard..." />;
   }
 
-  // Extract stats for dashboard components
   const kpis = dashboardStats?.kpis || [];
-  const risks = []; // Could be expanded later with actual risk data
-  const tasks = []; // Could be expanded later with actual task data
-  const recentActivity = dashboardStats?.recent_activity || [];
+  const risks = [];
+  const tasks = [];
 
   // Role-Based Render Logic
   const renderDashboard = () => {
@@ -89,5 +96,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
 
 
