@@ -32,7 +32,17 @@ const projectService = {
         return response.data;
     },
 
+    getWorkPackages: async () => {
+        const response = await client.get('/projects/packages/');
+        return response;
+    },
+
     createPackage: async (packageData) => {
+        const response = await client.post('/projects/packages/', packageData);
+        return response.data;
+    },
+
+    createWorkPackage: async (packageData) => {
         const response = await client.post('/projects/packages/', packageData);
         return response.data;
     },
@@ -49,3 +59,4 @@ const projectService = {
 };
 
 export default projectService;
+

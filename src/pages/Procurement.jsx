@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Building2,
@@ -9,12 +9,14 @@ import {
     Phone,
     MapPin,
     FileBadge,
+    Loader2,
 
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useMockData } from '@/hooks/useMockData';
+import mastersService from '@/api/services/mastersService';
+import projectService from '@/api/services/projectService';
 import { AddContractorModal } from '@/components/procurement/AddContractorModal';
 import { ContractorDetailModal } from '@/components/procurement/ContractorDetailModal';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -22,16 +24,13 @@ import { toast } from 'sonner';
 
 const Procurement = () => {
     const { t } = useLanguage();
-    const {
-        contractors,
-        projects,
-        packages,
-        addContractor,
-        deleteContractor,
-        addProject,
-        addPackage,
-        updateContractor
-    } = useMockData();
+
+    // Real data state
+    const [contractors, setContractors] = useState([]);
+    const [projects, setProjects] = useState([]);
+    const [packages, setPackages] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const [viewMode, setViewMode] = useState('grid');
     const [searchQuery, setSearchQuery] = useState('');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -41,6 +40,25 @@ const Procurement = () => {
     const [selectedContractor, setSelectedContractor] = useState(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
+    // Fetch real data on mount
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [contractorsRes, projectsData] = await Promise.all([
+                    mastersService.getContractors(),
+                    projectService.getAllProjects()
+                ]);
+                setContractors(contractorsRes.data?.results || contractorsRes.data || []);
+                setProjects(projectsData || []);
+            } catch (error) {
+                console.error('Failed to fetch procurement data:', error);
+                toast.error('Failed to load contractors');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
 
     const handleContractorClick = (contractor) => {
         setSelectedContractor(contractor);
@@ -48,8 +66,37 @@ const Procurement = () => {
     };
 
     const handleSaveContractor = async (data) => {
-        await addContractor(data);
-        setIsAddModalOpen(false);
+        try {
+            const response = await mastersService.createContractor(data);
+            setContractors(prev => [response.data, ...prev]);
+            setIsAddModalOpen(false);
+            toast.success('Contractor added successfully');
+        } catch (error) {
+            console.error('Failed to add contractor:', error);
+            toast.error('Failed to add contractor');
+        }
+    };
+
+    const handleUpdateContractor = async (id, data) => {
+        try {
+            const response = await mastersService.updateContractor(id, data);
+            setContractors(prev => prev.map(c => c.id === id ? response.data : c));
+            toast.success('Contractor updated successfully');
+        } catch (error) {
+            console.error('Failed to update contractor:', error);
+            toast.error('Failed to update contractor');
+        }
+    };
+
+    const handleDeleteContractor = async (id) => {
+        try {
+            await mastersService.deleteContractor(id);
+            setContractors(prev => prev.filter(c => c.id !== id));
+            toast.success('Contractor deleted');
+        } catch (error) {
+            console.error('Failed to delete contractor:', error);
+            toast.error('Failed to delete contractor');
+        }
     };
 
     const handleModalClose = () => {
@@ -58,12 +105,13 @@ const Procurement = () => {
 
     // Filter contractors based on search
     const filteredContractors = contractors.filter(c =>
-        c.contractorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.panNo?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.gstinNo?.toLowerCase().includes(searchQuery.toLowerCase())
+        c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.contractor_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.pan_no?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.gstin?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const activeContractors = filteredContractors.filter(c => c.status === 'Active').length;
+    const activeContractors = filteredContractors.filter(c => !c.blacklisted).length;
 
     return (
         <div className="p-6 space-y-6">
@@ -130,7 +178,11 @@ const Procurement = () => {
             </Card>
 
             {/* Contractors Grid */}
-            {filteredContractors.length > 0 ? (
+            {loading ? (
+                <div className="flex items-center justify-center py-16">
+                    <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+                </div>
+            ) : filteredContractors.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredContractors.map((contractor, index) => (
                         <motion.div
@@ -146,33 +198,48 @@ const Procurement = () => {
                                             <div className="p-3 rounded-lg bg-primary-50 text-primary-700 group-hover:bg-primary-600 group-hover:text-white transition-colors duration-300">
                                                 <Building2 size={24} />
                                             </div>
+                                            {contractor.blacklisted && (
+                                                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                                    Blacklisted
+                                                </span>
+                                            )}
                                         </div>
 
                                         <div>
                                             <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary-700 transition-colors">
-                                                {contractor.contractorName}
+                                                {contractor.name || contractor.contractor_name || 'Unnamed Contractor'}
                                             </h3>
                                             <div className="flex items-center gap-2 mt-1">
-                                                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                                                    {contractor.status || 'Active'}
+                                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${contractor.blacklisted
+                                                        ? 'bg-red-100 text-red-700'
+                                                        : contractor.is_valid
+                                                            ? 'bg-green-100 text-green-700'
+                                                            : 'bg-amber-100 text-amber-700'
+                                                    }`}>
+                                                    {contractor.blacklisted ? 'Blacklisted' : contractor.is_valid ? 'Active' : 'Expired'}
                                                 </span>
-                                                <span className="text-sm text-slate-500">• {contractor.projects || 0} Active Projects</span>
                                             </div>
                                         </div>
 
                                         <div className="space-y-3 pt-4 border-t border-slate-100">
-                                            <div className="flex items-center gap-3 text-sm text-slate-600">
-                                                <FileBadge size={16} className="text-slate-400" />
-                                                <span className="font-mono">{contractor.gstinNo}</span>
-                                            </div>
-                                            <div className="flex items-center gap-3 text-sm text-slate-600">
-                                                <MapPin size={16} className="text-slate-400" />
-                                                <span className="truncate">{contractor.city}, {contractor.state}</span>
-                                            </div>
-                                            <div className="flex items-center gap-3 text-sm text-slate-600">
-                                                <Mail size={16} className="text-slate-400" />
-                                                <span className="truncate">{contractor.email}</span>
-                                            </div>
+                                            {contractor.gstin && (
+                                                <div className="flex items-center gap-3 text-sm text-slate-600">
+                                                    <FileBadge size={16} className="text-slate-400" />
+                                                    <span className="font-mono">{contractor.gstin}</span>
+                                                </div>
+                                            )}
+                                            {(contractor.city || contractor.state) && (
+                                                <div className="flex items-center gap-3 text-sm text-slate-600">
+                                                    <MapPin size={16} className="text-slate-400" />
+                                                    <span className="truncate">{[contractor.city, contractor.state].filter(Boolean).join(', ')}</span>
+                                                </div>
+                                            )}
+                                            {contractor.email && (
+                                                <div className="flex items-center gap-3 text-sm text-slate-600">
+                                                    <Mail size={16} className="text-slate-400" />
+                                                    <span className="truncate">{contractor.email}</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </Card>
@@ -196,8 +263,6 @@ const Procurement = () => {
                 onSave={handleSaveContractor}
                 projects={projects}
                 packages={packages}
-                onAddProject={addProject}
-                onAddPackage={addPackage}
                 contractor={null}
             />
 
@@ -205,10 +270,11 @@ const Procurement = () => {
                 isOpen={isDetailModalOpen}
                 onClose={() => setIsDetailModalOpen(false)}
                 contractor={selectedContractor}
-                onUpdate={updateContractor}
+                onUpdate={handleUpdateContractor}
             />
         </div>
     );
 };
 
 export default Procurement;
+

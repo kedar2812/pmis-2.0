@@ -3,7 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import projectService from '@/api/services/projectService';
-import { useMockData } from '@/hooks/useMockData';
+import mastersService from '@/api/services/mastersService';
 import { CreateProjectModal } from '@/components/projects/CreateProjectModal';
 import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
 import { CreatePackageModal } from '@/components/packages/CreatePackageModal';
@@ -19,10 +19,10 @@ import { toast } from 'sonner';
 const Projects = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
-  // Keep using useMockData for packages/contractors for now until those are migrated
-  const { addPackage, packages, contractors, addContractor } = useMockData();
 
   const [projects, setProjects] = useState([]);
+  const [contractors, setContractors] = useState([]);
+  const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,13 +32,19 @@ const Projects = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-  // Fetch Projects from Backend
-  const fetchProjects = async () => {
+  // Fetch all data from Backend
+  const fetchData = async () => {
     try {
-      const data = await projectService.getAllProjects();
-      setProjects(data);
+      const [projectsData, contractorsRes, packagesRes] = await Promise.all([
+        projectService.getAllProjects(),
+        mastersService.getActiveContractors(),
+        projectService.getWorkPackages ? projectService.getWorkPackages() : Promise.resolve({ data: [] })
+      ]);
+      setProjects(projectsData || []);
+      setContractors(contractorsRes.data || []);
+      setPackages(packagesRes.data || []);
     } catch (error) {
-      console.error('Failed to load projects:', error);
+      console.error('Failed to load data:', error);
       toast.error('Failed to load projects');
     } finally {
       setLoading(false);
@@ -46,7 +52,7 @@ const Projects = () => {
   };
 
   useEffect(() => {
-    fetchProjects();
+    fetchData();
   }, []);
 
   // Check if user can create projects
@@ -393,19 +399,29 @@ const Projects = () => {
         isOpen={!!selectedProject}
         onClose={() => setSelectedProject(null)}
         project={selectedProject}
-        packages={packages}
+        packages={packages.filter(p => p.project === selectedProject?.id)}
         contractors={contractors}
-        onAddContractor={addContractor}
       />
 
       <CreatePackageModal
         isOpen={isCreatePackageModalOpen}
         onClose={() => setIsCreatePackageModalOpen(false)}
         projects={projects}
-        onSave={addPackage}
+        onSave={async (packageData) => {
+          try {
+            await projectService.createWorkPackage(packageData);
+            toast.success('Work package created');
+            setIsCreatePackageModalOpen(false);
+            fetchData();
+          } catch (error) {
+            console.error('Failed to create package:', error);
+            toast.error('Failed to create work package');
+          }
+        }}
       />
     </div>
   );
 };
 
 export default Projects;
+

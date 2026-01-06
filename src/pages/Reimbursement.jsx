@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { Upload, Send, FileText } from 'lucide-react';
+import { Upload, Send, FileText, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useMockData } from '@/hooks/useMockData';
+import projectService from '@/api/services/projectService';
 
 const Reimbursement = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
-  const { projects } = useMockData();
+
+  // Real data state
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [formData, setFormData] = useState({
     expenseType: '',
     amount: '',
@@ -19,6 +23,21 @@ const Reimbursement = () => {
   });
   const [proofFile, setProofFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch real projects
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const data = await projectService.getAllProjects();
+        setProjects(data || []);
+      } catch (error) {
+        console.error('Failed to fetch projects:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProjects();
+  }, []);
 
   const expenseTypes = ['Travel', 'Meals', 'Accommodation', 'Materials', 'Other'];
 

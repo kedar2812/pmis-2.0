@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import projectService from '@/api/services/projectService';
+import mastersService from '@/api/services/mastersService';
 
 import { ProjectDetailView } from '@/components/projects/ProjectDetailView';
 import Button from '@/components/ui/Button';
 import { ChevronLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-
-// Temporary mock for contractors if service missing
-import { useMockData } from '@/hooks/useMockData';
 
 const ProjectDetailsPage = () => {
     const { id } = useParams();
@@ -16,18 +14,19 @@ const ProjectDetailsPage = () => {
 
     const [project, setProject] = useState(null);
     const [packages, setPackages] = useState([]);
+    const [contractors, setContractors] = useState([]);
     const [loading, setLoading] = useState(true);
-
-    // We still need contractors list for the dropdowns
-    const { contractors: mockContractors } = useMockData();
-    // Ideally we should fetch real contractors:
-    // const [contractors, setContractors] = useState([]);
 
     const loadProjectData = async () => {
         try {
             setLoading(true);
-            const projectData = await projectService.getProjectById(id);
+            const [projectData, contractorsRes] = await Promise.all([
+                projectService.getProjectById(id),
+                mastersService.getActiveContractors()
+            ]);
+
             setProject(projectData);
+            setContractors(contractorsRes.data || []);
 
             // If the project serializer returns work_packages, use them.
             // Otherwise fetch separately.
@@ -83,7 +82,7 @@ const ProjectDetailsPage = () => {
                 <ProjectDetailView
                     project={project}
                     packages={packages}
-                    contractors={mockContractors}
+                    contractors={contractors}
                     onPackageUpdate={handlePackageCreated}
                 />
             </div>
@@ -92,3 +91,4 @@ const ProjectDetailsPage = () => {
 };
 
 export default ProjectDetailsPage;
+
