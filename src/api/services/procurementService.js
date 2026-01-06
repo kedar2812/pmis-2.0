@@ -53,6 +53,12 @@ const procurementService = {
         return response.data;
     },
 
+    // NICDC Portal Integration
+    syncToNICDC: async (tenderId) => {
+        const response = await client.post(`/procurement/tenders/${tenderId}/sync_to_nicdc/`);
+        return response.data;
+    },
+
     // ========== Bids ==========
     getBids: async (params = {}) => {
         const response = await client.get('/procurement/bids/', { params });

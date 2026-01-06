@@ -43,6 +43,40 @@ class TenderViewSet(viewsets.ModelViewSet):
         return Response(TenderSerializer(tender).data)
 
     @action(detail=True, methods=['post'])
+    def sync_to_nicdc(self, request, pk=None):
+        """
+        Publish tender to NICDC Procurement Portal for external visibility.
+        This enables bidders to view and submit bids through the central portal.
+        """
+        from .nicdc_integration import nicdc_service
+        
+        tender = self.get_object()
+        
+        if not nicdc_service.is_configured():
+            return Response({
+                'error': 'NICDC Portal integration is not configured',
+                'hint': 'Set NICDC_PORTAL_API_URL and NICDC_PORTAL_API_KEY in environment'
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        
+        if tender.nicdc_portal_ref:
+            return Response({
+                'message': 'Tender already synced to NICDC Portal',
+                'nicdc_ref': tender.nicdc_portal_ref
+            })
+        
+        nicdc_ref = nicdc_service.publish_tender(tender)
+        
+        if nicdc_ref:
+            return Response({
+                'message': 'Tender published to NICDC Portal',
+                'nicdc_ref': nicdc_ref
+            })
+        else:
+            return Response({
+                'error': 'Failed to publish tender to NICDC Portal'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=True, methods=['post'])
     def open_bids(self, request, pk=None):
         """Open bids for evaluation."""
         tender = self.get_object()
