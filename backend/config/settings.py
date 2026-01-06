@@ -30,7 +30,6 @@ INSTALLED_APPS = [
     'django_filters',
     
     # Local Apps
-    # Local Apps
     'users.apps.UsersConfig',
     'projects',
     'edms',
@@ -39,6 +38,7 @@ INSTALLED_APPS = [
     'scheduling',
     'banks.apps.BanksConfig',
     'masters.apps.MastersConfig',
+    'procurement',
 ]
 
 MIDDLEWARE = [
