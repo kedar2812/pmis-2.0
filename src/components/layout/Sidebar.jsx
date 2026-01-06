@@ -191,10 +191,10 @@ const Sidebar = () => {
       permission: 'bim:view',
     },
     {
-      id: 'procurement',
-      label: 'Procurement',
-      icon: FileText,
-      path: '/procurement',
+      id: 'e-procurement',
+      label: 'e-Procurement',
+      icon: Building2,
+      path: '/e-procurement',
       permission: 'dashboard:view',
     },
     {

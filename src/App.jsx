@@ -21,7 +21,7 @@ import RiskManagement from './pages/RiskManagement';
 import GIS from './pages/GIS';
 import BIM from './pages/BIM';
 import WorkflowConfig from './pages/WorkflowConfig';
-import Procurement from './pages/Procurement';
+import EProcurement from './pages/EProcurement';
 import Reimbursement from './pages/Reimbursement';
 import RoleManager from './pages/RoleManager';
 import ProjectDetailsPage from './pages/ProjectDetailsPage';
@@ -64,8 +64,7 @@ const AppRoutes = () => {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="projects" element={<Projects />} />
         <Route path="projects/:id" element={<ProjectDetailsPage />} />
-        <Route path="procurement" element={<Procurement />} />
-        <Route path="procurement" element={<Procurement />} />
+        <Route path="e-procurement" element={<EProcurement />} />
         <Route path="cost/billing" element={<RABilling />} />
         <Route path="cost/funds" element={<FundManagement />} />
         <Route path="cost/budgeting" element={<Budgeting />} />
