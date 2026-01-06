@@ -67,11 +67,14 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
     return `₹${(amount / 100000).toFixed(2)} L`;
   };
 
-  // Calculate days remaining
-  const endDate = new Date(project.endDate);
+  // Calculate days remaining - with null checks
+  const endDateValue = project.endDate || project.end_date;
+  const endDate = endDateValue ? new Date(endDateValue) : null;
   const today = new Date();
-  const daysRemaining = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  const isOverdue = daysRemaining < 0;
+  const daysRemaining = endDate && !isNaN(endDate.getTime())
+    ? Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+    : 0;
+  const isOverdue = endDate && !isNaN(endDate.getTime()) ? daysRemaining < 0 : false;
 
   // Generate progress history (last 6 months)
   const progressHistory = Array.from({ length: 6 }, (_, i) => {
@@ -288,17 +291,21 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                         <div>
                           <p className="text-sm font-medium text-gray-700">Project Timeline</p>
                           <p className="text-sm text-gray-600">
-                            {new Date(project.startDate).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                            })}{' '}
+                            {project.startDate || project.start_date
+                              ? new Date(project.startDate || project.start_date).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                              })
+                              : 'Not set'}{' '}
                             -{' '}
-                            {new Date(project.endDate).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                            })}
+                            {project.endDate || project.end_date
+                              ? new Date(project.endDate || project.end_date).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                              })
+                              : 'Not set'}
                           </p>
                         </div>
                       </div>

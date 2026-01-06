@@ -150,6 +150,10 @@ const ProjectRow = ({ project, onClick }) => {
         'On Hold': 'bg-slate-100 text-slate-700',
     };
 
+    // Safe values to prevent NaN
+    const budget = Number(project.budget) || 0;
+    const progress = Number(project.progress) || 0;
+
     return (
         <motion.tr
             className="hover:bg-slate-50/50 cursor-pointer transition-colors"
@@ -160,12 +164,12 @@ const ProjectRow = ({ project, onClick }) => {
                 <p className="font-medium text-slate-800 truncate max-w-[200px]">{project.name}</p>
             </td>
             <td className="py-3">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[project.status]}`}>
-                    {project.status}
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[project.status] || 'bg-slate-100 text-slate-700'}`}>
+                    {project.status || 'Unknown'}
                 </span>
             </td>
             <td className="py-3 text-right text-sm font-medium text-slate-700">
-                ₹{(project.budget / 10000000).toFixed(2)} Cr
+                ₹{(budget / 10000000).toFixed(2)} Cr
             </td>
             <td className="py-3 pr-4">
                 <div className="flex items-center gap-2">
@@ -173,11 +177,11 @@ const ProjectRow = ({ project, onClick }) => {
                         <motion.div
                             className="h-full bg-gradient-to-r from-primary-500 to-primary-600 rounded-full"
                             initial={{ width: 0 }}
-                            animate={{ width: `${project.progress}%` }}
+                            animate={{ width: `${progress}%` }}
                             transition={{ duration: 1, delay: 0.2 }}
                         />
                     </div>
-                    <span className="text-xs font-medium text-slate-500 w-10 text-right">{project.progress}%</span>
+                    <span className="text-xs font-medium text-slate-500 w-10 text-right">{progress}%</span>
                 </div>
             </td>
         </motion.tr>
