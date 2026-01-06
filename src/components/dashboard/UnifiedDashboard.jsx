@@ -10,8 +10,9 @@ import { PageLoading } from '@/components/ui/Loading';
 import {
     TrendingUp, TrendingDown, DollarSign, FolderOpen, Clock, AlertTriangle,
     FileText, CheckCircle, Calendar, ChevronRight, Bell, Gavel, FileSignature,
-    Activity, ArrowRight, Loader2, Users, Building2, Briefcase
+    Activity, ArrowRight, Loader2, Users, Building2, Briefcase, Maximize2
 } from 'lucide-react';
+import GraphAnalysisModal from '@/components/ui/GraphAnalysisModal';
 
 // Glass Card Component
 const GlassCard = ({ children, className = '', onClick, hoverable = true }) => (
@@ -214,6 +215,8 @@ const UnifiedDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState(null);
     const [projects, setProjects] = useState([]);
+    const [graphModalOpen, setGraphModalOpen] = useState(false);
+    const [graphModalMetric, setGraphModalMetric] = useState('budget');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -325,10 +328,14 @@ const UnifiedDashboard = () => {
                 })}
             </div>
 
-            {/* Main Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Financial Overview - 2 cols */}
-                <GlassCard className="lg:col-span-2 p-6" hoverable={false}>
+            {/* Main Grid - Equal Size Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Financial Overview */}
+                <GlassCard className="p-6 group" hoverable={true} onClick={() => { setGraphModalMetric('budget'); setGraphModalOpen(true); }}>
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-slate-400 font-medium">Click to expand</span>
+                        <Maximize2 size={16} className="text-slate-300 group-hover:text-primary-500 transition-colors" />
+                    </div>
                     <DynamicChart
                         title="Budget vs Spent (in Crores)"
                         data={financialChartData}
@@ -340,8 +347,12 @@ const UnifiedDashboard = () => {
                     />
                 </GlassCard>
 
-                {/* Project Status - 1 col */}
-                <GlassCard className="p-6" hoverable={false}>
+                {/* Project Status */}
+                <GlassCard className="p-6 group" hoverable={true} onClick={() => { setGraphModalMetric('count'); setGraphModalOpen(true); }}>
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-slate-400 font-medium">Click to expand</span>
+                        <Maximize2 size={16} className="text-slate-300 group-hover:text-primary-500 transition-colors" />
+                    </div>
                     <DynamicChart
                         title="Project Status"
                         data={projectStatusData}
@@ -481,6 +492,14 @@ const UnifiedDashboard = () => {
                     </table>
                 </div>
             </GlassCard>
+
+            {/* Graph Analysis Modal - Opens when clicking charts */}
+            <GraphAnalysisModal
+                isOpen={graphModalOpen}
+                onClose={() => setGraphModalOpen(false)}
+                projects={projects}
+                initialMetric={graphModalMetric}
+            />
         </div>
     );
 };
