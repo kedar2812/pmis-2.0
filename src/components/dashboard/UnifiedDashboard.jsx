@@ -2,214 +2,143 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
 import dashboardService from '@/api/services/dashboardService';
 import projectService from '@/api/services/projectService';
 import { DynamicChart } from '@/components/ui/DynamicChart';
 import { PageLoading } from '@/components/ui/Loading';
+import GraphAnalysisModal from '@/components/ui/GraphAnalysisModal';
 import {
     TrendingUp, TrendingDown, DollarSign, FolderOpen, Clock, AlertTriangle,
-    FileText, CheckCircle, Calendar, ChevronRight, Bell, Gavel, FileSignature,
-    Activity, ArrowRight, Loader2, Users, Building2, Briefcase, Maximize2
+    FileText, CheckCircle, Calendar, ChevronRight, Bell, Activity, ArrowRight,
+    Target, MapPin, Flag, AlertCircle, FileSignature, BarChart3, Maximize2,
+    Map, Box, Shield, GitPullRequest, Wallet, CircleDollarSign
 } from 'lucide-react';
-import GraphAnalysisModal from '@/components/ui/GraphAnalysisModal';
 
 // Glass Card Component
-const GlassCard = ({ children, className = '', onClick, hoverable = true }) => (
+const GlassCard = ({ children, className = '', onClick, hoverable = false }) => (
     <motion.div
         className={`
             relative overflow-hidden rounded-2xl
-            bg-white/70 backdrop-blur-xl
-            border border-white/20
+            bg-white/80 backdrop-blur-xl
+            border border-white/30
             shadow-[0_8px_32px_rgba(0,0,0,0.08)]
-            ${hoverable ? 'hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] hover:bg-white/80 cursor-pointer' : ''}
+            ${hoverable ? 'hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] hover:bg-white/90 cursor-pointer' : ''}
             transition-all duration-300
             ${className}
         `}
         onClick={onClick}
-        whileHover={hoverable ? { y: -2, scale: 1.01 } : {}}
-        whileTap={hoverable ? { scale: 0.99 } : {}}
+        whileHover={hoverable ? { y: -2, scale: 1.005 } : {}}
+        whileTap={hoverable ? { scale: 0.995 } : {}}
     >
-        {/* Glass highlight */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-transparent pointer-events-none" />
         {children}
     </motion.div>
 );
 
-// KPI Card with gradient
-const KPICard = ({ kpi, index, onClick }) => {
-    const colorMap = {
-        emerald: { bg: 'from-emerald-500 to-emerald-600', light: 'bg-emerald-100', text: 'text-emerald-600', icon: 'text-emerald-500' },
-        blue: { bg: 'from-blue-500 to-blue-600', light: 'bg-blue-100', text: 'text-blue-600', icon: 'text-blue-500' },
-        amber: { bg: 'from-amber-500 to-amber-600', light: 'bg-amber-100', text: 'text-amber-600', icon: 'text-amber-500' },
-        violet: { bg: 'from-violet-500 to-violet-600', light: 'bg-violet-100', text: 'text-violet-600', icon: 'text-violet-500' },
-        rose: { bg: 'from-rose-500 to-rose-600', light: 'bg-rose-100', text: 'text-rose-600', icon: 'text-rose-500' },
+// KPI Card - Architecture compliant
+const KPICard = ({ icon: Icon, label, value, subtext, color, trend, onClick }) => {
+    const colorClasses = {
+        blue: 'from-blue-500 to-blue-600',
+        emerald: 'from-emerald-500 to-emerald-600',
+        amber: 'from-amber-500 to-amber-600',
+        violet: 'from-violet-500 to-violet-600',
+        rose: 'from-rose-500 to-rose-600',
     };
 
-    const colors = colorMap[kpi.color] || colorMap.blue;
-    const TrendIcon = kpi.trend === 'up' ? TrendingUp : kpi.trend === 'down' ? TrendingDown : Activity;
-
-    const iconMap = {
-        total_budget: DollarSign,
-        active_projects: FolderOpen,
-        pending_approvals: Clock,
-        schedule_health: Calendar,
-        active_contracts: FileSignature,
-    };
-    const Icon = iconMap[kpi.id] || Activity;
+    const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Activity;
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            onClick={onClick}
-        >
-            <GlassCard className="p-5 group">
-                <div className="flex items-start justify-between">
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${colors.bg} shadow-lg`}>
-                        <Icon className="text-white" size={22} />
-                    </div>
-                    <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${colors.light}`}>
-                        <TrendIcon size={14} className={colors.icon} />
-                        <span className={`text-xs font-medium ${colors.text}`}>{kpi.change}</span>
-                    </div>
+        <GlassCard className="p-5" hoverable onClick={onClick}>
+            <div className="flex items-start justify-between">
+                <div className={`p-3 rounded-xl bg-gradient-to-br ${colorClasses[color]} shadow-lg`}>
+                    <Icon className="text-white" size={20} />
                 </div>
-                <div className="mt-4">
-                    <p className="text-sm text-slate-500 font-medium">{kpi.label}</p>
-                    <p className="text-2xl font-bold text-slate-900 mt-1">{kpi.formatted}</p>
-                </div>
-            </GlassCard>
-        </motion.div>
-    );
-};
-
-// Alert Card
-const AlertCard = ({ alert, onClick }) => {
-    const severityColors = {
-        critical: 'border-l-rose-500 bg-rose-50/50',
-        warning: 'border-l-amber-500 bg-amber-50/50',
-        info: 'border-l-blue-500 bg-blue-50/50',
-    };
-
-    return (
-        <motion.div
-            className={`p-4 rounded-lg border-l-4 ${severityColors[alert.severity]} cursor-pointer hover:shadow-md transition-all`}
-            onClick={onClick}
-            whileHover={{ x: 4 }}
-        >
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <AlertTriangle size={18} className={alert.severity === 'critical' ? 'text-rose-500' : 'text-amber-500'} />
-                    <span className="text-sm font-medium text-slate-700">{alert.message}</span>
-                </div>
-                <ChevronRight size={16} className="text-slate-400" />
-            </div>
-        </motion.div>
-    );
-};
-
-// Activity Item
-const ActivityItem = ({ activity, onClick }) => {
-    const iconMap = {
-        project_update: FolderOpen,
-        document_upload: FileText,
-    };
-    const colorMap = {
-        blue: 'bg-blue-100 text-blue-600',
-        green: 'bg-green-100 text-green-600',
-    };
-
-    const Icon = iconMap[activity.type] || Activity;
-    const colorClass = colorMap[activity.color] || 'bg-slate-100 text-slate-600';
-
-    return (
-        <motion.div
-            className="flex items-start gap-3 p-3 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors"
-            onClick={onClick}
-            whileHover={{ x: 2 }}
-        >
-            <div className={`p-2 rounded-lg ${colorClass}`}>
-                <Icon size={16} />
-            </div>
-            <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-700 truncate">{activity.title}</p>
-                <p className="text-xs text-slate-400 mt-0.5">
-                    {new Date(activity.timestamp).toLocaleString()}
-                </p>
-            </div>
-        </motion.div>
-    );
-};
-
-// Project Row
-const ProjectRow = ({ project, onClick }) => {
-    const statusColors = {
-        'In Progress': 'bg-blue-100 text-blue-700',
-        'Planning': 'bg-amber-100 text-amber-700',
-        'Completed': 'bg-green-100 text-green-700',
-        'On Hold': 'bg-slate-100 text-slate-700',
-    };
-
-    // Safe values to prevent NaN
-    const budget = Number(project.budget) || 0;
-    const progress = Number(project.progress) || 0;
-
-    return (
-        <motion.tr
-            className="hover:bg-slate-50/50 cursor-pointer transition-colors"
-            onClick={onClick}
-            whileHover={{ backgroundColor: 'rgba(248, 250, 252, 0.8)' }}
-        >
-            <td className="py-3 pl-4">
-                <p className="font-medium text-slate-800 truncate max-w-[200px]">{project.name}</p>
-            </td>
-            <td className="py-3">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[project.status] || 'bg-slate-100 text-slate-700'}`}>
-                    {project.status || 'Unknown'}
-                </span>
-            </td>
-            <td className="py-3 text-right text-sm font-medium text-slate-700">
-                ₹{(budget / 10000000).toFixed(2)} Cr
-            </td>
-            <td className="py-3 pr-4">
-                <div className="flex items-center gap-2">
-                    <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                        <motion.div
-                            className="h-full bg-gradient-to-r from-primary-500 to-primary-600 rounded-full"
-                            initial={{ width: 0 }}
-                            animate={{ width: `${progress}%` }}
-                            transition={{ duration: 1, delay: 0.2 }}
-                        />
-                    </div>
-                    <span className="text-xs font-medium text-slate-500 w-10 text-right">{progress}%</span>
-                </div>
-            </td>
-        </motion.tr>
-    );
-};
-
-// Quick Action Card
-const QuickActionCard = ({ icon: Icon, label, count, color, onClick }) => (
-    <GlassCard className="p-4" onClick={onClick}>
-        <div className="flex items-center gap-3">
-            <div className={`p-2.5 rounded-xl ${color}`}>
-                <Icon size={20} className="text-white" />
-            </div>
-            <div className="flex-1">
-                <p className="text-sm font-medium text-slate-600">{label}</p>
-                {count !== undefined && (
-                    <p className="text-lg font-bold text-slate-900">{count}</p>
+                {trend && (
+                    <TrendIcon size={16} className={trend === 'up' ? 'text-emerald-500' : trend === 'down' ? 'text-rose-500' : 'text-slate-400'} />
                 )}
             </div>
-            <ChevronRight size={18} className="text-slate-300" />
+            <div className="mt-4">
+                <p className="text-sm text-slate-500 font-medium">{label}</p>
+                <p className="text-2xl font-bold text-slate-900 mt-1">{value}</p>
+                {subtext && <p className="text-xs text-slate-400 mt-1">{subtext}</p>}
+            </div>
+        </GlassCard>
+    );
+};
+
+// Milestone Item
+const MilestoneItem = ({ milestone, onClick }) => (
+    <motion.div
+        className="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-lg cursor-pointer"
+        onClick={onClick}
+        whileHover={{ x: 4 }}
+    >
+        <div className="w-3 h-3 rounded-full bg-primary-500 ring-4 ring-primary-100" />
+        <div className="flex-1">
+            <p className="text-sm font-medium text-slate-700">{milestone.name}</p>
+            <p className="text-xs text-slate-400">{milestone.project}</p>
         </div>
-    </GlassCard>
+        <div className="text-right">
+            <p className="text-xs font-medium text-slate-600">
+                {milestone.date ? new Date(milestone.date).toLocaleDateString() : 'TBD'}
+            </p>
+        </div>
+    </motion.div>
+);
+
+// Alert Item
+const AlertItem = ({ alert, onClick }) => {
+    const severityColors = {
+        critical: 'bg-rose-100 text-rose-700 border-rose-200',
+        warning: 'bg-amber-100 text-amber-700 border-amber-200',
+        info: 'bg-blue-100 text-blue-700 border-blue-200',
+    };
+
+    return (
+        <motion.div
+            className={`p-3 rounded-lg border ${severityColors[alert.severity]} cursor-pointer`}
+            onClick={onClick}
+            whileHover={{ scale: 1.02 }}
+        >
+            <div className="flex items-center gap-2">
+                <AlertCircle size={16} />
+                <span className="text-sm font-medium">{alert.message}</span>
+            </div>
+        </motion.div>
+    );
+};
+
+// Risk Badge
+const RiskBadge = ({ level, count }) => {
+    const colors = {
+        high: 'bg-rose-500',
+        medium: 'bg-amber-500',
+        low: 'bg-emerald-500',
+    };
+    return (
+        <div className="flex items-center gap-2">
+            <div className={`w-3 h-3 rounded-full ${colors[level]}`} />
+            <span className="text-sm font-medium text-slate-600 capitalize">{level}</span>
+            <span className="text-sm font-bold text-slate-800">{count}</span>
+        </div>
+    );
+};
+
+// EVM Gauge
+const EVMGauge = ({ label, value, isGood }) => (
+    <div className="text-center">
+        <div className={`text-3xl font-bold ${isGood ? 'text-emerald-600' : 'text-rose-600'}`}>
+            {value.toFixed(2)}
+        </div>
+        <div className="text-xs text-slate-500 mt-1">{label}</div>
+        <div className={`text-xs mt-1 ${isGood ? 'text-emerald-500' : 'text-rose-500'}`}>
+            {isGood ? '✓ On Track' : '⚠ Attention'}
+        </div>
+    </div>
 );
 
 const UnifiedDashboard = () => {
     const { user } = useAuth();
-    const { t } = useLanguage();
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
@@ -237,35 +166,43 @@ const UnifiedDashboard = () => {
     }, []);
 
     if (loading) {
-        return <PageLoading text="Loading Dashboard..." />;
+        return <PageLoading text="Loading Command Center..." />;
     }
 
-    const kpis = stats?.kpis || [];
-    const alerts = stats?.alerts || [];
-    const recentActivity = stats?.recent_activity || [];
-    const topProjects = stats?.top_projects || [];
+    // Extract data
     const projectStats = stats?.project_stats || {};
     const financialSummary = stats?.financial_summary || {};
-    const procurementSummary = stats?.procurement_summary || {};
+    const scheduleHealth = stats?.schedule_health || {};
+    const alerts = stats?.alerts || [];
+    const milestones = stats?.milestones || [];
+    const criticalPathTasks = stats?.critical_path_tasks || [];
+    const riskSummary = stats?.risk_summary || { high: 0, medium: 0, low: 0 };
+    const changeRequests = stats?.change_requests || [];
+    const earnedValue = stats?.earned_value || { cpi: 1.0, spi: 1.0 };
+    const cashFlow = stats?.cash_flow || [];
+    const recentActivity = stats?.recent_activity || [];
+    const topProjects = stats?.top_projects || [];
 
     // Chart data
-    const financialChartData = projects.slice(0, 6).map(p => ({
-        name: p.name?.substring(0, 15) || 'Project',
-        budget: (p.budget || 0) / 10000000,
-        spent: (p.spent || 0) / 10000000,
+    const financialChartData = projects.slice(0, 8).map(p => ({
+        name: (p.name || 'Project').substring(0, 12),
+        budget: (Number(p.budget) || 0) / 10000000,
+        spent: (Number(p.spent) || 0) / 10000000,
     }));
 
-    const projectStatusData = [
-        { name: 'In Progress', value: projectStats.in_progress || 0 },
-        { name: 'Planning', value: projectStats.planning || 0 },
-        { name: 'Completed', value: projectStats.completed || 0 },
-        { name: 'On Hold', value: projectStats.on_hold || 0 },
-    ].filter(d => d.value > 0);
+    const cashFlowChartData = cashFlow.map(c => ({
+        name: c.month,
+        inflow: c.inflow,
+        outflow: c.outflow,
+    }));
 
-    const formatCurrency = (amount) => {
-        const num = Number(amount) || 0;
-        return `₹${(num / 10000000).toFixed(2)} Cr`;
-    };
+    // Calculate KPIs
+    const physicalProgress = projects.length > 0
+        ? Math.round(projects.reduce((sum, p) => sum + (Number(p.progress) || 0), 0) / projects.length)
+        : 0;
+    const financialProgress = financialSummary.utilization
+        ? Math.round(financialSummary.utilization)
+        : 0;
 
     const greeting = () => {
         const hour = new Date().getHours();
@@ -276,7 +213,7 @@ const UnifiedDashboard = () => {
 
     return (
         <div className="min-h-screen space-y-6 pb-8">
-            {/* Welcome Header */}
+            {/* Header */}
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -284,176 +221,242 @@ const UnifiedDashboard = () => {
             >
                 <div>
                     <h1 className="text-3xl font-heading font-bold text-slate-900">
-                        {greeting()}, {user?.first_name || 'User'}
+                        {greeting()}, {user?.first_name || 'Admin'}
                     </h1>
                     <p className="text-slate-500 mt-1">
-                        {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                        PMIS Command Center • {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
-                    {alerts.length > 0 && (
-                        <motion.button
-                            className="relative p-2.5 bg-rose-100 text-rose-600 rounded-xl hover:bg-rose-200 transition-colors"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Bell size={20} />
-                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-xs rounded-full flex items-center justify-center">
-                                {alerts.length}
-                            </span>
-                        </motion.button>
-                    )}
-                </div>
+                {alerts.length > 0 && (
+                    <motion.div
+                        className="flex items-center gap-2 px-4 py-2 bg-rose-100 text-rose-700 rounded-xl"
+                        animate={{ scale: [1, 1.02, 1] }}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                    >
+                        <Bell size={18} />
+                        <span className="font-medium">{alerts.length} alerts require attention</span>
+                    </motion.div>
+                )}
             </motion.div>
 
-            {/* KPI Cards Row */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                {kpis.map((kpi, idx) => {
-                    // Map KPI ids to appropriate navigation routes
-                    const routeMap = {
-                        total_budget: '/cost/budgeting',
-                        active_projects: '/projects',
-                        pending_approvals: '/approvals',
-                        schedule_health: '/scheduling',
-                        active_contracts: '/e-procurement',
-                    };
-                    return (
-                        <KPICard
-                            key={kpi.id}
-                            kpi={kpi}
-                            index={idx}
-                            onClick={() => navigate(routeMap[kpi.id] || '/projects')}
-                        />
-                    );
-                })}
+            {/* Section 1: KPI Metrics Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <KPICard
+                    icon={Target}
+                    label="Physical Progress"
+                    value={`${physicalProgress}%`}
+                    subtext={`${projectStats.in_progress || 0} active projects`}
+                    color="blue"
+                    trend={physicalProgress >= 50 ? 'up' : 'down'}
+                    onClick={() => navigate('/projects')}
+                />
+                <KPICard
+                    icon={CircleDollarSign}
+                    label="Financial Progress"
+                    value={`${financialProgress}%`}
+                    subtext={`₹${((financialSummary.total_spent || 0) / 10000000).toFixed(1)} Cr spent`}
+                    color="emerald"
+                    trend={financialProgress <= 80 ? 'up' : 'down'}
+                    onClick={() => navigate('/cost/budgeting')}
+                />
+                <KPICard
+                    icon={Clock}
+                    label="Schedule Health"
+                    value={`${scheduleHealth.percentage || 100}%`}
+                    subtext={`${scheduleHealth.on_track || 0} on track`}
+                    color={scheduleHealth.percentage >= 80 ? 'emerald' : 'amber'}
+                    trend={scheduleHealth.percentage >= 80 ? 'up' : 'down'}
+                    onClick={() => navigate('/scheduling')}
+                />
+                <KPICard
+                    icon={FileSignature}
+                    label="Pending Approvals"
+                    value={stats?.pending_approvals || 0}
+                    subtext="documents awaiting review"
+                    color={stats?.pending_approvals > 0 ? 'amber' : 'emerald'}
+                    onClick={() => navigate('/approvals')}
+                />
             </div>
 
-            {/* Main Grid - Equal Size Charts */}
+            {/* Section 2: Schedule & Timeline + Alerts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Financial Overview */}
-                <GlassCard className="p-6 group" hoverable={true} onClick={() => { setGraphModalMetric('budget'); setGraphModalOpen(true); }}>
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs text-slate-400 font-medium">Click to expand</span>
-                        <Maximize2 size={16} className="text-slate-300 group-hover:text-primary-500 transition-colors" />
+                {/* Milestones */}
+                <GlassCard className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                            <Flag size={20} className="text-primary-600" />
+                            Upcoming Milestones
+                        </h3>
+                        <button className="text-sm text-primary-600 hover:text-primary-700 font-medium" onClick={() => navigate('/scheduling')}>
+                            View Schedule →
+                        </button>
                     </div>
-                    <DynamicChart
-                        title="Budget vs Spent (in Crores)"
-                        data={financialChartData}
-                        dataKey="budget"
-                        height={280}
-                        colors={['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#06b6d4']}
-                        name="Budget"
-                        defaultType="bar"
-                    />
+                    <div className="space-y-1">
+                        {milestones.length > 0 ? (
+                            milestones.slice(0, 5).map((m, idx) => (
+                                <MilestoneItem key={m.id || idx} milestone={m} onClick={() => navigate('/scheduling')} />
+                            ))
+                        ) : (
+                            <p className="text-center py-8 text-slate-400 text-sm">No upcoming milestones</p>
+                        )}
+                    </div>
                 </GlassCard>
 
-                {/* Project Status */}
-                <GlassCard className="p-6 group" hoverable={true} onClick={() => { setGraphModalMetric('count'); setGraphModalOpen(true); }}>
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs text-slate-400 font-medium">Click to expand</span>
-                        <Maximize2 size={16} className="text-slate-300 group-hover:text-primary-500 transition-colors" />
-                    </div>
-                    <DynamicChart
-                        title="Project Status"
-                        data={projectStatusData}
-                        dataKey="value"
-                        height={280}
-                        colors={['#3b82f6', '#f59e0b', '#10b981', '#64748b']}
-                        nameKey="name"
-                        defaultType="pie"
-                    />
-                </GlassCard>
-            </div>
-
-            {/* Alerts and Activity Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Alerts */}
-                <GlassCard className="p-6" hoverable={false}>
+                {/* Alerts & Critical Path */}
+                <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
                             <AlertTriangle size={20} className="text-amber-500" />
-                            Critical Alerts
+                            Alerts & Critical Items
                         </h3>
-                        {alerts.length > 0 && (
-                            <span className="px-2.5 py-1 bg-rose-100 text-rose-700 text-xs font-medium rounded-full">
-                                {alerts.length} items
-                            </span>
-                        )}
                     </div>
                     <div className="space-y-3">
                         {alerts.length > 0 ? (
-                            alerts.map((alert, idx) => (
-                                <AlertCard key={idx} alert={alert} onClick={() => navigate(alert.link)} />
+                            alerts.slice(0, 4).map((alert, idx) => (
+                                <AlertItem key={idx} alert={alert} onClick={() => navigate(alert.link || '/')} />
                             ))
                         ) : (
-                            <div className="text-center py-8 text-slate-400">
-                                <CheckCircle size={32} className="mx-auto mb-2 text-green-400" />
-                                <p className="text-sm">All systems operational</p>
+                            <div className="text-center py-6">
+                                <CheckCircle size={32} className="mx-auto text-emerald-400 mb-2" />
+                                <p className="text-sm text-slate-500">All systems operational</p>
+                            </div>
+                        )}
+                        {criticalPathTasks.length > 0 && (
+                            <div className="mt-4 pt-4 border-t border-slate-100">
+                                <p className="text-xs font-medium text-slate-400 uppercase mb-2">Critical Path Tasks</p>
+                                {criticalPathTasks.slice(0, 2).map((t, idx) => (
+                                    <div key={idx} className={`text-sm py-1 ${t.is_overdue ? 'text-rose-600' : 'text-slate-600'}`}>
+                                        • {t.name} ({t.project})
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>
                 </GlassCard>
+            </div>
 
-                {/* Activity */}
-                <GlassCard className="p-6" hoverable={false}>
+            {/* Section 3: GIS Map Placeholder */}
+            <GlassCard className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                        <Map size={20} className="text-blue-600" />
+                        Project Locations (GIS)
+                    </h3>
+                    <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded">Phase 2</span>
+                </div>
+                <div className="h-48 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-300">
+                    <div className="text-center">
+                        <MapPin size={40} className="mx-auto text-slate-400 mb-2" />
+                        <p className="text-slate-500 font-medium">Interactive GIS Map</p>
+                        <p className="text-xs text-slate-400">Project sites, utilities & boundaries</p>
+                    </div>
+                </div>
+            </GlassCard>
+
+            {/* Section 4: Risk & Compliance + Change Requests */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Risk Summary */}
+                <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                            <Activity size={20} className="text-blue-500" />
-                            Recent Activity
+                            <Shield size={20} className="text-rose-500" />
+                            Risk Summary
                         </h3>
-                        <button className="text-sm text-primary-600 hover:text-primary-700 font-medium">
-                            View all
-                        </button>
                     </div>
-                    <div className="space-y-1 max-h-[280px] overflow-y-auto">
-                        {recentActivity.length > 0 ? (
-                            recentActivity.slice(0, 6).map((activity, idx) => (
-                                <ActivityItem key={idx} activity={activity} onClick={() => navigate(activity.link || '/')} />
+                    <div className="grid grid-cols-3 gap-4">
+                        <RiskBadge level="high" count={riskSummary.high || 0} />
+                        <RiskBadge level="medium" count={riskSummary.medium || 0} />
+                        <RiskBadge level="low" count={riskSummary.low || 0} />
+                    </div>
+                    {riskSummary.top_risks?.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-slate-100">
+                            <p className="text-xs font-medium text-slate-400 uppercase mb-2">Top Risks</p>
+                            {riskSummary.top_risks.map((r, idx) => (
+                                <div key={idx} className="text-sm text-rose-600 py-1">• {r.title}</div>
+                            ))}
+                        </div>
+                    )}
+                </GlassCard>
+
+                {/* Change Requests */}
+                <GlassCard className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                            <GitPullRequest size={20} className="text-violet-500" />
+                            Change Requests / Variations
+                        </h3>
+                        <span className="text-sm font-medium text-violet-600">{changeRequests.length} pending</span>
+                    </div>
+                    <div className="space-y-2">
+                        {changeRequests.length > 0 ? (
+                            changeRequests.slice(0, 3).map((cr, idx) => (
+                                <div key={idx} className="p-3 bg-violet-50 rounded-lg border border-violet-100">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-700">{cr.title}</p>
+                                            <p className="text-xs text-slate-400">{cr.contract}</p>
+                                        </div>
+                                        <span className="text-xs px-2 py-1 bg-violet-200 text-violet-700 rounded">
+                                            {cr.status}
+                                        </span>
+                                    </div>
+                                </div>
                             ))
                         ) : (
-                            <p className="text-center py-8 text-slate-400 text-sm">No recent activity</p>
+                            <p className="text-center py-6 text-slate-400 text-sm">No pending variations</p>
                         )}
                     </div>
                 </GlassCard>
             </div>
 
-            {/* Quick Access */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <QuickActionCard
-                    icon={Clock}
-                    label="Pending Approvals"
-                    count={stats?.pending_approvals || 0}
-                    color="bg-gradient-to-br from-amber-500 to-amber-600"
-                    onClick={() => navigate('/approvals')}
-                />
-                <QuickActionCard
-                    icon={Gavel}
-                    label="Active Tenders"
-                    count={procurementSummary.active_tenders || 0}
-                    color="bg-gradient-to-br from-violet-500 to-violet-600"
-                    onClick={() => navigate('/e-procurement')}
-                />
-                <QuickActionCard
-                    icon={FileText}
-                    label="Documents"
-                    color="bg-gradient-to-br from-blue-500 to-blue-600"
-                    onClick={() => navigate('/edms')}
-                />
-                <QuickActionCard
-                    icon={Calendar}
-                    label="Schedule"
-                    color="bg-gradient-to-br from-emerald-500 to-emerald-600"
-                    onClick={() => navigate('/scheduling')}
-                />
+            {/* Section 5: Financial Overview - EVM + Cash Flow */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* EVM Metrics */}
+                <GlassCard className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                            <BarChart3 size={20} className="text-emerald-600" />
+                            Earned Value Analysis
+                        </h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-8">
+                        <EVMGauge label="CPI (Cost Performance)" value={earnedValue.cpi || 1.0} isGood={(earnedValue.cpi || 1.0) >= 1.0} />
+                        <EVMGauge label="SPI (Schedule Performance)" value={earnedValue.spi || 1.0} isGood={(earnedValue.spi || 1.0) >= 1.0} />
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-slate-100 text-center">
+                        <span className={`text-sm font-medium ${earnedValue.status === 'on_budget' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                            {earnedValue.status === 'on_budget' ? '✓ Project Portfolio On Budget' : '⚠ Budget Variance Detected'}
+                        </span>
+                    </div>
+                </GlassCard>
+
+                {/* Cash Flow Chart */}
+                <GlassCard className="p-6 group" hoverable onClick={() => { setGraphModalMetric('spent'); setGraphModalOpen(true); }}>
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                            <Wallet size={20} className="text-blue-600" />
+                            Cash Flow Trend
+                        </h3>
+                        <Maximize2 size={16} className="text-slate-300 group-hover:text-primary-500 transition-colors" />
+                    </div>
+                    <DynamicChart
+                        data={cashFlowChartData}
+                        dataKey="inflow"
+                        height={200}
+                        colors={['#10b981', '#3b82f6', '#8b5cf6']}
+                        name="Inflow"
+                        defaultType="area"
+                    />
+                </GlassCard>
             </div>
 
-            {/* Top Projects Table */}
-            <GlassCard className="overflow-hidden" hoverable={false}>
+            {/* Section 6: Projects Table */}
+            <GlassCard className="overflow-hidden">
                 <div className="p-6 border-b border-slate-100">
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                            <Briefcase size={20} className="text-primary-600" />
-                            Top Projects by Value
+                            <FolderOpen size={20} className="text-primary-600" />
+                            Project Portfolio
                         </h3>
                         <button
                             className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium"
@@ -465,27 +468,59 @@ const UnifiedDashboard = () => {
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full">
-                        <thead className="bg-slate-50/50">
+                        <thead className="bg-slate-50/80">
                             <tr className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                                 <th className="py-3 pl-6 text-left">Project</th>
                                 <th className="py-3 text-left">Status</th>
                                 <th className="py-3 text-right">Budget</th>
-                                <th className="py-3 pr-6 text-left">Progress</th>
+                                <th className="py-3 text-right">Spent</th>
+                                <th className="py-3 pr-6">Progress</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {(topProjects.length > 0 ? topProjects : projects.slice(0, 5)).map((project, idx) => (
-                                <ProjectRow
-                                    key={project.id || idx}
-                                    project={project}
-                                    onClick={() => navigate(`/projects/${project.id}`)}
-                                />
-                            ))}
+                            {(topProjects.length > 0 ? topProjects : projects.slice(0, 5)).map((project, idx) => {
+                                const budget = Number(project.budget) || 0;
+                                const spent = Number(project.spent) || 0;
+                                const progress = Number(project.progress) || 0;
+                                const statusColors = {
+                                    'In Progress': 'bg-blue-100 text-blue-700',
+                                    'Planning': 'bg-amber-100 text-amber-700',
+                                    'Completed': 'bg-green-100 text-green-700',
+                                    'On Hold': 'bg-slate-100 text-slate-700',
+                                };
+                                return (
+                                    <tr key={project.id || idx} className="hover:bg-slate-50/50 cursor-pointer" onClick={() => navigate(`/projects/${project.id}`)}>
+                                        <td className="py-3 pl-6">
+                                            <p className="font-medium text-slate-800">{project.name}</p>
+                                        </td>
+                                        <td className="py-3">
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[project.status] || 'bg-slate-100 text-slate-700'}`}>
+                                                {project.status || 'Unknown'}
+                                            </span>
+                                        </td>
+                                        <td className="py-3 text-right text-sm font-medium text-slate-700">
+                                            ₹{(budget / 10000000).toFixed(2)} Cr
+                                        </td>
+                                        <td className="py-3 text-right text-sm text-slate-600">
+                                            ₹{(spent / 10000000).toFixed(2)} Cr
+                                        </td>
+                                        <td className="py-3 pr-6">
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-gradient-to-r from-primary-500 to-primary-600 rounded-full"
+                                                        style={{ width: `${progress}%` }}
+                                                    />
+                                                </div>
+                                                <span className="text-xs font-medium text-slate-500 w-10 text-right">{progress}%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                             {topProjects.length === 0 && projects.length === 0 && (
                                 <tr>
-                                    <td colSpan={4} className="py-8 text-center text-slate-400">
-                                        No projects found
-                                    </td>
+                                    <td colSpan={5} className="py-8 text-center text-slate-400">No projects found</td>
                                 </tr>
                             )}
                         </tbody>
@@ -493,7 +528,7 @@ const UnifiedDashboard = () => {
                 </div>
             </GlassCard>
 
-            {/* Graph Analysis Modal - Opens when clicking charts */}
+            {/* Graph Analysis Modal */}
             <GraphAnalysisModal
                 isOpen={graphModalOpen}
                 onClose={() => setGraphModalOpen(false)}

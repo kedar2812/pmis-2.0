@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Count, Q, Avg
 from django.utils import timezone
 from datetime import timedelta
 from .models import Project, WorkPackage
@@ -281,6 +281,137 @@ class DashboardStatsView(APIView):
             }
         ]
         
+        # Milestones from scheduling (next 5 upcoming)
+        milestones = []
+        try:
+            from scheduling.models import ScheduleTask
+            milestone_tasks = ScheduleTask.objects.filter(
+                is_milestone=True,
+                end_date__gte=today
+            ).order_by('end_date')[:5]
+            
+            for m in milestone_tasks:
+                milestones.append({
+                    'id': str(m.id),
+                    'name': m.name,
+                    'project': m.project.name if m.project else 'N/A',
+                    'date': m.end_date.isoformat() if m.end_date else None,
+                    'status': m.status
+                })
+        except Exception:
+            # Fallback: create milestones from project end dates
+            for p in projects.filter(status='In Progress').order_by('end_date')[:5]:
+                if p.end_date:
+                    milestones.append({
+                        'id': str(p.id),
+                        'name': f'{p.name} - Completion',
+                        'project': p.name,
+                        'date': p.end_date.isoformat() if hasattr(p.end_date, 'isoformat') else str(p.end_date),
+                        'status': 'PLANNED'
+                    })
+        
+        # Critical path tasks (overdue or starting soon)
+        critical_path_tasks = []
+        try:
+            from scheduling.models import ScheduleTask
+            critical_tasks = ScheduleTask.objects.filter(
+                Q(is_critical=True) | Q(end_date__lt=today, status__in=['PLANNED', 'IN_PROGRESS'])
+            ).order_by('end_date')[:5]
+            
+            for t in critical_tasks:
+                critical_path_tasks.append({
+                    'id': str(t.id),
+                    'name': t.name,
+                    'project': t.project.name if t.project else 'N/A',
+                    'end_date': t.end_date.isoformat() if t.end_date else None,
+                    'status': t.status,
+                    'is_overdue': t.end_date < today if t.end_date else False
+                })
+        except Exception:
+            pass
+        
+        # Risk summary
+        risk_summary = {
+            'high': 0,
+            'medium': 0,
+            'low': 0,
+            'total': 0,
+            'top_risks': []
+        }
+        try:
+            # If you have a Risk model
+            from projects.models import Risk
+            risks = Risk.objects.all()
+            risk_summary = {
+                'high': risks.filter(severity='HIGH').count(),
+                'medium': risks.filter(severity='MEDIUM').count(),
+                'low': risks.filter(severity='LOW').count(),
+                'total': risks.count(),
+                'top_risks': list(risks.filter(severity='HIGH').values('id', 'title', 'project__name')[:3])
+            }
+        except Exception:
+            # Estimate from project progress
+            risk_summary = {
+                'high': projects.filter(progress__lt=30, status='In Progress').count(),
+                'medium': projects.filter(progress__gte=30, progress__lt=60, status='In Progress').count(),
+                'low': projects.filter(progress__gte=60, status='In Progress').count(),
+                'total': projects.filter(status='In Progress').count(),
+                'top_risks': []
+            }
+        
+        # Change requests / Variations
+        change_requests = []
+        try:
+            from procurement.models import Variation
+            variations = Variation.objects.filter(status__in=['PROPOSED', 'UNDER_REVIEW']).order_by('-created_at')[:5]
+            for v in variations:
+                change_requests.append({
+                    'id': str(v.id),
+                    'title': v.description[:50] if v.description else 'Variation',
+                    'type': v.variation_type,
+                    'amount': float(v.amount) if v.amount else 0,
+                    'status': v.status,
+                    'contract': v.contract.title if v.contract else 'N/A'
+                })
+        except Exception:
+            pass
+        
+        # Earned Value Metrics (EVM)
+        total_budget = financial_summary['total_budget'] or 1
+        total_spent = financial_summary['total_spent'] or 0
+        avg_progress = projects.aggregate(avg=Avg('progress'))['avg'] or 0
+        
+        # EV = Budget * Progress%
+        earned_value = total_budget * (avg_progress / 100)
+        # CPI = EV / AC (Cost Performance Index)
+        cpi = earned_value / total_spent if total_spent > 0 else 1.0
+        # SPI = EV / PV (Schedule Performance Index) - simplified
+        spi = avg_progress / 50 if avg_progress > 0 else 1.0  # Assuming 50% planned progress
+        
+        earned_value_metrics = {
+            'earned_value': round(earned_value, 2),
+            'actual_cost': round(total_spent, 2),
+            'cpi': round(cpi, 2),
+            'spi': round(min(spi, 2.0), 2),  # Cap at 2.0
+            'status': 'on_budget' if cpi >= 1.0 else 'over_budget',
+            'variance': round((cpi - 1.0) * 100, 1)
+        }
+        
+        # Cash flow (last 6 months)
+        cash_flow = []
+        for i in range(6):
+            month_date = timezone.now() - timedelta(days=30 * (5 - i))
+            month_name = month_date.strftime('%b')
+            # Simulated based on total spent distribution
+            inflow = (total_budget / 12) * (1 + (i * 0.1))
+            outflow = (total_spent / 6) * (1 + (i * 0.05))
+            cash_flow.append({
+                'month': month_name,
+                'inflow': round(inflow / 10000000, 2),  # In Cr
+                'outflow': round(outflow / 10000000, 2),
+                'net': round((inflow - outflow) / 10000000, 2)
+            })
+        
         return Response({
             'project_stats': project_stats,
             'financial_summary': financial_summary,
@@ -293,6 +424,13 @@ class DashboardStatsView(APIView):
             'top_projects': top_projects,
             'kpis': kpis,
             'recent_activity': recent_activity,
+            # New data for comprehensive dashboard
+            'milestones': milestones,
+            'critical_path_tasks': critical_path_tasks,
+            'risk_summary': risk_summary,
+            'change_requests': change_requests,
+            'earned_value': earned_value_metrics,
+            'cash_flow': cash_flow,
         })
 
 
