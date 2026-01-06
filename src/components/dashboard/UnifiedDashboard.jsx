@@ -305,9 +305,24 @@ const UnifiedDashboard = () => {
 
             {/* KPI Cards Row */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                {kpis.map((kpi, idx) => (
-                    <KPICard key={kpi.id} kpi={kpi} index={idx} onClick={() => navigate(`/projects`)} />
-                ))}
+                {kpis.map((kpi, idx) => {
+                    // Map KPI ids to appropriate navigation routes
+                    const routeMap = {
+                        total_budget: '/cost/budgeting',
+                        active_projects: '/projects',
+                        pending_approvals: '/approvals',
+                        schedule_health: '/scheduling',
+                        active_contracts: '/e-procurement',
+                    };
+                    return (
+                        <KPICard
+                            key={kpi.id}
+                            kpi={kpi}
+                            index={idx}
+                            onClick={() => navigate(routeMap[kpi.id] || '/projects')}
+                        />
+                    );
+                })}
             </div>
 
             {/* Main Grid */}
