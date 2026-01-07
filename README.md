@@ -2,11 +2,11 @@
 
 The Programme Management Information System (PMIS) for Zaheerabad Industrial Area is a comprehensive, full-stack digital platform designed to serve as the "Single Source of Truth" for infrastructure development. It acts as a central command center for monitoring progress, financial tracking, document management, and decision-making.
 
-## 🚀 Overview
+##  Overview
 
 This platform integrates various project management domains into a seamless interface, providing real-time analytics, geospatial data, and workflow automation for the Special Purpose Vehicle (SPV), Project Management Consultants (PMNC), and Contractors.
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 ### Frontend
 - **Framework**: React.js 18
@@ -24,7 +24,7 @@ This platform integrates various project management domains into a seamless inte
 - **Authentication**: JWT & Session-based
 - **API**: RESTful Endpoints
 
-## ✨ Key Features
+##  Key Features
 
 ### 1. Unified Dashboard
 - **Centralized View**: Real-time KPIs for physical and financial progress.
@@ -48,7 +48,7 @@ This platform integrates various project management domains into a seamless inte
 - **Interactive Maps**: Layered GIS data viewing project sites and utilities.
 - **3D Viewer**: (Placeholder) Infrastructure component visualization.
 
-## 🚦 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Node.js (v18+)
@@ -77,7 +77,7 @@ This platform integrates various project management domains into a seamless inte
     python manage.py runserver
     ```
 
-## 📂 Project Structure
+##  Project Structure
 
 ```
 pmis-zia/
@@ -95,13 +95,13 @@ pmis-zia/
 └── ...
 ```
 
-## 🔐 Roles & Permissions
+##  Roles & Permissions
 
 - **SPV Official**: Full generic administrative access.
 - **PMNC Team**: Project manager access with configuration rights.
 - **EPC Contractor**: Restricted access to specific packages and bill submissions.
 - **Design Consultant**: Document upload and viewing rights.
 
-## 📝 License
+##  License
 
 Proprietary software developed for the Zaheerabad Industrial Area development project.
