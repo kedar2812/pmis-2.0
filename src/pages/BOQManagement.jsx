@@ -87,10 +87,20 @@ const BOQManagement = () => {
 
     const handleDownloadTemplate = () => {
         const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.json_to_sheet([
-            { 'Item Code': '1.1', 'Description': 'Excavation in soil...', 'UOM': 'Cum', 'Quantity': 100, 'Rate': 500 },
-            { 'Item Code': '1.2', 'Description': 'PCC 1:4:8...', 'UOM': 'Cum', 'Quantity': 50, 'Rate': 4500 }
-        ]);
+        // Create headers only, no data rows
+        const ws = XLSX.utils.json_to_sheet([], {
+            header: ['Item Code', 'Description', 'UOM', 'Quantity', 'Rate']
+        });
+
+        // Add column widths for better UX
+        ws['!cols'] = [
+            { wch: 15 }, // Item Code
+            { wch: 40 }, // Description
+            { wch: 10 }, // UOM
+            { wch: 15 }, // Quantity
+            { wch: 15 }  // Rate
+        ];
+
         XLSX.utils.book_append_sheet(wb, ws, 'BOQ Template');
         XLSX.writeFile(wb, 'BOQ_Import_Template.xlsx');
         toast.success('Template downloaded');
@@ -500,7 +510,7 @@ const BOQManagement = () => {
                     <p className="text-slate-500 mt-1">Manage Contract Baselines and Sanctioned Quantities</p>
                 </div>
 
-                <div className="flex gap-2 items-center flex-wrap">
+                <div className="flex gap-2 items-center flex-nowrap shrink-0">
                     <select
                         className="px-3 py-2 border border-slate-200 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm"
                         value={selectedProject}
@@ -536,7 +546,6 @@ const BOQManagement = () => {
                                 </Button>
 
                                 <Button
-                                    variant="secondary"
                                     size="sm"
                                     onClick={handleDownloadTemplate}
                                     className="flex items-center gap-1.5"
