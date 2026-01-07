@@ -7,6 +7,11 @@ import projectService from '@/api/services/projectService';
 import { DynamicChart } from '@/components/ui/DynamicChart';
 import { PageLoading } from '@/components/ui/Loading';
 import GraphAnalysisModal from '@/components/ui/GraphAnalysisModal';
+import HealthSummaryPanel from './HealthSummaryPanel';
+import RadialProgressCard from './RadialProgressCard';
+import PhaseProgressCard from './PhaseProgressCard';
+import MiniCalendarWidget from './MiniCalendarWidget';
+import { AnimatedNumber } from '@/hooks/useAnimatedCounter';
 import {
     TrendingUp, TrendingDown, DollarSign, FolderOpen, Clock, AlertTriangle,
     FileText, CheckCircle, Calendar, ChevronRight, Bell, Activity, ArrowRight,
@@ -278,6 +283,88 @@ const UnifiedDashboard = () => {
                 />
             </div>
 
+            {/* Section 1.5: Health Summary + Phase Progress */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Health Summary Panel */}
+                <HealthSummaryPanel
+                    scheduleHealth={scheduleHealth}
+                    projectStats={projectStats}
+                    financialSummary={financialSummary}
+                    overdueTasks={stats?.overdue_tasks || 0}
+                    projects={projects}
+                />
+
+                {/* Phase Progress */}
+                <PhaseProgressCard
+                    title="Progress by Phase"
+                    phases={[
+                        { id: 'design', name: 'Design', progress: Math.min(physicalProgress * 1.5, 100), color: '#3b82f6' },
+                        { id: 'procurement', name: 'Procurement', progress: Math.min(physicalProgress * 1.2, 100), color: '#8b5cf6' },
+                        { id: 'construction', name: 'Construction', progress: physicalProgress, color: '#f59e0b' },
+                        { id: 'testing', name: 'Testing', progress: Math.max(physicalProgress - 30, 0), color: '#10b981' },
+                        { id: 'closeout', name: 'Closeout', progress: Math.max(physicalProgress - 60, 0), color: '#64748b' }
+                    ]}
+                />
+            </div>
+
+            {/* Section 1.6: Budget vs Spent & Project Status Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Budget vs Spent Chart */}
+                <GlassCard className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                            <DollarSign size={20} className="text-emerald-600" />
+                            Budget vs Spent
+                        </h3>
+                        <button
+                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            onClick={(e) => { e.stopPropagation(); setGraphModalMetric('budget'); setGraphModalOpen(true); }}
+                        >
+                            <Maximize2 size={16} className="text-slate-400 hover:text-primary-500" />
+                        </button>
+                    </div>
+                    <DynamicChart
+                        data={financialChartData}
+                        dataKey="budget"
+                        secondaryDataKey="spent"
+                        height={280}
+                        colors={['#10b981', '#3b82f6']}
+                        name="Budget"
+                        secondaryName="Spent"
+                        defaultType="bar"
+                    />
+                </GlassCard>
+
+                {/* Project Status Chart */}
+                <GlassCard className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                            <Activity size={20} className="text-blue-600" />
+                            Project Status Distribution
+                        </h3>
+                        <button
+                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            onClick={(e) => { e.stopPropagation(); setGraphModalMetric('count'); setGraphModalOpen(true); }}
+                        >
+                            <Maximize2 size={16} className="text-slate-400 hover:text-primary-500" />
+                        </button>
+                    </div>
+                    <DynamicChart
+                        data={[
+                            { name: 'In Progress', value: projectStats.in_progress || 0 },
+                            { name: 'Planning', value: projectStats.planning || 0 },
+                            { name: 'Completed', value: projectStats.completed || 0 },
+                            { name: 'On Hold', value: projectStats.on_hold || 0 },
+                        ]}
+                        dataKey="value"
+                        height={280}
+                        colors={['#3b82f6', '#f59e0b', '#10b981', '#64748b']}
+                        name="Projects"
+                        defaultType="pie"
+                    />
+                </GlassCard>
+            </div>
+
             {/* Section 2: Schedule & Timeline + Alerts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Milestones */}
@@ -335,23 +422,29 @@ const UnifiedDashboard = () => {
                 </GlassCard>
             </div>
 
-            {/* Section 3: GIS Map Placeholder */}
-            <GlassCard className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                        <Map size={20} className="text-blue-600" />
-                        Project Locations (GIS)
-                    </h3>
-                    <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded">Phase 2</span>
-                </div>
-                <div className="h-48 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-300">
-                    <div className="text-center">
-                        <MapPin size={40} className="mx-auto text-slate-400 mb-2" />
-                        <p className="text-slate-500 font-medium">Interactive GIS Map</p>
-                        <p className="text-xs text-slate-400">Project sites, utilities & boundaries</p>
+            {/* Section 3: Calendar + GIS Map */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Mini Calendar Widget */}
+                <MiniCalendarWidget milestones={milestones} />
+
+                {/* GIS Map Placeholder */}
+                <GlassCard className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                            <Map size={20} className="text-blue-600" />
+                            Project Locations (GIS)
+                        </h3>
+                        <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded">Phase 2</span>
                     </div>
-                </div>
-            </GlassCard>
+                    <div className="h-48 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-300">
+                        <div className="text-center">
+                            <MapPin size={40} className="mx-auto text-slate-400 mb-2" />
+                            <p className="text-slate-500 font-medium">Interactive GIS Map</p>
+                            <p className="text-xs text-slate-400">Project sites, utilities & boundaries</p>
+                        </div>
+                    </div>
+                </GlassCard>
+            </div>
 
             {/* Section 4: Risk & Compliance + Change Requests */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -385,12 +478,23 @@ const UnifiedDashboard = () => {
                             <GitPullRequest size={20} className="text-violet-500" />
                             Change Requests / Variations
                         </h3>
-                        <span className="text-sm font-medium text-violet-600">{changeRequests.length} pending</span>
+                        <button
+                            className="text-sm text-violet-600 hover:text-violet-700 font-medium"
+                            onClick={() => navigate('/e-procurement')}
+                        >
+                            View All →
+                        </button>
                     </div>
                     <div className="space-y-2">
                         {changeRequests.length > 0 ? (
                             changeRequests.slice(0, 3).map((cr, idx) => (
-                                <div key={idx} className="p-3 bg-violet-50 rounded-lg border border-violet-100">
+                                <motion.div
+                                    key={idx}
+                                    className="p-3 bg-violet-50 rounded-lg border border-violet-100 cursor-pointer hover:bg-violet-100 transition-colors"
+                                    onClick={() => navigate('/e-procurement')}
+                                    whileHover={{ scale: 1.01 }}
+                                    whileTap={{ scale: 0.99 }}
+                                >
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <p className="text-sm font-medium text-slate-700">{cr.title}</p>
@@ -400,7 +504,7 @@ const UnifiedDashboard = () => {
                                             {cr.status}
                                         </span>
                                     </div>
-                                </div>
+                                </motion.div>
                             ))
                         ) : (
                             <p className="text-center py-6 text-slate-400 text-sm">No pending variations</p>
@@ -532,64 +636,6 @@ const UnifiedDashboard = () => {
                     </table>
                 </div>
             </GlassCard>
-
-            {/* Section 7: Budget vs Spent & Project Status Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Budget vs Spent Chart */}
-                <GlassCard className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                            <DollarSign size={20} className="text-emerald-600" />
-                            Budget vs Spent
-                        </h3>
-                        <button
-                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                            onClick={(e) => { e.stopPropagation(); setGraphModalMetric('budget'); setGraphModalOpen(true); }}
-                        >
-                            <Maximize2 size={16} className="text-slate-400 hover:text-primary-500" />
-                        </button>
-                    </div>
-                    <DynamicChart
-                        data={financialChartData}
-                        dataKey="budget"
-                        secondaryDataKey="spent"
-                        height={280}
-                        colors={['#10b981', '#3b82f6']}
-                        name="Budget"
-                        secondaryName="Spent"
-                        defaultType="bar"
-                    />
-                </GlassCard>
-
-                {/* Project Status Chart */}
-                <GlassCard className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                            <Activity size={20} className="text-blue-600" />
-                            Project Status Distribution
-                        </h3>
-                        <button
-                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                            onClick={(e) => { e.stopPropagation(); setGraphModalMetric('count'); setGraphModalOpen(true); }}
-                        >
-                            <Maximize2 size={16} className="text-slate-400 hover:text-primary-500" />
-                        </button>
-                    </div>
-                    <DynamicChart
-                        data={[
-                            { name: 'In Progress', value: projectStats.in_progress || 0 },
-                            { name: 'Planning', value: projectStats.planning || 0 },
-                            { name: 'Completed', value: projectStats.completed || 0 },
-                            { name: 'On Hold', value: projectStats.on_hold || 0 },
-                        ]}
-                        dataKey="value"
-                        height={280}
-                        colors={['#3b82f6', '#f59e0b', '#10b981', '#64748b']}
-                        name="Projects"
-                        defaultType="pie"
-                    />
-                </GlassCard>
-            </div>
 
             {/* Graph Analysis Modal */}
             <GraphAnalysisModal
