@@ -29,6 +29,15 @@ urlpatterns = [
     path('api/audit/logs/', audit_views.unified_audit_logs, name='unified_audit_logs'),
 ]
 
+# Import search views at the end to avoid import issues
+try:
+    from pmis.views.search import global_search, search_suggestions
+    urlpatterns.insert(-1, path('api/search/global/', global_search, name='global_search'))
+    urlpatterns.insert(-1, path('api/search/suggestions/', search_suggestions, name='search_suggestions'))
+    print("Search URLs registered successfully!")
+except Exception as e:
+    print(f"WARNING: Failed to import search views: {e}")
+
 from django.conf import settings
 from django.conf.urls.static import static
 

@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    FileText, Plus, Search, Filter, Calendar, DollarSign,
+    FileText, Plus, Search, Filter, Calendar, IndianRupee,
     Building2, CheckCircle2, Clock, AlertCircle, ChevronRight,
     Gavel, FileSignature, TrendingUp, Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { useLanguage } from '@/contexts/LanguageContext';
+
 import { useAuth } from '@/contexts/AuthContext';
 import procurementService from '@/api/services/procurementService';
 import projectService from '@/api/services/projectService';
@@ -15,7 +15,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from 'sonner';
 
 const EProcurement = () => {
-    const { t } = useLanguage();
+
     const { user } = useAuth();
 
     const [activeTab, setActiveTab] = useState('tenders');
@@ -120,7 +120,7 @@ const EProcurement = () => {
                 {[
                     { label: 'Active Tenders', value: tenders.filter(t => t.status !== 'CLOSED' && t.status !== 'CANCELLED').length, icon: Gavel, color: 'text-blue-600', bg: 'bg-blue-50' },
                     { label: 'Active Contracts', value: summary.active_contracts, icon: FileSignature, color: 'text-green-600', bg: 'bg-green-50' },
-                    { label: 'Total Value', value: formatCurrency(summary.total_value), icon: DollarSign, color: 'text-primary-600', bg: 'bg-primary-50' },
+                    { label: 'Total Value', value: formatCurrency(summary.total_value), icon: IndianRupee, color: 'text-primary-600', bg: 'bg-primary-50' },
                     { label: 'Variations', value: formatCurrency(summary.total_variations), icon: TrendingUp, color: 'text-amber-600', bg: 'bg-amber-50' },
                 ].map((stat, idx) => (
                     <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}>
@@ -147,8 +147,8 @@ const EProcurement = () => {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center gap-2 py-3 px-1 border-b-2 transition-colors ${activeTab === tab.id
-                                    ? 'border-primary-600 text-primary-600'
-                                    : 'border-transparent text-slate-500 hover:text-slate-700'
+                                ? 'border-primary-600 text-primary-600'
+                                : 'border-transparent text-slate-500 hover:text-slate-700'
                                 }`}
                         >
                             <tab.icon size={18} />

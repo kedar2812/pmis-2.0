@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { LanguageProvider } from './contexts/LanguageContext';
 import { SidebarProvider } from './contexts/SidebarContext';
 
 
@@ -95,16 +94,14 @@ const AppRoutes = () => {
 function App() {
   return (
     <BrowserRouter>
-      <LanguageProvider>
-        <AuthProvider>
-          <SidebarProvider>
-            <ToastProvider />
-            <ErrorBoundary>
-              <AppRoutes />
-            </ErrorBoundary>
-          </SidebarProvider>
-        </AuthProvider>
-      </LanguageProvider>
+      <AuthProvider>
+        <SidebarProvider>
+          <ToastProvider />
+          <ErrorBoundary>
+            <AppRoutes />
+          </ErrorBoundary>
+        </SidebarProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

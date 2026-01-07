@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useLanguage } from '@/contexts/LanguageContext';
+
 import { MotionCard, MotionCardContent, MotionCardHeader, MotionCardTitle } from '@/components/ui/MotionCard';
 import { DynamicChart } from '@/components/ui/DynamicChart';
-import { TrendingUp, TrendingDown, DollarSign, AlertTriangle, CheckCircle, Activity, FolderOpen } from 'lucide-react';
+import { TrendingUp, TrendingDown, IndianRupee, AlertTriangle, CheckCircle, Activity, FolderOpen } from 'lucide-react';
 import { CalculationRules } from '@/lib/calculations';
 import MetricsDetailModal from '@/components/ui/MetricsDetailModal';
 import GraphAnalysisModal from '@/components/ui/GraphAnalysisModal';
@@ -12,7 +12,6 @@ import { useNavigate } from 'react-router-dom';
 import client from '@/api/client';
 
 const SPVDashboard = ({ projects, kpis, risks }) => {
-  const { t } = useLanguage();
   const navigate = useNavigate();
   const [selectedMetric, setSelectedMetric] = useState(null);
   const [graphModalOpen, setGraphModalOpen] = useState(false);
@@ -67,7 +66,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
     switch (metricType) {
       case 'budget':
         data = {
-          title: t('projects.totalBudget'),
+          title: 'Total Budget',
           description: "This represents the total approved capital expenditure for running projects in the Zaheerabad Industrial Area. Click a project to view full details.",
           items: runningProjects.map(p => ({
             label: p.name,
@@ -86,7 +85,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
         break;
       case 'activeProjects':
         data = {
-          title: t('projects.totalProjects'),
+          title: 'Total Projects',
           description: "Count of projects currently in the 'In Progress' phase. These projects have passed the planning stage and are actively consuming resources on-site or in design. Click individual projects in the list view for detailed Gantt charts.",
           items: projects.filter(p => p.status === 'In Progress').map(p => ({ label: p.name, value: `${p.progress}% Complete` })),
           documents: [
@@ -97,7 +96,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
         break;
       case 'approvals':
         data = {
-          title: t('common.underReview'),
+          title: 'Under Review',
           description: "Pending administrative approvals required to proceed to the next workflow stage. This primarily includes Budget Approvals, Design Sign-offs, and Contractor Selection validations.",
           items: projects.filter(p => p.status === 'Planning' || p.status === 'Under Review').map(p => ({ label: p.name, value: p.status })),
           documents: [
@@ -108,7 +107,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
         break;
       case 'risks':
         data = {
-          title: t('risk.activeRisks'),
+          title: 'Active Risks',
           description: "Critical risks that have a high probability of occurrence and significant impact on project timeline or cost. Immediate mitigation strategies are required for these items.",
           items: risks.filter(r => r.impact === 'Critical' && r.status !== 'Closed').map(r => ({ label: r.title, value: r.mitigationStrategy || 'No Plan' })),
           documents: [
@@ -140,13 +139,13 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
         <motion.div variants={itemVariants} className="flex justify-between items-center mt-4">
           <div>
             <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-              {t('role.SPV_Official')} {t('dashboard.overview')}
+              SPV Official Dashboard Overview
             </h2>
-            <p className="text-slate-500">{t('dashboard.title')}</p>
+            <p className="text-slate-500">Key metrics and performance indicators</p>
           </div>
           <div className="flex gap-2">
             <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium border border-emerald-200">
-              {t('common.status')}: Online
+              Status: Online
             </span>
           </div>
         </motion.div>
@@ -163,14 +162,14 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
             <MotionCardContent className="p-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm font-medium text-slate-500">{t('projects.totalBudget')}</p>
+                  <p className="text-sm font-medium text-slate-500">Total Budget</p>
                   <h3 className="text-2xl font-bold text-slate-800 mt-2">{formatBudget(totalBudget)}</h3>
                   <p className="text-xs text-emerald-600 flex items-center mt-1">
-                    <TrendingUp size={12} className="mr-1" /> {t('common.approved')}
+                    <TrendingUp size={12} className="mr-1" /> Approved
                   </p>
                 </div>
                 <div className="p-3 bg-emerald-100 rounded-xl">
-                  <DollarSign className="text-emerald-600" size={24} />
+                  <IndianRupee className="text-emerald-600" size={24} />
                 </div>
               </div>
             </MotionCardContent>
@@ -186,10 +185,10 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
             <MotionCardContent className="p-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm font-medium text-slate-500">{t('projects.totalProjects')}</p>
+                  <p className="text-sm font-medium text-slate-500">Total Projects</p>
                   <h3 className="text-2xl font-bold text-slate-800 mt-2">{activeProjectsCount}</h3>
                   <p className="text-xs text-blue-600 flex items-center mt-1">
-                    <Activity size={12} className="mr-1" /> {t('common.inProgress')}
+                    <Activity size={12} className="mr-1" /> In Progress
                   </p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-xl">
@@ -209,14 +208,16 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
             <MotionCardContent className="p-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm font-medium text-slate-500">{t('common.underReview')}</p>
-                  <h3 className="text-2xl font-bold text-slate-800 mt-2">{pendingApprovalsCount}</h3>
-                  <p className="text-xs text-amber-600 flex items-center mt-1">
-                    Click to review documents
-                  </p>
-                </div>
-                <div className="p-3 bg-amber-100 rounded-xl">
-                  <CheckCircle className="text-amber-600" size={24} />
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">Under Review</p>
+                    <h3 className="text-2xl font-bold text-slate-800 mt-2">{pendingApprovalsCount}</h3>
+                    <p className="text-xs text-amber-600 flex items-center mt-1">
+                      Click to review documents
+                    </p>
+                  </div>
+                  <div className="p-3 bg-amber-100 rounded-xl">
+                    <CheckCircle className="text-amber-600" size={24} />
+                  </div>
                 </div>
               </div>
             </MotionCardContent>
@@ -232,12 +233,12 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
             <MotionCardContent className="p-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm font-medium text-slate-500">{t('risk.activeRisks')}</p>
+                  <p className="text-sm font-medium text-slate-500">Active Risks</p>
                   <h3 className="text-2xl font-bold text-slate-800 mt-2">
                     {criticalRisksCount}
                   </h3>
                   <p className="text-xs text-rose-600 flex items-center mt-1">
-                    <AlertTriangle size={12} className="mr-1" /> {t('priority.critical')}
+                    <AlertTriangle size={12} className="mr-1" /> Critical
                   </p>
                 </div>
                 <div className="p-3 bg-rose-100 rounded-xl">
@@ -256,7 +257,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
             className="shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer border border-transparent hover:border-slate-200"
           >
             <MotionCardHeader>
-              <MotionCardTitle>{t('dashboard.budgetVsSpent')}</MotionCardTitle>
+              <MotionCardTitle>Budget vs Spent</MotionCardTitle>
             </MotionCardHeader>
             <MotionCardContent>
               <DynamicChart
@@ -265,7 +266,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
                 height={350}
                 defaultType="bar"
                 colors={['#10b981', '#3b82f6']}
-                name={t('projects.budget')}
+                name="Budget"
               />
             </MotionCardContent>
           </MotionCard>
@@ -276,7 +277,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
             className="shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer border border-transparent hover:border-slate-200"
           >
             <MotionCardHeader>
-              <MotionCardTitle>{t('dashboard.projectTimeline')}</MotionCardTitle>
+              <MotionCardTitle>Project Timeline</MotionCardTitle>
             </MotionCardHeader>
             <MotionCardContent>
               <DynamicChart
@@ -288,7 +289,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
                 height={350}
                 defaultType="area"
                 colors={['#8b5cf6']}
-                name={t('dashboard.progress')}
+                name="Progress"
               />
             </MotionCardContent>
           </MotionCard>
@@ -312,7 +313,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
             </div>
           </motion.div>
         )}
-      </motion.div>
+      </motion.div >
 
       <MetricsDetailModal
         isOpen={!!selectedMetric}

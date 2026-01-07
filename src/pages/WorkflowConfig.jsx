@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -77,7 +77,7 @@ const SortableStep = ({ step, index, onDelete, onUpdate }) => {
 };
 
 const WorkflowConfig = () => {
-  const { t } = useLanguage();
+
   const { user } = useAuth();
   const [workflows, setWorkflows] = useState([
     {
@@ -216,11 +216,10 @@ const WorkflowConfig = () => {
                     setWorkflowName(workflow.name);
                     setWorkflowType(workflow.type);
                   }}
-                  className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                    selectedWorkflow?.id === workflow.id
+                  className={`w-full text-left p-3 rounded-lg border transition-colors ${selectedWorkflow?.id === workflow.id
                       ? 'border-primary-600 bg-primary-50'
                       : 'border-slate-200 hover:border-slate-300'
-                  }`}
+                    }`}
                 >
                   <p className="font-semibold text-sm">{workflow.name || 'Unnamed Workflow'}</p>
                   <p className="text-xs text-slate-500 mt-1">{workflow.type} • {workflow.steps.length} steps</p>

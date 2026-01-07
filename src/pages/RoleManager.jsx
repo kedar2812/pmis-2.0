@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { Plus, Save, Trash2, Shield } from 'lucide-react';
@@ -25,7 +25,7 @@ const allPermissions = [
 ];
 
 const RoleManager = () => {
-  const { t } = useLanguage();
+
   const [roles, setRoles] = useState({
     Site_Inspector: {
       role: 'Site_Inspector',

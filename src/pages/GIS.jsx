@@ -1,24 +1,22 @@
-import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { gisFeatures, projects } from '@/mock';
 import { MapPin } from 'lucide-react';
 import { LeafletMap } from '@/components/gis/LeafletMap';
 
 const GIS = () => {
-  const { t } = useLanguage();
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('common.gis')}</h1>
-        <p className="text-gray-600 mt-1">{t('gis.subtitle')}</p>
+        <h1 className="text-3xl font-bold text-gray-900">GIS Mapping</h1>
+        <p className="text-gray-600 mt-1">Geospatial project data and location analytics</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>{t('gis.projectLocationsMap')}</CardTitle>
+          <CardTitle>Project Locations Map</CardTitle>
           <p className="text-sm text-gray-600 mt-1">
-            {t('gis.mapDescription')}
+            Interactive map showing all project sites and key infrastructure points
           </p>
         </CardHeader>
         <CardContent>
@@ -29,7 +27,7 @@ const GIS = () => {
       {/* GIS Features List */}
       <Card>
         <CardHeader>
-          <CardTitle>{t('gis.gisFeatures')}</CardTitle>
+          <CardTitle>GIS Features</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -49,7 +47,7 @@ const GIS = () => {
                   </span>
                   {feature.properties.projectId && (
                     <span className="px-2 py-1 bg-gray-200 rounded text-xs">
-                      {t('common.project')}: {feature.properties.projectId}
+                      Project: {feature.properties.projectId}
                     </span>
                   )}
                 </div>

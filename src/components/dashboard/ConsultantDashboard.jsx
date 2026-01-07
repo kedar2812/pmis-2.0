@@ -1,10 +1,9 @@
 import { motion } from 'framer-motion';
-import { useLanguage } from '@/contexts/LanguageContext';
+
 import { MotionCard, MotionCardContent, MotionCardHeader, MotionCardTitle } from '@/components/ui/MotionCard';
 import { Box, Layers, GitPullRequest, Eye } from 'lucide-react';
 
 const ConsultantDashboard = ({ projects, tasks }) => {
-    const { t } = useLanguage();
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -22,7 +21,7 @@ const ConsultantDashboard = ({ projects, tasks }) => {
 
     return (
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
-            <h2 className="text-2xl font-bold text-slate-800">{t('role.Consultant_Design')} Hub</h2>
+            <h2 className="text-2xl font-bold text-slate-800">Consultant Design Hub</h2>
             <p className="text-slate-500">Drawing Approvals, BIM Coordination & Technical Reviews</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -50,7 +49,7 @@ const ConsultantDashboard = ({ projects, tasks }) => {
                 <MotionCard className="bg-slate-50 border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors">
                     <MotionCardContent className="p-6 flex flex-col items-center">
                         <Eye size={32} className="text-slate-600 mb-2" />
-                        <span className="text-2xl font-bold text-slate-800">{t('common.view')}</span>
+                        <span className="text-2xl font-bold text-slate-800">View</span>
                         <span className="text-sm text-slate-700">Pending Actions</span>
                     </MotionCardContent>
                 </MotionCard>

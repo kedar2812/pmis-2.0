@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import projectService from '@/api/services/projectService';
 
 const Reimbursement = () => {
-  const { t } = useLanguage();
+
   const { user } = useAuth();
 
   // Real data state

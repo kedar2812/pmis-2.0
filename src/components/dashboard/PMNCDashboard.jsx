@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useLanguage } from '@/contexts/LanguageContext';
+
 import { MotionCard, MotionCardContent, MotionCardHeader, MotionCardTitle } from '@/components/ui/MotionCard';
 import { DynamicChart } from '@/components/ui/DynamicChart';
 import { ClipboardList, Clock, AlertOctagon, TrendingUp, CheckSquare } from 'lucide-react';
@@ -8,7 +8,6 @@ import { CalculationRules } from '@/lib/calculations';
 import MetricsDetailModal from '@/components/ui/MetricsDetailModal';
 
 const PMNCDashboard = ({ projects, tasks, risks }) => {
-    const { t } = useLanguage();
     const [selectedMetric, setSelectedMetric] = useState(null);
 
     const containerVariants = {
@@ -38,24 +37,24 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
         switch (type) {
             case 'delayed':
                 data = {
-                    title: t('common.delayed'),
+                    title: 'Delayed Tasks',
                     description: "Tasks that have exceeded their planned end date. These items are on the critical path and may impact the overall project completion if not addressed immediately.",
                     items: delayedTasks.map(t => ({ label: t.name, value: `Due: ${t.endDate} ` }))
-                }
+                };
                 break;
             case 'risks':
                 data = {
-                    title: t('risk.activeRisks'),
+                    title: 'Active Risks',
                     description: "All currently open risks across the program. This necessitates active monitoring and execution of mitigation plans.",
                     items: risks.slice(0, 5).map(r => ({ label: r.title, value: r.impact }))
-                }
+                };
                 break;
             case 'completed':
                 data = {
-                    title: t('common.completed'),
+                    title: 'Completed',
                     description: "Milestones and tasks that have been successfully verified and closed.",
                     items: tasks.filter(t => t.status === 'Completed').slice(0, 5).map(t => ({ label: t.name, value: 'Done' }))
-                }
+                };
                 break;
             case 'evm':
                 data = {
@@ -65,19 +64,19 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
                         { label: 'SPI (Schedule Performance Index)', value: '0.92' },
                         { label: 'CPI (Cost Performance Index)', value: '1.05' }
                     ]
-                }
+                };
                 break;
             default: return;
         }
         setSelectedMetric(data);
-    }
+    };
 
     return (
         <>
             <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
                 <motion.div variants={itemVariants}>
                     <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                        {t('role.PMNC_Team')} {t('sidebar.programmeManagement')}
+                        PMNC Team Programme Management
                     </h2>
                     <p className="text-slate-500">Project Management & Network Control Center</p>
                 </motion.div>
@@ -95,9 +94,9 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
                                 <Clock className="text-indigo-600" size={24} />
                             </div>
                             <div>
-                                <p className="text-sm text-slate-500">{t('common.delayed')}</p>
+                                <p className="text-sm text-slate-500">Delayed Tasks</p>
                                 <p className="text-xl font-bold text-slate-800">
-                                    {delayedTasks.length > 0 ? `- ${delayedTasks.length} ${t('dashboard.upcomingTasks')} ` : t('common.onTrack')}
+                                    {delayedTasks.length > 0 ? `- ${delayedTasks.length} Upcoming Tasks ` : 'On Track'}
                                 </p>
                             </div>
                         </MotionCardContent>
@@ -114,7 +113,7 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
                                 <AlertOctagon className="text-amber-600" size={24} />
                             </div>
                             <div>
-                                <p className="text-sm text-slate-500">{t('risk.activeRisks')}</p>
+                                <p className="text-sm text-slate-500">Active Risks</p>
                                 <p className="text-xl font-bold text-slate-800">{activeRiskCount}</p>
                             </div>
                         </MotionCardContent>
@@ -143,7 +142,7 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
                                 <CheckSquare className="text-emerald-600" size={24} />
                             </div>
                             <div>
-                                <p className="text-sm text-slate-500">{t('common.completed')}</p>
+                                <p className="text-sm text-slate-500">Completed</p>
                                 <p className="text-xl font-bold text-slate-800">{completedTasksCount}/{totalTasksCount}</p>
                             </div>
                         </MotionCardContent>
@@ -174,9 +173,9 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
                                 colors={['#8b5cf6', '#10b981', '#f43f5e']}
                             />
                             <div className="flex justify-center gap-4 mt-2 text-sm">
-                                <span className="flex items-center gap-1"><div className="w-3 h-3 bg-violet-500 rounded-full"></div> EV ({t('common.progress')})</span>
-                                <span className="flex items-center gap-1"><div className="w-3 h-3 bg-emerald-500 rounded-full"></div> PV ({t('common.planning')})</span>
-                                <span className="flex items-center gap-1"><div className="w-3 h-3 bg-rose-500 rounded-full"></div> AC ({t('cost.actual')})</span>
+                                <span className="flex items-center gap-1"><div className="w-3 h-3 bg-violet-500 rounded-full"></div> EV (Progress)</span>
+                                <span className="flex items-center gap-1"><div className="w-3 h-3 bg-emerald-500 rounded-full"></div> PV (Planning)</span>
+                                <span className="flex items-center gap-1"><div className="w-3 h-3 bg-rose-500 rounded-full"></div> AC (Actual)</span>
                             </div>
                         </MotionCardContent>
                     </MotionCard>
@@ -189,7 +188,7 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
                                     <span className="text-sm font-medium">Safety Audits</span>
-                                    <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">{t('common.approved')}</span>
+                                    <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">Approved</span>
                                 </div>
                                 <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
                                     <span className="text-sm font-medium">Quality Checks</span>
@@ -197,11 +196,11 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
                                 </div>
                                 <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
                                     <span className="text-sm font-medium">Env. Clearance</span>
-                                    <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">{t('common.underReview')}</span>
+                                    <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">Under Review</span>
                                 </div>
                                 <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
                                     <span className="text-sm font-medium">Labor Compliance</span>
-                                    <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">{t('common.approved')}</span>
+                                    <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">Approved</span>
                                 </div>
                             </div>
                         </MotionCardContent>

@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import projectService from '@/api/services/projectService';
@@ -9,7 +8,7 @@ import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
 import { CreatePackageModal } from '@/components/packages/CreatePackageModal';
 import { LandStats } from '@/components/projects/LandStats';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { FolderOpen, Plus, Search, DollarSign, TrendingUp, Package } from 'lucide-react';
+import { FolderOpen, Plus, Search, IndianRupee, TrendingUp, Package } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { getStatusColor } from '@/lib/colors';
@@ -17,7 +16,6 @@ import { calculateBudgetUtilization } from '@/lib/calculations';
 import { toast } from 'sonner';
 
 const Projects = () => {
-  const { t } = useLanguage();
   const { user } = useAuth();
 
   const [projects, setProjects] = useState([]);
@@ -105,8 +103,8 @@ const Projects = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary-950">{t('projects.title')}</h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">{t('projects.subtitle')}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary-950">Projects</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage and track all ongoing projects and their progress.</p>
         </div>
         {canCreateProject && (
           <div className="flex gap-2 sm:gap-3">
@@ -124,7 +122,7 @@ const Projects = () => {
               className="flex-1 sm:flex-none bg-primary-950 hover:bg-primary-900 min-h-[44px]"
             >
               <Plus size={18} />
-              <span className="hidden sm:inline ml-2">{t('projects.createProject')}</span>
+              <span className="hidden sm:inline ml-2">Create Project</span>
               <span className="sm:hidden ml-1">Project</span>
             </Button>
           </div>
@@ -148,7 +146,7 @@ const Projects = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">{t('projects.totalProjects')}</p>
+                    <p className="text-sm text-gray-600">Total Projects</p>
                     <p className="text-2xl font-bold mt-1">{projects.length}</p>
                   </div>
                   <FolderOpen className="text-primary-600" size={32} />
@@ -169,7 +167,7 @@ const Projects = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">{t('common.inProgress')}</p>
+                    <p className="text-sm text-gray-600">In Progress</p>
                     <p className="text-2xl font-bold mt-1">
                       {projects.filter((p) => p.status === 'In Progress').length}
                     </p>
@@ -192,7 +190,7 @@ const Projects = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">{t('common.completed')}</p>
+                    <p className="text-sm text-gray-600">Completed</p>
                     <p className="text-2xl font-bold mt-1">
                       {projects.filter((p) => p.status === 'Completed').length}
                     </p>
@@ -216,12 +214,12 @@ const Projects = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">{t('projects.totalBudget')}</p>
+                    <p className="text-sm text-gray-600">Total Budget</p>
                     <p className="text-lg font-bold mt-1">
                       {formatCurrency(projects.filter(p => p.status === 'In Progress' || p.status === 'Completed').reduce((sum, p) => sum + Number(p.budget || 0), 0))}
                     </p>
                   </div>
-                  <DollarSign className="text-primary-600" size={32} />
+                  <IndianRupee className="text-primary-600" size={32} />
                 </div>
               </CardContent>
             </Card>
@@ -237,7 +235,7 @@ const Projects = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
               <input
                 type="text"
-                placeholder={t('projects.searchPlaceholder')}
+                placeholder="Search projects..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
@@ -250,12 +248,12 @@ const Projects = () => {
               className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
               aria-label="Filter by status"
             >
-              <option value="all">{t('projects.allStatus')}</option>
-              <option value="Planning">{t('status.planning')}</option>
-              <option value="In Progress">{t('status.inProgress')}</option>
-              <option value="On Hold">{t('status.onHold')}</option>
-              <option value="Completed">{t('status.completed')}</option>
-              <option value="Cancelled">{t('status.cancelled')}</option>
+              <option value="all">All Status</option>
+              <option value="Planning">Planning</option>
+              <option value="In Progress">In Progress</option>
+              <option value="On Hold">On Hold</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
             </select>
           </div>
         </CardContent>
@@ -267,15 +265,15 @@ const Projects = () => {
           <CardContent>
             <EmptyState
               icon={FolderOpen}
-              title={t('projects.noProjectsFound')}
+              title="No Projects Found"
               description={
                 searchQuery || statusFilter !== 'all'
-                  ? t('projects.adjustFilters')
+                  ? "Try adjusting your search or filters to find what you're looking for."
                   : canCreateProject
-                    ? t('projects.getStarted')
-                    : t('projects.noProjectsAvailable')
+                    ? "Get started by creating a new project."
+                    : "No projects are currently available."
               }
-              actionLabel={canCreateProject && !searchQuery && statusFilter === 'all' ? t('projects.createProject') : undefined}
+              actionLabel={canCreateProject && !searchQuery && statusFilter === 'all' ? "Create Project" : undefined}
               onAction={canCreateProject && !searchQuery && statusFilter === 'all' ? () => setIsCreateModalOpen(true) : undefined}
             />
           </CardContent>
@@ -314,7 +312,7 @@ const Projects = () => {
                     {/* Project Progress */}
                     <div>
                       <div className="flex items-center justify-between text-sm mb-2">
-                        <span className="text-gray-600">{t('common.progress')}</span>
+                        <span className="text-gray-600">Progress</span>
                         <span className="font-semibold text-primary-600">{project.progress}%</span>
                       </div>
                       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -335,7 +333,7 @@ const Projects = () => {
                     {/* Budget Utilization */}
                     <div>
                       <div className="flex items-center justify-between text-sm mb-2">
-                        <span className="text-gray-600">{t('projects.budgetUtilization')}</span>
+                        <span className="text-gray-600">Budget Utilization</span>
                         <span className="font-semibold text-primary-600">
                           {calculateBudgetUtilization(project.budget, project.spent).toFixed(1)}%
                         </span>

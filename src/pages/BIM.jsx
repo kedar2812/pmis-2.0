@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Box, RotateCw, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const BIM = () => {
-  const { t } = useLanguage();
   const containerRef = useRef(null);
   const [activeHotspot, setActiveHotspot] = useState(null);
 
@@ -117,7 +115,7 @@ const BIM = () => {
 
     return () => {
       threeState.isMounted = false;
-      
+
       if (threeState.handleResize) {
         window.removeEventListener('resize', threeState.handleResize);
       }
@@ -153,15 +151,15 @@ const BIM = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('common.bim')}</h1>
-        <p className="text-gray-600 mt-1">{t('bim.subtitle')}</p>
+        <h1 className="text-3xl font-bold text-gray-900">BIM Visualization</h1>
+        <p className="text-gray-600 mt-1">3D Building Information Models and Infrastructure</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>{t('bim.modelViewer')}</CardTitle>
+          <CardTitle>3D Model Viewer</CardTitle>
           <p className="text-sm text-gray-600 mt-1">
-            {t('bim.interactiveVisualization')}
+            Interactive infrastructure visualization
           </p>
         </CardHeader>
         <CardContent>
@@ -180,7 +178,7 @@ const BIM = () => {
                 <Info size={16} className="text-white m-auto" />
               </motion.button>
             ))}
-            
+
             {/* Hotspot Info Popup */}
             <AnimatePresence>
               {activeHotspot && (
@@ -212,8 +210,8 @@ const BIM = () => {
             <div className="flex items-center gap-3">
               <Box className="text-primary-600" size={32} />
               <div>
-                <p className="font-medium">{t('bim.infrastructureModels')}</p>
-                <p className="text-sm text-gray-600">{t('bim.modelsDescription')}</p>
+                <p className="font-medium">Infrastructure Models</p>
+                <p className="text-sm text-gray-600">Detailed 3D models of roads, bridges, and utilities</p>
               </div>
             </div>
           </CardContent>
@@ -224,8 +222,8 @@ const BIM = () => {
             <div className="flex items-center gap-3">
               <RotateCw className="text-primary-600" size={32} />
               <div>
-                <p className="font-medium">{t('bim.interactiveView')}</p>
-                <p className="text-sm text-gray-600">{t('bim.rotateZoomExplore')}</p>
+                <p className="font-medium">Interactive View</p>
+                <p className="text-sm text-gray-600">Rotate, zoom, and explore model details</p>
               </div>
             </div>
           </CardContent>
@@ -236,8 +234,8 @@ const BIM = () => {
             <div className="flex items-center gap-3">
               <Box className="text-primary-600" size={32} />
               <div>
-                <p className="font-medium">{t('bim.bimIntegration')}</p>
-                <p className="text-sm text-gray-600">{t('bim.bimData')}</p>
+                <p className="font-medium">BIM Data Integration</p>
+                <p className="text-sm text-gray-600">Embedded metadata for asset management</p>
               </div>
             </div>
           </CardContent>

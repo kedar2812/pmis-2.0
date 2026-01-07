@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { useSidebar } from '@/contexts/SidebarContext';
 import {
   LayoutDashboard,
@@ -85,7 +84,6 @@ const textTransition = {
 
 const Sidebar = () => {
   const { hasPermission } = useAuth();
-  const { t } = useLanguage();
   const location = useLocation();
   const { isCollapsed, setIsCollapsed, isMobileMenuOpen, setIsMobileMenuOpen, isMobile } = useSidebar();
 
@@ -108,14 +106,14 @@ const Sidebar = () => {
   const menuItems = [
     {
       id: 'dashboard',
-      label: t('common.dashboard'),
+      label: 'Dashboard',
       icon: LayoutDashboard,
       path: '/dashboard',
       permission: 'dashboard:view',
     },
     {
       id: 'projects',
-      label: t('common.projects'),
+      label: 'Projects',
       icon: FolderOpen,
       path: '/projects',
       permission: 'dashboard:view',
@@ -150,7 +148,7 @@ const Sidebar = () => {
     },
     {
       id: 'scheduling',
-      label: t('common.schedule'),
+      label: 'Schedule',
       icon: Calendar,
       path: '/scheduling',
       permission: 'scheduling:view',
@@ -164,28 +162,28 @@ const Sidebar = () => {
     },
     {
       id: 'cost',
-      label: t('common.cost'),
+      label: 'Cost Management',
       icon: IndianRupee,
       path: '/cost',
       permission: 'cost:view',
     },
     {
       id: 'risk',
-      label: t('common.risk'),
+      label: 'Risk Management',
       icon: AlertTriangle,
       path: '/risk',
       permission: 'risk:view',
     },
     {
       id: 'gis',
-      label: t('common.gis'),
+      label: 'GIS & Mapping',
       icon: Map,
       path: '/gis',
       permission: 'gis:view',
     },
     {
       id: 'bim',
-      label: t('common.bim'),
+      label: '3D Model Viewer',
       icon: Box,
       path: '/bim',
       permission: 'bim:view',
@@ -356,7 +354,7 @@ const Sidebar = () => {
               )}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              aria-label={isCollapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               {isCollapsed ? (
                 <ChevronRight size={18} className="text-slate-600" />
