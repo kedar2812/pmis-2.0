@@ -1,13 +1,14 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSidebar } from '@/contexts/SidebarContext';
-import { Globe } from 'lucide-react';
+import { Globe, Settings } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import GoogleTranslateWidget from '@/components/ui/GoogleTranslateWidget';
 import NotificationDropdown from '@/components/communications/NotificationDropdown';
+import SettingsModal from '@/components/settings/SettingsModal';
 
 /**
  * Header - Top navigation bar component
@@ -26,6 +27,7 @@ const Header = ({ isDesktop = true }) => {
   const { isCollapsed, isMobileMenuOpen } = useSidebar();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const notificationsRef = useRef(null);
   const profileRef = useRef(null);
 
@@ -125,6 +127,15 @@ const Header = ({ isDesktop = true }) => {
           </Select>
         </div>
 
+        {/* Settings Icon */}
+        <button
+          onClick={() => setShowSettings(true)}
+          className="p-2 rounded-xl hover:bg-slate-100/60 transition-all duration-200 hover:scale-105 group"
+          title="Settings"
+        >
+          <Settings size={20} className="text-slate-500 group-hover:text-blue-600 group-hover:rotate-90 transition-all duration-300" />
+        </button>
+
         {/* Notifications - Using Communications NotificationDropdown */}
         <NotificationDropdown />
 
@@ -165,6 +176,12 @@ const Header = ({ isDesktop = true }) => {
           )}
         </div>
       </div>
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
     </motion.header>
   );
 };

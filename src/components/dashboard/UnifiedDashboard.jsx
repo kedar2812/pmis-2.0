@@ -151,18 +151,57 @@ const UnifiedDashboard = () => {
     const [projects, setProjects] = useState([]);
     const [graphModalOpen, setGraphModalOpen] = useState(false);
     const [graphModalMetric, setGraphModalMetric] = useState('budget');
+    const [error, setError] = useState(null);
+
+    // Default stats to prevent crashes
+    const defaultStats = {
+        project_stats: { total: 0, in_progress: 0, completed: 0, planning: 0, on_hold: 0 },
+        financial_summary: { total_budget: 0, total_spent: 0, remaining: 0, utilization: 0 },
+        schedule_health: { on_track: 0, delayed: 0, critical: 0 },
+        alerts: [],
+        milestones: [],
+        critical_path_tasks: [],
+        risk_summary: { high: 0, medium: 0, low: 0 },
+        change_requests: [],
+        earned_value: { cpi: 1.0, spi: 1.0 },
+        cash_flow: [],
+        recent_activity: [],
+        top_projects: []
+    };
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [statsData, projectsData] = await Promise.all([
-                    dashboardService.getStats(),
-                    projectService.getAllProjects()
+                setError(null);
+
+                // Create a timeout promise
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Request timeout')), 10000)
+                );
+
+                // Race between actual fetch and timeout
+                const [statsData, projectsData] = await Promise.race([
+                    Promise.all([
+                        dashboardService.getStats().catch(err => {
+                            console.warn('Stats fetch failed:', err);
+                            return defaultStats;
+                        }),
+                        projectService.getAllProjects().catch(err => {
+                            console.warn('Projects fetch failed:', err);
+                            return [];
+                        })
+                    ]),
+                    timeoutPromise.then(() => [defaultStats, []])
                 ]);
-                setStats(statsData);
-                setProjects(projectsData || []);
+
+                setStats(statsData || defaultStats);
+                setProjects(Array.isArray(projectsData) ? projectsData : projectsData?.results || []);
             } catch (error) {
                 console.error('Failed to fetch dashboard data:', error);
+                setError('Failed to load dashboard data');
+                // Set defaults to prevent crash
+                setStats(defaultStats);
+                setProjects([]);
             } finally {
                 setLoading(false);
             }
