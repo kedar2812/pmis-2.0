@@ -112,7 +112,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                             {/* Header */}
                             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200/50">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
+                                    <div className="p-2 bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl">
                                         <Settings className="text-white" size={20} />
                                     </div>
                                     <div>
@@ -144,7 +144,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                 placeholder="Search settings..."
                                                 value={searchQuery}
                                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                                className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
                                             />
                                         </div>
                                     </div>
@@ -154,8 +154,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                 key={section.id}
                                                 onClick={() => setActiveSection(section.id)}
                                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeSection === section.id
-                                                        ? 'bg-blue-500 text-white shadow-lg'
-                                                        : 'text-slate-600 hover:bg-white hover:shadow-sm'
+                                                    ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                                                    : 'text-slate-600 hover:bg-white hover:shadow-sm'
                                                     }`}
                                             >
                                                 <section.icon size={18} />
@@ -166,7 +166,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                     </nav>
                                     <div className="p-4 border-t border-slate-200/50">
                                         <div className="flex items-center gap-3 px-3 py-2 bg-white rounded-xl">
-                                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-violet-500 rounded-full flex items-center justify-center">
+                                            <div className="w-8 h-8 bg-gradient-to-br from-primary-600 to-violet-500 rounded-full flex items-center justify-center">
                                                 <span className="text-white text-sm font-medium">
                                                     {user?.first_name?.[0] || 'A'}
                                                 </span>
@@ -583,7 +583,7 @@ const WorkflowConfigSection = () => {
                                     {selectedWf.steps.map((step, idx) => (
                                         <div key={idx} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border">
                                             <GripVertical size={16} className="text-slate-400" />
-                                            <span className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">{step.step}</span>
+                                            <span className="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-bold">{step.step}</span>
                                             <select value={step.role} onChange={(e) => handleUpdateStep(idx, 'role', e.target.value)} className="px-3 py-1.5 border rounded-lg text-sm">
                                                 {USER_ROLES.map(r => <option key={r} value={r}>{r.replace(/_/g, ' ')}</option>)}
                                             </select>
@@ -616,14 +616,33 @@ const IntegrationsSection = ({ settings, updateSetting }) => (
             </SettingsRow>
         </SettingsCard>
         <SettingsCard className="mt-4">
-            <h4 className="font-semibold mb-4">External Systems</h4>
+            <div className="flex items-center justify-between mb-4">
+                <h4 className="font-semibold">External Systems</h4>
+                <span className="text-xs text-slate-500">API connections configured in backend</span>
+            </div>
+            <div className="p-4 bg-slate-50 rounded-xl mb-4">
+                <p className="text-sm text-slate-600">
+                    <strong>How PMIS connects to external systems:</strong> These integrations are established through backend API endpoints and database sync jobs.
+                    The NICDC Dashboard receives project progress data via scheduled API calls. GIS Service provides spatial data for project locations.
+                    Finance MIS integration is pending backend configuration for fund flow synchronization.
+                </p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[{ name: 'NICDC Dashboard', status: 'Connected', color: 'emerald' }, { name: 'GIS Service', status: 'Connected', color: 'emerald' }, { name: 'Finance MIS', status: 'Pending', color: 'amber' }].map(sys => (
-                    <div key={sys.name} className="p-4 border rounded-xl">
-                        <p className="font-medium">{sys.name}</p>
-                        <span className={`text-xs px-2 py-0.5 rounded bg-${sys.color}-100 text-${sys.color}-700`}>{sys.status}</span>
-                    </div>
-                ))}
+                <div className="p-4 bg-white rounded-xl shadow-sm">
+                    <p className="font-medium text-slate-800">NICDC Dashboard</p>
+                    <p className="text-xs text-slate-500 mt-1">Sends project progress data</p>
+                    <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">● Connected</span>
+                </div>
+                <div className="p-4 bg-white rounded-xl shadow-sm">
+                    <p className="font-medium text-slate-800">GIS Service</p>
+                    <p className="text-xs text-slate-500 mt-1">Spatial data & mapping</p>
+                    <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">● Connected</span>
+                </div>
+                <div className="p-4 bg-white rounded-xl shadow-sm">
+                    <p className="font-medium text-slate-800">Finance MIS</p>
+                    <p className="text-xs text-slate-500 mt-1">Fund flow & billing sync</p>
+                    <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">○ Pending Setup</span>
+                </div>
             </div>
         </SettingsCard>
     </div>

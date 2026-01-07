@@ -2,23 +2,21 @@ import { motion } from 'framer-motion';
 
 /**
  * Toggle Switch Component
- * Smooth animated toggle with blue active color
- * 
- * @param {boolean} enabled - Current toggle state
- * @param {function} onChange - Callback when toggled
- * @param {string} label - Optional label text
- * @param {string} description - Optional description text
- * @param {boolean} disabled - Disable toggle
- * @param {string} size - 'sm' | 'md' | 'lg'
+ * Smooth animated toggle with primary blue active color
+ * Supports both 'checked' and 'enabled' props for compatibility
  */
 const Toggle = ({
-    enabled = false,
+    checked,
+    enabled,
     onChange,
     label,
     description,
     disabled = false,
     size = 'md'
 }) => {
+    // Support both 'checked' and 'enabled' props
+    const isOn = checked ?? enabled ?? false;
+
     const sizes = {
         sm: { track: 'w-8 h-4', thumb: 'w-3 h-3', translate: 'translate-x-4' },
         md: { track: 'w-11 h-6', thumb: 'w-5 h-5', translate: 'translate-x-5' },
@@ -29,7 +27,7 @@ const Toggle = ({
 
     const handleToggle = () => {
         if (!disabled && onChange) {
-            onChange(!enabled);
+            onChange(!isOn);
         }
     };
 
@@ -53,17 +51,17 @@ const Toggle = ({
             <button
                 type="button"
                 role="switch"
-                aria-checked={enabled}
+                aria-checked={isOn}
                 disabled={disabled}
                 onClick={handleToggle}
                 className={`
                     relative inline-flex flex-shrink-0 
                     ${sizeConfig.track}
                     rounded-full cursor-pointer
-                    transition-colors duration-300 ease-in-out
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                    ${enabled ? 'bg-blue-500' : 'bg-slate-200'}
-                    ${disabled ? 'cursor-not-allowed' : ''}
+                    transition-colors duration-200 ease-in-out
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
+                    ${isOn ? 'bg-primary-600' : 'bg-slate-300'}
+                    ${disabled ? 'cursor-not-allowed' : 'hover:opacity-90'}
                 `}
             >
                 <motion.span
@@ -77,15 +75,11 @@ const Toggle = ({
                     className={`
                         pointer-events-none inline-block
                         ${sizeConfig.thumb}
-                        rounded-full bg-white shadow-lg
-                        ring-0 
-                        ${enabled ? sizeConfig.translate : 'translate-x-0.5'}
+                        rounded-full bg-white shadow-md
+                        ${isOn ? sizeConfig.translate : 'translate-x-0.5'}
                         transform transition-transform duration-200
                         mt-0.5 ml-0.5
                     `}
-                    style={{
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
-                    }}
                 />
             </button>
         </div>
