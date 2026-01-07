@@ -20,7 +20,7 @@ This platform integrates various project management domains into a seamless inte
 
 ### Backend
 - **Framework**: Django REST Framework (Python)
-- **Database**: PostgreSQL / SQLite (Development)
+- **Database**: PostgreSQL 
 - **Authentication**: JWT & Session-based
 - **API**: RESTful Endpoints
 
