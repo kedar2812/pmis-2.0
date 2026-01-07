@@ -17,6 +17,9 @@ import mastersService from '@/api/services/mastersService';
 import settingsService from '@/api/services/settingsService';
 import api from '@/api/client';
 
+// Import the full UserManagement page component
+import UserManagement from '@/pages/UserManagement';
+
 // Permission list for roles
 const ALL_PERMISSIONS = [
     'dashboard:view', 'dashboard:edit', 'scheduling:view', 'scheduling:edit',
@@ -188,7 +191,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: -20 }}
                                         >
-                                            {activeSection === 'users' && <UserManagementSection />}
+                                            {activeSection === 'users' && <UserManagement />}
                                             {activeSection === 'roles' && <RolesPermissionsSection />}
                                             {activeSection === 'masters' && <MasterDataSection navigate={navigate} onClose={onClose} />}
                                             {activeSection === 'workflow' && <WorkflowConfigSection />}
