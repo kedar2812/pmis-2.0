@@ -433,7 +433,7 @@ const UserManagement = () => {
                 </div>
                 <div className="flex gap-3">
                     <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
-                        <RefreshCw size={18} className={`mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                        <RefreshCw size={18} className={`mr - 2 ${isRefreshing ? 'animate-spin' : ''} `} />
                         {isRefreshing ? 'Refreshing...' : 'Refresh'}
                     </Button>
                     <Button onClick={() => setIsInviteModalOpen(true)}>
@@ -494,19 +494,19 @@ const UserManagement = () => {
             <div className="flex gap-2">
                 <button
                     onClick={() => { setActiveTab('all'); fetchUsers(); }}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all ${activeTab === 'all' ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/25' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
+                    className={`px - 4 py - 2 rounded - lg font - medium transition - all ${activeTab === 'all' ? 'bg-primary-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        } `}
                 >
                     All Users
                 </button>
                 <button
                     onClick={() => { setActiveTab('pending'); fetchPendingUsers(); }}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${activeTab === 'pending' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/25' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
+                    className={`px - 4 py - 2 rounded - lg font - medium transition - all flex items - center gap - 2 ${activeTab === 'pending' ? 'bg-amber-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        } `}
                 >
                     Pending Approval
                     {pendingUsers.length > 0 && (
-                        <span className={`px-2 py-0.5 rounded-full text-xs ${activeTab === 'pending' ? 'bg-white/20' : 'bg-amber-500 text-white'}`}>
+                        <span className={`px - 2 py - 0.5 rounded - full text - xs ${activeTab === 'pending' ? 'bg-white/20' : 'bg-amber-500 text-white'} `}>
                             {pendingUsers.length}
                         </span>
                     )}
@@ -555,129 +555,114 @@ const UserManagement = () => {
 
             {/* Users Table */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <AnimatePresence mode="wait">
-                    {isLoading ? (
-                        <motion.div
-                            key="loader"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="p-12 text-center"
-                        >
-                            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary-600" />
-                            <p className="text-slate-500">Loading users...</p>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key={activeTab} // Animate when tab changes
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.2 }}
-                            className="overflow-x-auto"
-                        >
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-semibold">
-                                        <th className="p-4">User</th>
-                                        <th className="p-4">Role</th>
-                                        <th className="p-4">Status</th>
-                                        <th className="p-4">Contact</th>
-                                        <th className="p-4">Joined</th>
-                                        <th className="p-4">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100">
-                                    {filteredUsers.length > 0 ? (
-                                        filteredUsers.map(u => (
-                                            <tr key={u.id} className="hover:bg-slate-50/50 transition-colors">
-                                                <td className="p-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-bold">
-                                                            {(u.first_name?.[0] || u.username?.[0] || '?').toUpperCase()}
-                                                        </div>
-                                                        <div>
-                                                            <p className="font-medium text-slate-900">
-                                                                {u.first_name} {u.last_name}
-                                                            </p>
-                                                            <p className="text-sm text-slate-500">{u.username}</p>
-                                                            {u.company_name && (
-                                                                <p className="text-xs text-slate-400 flex items-center gap-1">
-                                                                    <Building2 size={12} /> {u.company_name}
-                                                                </p>
-                                                            )}
-                                                        </div>
+                {isLoading ? (
+                    <div className="p-12 text-center">
+                        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary-600" />
+                        <p className="text-slate-500">Loading users...</p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-semibold">
+                                    <th className="p-4">User</th>
+                                    <th className="p-4">Role</th>
+                                    <th className="p-4">Status</th>
+                                    <th className="p-4">Contact</th>
+                                    <th className="p-4">Joined</th>
+                                    <th className="p-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {filteredUsers.length > 0 ? (
+                                    filteredUsers.map(u => (
+                                        <tr key={u.id} className="hover:bg-slate-50/50 transition-colors">
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-bold">
+                                                        {(u.first_name?.[0] || u.username?.[0] || '?').toUpperCase()}
                                                     </div>
-                                                </td>
-                                                <td className="p-4">
-                                                    <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${getRoleBadge(u.role)}`}>
-                                                        {u.role?.replace('_', ' ')}
-                                                    </span>
-                                                </td>
-                                                <td className="p-4">
-                                                    <StatusBadge
-                                                        status={u.account_status}
-                                                        onToggle={(newStatus) => handleStatusUpdate(u.id, newStatus)}
-                                                        entityName={`${u.first_name} ${u.last_name}`}
-                                                        activeValue="ACTIVE"
-                                                        inactiveValue="DISABLED"
-                                                        customLabels={{
-                                                            'PENDING_APPROVAL': 'Pending Approval',
-                                                            'PENDING_INVITE': 'Pending Invite'
-                                                        }}
-                                                        readOnly={['PENDING_APPROVAL', 'PENDING_INVITE'].includes(u.account_status)}
-                                                    />
-                                                </td>
-                                                <td className="p-4">
-                                                    <div className="text-sm">
-                                                        <p className="text-slate-600 flex items-center gap-1">
-                                                            <Mail size={14} className="text-slate-400" /> {u.email}
+                                                    <div>
+                                                        <p className="font-medium text-slate-900">
+                                                            {u.first_name} {u.last_name}
                                                         </p>
-                                                        {u.phone_number && (
-                                                            <p className="text-slate-500 flex items-center gap-1 mt-1">
-                                                                <Phone size={14} className="text-slate-400" /> {u.phone_number}
+                                                        <p className="text-sm text-slate-500">{u.username}</p>
+                                                        {u.company_name && (
+                                                            <p className="text-xs text-slate-400 flex items-center gap-1">
+                                                                <Building2 size={12} /> {u.company_name}
                                                             </p>
                                                         )}
                                                     </div>
-                                                </td>
-                                                <td className="p-4 text-sm text-slate-500">
-                                                    {u.date_joined ? new Date(u.date_joined).toLocaleDateString() : '-'}
-                                                </td>
-                                                <td className="p-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <button
-                                                            onClick={() => setSelectedUser(u)}
-                                                            className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                                                        >
-                                                            <Eye size={18} />
-                                                        </button>
-                                                        {u.account_status === 'PENDING_APPROVAL' && (
-                                                            <>
-                                                                <button
-                                                                    onClick={() => handleApprove(u.id)}
-                                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                                                                    title="Approve"
-                                                                >
-                                                                    <CheckCircle2 size={18} />
-                                                                </button>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="6" className="p-12 text-center text-slate-500">
-                                                No users found matching your criteria.
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <span className={`px - 2.5 py - 1 rounded - full text - xs font - semibold ${getRoleBadge(u.role)} `}>
+                                                    {u.role?.replace('_', ' ')}
+                                                </span>
+                                            </td>
+                                            <td className="p-4">
+                                                <StatusBadge
+                                                    status={u.account_status}
+                                                    onToggle={(newStatus) => handleStatusUpdate(u.id, newStatus)}
+                                                    entityName={`${u.first_name} ${u.last_name} `}
+                                                    activeValue="ACTIVE"
+                                                    inactiveValue="DISABLED"
+                                                    customLabels={{
+                                                        'PENDING_APPROVAL': 'Pending Approval',
+                                                        'PENDING_INVITE': 'Pending Invite'
+                                                    }}
+                                                    readOnly={['PENDING_APPROVAL', 'PENDING_INVITE'].includes(u.account_status)}
+                                                />
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="text-sm">
+                                                    <p className="text-slate-600 flex items-center gap-1">
+                                                        <Mail size={14} className="text-slate-400" /> {u.email}
+                                                    </p>
+                                                    {u.phone_number && (
+                                                        <p className="text-slate-500 flex items-center gap-1 mt-1">
+                                                            <Phone size={14} className="text-slate-400" /> {u.phone_number}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="p-4 text-sm text-slate-500">
+                                                {u.date_joined ? new Date(u.date_joined).toLocaleDateString() : '-'}
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => setSelectedUser(u)}
+                                                        className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                                                    >
+                                                        <Eye size={18} />
+                                                    </button>
+                                                    {u.account_status === 'PENDING_APPROVAL' && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleApprove(u.id)}
+                                                                className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                                title="Approve"
+                                                            >
+                                                                <CheckCircle2 size={18} />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="6" className="p-12 text-center text-slate-500">
+                                            No users found matching your criteria.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
 
             {/* Modals */}

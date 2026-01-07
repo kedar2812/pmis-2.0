@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-
+import { useLanguage } from '@/contexts/LanguageContext';
 import mastersService from '@/api/services/mastersService';
 import projectService from '@/api/services/projectService';
 import { AddContractorModal } from '@/components/procurement/AddContractorModal';
@@ -23,7 +23,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from 'sonner';
 
 const Procurement = () => {
-
+    const { t } = useLanguage();
 
     // Real data state
     const [contractors, setContractors] = useState([]);
@@ -211,10 +211,10 @@ const Procurement = () => {
                                             </h3>
                                             <div className="flex items-center gap-2 mt-1">
                                                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${contractor.blacklisted
-                                                    ? 'bg-red-100 text-red-700'
-                                                    : contractor.is_valid
-                                                        ? 'bg-green-100 text-green-700'
-                                                        : 'bg-amber-100 text-amber-700'
+                                                        ? 'bg-red-100 text-red-700'
+                                                        : contractor.is_valid
+                                                            ? 'bg-green-100 text-green-700'
+                                                            : 'bg-amber-100 text-amber-700'
                                                     }`}>
                                                     {contractor.blacklisted ? 'Blacklisted' : contractor.is_valid ? 'Active' : 'Expired'}
                                                 </span>

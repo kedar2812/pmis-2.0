@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-
+import { useLanguage } from '@/contexts/LanguageContext';
 import { MotionCard, MotionCardContent, MotionCardHeader, MotionCardTitle } from '@/components/ui/MotionCard';
 import { Network, MapPin, BarChart3, TrendingUp } from 'lucide-react';
 import { CalculationRules } from '@/lib/calculations';
@@ -9,6 +9,7 @@ import MetricsDetailModal from '@/components/ui/MetricsDetailModal';
 import { DynamicChart } from '@/components/ui/DynamicChart';
 
 const NICDCDashboard = ({ projects }) => {
+    const { t } = useLanguage();
     const navigate = useNavigate();
     const [selectedMetric, setSelectedMetric] = useState(null);
 
@@ -56,7 +57,7 @@ const NICDCDashboard = ({ projects }) => {
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
             <div className="bg-slate-800 text-white p-6 rounded-2xl shadow-xl flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold">NICDC HQ Central Command</h2>
+                    <h2 className="text-2xl font-bold">{t('role.NICDC_HQ')} Central Command</h2>
                     <p className="opacity-80">National Industrial Corridor Development Corporation</p>
                 </div>
                 <Network size={32} className="opacity-50" />

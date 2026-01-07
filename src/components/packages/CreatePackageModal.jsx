@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2, Check, FolderOpen, Calendar, IndianRupee, User } from 'lucide-react';
+import { X, Loader2, Check, FolderOpen, Calendar, DollarSign, User } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { toast } from 'sonner';
 import { SmartInput } from '@/components/ui/SmartInput';
@@ -225,7 +225,7 @@ export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelec
                                         className={`w-full p-2 pl-10 border rounded-lg ${errors.contractValue ? 'border-red-500' : 'border-slate-200'}`}
                                         placeholder="0.00"
                                     />
-                                    <IndianRupee className="absolute left-3 top-2.5 text-slate-400" size={18} />
+                                    <DollarSign className="absolute left-3 top-2.5 text-slate-400" size={18} />
                                 </div>
                                 {errors.contractValue && <p className="text-xs text-red-500 mt-1">{errors.contractValue}</p>}
                             </div>

@@ -1,43 +1,31 @@
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 
 export const Breadcrumbs = () => {
   const location = useLocation();
+  const { t } = useLanguage();
 
-  // Map paths to readable labels
   const pathMap = {
-    '/dashboard': 'Dashboard',
-    '/projects': 'Projects',
-    '/edms': 'EDMS',
-    '/communications': 'Communications',
-    '/approvals': 'Approvals',
-    '/scheduling': 'Schedule',
-    '/cost': 'Cost Management',
-    '/risk': 'Risk Management',
-    '/gis': 'GIS & Mapping',
-    '/bim': '3D Model Viewer',
-    '/users': 'User Management',
-    '/workflow': 'Workflow Config',
-    '/e-procurement': 'e-Procurement',
-    '/etp-master': 'ETP Charges',
-    '/admin/audit-logs': 'Audit Logs',
-    '/admin/master-data': 'Master Data',
-    '/cost/boq': 'BOQ Management',
-    '/cost/funds': 'Fund Management',
-    '/cost/budgeting': 'Budgeting',
-    '/cost/billing': 'RA Billing',
+    '/dashboard': t('common.dashboard'),
+
+    '/scheduling': t('common.schedule'),
+    '/cost': t('common.cost'),
+    '/risk': t('common.risk'),
+    '/gis': t('common.gis'),
+    '/bim': t('common.bim'),
   };
 
   const generateBreadcrumbs = () => {
     const paths = location.pathname.split('/').filter(Boolean);
-    const breadcrumbs = [{ label: 'Dashboard', path: '/dashboard' }];
+    const breadcrumbs = [{ label: t('common.dashboard'), path: '/dashboard' }];
 
     if (paths.length === 0) return breadcrumbs;
 
     paths.forEach((path, index) => {
       const fullPath = '/' + paths.slice(0, index + 1).join('/');
-      const label = pathMap[fullPath] || path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, ' ');
+      const label = pathMap[fullPath] || path.charAt(0).toUpperCase() + path.slice(1);
       breadcrumbs.push({
         label,
         path: index === paths.length - 1 ? undefined : fullPath,
@@ -89,3 +77,10 @@ export const Breadcrumbs = () => {
     </nav>
   );
 };
+
+
+
+
+
+
+

@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
+import './i18n'
 
 // Error boundary for better error handling
 class ErrorBoundary extends React.Component {

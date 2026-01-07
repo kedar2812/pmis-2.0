@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-
+import { useLanguage } from '@/contexts/LanguageContext';
 import { SmartInput } from '@/components/ui/SmartInput';
 import { useModalClose } from '@/hooks/useModalClose';
 import ChainedHierarchySelector from '@/components/masters/ChainedHierarchySelector';
@@ -22,6 +22,7 @@ const STEPS = [
 ];
 
 export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -91,10 +92,10 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
     const newErrors = {};
 
     if (step === 1) {
-      if (!formData.name.trim()) newErrors.name = 'Project Name is required';
-      if (!formData.startDate) newErrors.startDate = 'Start Date is required';
-      if (!formData.endDate) newErrors.endDate = 'End Date is required';
-      if (!formData.budget) newErrors.budget = 'Valid Budget is required';
+      if (!formData.name.trim()) newErrors.name = t('project.projectNameRequired');
+      if (!formData.startDate) newErrors.startDate = t('project.startDateRequired');
+      if (!formData.endDate) newErrors.endDate = t('project.endDateRequired');
+      if (!formData.budget) newErrors.budget = t('project.validBudgetRequired');
     }
 
     if (step === 2) {
@@ -193,10 +194,10 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
       };
 
       await onSave(projectData);
-      toast.success('Project created successfully');
+      toast.success(t('project.createdSuccessfully'));
       onClose();
     } catch (error) {
-      toast.error('Failed to create project');
+      toast.error(t('project.failedToCreate'));
     } finally {
       setIsSubmitting(false);
     }

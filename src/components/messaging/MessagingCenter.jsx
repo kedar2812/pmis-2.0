@@ -3,12 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, Send, Bell, AlertCircle, CheckCircle, Info } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 export const MessagingCenter = ({ isOpen, onClose, notifications }) => {
-
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('alerts');
 
@@ -72,19 +72,21 @@ export const MessagingCenter = ({ isOpen, onClose, notifications }) => {
         <div className="flex border-b border-slate-200">
           <button
             onClick={() => setActiveTab('alerts')}
-            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'alerts'
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+              activeTab === 'alerts'
                 ? 'text-primary-600 border-b-2 border-primary-600'
                 : 'text-slate-600 hover:text-slate-900'
-              }`}
+            }`}
           >
             System Alerts ({systemAlerts.length})
           </button>
           <button
             onClick={() => setActiveTab('messages')}
-            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'messages'
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+              activeTab === 'messages'
                 ? 'text-primary-600 border-b-2 border-primary-600'
                 : 'text-slate-600 hover:text-slate-900'
-              }`}
+            }`}
           >
             Team Messages ({teamMessages.length})
           </button>

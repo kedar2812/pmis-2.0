@@ -9,7 +9,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-
+import { useLanguage } from '@/contexts/LanguageContext';
 import client from '@/api/client';
 import { toast } from 'sonner';
 import {
@@ -29,7 +29,7 @@ const Communications = () => {
     const { threadId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
-
+    const { t } = useLanguage();
     const [threads, setThreads] = useState([]);
     const [selectedThread, setSelectedThread] = useState(null);
     const [isLoading, setIsLoading] = useState(true);

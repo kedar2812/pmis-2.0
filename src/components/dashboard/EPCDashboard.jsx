@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-
+import { useLanguage } from '@/contexts/LanguageContext';
 import { MotionCard, MotionCardContent, MotionCardHeader, MotionCardTitle } from '@/components/ui/MotionCard';
 import { Upload, FileText, CheckCircle, Calendar, AlertCircle } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import MetricsDetailModal from '@/components/ui/MetricsDetailModal';
 
 const EPCDashboard = ({ projects, tasks }) => {
+    const { t } = useLanguage();
     const [selectedMetric, setSelectedMetric] = useState(null);
 
     const containerVariants = {
@@ -74,11 +75,11 @@ const EPCDashboard = ({ projects, tasks }) => {
             <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
                 <motion.div variants={itemVariants} className="flex justify-between items-center">
                     <div>
-                        <h2 className="text-2xl font-bold text-slate-800">EPC Contractor Operations</h2>
+                        <h2 className="text-2xl font-bold text-slate-800">{t('role.EPC_Contractor')} Operations</h2>
                         <p className="text-slate-500">Site Work, Progress Reporting & Compliance</p>
                     </div>
                     <Button>
-                        <Upload size={16} /> Upload Report
+                        <Upload size={16} /> {t('common.upload')} Report
                     </Button>
                 </motion.div>
 
@@ -128,7 +129,7 @@ const EPCDashboard = ({ projects, tasks }) => {
 
                 <MotionCard variants={itemVariants}>
                     <MotionCardHeader>
-                        <MotionCardTitle>Upcoming Tasks</MotionCardTitle>
+                        <MotionCardTitle>{t('dashboard.upcomingTasks')}</MotionCardTitle>
                     </MotionCardHeader>
                     <MotionCardContent>
                         <div className="space-y-3">

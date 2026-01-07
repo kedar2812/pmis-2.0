@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
-
+import { useLanguage } from '@/contexts/LanguageContext';
 import { MotionCard, MotionCardContent, MotionCardHeader, MotionCardTitle } from '@/components/ui/MotionCard';
 
 const GovtDashboard = ({ projects, kpis }) => {
+    const { t } = useLanguage();
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -13,7 +14,7 @@ const GovtDashboard = ({ projects, kpis }) => {
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-8">
             <div className="text-center border-b border-slate-200 pb-6">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Govt Emblem" className="h-16 mx-auto mb-4 opacity-80" />
-                <h2 className="text-2xl font-serif font-bold text-slate-900">Government Department</h2>
+                <h2 className="text-2xl font-serif font-bold text-slate-900">{t('role.Govt_Department')}</h2>
                 <p className="text-slate-600">Executive Status Report</p>
             </div>
 
@@ -26,7 +27,7 @@ const GovtDashboard = ({ projects, kpis }) => {
                         <MotionCardContent className="space-y-4">
                             <div>
                                 <div className="flex justify-between text-sm mb-1">
-                                    <span>Progress</span>
+                                    <span>{t('common.progress')}</span>
                                     <span className="font-bold">{project.progress}%</span>
                                 </div>
                                 <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
@@ -34,7 +35,7 @@ const GovtDashboard = ({ projects, kpis }) => {
                                 </div>
                             </div>
                             <div className="flex justify-between text-sm text-slate-600 border-t pt-2">
-                                <span>Status</span>
+                                <span>{t('common.status')}</span>
                                 <span className="font-semibold uppercase tracking-wide">{project.status}</span>
                             </div>
                         </MotionCardContent>
@@ -49,9 +50,9 @@ const GovtDashboard = ({ projects, kpis }) => {
                         <thead className="bg-slate-50 text-slate-600 uppercase">
                             <tr>
                                 <th className="px-4 py-3">Metric</th>
-                                <th className="px-4 py-3">Target</th>
-                                <th className="px-4 py-3">Actual</th>
-                                <th className="px-4 py-3">Status</th>
+                                <th className="px-4 py-3">{t('common.target')}</th>
+                                <th className="px-4 py-3">{t('cost.actual')}</th>
+                                <th className="px-4 py-3">{t('common.status')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -62,7 +63,7 @@ const GovtDashboard = ({ projects, kpis }) => {
                                     <td className="px-4 py-3">{kpi.value} {kpi.unit}</td>
                                     <td className="px-4 py-3">
                                         <span className={`px-2 py-1 text-xs rounded-full ${kpi.value >= kpi.target ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                            {kpi.value >= kpi.target ? 'On Track' : 'Delayed'}
+                                            {kpi.value >= kpi.target ? t('common.onTrack') : t('common.delayed')}
                                         </span>
                                     </td>
                                 </tr>

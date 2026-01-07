@@ -13,10 +13,10 @@ import PhaseProgressCard from './PhaseProgressCard';
 import MiniCalendarWidget from './MiniCalendarWidget';
 import { AnimatedNumber } from '@/hooks/useAnimatedCounter';
 import {
-    TrendingUp, TrendingDown, IndianRupee, FolderOpen, Clock, AlertTriangle,
+    TrendingUp, TrendingDown, DollarSign, FolderOpen, Clock, AlertTriangle,
     FileText, CheckCircle, Calendar, ChevronRight, Bell, Activity, ArrowRight,
     Target, MapPin, Flag, AlertCircle, FileSignature, BarChart3, Maximize2,
-    Map, Box, Shield, GitPullRequest, Wallet
+    Map, Box, Shield, GitPullRequest, Wallet, CircleDollarSign
 } from 'lucide-react';
 
 // Glass Card Component
@@ -295,7 +295,7 @@ const UnifiedDashboard = () => {
                     onClick={() => navigate('/projects')}
                 />
                 <KPICard
-                    icon={IndianRupee}
+                    icon={CircleDollarSign}
                     label="Financial Progress"
                     value={`${financialProgress}%`}
                     subtext={`₹${((financialSummary.total_spent || 0) / 10000000).toFixed(1)} Cr spent`}
@@ -352,7 +352,7 @@ const UnifiedDashboard = () => {
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                            <IndianRupee size={20} className="text-emerald-600" />
+                            <DollarSign size={20} className="text-emerald-600" />
                             Budget vs Spent
                         </h3>
                         <button
