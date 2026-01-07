@@ -449,16 +449,20 @@ const RolesPermissionsSection = () => {
                             <>
                                 <div className="flex items-center justify-between mb-4">
                                     <h4 className="font-semibold flex items-center gap-2"><Shield size={18} /> {selectedRole.replace(/_/g, ' ')}</h4>
-                                    <button onClick={handleSaveRole} className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm flex items-center gap-2 hover:bg-blue-600">
+                                    <button onClick={handleSaveRole} className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm flex items-center gap-2 hover:bg-primary-700">
                                         <Save size={16} /> Save
                                     </button>
                                 </div>
-                                <div className="grid grid-cols-2 gap-2">
+                                <div className="grid grid-cols-2 gap-3">
                                     {ALL_PERMISSIONS.map((p) => (
-                                        <label key={p} className="flex items-center gap-2 p-2 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
-                                            <input type="checkbox" checked={selectedPermissions.includes(p)} onChange={() => handleTogglePermission(p)} className="rounded" />
-                                            <span className="text-sm">{p}</span>
-                                        </label>
+                                        <div key={p} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                                            <span className="text-sm font-medium text-slate-700">{p}</span>
+                                            <Toggle
+                                                size="sm"
+                                                checked={selectedPermissions.includes(p)}
+                                                onChange={() => handleTogglePermission(p)}
+                                            />
+                                        </div>
                                     ))}
                                 </div>
                             </>
