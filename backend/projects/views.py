@@ -38,6 +38,34 @@ class DashboardStatsView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
+        try:
+            return self._get_stats(request)
+        except Exception as e:
+            import traceback
+            print(f"Dashboard stats error: {str(e)}")
+            print(traceback.format_exc())
+            return Response({
+                'error': str(e),
+                'project_stats': {'total': 0, 'in_progress': 0, 'planning': 0, 'completed': 0, 'on_hold': 0},
+                'financial_summary': {'total_budget': 0, 'total_spent': 0, 'remaining': 0, 'utilization': 0},
+                'pending_approvals': 0,
+                'critical_risks': 0,
+                'overdue_tasks': 0,
+                'schedule_health': {'on_track': 0, 'delayed': 0, 'critical': 0, 'percentage': 100},
+                'procurement_summary': {'active_tenders': 0, 'open_bids': 0, 'active_contracts': 0, 'pending_variations': 0},
+                'alerts': [{'type': 'error', 'severity': 'critical', 'message': f'Dashboard error: {str(e)}', 'link': '/'}],
+                'top_projects': [],
+                'kpis': [],
+                'recent_activity': [],
+                'milestones': [],
+                'critical_path_tasks': [],
+                'risk_summary': {'high': 0, 'medium': 0, 'low': 0, 'total': 0, 'top_risks': []},
+                'change_requests': [],
+                'earned_value': {'cpi': 1.0, 'spi': 1.0, 'status': 'unknown'},
+                'cash_flow': [],
+            }, status=status.HTTP_200_OK)
+
+    def _get_stats(self, request):
         user = request.user
         today = timezone.now().date()
         
@@ -58,8 +86,8 @@ class DashboardStatsView(APIView):
             total_budget=Sum('budget'),
             total_spent=Sum('spent'),
         )
-        financial_summary['total_budget'] = financial_summary['total_budget'] or 0
-        financial_summary['total_spent'] = financial_summary['total_spent'] or 0
+        financial_summary['total_budget'] = float(financial_summary['total_budget'] or 0)
+        financial_summary['total_spent'] = float(financial_summary['total_spent'] or 0)
         financial_summary['remaining'] = financial_summary['total_budget'] - financial_summary['total_spent']
         financial_summary['utilization'] = (
             (financial_summary['total_spent'] / financial_summary['total_budget'] * 100) 
@@ -93,7 +121,8 @@ class DashboardStatsView(APIView):
             'on_track': 0,
             'delayed': 0,
             'critical': 0,
-            'percentage': 100
+            'percentage': 0,
+            'no_data': True  # Flag to indicate no scheduling data available
         }
         overdue_tasks = 0
         try:
@@ -101,25 +130,27 @@ class DashboardStatsView(APIView):
             all_tasks = ScheduleTask.objects.all()
             total_tasks = all_tasks.count()
             
-            on_track = all_tasks.filter(
-                Q(status='COMPLETED') | 
-                (Q(status='IN_PROGRESS') & Q(end_date__gte=today))
-            ).count()
-            delayed = all_tasks.filter(
-                status='DELAYED'
-            ).count()
-            overdue_tasks = all_tasks.filter(
-                end_date__lt=today,
-                status__in=['PLANNED', 'IN_PROGRESS']
-            ).count()
-            
-            schedule_health = {
-                'on_track': on_track,
-                'delayed': delayed,
-                'critical': overdue_tasks,
-                'total_tasks': total_tasks,
-                'percentage': round((on_track / total_tasks * 100) if total_tasks > 0 else 100, 1)
-            }
+            if total_tasks > 0:
+                on_track = all_tasks.filter(
+                    Q(status='COMPLETED') | 
+                    (Q(status='IN_PROGRESS') & Q(end_date__gte=today))
+                ).count()
+                delayed = all_tasks.filter(
+                    status='DELAYED'
+                ).count()
+                overdue_tasks = all_tasks.filter(
+                    end_date__lt=today,
+                    status__in=['PLANNED', 'IN_PROGRESS']
+                ).count()
+                
+                schedule_health = {
+                    'on_track': on_track,
+                    'delayed': delayed,
+                    'critical': overdue_tasks,
+                    'total_tasks': total_tasks,
+                    'percentage': round((on_track / total_tasks * 100), 1),
+                    'no_data': False
+                }
         except Exception:
             pass
         
@@ -165,7 +196,7 @@ class DashboardStatsView(APIView):
         )
         budget_warning_count = 0
         for p in projects:
-            if p.budget and p.spent and p.spent > p.budget * 0.9:
+            if p.budget and p.spent and float(p.spent) > float(p.budget) * 0.9:
                 budget_warning_count += 1
         if budget_warning_count > 0:
             alerts.append({
@@ -179,12 +210,12 @@ class DashboardStatsView(APIView):
         # Top 5 projects by budget
         top_projects = []
         for p in projects.order_by('-budget')[:5]:
-            utilization = (p.spent / p.budget * 100) if p.budget and p.budget > 0 else 0
+            utilization = (float(p.spent) / float(p.budget) * 100) if p.budget and p.budget > 0 else 0
             top_projects.append({
                 'id': str(p.id),
                 'name': p.name,
-                'budget': p.budget or 0,
-                'spent': p.spent or 0,
+                'budget': float(p.budget) if p.budget else 0,
+                'spent': float(p.spent) if p.spent else 0,
                 'progress': p.progress or 0,
                 'status': p.status,
                 'utilization': round(utilization, 1)
@@ -377,9 +408,9 @@ class DashboardStatsView(APIView):
             pass
         
         # Earned Value Metrics (EVM)
-        total_budget = financial_summary['total_budget'] or 1
-        total_spent = financial_summary['total_spent'] or 0
-        avg_progress = projects.aggregate(avg=Avg('progress'))['avg'] or 0
+        total_budget = float(financial_summary['total_budget'] or 1)
+        total_spent = float(financial_summary['total_spent'] or 0)
+        avg_progress = float(projects.aggregate(avg=Avg('progress'))['avg'] or 0)
         
         # EV = Budget * Progress%
         earned_value = total_budget * (avg_progress / 100)

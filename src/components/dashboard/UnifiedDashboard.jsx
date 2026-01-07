@@ -262,10 +262,10 @@ const UnifiedDashboard = () => {
                 <KPICard
                     icon={Clock}
                     label="Schedule Health"
-                    value={`${scheduleHealth.percentage || 100}%`}
-                    subtext={`${scheduleHealth.on_track || 0} on track`}
-                    color={scheduleHealth.percentage >= 80 ? 'emerald' : 'amber'}
-                    trend={scheduleHealth.percentage >= 80 ? 'up' : 'down'}
+                    value={scheduleHealth.no_data ? 'No Data' : `${scheduleHealth.percentage || 0}%`}
+                    subtext={scheduleHealth.no_data ? 'No schedules created yet' : `${scheduleHealth.on_track || 0} on track`}
+                    color={scheduleHealth.no_data ? 'violet' : (scheduleHealth.percentage >= 80 ? 'emerald' : 'amber')}
+                    trend={scheduleHealth.no_data ? null : (scheduleHealth.percentage >= 80 ? 'up' : 'down')}
                     onClick={() => navigate('/scheduling')}
                 />
                 <KPICard
@@ -431,13 +431,18 @@ const UnifiedDashboard = () => {
                 </GlassCard>
 
                 {/* Cash Flow Chart */}
-                <GlassCard className="p-6 group" hoverable onClick={() => { setGraphModalMetric('spent'); setGraphModalOpen(true); }}>
+                <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-2">
                         <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
                             <Wallet size={20} className="text-blue-600" />
                             Cash Flow Trend
                         </h3>
-                        <Maximize2 size={16} className="text-slate-300 group-hover:text-primary-500 transition-colors" />
+                        <button
+                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            onClick={() => { setGraphModalMetric('spent'); setGraphModalOpen(true); }}
+                        >
+                            <Maximize2 size={16} className="text-slate-400 hover:text-primary-500" />
+                        </button>
                     </div>
                     <DynamicChart
                         data={cashFlowChartData}
@@ -527,6 +532,64 @@ const UnifiedDashboard = () => {
                     </table>
                 </div>
             </GlassCard>
+
+            {/* Section 7: Budget vs Spent & Project Status Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Budget vs Spent Chart */}
+                <GlassCard className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                            <DollarSign size={20} className="text-emerald-600" />
+                            Budget vs Spent
+                        </h3>
+                        <button
+                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            onClick={(e) => { e.stopPropagation(); setGraphModalMetric('budget'); setGraphModalOpen(true); }}
+                        >
+                            <Maximize2 size={16} className="text-slate-400 hover:text-primary-500" />
+                        </button>
+                    </div>
+                    <DynamicChart
+                        data={financialChartData}
+                        dataKey="budget"
+                        secondaryDataKey="spent"
+                        height={280}
+                        colors={['#10b981', '#3b82f6']}
+                        name="Budget"
+                        secondaryName="Spent"
+                        defaultType="bar"
+                    />
+                </GlassCard>
+
+                {/* Project Status Chart */}
+                <GlassCard className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                            <Activity size={20} className="text-blue-600" />
+                            Project Status Distribution
+                        </h3>
+                        <button
+                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            onClick={(e) => { e.stopPropagation(); setGraphModalMetric('count'); setGraphModalOpen(true); }}
+                        >
+                            <Maximize2 size={16} className="text-slate-400 hover:text-primary-500" />
+                        </button>
+                    </div>
+                    <DynamicChart
+                        data={[
+                            { name: 'In Progress', value: projectStats.in_progress || 0 },
+                            { name: 'Planning', value: projectStats.planning || 0 },
+                            { name: 'Completed', value: projectStats.completed || 0 },
+                            { name: 'On Hold', value: projectStats.on_hold || 0 },
+                        ]}
+                        dataKey="value"
+                        height={280}
+                        colors={['#3b82f6', '#f59e0b', '#10b981', '#64748b']}
+                        name="Projects"
+                        defaultType="pie"
+                    />
+                </GlassCard>
+            </div>
 
             {/* Graph Analysis Modal */}
             <GraphAnalysisModal
