@@ -8,10 +8,12 @@ import BOQMilestoneMappingModal from '@/components/cost/BOQMilestoneMappingModal
 import {
     Upload, FileSpreadsheet, Check, AlertTriangle, Save, ArrowLeft,
     RefreshCw, Loader2, ChevronUp, ChevronDown, ChevronsUpDown, Search, X, Filter,
-    Download, ChevronLeft, ChevronRight, MoreHorizontal, Link2
+    Download, ChevronLeft, ChevronRight, MoreHorizontal, Link2, Edit2, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import * as XLSX from 'xlsx';
+import EditBOQItemModal from '@/components/cost/EditBOQItemModal';
 
 const BOQManagement = () => {
     const { user } = useAuth();
@@ -25,6 +27,7 @@ const BOQManagement = () => {
 
     // Milestone Mapping Modal State
     const [mappingModalItem, setMappingModalItem] = useState(null);
+    const [editItem, setEditItem] = useState(null);
 
     // Sorting State
     const [sortConfig, setSortConfig] = useState({ key: 'item_code', direction: 'asc' });
@@ -79,6 +82,45 @@ const BOQManagement = () => {
         { key: 'status', label: 'Status', align: 'center', sortable: true, filterable: true },
         { key: 'actions', label: 'Actions', align: 'center', sortable: false, filterable: false }
     ];
+
+    // --- ACTIONS HANDLERS ---
+
+    const handleDownloadTemplate = () => {
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet([
+            { 'Item Code': '1.1', 'Description': 'Excavation in soil...', 'UOM': 'Cum', 'Quantity': 100, 'Rate': 500 },
+            { 'Item Code': '1.2', 'Description': 'PCC 1:4:8...', 'UOM': 'Cum', 'Quantity': 50, 'Rate': 4500 }
+        ]);
+        XLSX.utils.book_append_sheet(wb, ws, 'BOQ Template');
+        XLSX.writeFile(wb, 'BOQ_Import_Template.xlsx');
+        toast.success('Template downloaded');
+    };
+
+    const handleEditItem = (item) => {
+        setEditItem(item);
+    };
+
+    const handleDeleteItem = async (itemId) => {
+        if (!confirm('Are you sure you want to delete this BOQ item?')) return;
+        try {
+            await financeService.deleteBOQItem(itemId);
+            toast.success('Item deleted');
+            fetchBOQ();
+        } catch (error) {
+            console.error('Delete failed:', error);
+            toast.error('Failed to delete item');
+        }
+    };
+
+    const handleSaveEdit = async (itemId, data) => {
+        await financeService.updateBOQItem(itemId, data);
+        fetchBOQ();
+    };
+
+    const handleRefresh = () => {
+        fetchBOQ();
+        toast.success('Data refreshed');
+    };
 
     useEffect(() => {
         fetchProjects();
@@ -469,33 +511,55 @@ const BOQManagement = () => {
 
                     {!importMode && (
                         <>
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => setShowFilters(!showFilters)}
-                                className={`flex items-center gap-1.5 ${showFilters ? 'bg-primary-50 text-primary-700' : ''}`}
-                            >
-                                <Filter className="w-4 h-4" />
-                                Filters
-                                {hasActiveFilters && (
-                                    <span className="w-2 h-2 rounded-full bg-primary-500"></span>
-                                )}
-                            </Button>
+                            <>
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={handleRefresh}
+                                    className="flex items-center gap-1.5"
+                                    title="Refresh Data"
+                                >
+                                    <RefreshCw className="w-4 h-4" />
+                                </Button>
 
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={exportToExcel}
-                                className="flex items-center gap-1.5"
-                            >
-                                <Download className="w-4 h-4" />
-                                Export
-                            </Button>
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => setShowFilters(!showFilters)}
+                                    className={`flex items-center gap-1.5 ${showFilters ? 'bg-primary-50 text-primary-700' : ''}`}
+                                >
+                                    <Filter className="w-4 h-4" />
+                                    Filters
+                                    {hasActiveFilters && (
+                                        <span className="w-2 h-2 rounded-full bg-primary-500"></span>
+                                    )}
+                                </Button>
 
-                            <Button onClick={() => setImportMode(true)} size="sm" className="flex items-center gap-1.5">
-                                <Upload className="w-4 h-4" />
-                                Import
-                            </Button>
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={handleDownloadTemplate}
+                                    className="flex items-center gap-1.5"
+                                >
+                                    <FileSpreadsheet className="w-4 h-4" />
+                                    Template
+                                </Button>
+
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={exportToExcel}
+                                    className="flex items-center gap-1.5"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    Export
+                                </Button>
+
+                                <Button onClick={() => setImportMode(true)} size="sm" className="flex items-center gap-1.5">
+                                    <Upload className="w-4 h-4" />
+                                    Import
+                                </Button>
+                            </>
                         </>
                     )}
 
@@ -806,14 +870,30 @@ const BOQManagement = () => {
                                                             </span>
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            <button
-                                                                onClick={() => setMappingModalItem(item)}
-                                                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors"
-                                                                title="Link to Milestones"
-                                                            >
-                                                                <Link2 size={12} />
-                                                                Link
-                                                            </button>
+                                                            <div className="flex items-center justify-center gap-2">
+                                                                <button
+                                                                    onClick={() => handleEditItem(item)}
+                                                                    className="p-1 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
+                                                                    title="Edit Item"
+                                                                >
+                                                                    <Edit2 className="w-4 h-4" />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteItem(item.id)}
+                                                                    className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                                    title="Delete Item"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => setMappingModalItem(item)}
+                                                                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors ml-1"
+                                                                    title="Link to Milestones"
+                                                                >
+                                                                    <Link2 size={12} />
+                                                                    Link
+                                                                </button>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 ))
@@ -900,9 +980,21 @@ const BOQManagement = () => {
                     boqItem={mappingModalItem}
                     projectId={selectedProject}
                     onClose={() => setMappingModalItem(null)}
-                    onUpdated={() => {}}
+                    onUpdated={() => { }}
                 />
             )}
+
+            {/* Edit BOQ Item Modal */}
+            <AnimatePresence>
+                {editItem && (
+                    <EditBOQItemModal
+                        isOpen={!!editItem}
+                        onClose={() => setEditItem(null)}
+                        item={editItem}
+                        onSave={handleSaveEdit}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };

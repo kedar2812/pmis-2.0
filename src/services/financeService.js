@@ -68,6 +68,15 @@ const financeService = {
         return response.data;
     },
 
+    updateBOQItem: async (itemId, data) => {
+        const response = await api.patch(`/finance/boq/${itemId}/`, data);
+        return response.data;
+    },
+
+    deleteBOQItem: async (itemId) => {
+        await api.delete(`/finance/boq/${itemId}/`);
+    },
+
     analyzeBOQFile: async (file) => {
         const formData = new FormData();
         formData.append('file', file);
