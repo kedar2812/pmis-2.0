@@ -53,6 +53,7 @@ const BOQManagement = () => {
     const [analyzing, setAnalyzing] = useState(false);
     const [importing, setImporting] = useState(false);
     const [importResult, setImportResult] = useState(null);
+    const [isDragging, setIsDragging] = useState(false);
 
     // Column Mapping
     const [mapping, setMapping] = useState({
@@ -290,6 +291,32 @@ const BOQManagement = () => {
     const handleFileSelect = (e) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
+            setImpFile(file);
+            setFileHeaders([]);
+            setImportResult(null);
+            analyzeFile(file);
+        }
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            const file = e.dataTransfer.files[0];
+            if (!file.name.match(/\.(xlsx|xls)$/)) {
+                return toast.error('Please upload an Excel file (.xlsx or .xls)');
+            }
             setImpFile(file);
             setFileHeaders([]);
             setImportResult(null);
@@ -546,15 +573,6 @@ const BOQManagement = () => {
                                 </Button>
 
                                 <Button
-                                    size="sm"
-                                    onClick={handleDownloadTemplate}
-                                    className="flex items-center gap-1.5"
-                                >
-                                    <FileSpreadsheet className="w-4 h-4" />
-                                    Template
-                                </Button>
-
-                                <Button
                                     variant="secondary"
                                     size="sm"
                                     onClick={exportToExcel}
@@ -562,6 +580,15 @@ const BOQManagement = () => {
                                 >
                                     <Download className="w-4 h-4" />
                                     Export
+                                </Button>
+
+                                <Button
+                                    size="sm"
+                                    onClick={handleDownloadTemplate}
+                                    className="flex items-center gap-1.5"
+                                >
+                                    <FileSpreadsheet className="w-4 h-4" />
+                                    Template
                                 </Button>
 
                                 <Button onClick={() => setImportMode(true)} size="sm" className="flex items-center gap-1.5">
@@ -618,7 +645,15 @@ const BOQManagement = () => {
                             <CardContent className="p-6">
                                 {/* Step 1: Upload */}
                                 {impStep === 1 && (
-                                    <div className="flex flex-col items-center justify-center py-12 px-6 border-2 border-dashed border-primary-200 rounded-xl bg-gradient-to-br from-primary-50/50 to-blue-50/50">
+                                    <div
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                        className={`flex flex-col items-center justify-center py-12 px-6 border-2 border-dashed rounded-xl transition-all duration-200 ${isDragging
+                                            ? 'border-primary-500 bg-primary-50'
+                                            : 'border-primary-200 bg-gradient-to-br from-primary-50/50 to-blue-50/50'
+                                            }`}
+                                    >
                                         <div className="p-4 bg-primary-100 rounded-full mb-6">
                                             <FileSpreadsheet className="w-12 h-12 text-primary-600" />
                                         </div>
