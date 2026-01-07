@@ -302,13 +302,28 @@ const UserManagementSection = () => {
     useEffect(() => { loadUsers(); }, []);
 
     const loadUsers = async () => {
-        try { setLoading(true); const data = await userService.getUsers(); setUsers(Array.isArray(data) ? data : data?.results || []); }
-        catch (e) { console.error(e); toast.error('Failed to load users'); } finally { setLoading(false); }
+        try {
+            setLoading(true);
+            const response = await userService.getUsers();
+            const data = response?.data || response;
+            setUsers(Array.isArray(data) ? data : data?.results || []);
+        } catch (e) {
+            console.error('Failed to load users:', e);
+            toast.error('Failed to load users');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleToggleStatus = async (userId) => {
-        try { await userService.toggleUserStatus(userId); await loadUsers(); toast.success('Status updated'); }
-        catch (e) { console.error(e); toast.error('Failed to update status'); }
+        try {
+            await userService.toggleUserStatus(userId);
+            await loadUsers();
+            toast.success('Status updated');
+        } catch (e) {
+            console.error(e);
+            toast.error('Failed to update status');
+        }
     };
 
     if (loading) return <LoadingSpinner />;
@@ -604,49 +619,64 @@ const WorkflowConfigSection = () => {
 };
 
 // ============ INTEGRATIONS SECTION ============
-const IntegrationsSection = ({ settings, updateSetting }) => (
-    <div>
-        <SectionHeader title="Integrations" description="Connect external services and APIs" />
-        <SettingsCard>
-            <SettingsRow icon={Mail} title="Email Notifications" description="Enable email notifications for events">
-                <Toggle checked={settings.emailNotifications || false} onChange={(c) => updateSetting('emailNotifications', c)} />
-            </SettingsRow>
-            <SettingsRow icon={MessageSquare} title="SMS Alerts" description="Send SMS for critical updates">
-                <Toggle checked={settings.smsAlerts || false} onChange={(c) => updateSetting('smsAlerts', c)} />
-            </SettingsRow>
-        </SettingsCard>
-        <SettingsCard className="mt-4">
-            <div className="flex items-center justify-between mb-4">
-                <h4 className="font-semibold">External Systems</h4>
-                <span className="text-xs text-slate-500">API connections configured in backend</span>
-            </div>
-            <div className="p-4 bg-slate-50 rounded-xl mb-4">
-                <p className="text-sm text-slate-600">
-                    <strong>How PMIS connects to external systems:</strong> These integrations are established through backend API endpoints and database sync jobs.
-                    The NICDC Dashboard receives project progress data via scheduled API calls. GIS Service provides spatial data for project locations.
-                    Finance MIS integration is pending backend configuration for fund flow synchronization.
-                </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 bg-white rounded-xl shadow-sm">
-                    <p className="font-medium text-slate-800">NICDC Dashboard</p>
-                    <p className="text-xs text-slate-500 mt-1">Sends project progress data</p>
-                    <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">● Connected</span>
+const IntegrationsSection = ({ settings, updateSetting }) => {
+    const [showTooltip, setShowTooltip] = useState(false);
+
+    return (
+        <div>
+            <SectionHeader title="Integrations" description="Connect external services and APIs" />
+            <SettingsCard>
+                <SettingsRow icon={Mail} title="Email Notifications" description="Enable email notifications for events">
+                    <Toggle checked={settings.emailNotifications || false} onChange={(c) => updateSetting('emailNotifications', c)} />
+                </SettingsRow>
+                <SettingsRow icon={MessageSquare} title="SMS Alerts" description="Send SMS for critical updates">
+                    <Toggle checked={settings.smsAlerts || false} onChange={(c) => updateSetting('smsAlerts', c)} />
+                </SettingsRow>
+            </SettingsCard>
+            <SettingsCard className="mt-4">
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                        <h4 className="font-semibold">External Systems</h4>
+                        <div className="relative">
+                            <button
+                                onMouseEnter={() => setShowTooltip(true)}
+                                onMouseLeave={() => setShowTooltip(false)}
+                                className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                            >
+                                <Info size={16} />
+                            </button>
+                            {showTooltip && (
+                                <div className="absolute left-0 top-8 z-50 w-72 p-3 bg-slate-800 text-white text-xs rounded-lg shadow-xl">
+                                    <p className="font-medium mb-1">How PMIS connects:</p>
+                                    <p>Integrations are established through backend API endpoints. NICDC Dashboard receives project progress data. GIS Service provides spatial mapping. Finance MIS syncs fund flows. API keys are configured in backend settings.</p>
+                                    <div className="absolute -top-1 left-3 w-2 h-2 bg-slate-800 transform rotate-45"></div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    <span className="text-xs text-slate-500">Requires API keys</span>
                 </div>
-                <div className="p-4 bg-white rounded-xl shadow-sm">
-                    <p className="font-medium text-slate-800">GIS Service</p>
-                    <p className="text-xs text-slate-500 mt-1">Spatial data & mapping</p>
-                    <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">● Connected</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-white rounded-xl shadow-sm">
+                        <p className="font-medium text-slate-800">NICDC Dashboard</p>
+                        <p className="text-xs text-slate-500 mt-1">Sends project progress data</p>
+                        <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">○ Pending Setup</span>
+                    </div>
+                    <div className="p-4 bg-white rounded-xl shadow-sm">
+                        <p className="font-medium text-slate-800">GIS Service</p>
+                        <p className="text-xs text-slate-500 mt-1">Spatial data & mapping</p>
+                        <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">○ Pending Setup</span>
+                    </div>
+                    <div className="p-4 bg-white rounded-xl shadow-sm">
+                        <p className="font-medium text-slate-800">Finance MIS</p>
+                        <p className="text-xs text-slate-500 mt-1">Fund flow & billing sync</p>
+                        <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">○ Pending Setup</span>
+                    </div>
                 </div>
-                <div className="p-4 bg-white rounded-xl shadow-sm">
-                    <p className="font-medium text-slate-800">Finance MIS</p>
-                    <p className="text-xs text-slate-500 mt-1">Fund flow & billing sync</p>
-                    <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">○ Pending Setup</span>
-                </div>
-            </div>
-        </SettingsCard>
-    </div>
-);
+            </SettingsCard>
+        </div>
+    );
+};
 
 // ============ NOTIFICATIONS SECTION ============
 const NotificationsSection = ({ settings, updateSetting }) => (
