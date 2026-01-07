@@ -36,12 +36,18 @@ const EditBOQItemModal = ({ isOpen, onClose, item, onSave }) => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await onSave(item.id, formData);
+            const payload = {
+                ...formData,
+                quantity: parseFloat(formData.quantity) || 0,
+                rate: parseFloat(formData.rate) || 0,
+            };
+            await onSave(item.id, payload);
             toast.success('BOQ Item updated successfully');
             onClose();
         } catch (error) {
             console.error('Update failed:', error);
-            toast.error('Failed to update item');
+            const msg = error.response?.data?.error || error.response?.data?.detail || 'Failed to update item';
+            toast.error(msg);
         } finally {
             setIsLoading(false);
         }
