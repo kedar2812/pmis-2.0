@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Save, Loader2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import Toggle from '@/components/ui/Toggle';
 import UserSelectField from '@/components/masters/UserSelectField';
 
 /**
@@ -150,16 +151,16 @@ const MasterFormModal = ({
 
             case 'checkbox':
                 return (
-                    <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                            type="checkbox"
+                    <div className="flex items-center gap-3 pt-2">
+                        <Toggle
                             checked={formData[field.name] || false}
-                            onChange={(e) => handleChange(field.name, e.target.checked)}
-                            className="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
-                            disabled={loading}
+                            onChange={(val) => handleChange(field.name, val)}
+                            size="sm"
                         />
-                        <span className="text-sm text-slate-600">{field.checkboxLabel || field.label}</span>
-                    </label>
+                        <span className="text-sm font-medium text-slate-700">
+                            {field.checkboxLabel || field.label}
+                        </span>
+                    </div>
                 );
 
             case 'user-select':

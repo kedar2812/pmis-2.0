@@ -15,6 +15,11 @@ class District(models.Model):
     pincode_range = models.CharField(max_length=100, blank=True, help_text="e.g., 560001 to 560099")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[('Active', 'Active'), ('Inactive', 'Inactive')],
+        default='Active'
+    )
 
     class Meta:
         db_table = 'masters_district'
@@ -52,6 +57,11 @@ class Town(models.Model):
     population = models.PositiveIntegerField(null=True, blank=True, help_text="Estimated population")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[('Active', 'Active'), ('Inactive', 'Inactive')],
+        default='Active'
+    )
 
     class Meta:
         db_table = 'masters_town'

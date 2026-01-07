@@ -23,6 +23,11 @@ class SchemeType(models.Model):
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='Infrastructure')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[('Active', 'Active'), ('Inactive', 'Inactive')],
+        default='Active'
+    )
 
     class Meta:
         db_table = 'masters_scheme_type'
@@ -52,6 +57,11 @@ class Scheme(models.Model):
     objective = models.TextField(blank=True, help_text="Brief goal or purpose")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[('Active', 'Active'), ('Inactive', 'Inactive')],
+        default='Active'
+    )
 
     class Meta:
         db_table = 'masters_scheme'
@@ -82,6 +92,11 @@ class WorkType(models.Model):
     unit_of_measurement = models.CharField(max_length=50, blank=True, help_text="Km/Sq.m/Meters")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[('Active', 'Active'), ('Inactive', 'Inactive')],
+        default='Active'
+    )
 
     class Meta:
         db_table = 'masters_work_type'
@@ -107,6 +122,11 @@ class ProjectCategory(models.Model):
     approval_authority = models.CharField(max_length=255, blank=True, help_text="e.g., Chief Engineer/Cabinet")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[('Active', 'Active'), ('Inactive', 'Inactive')],
+        default='Active'
+    )
 
     class Meta:
         db_table = 'masters_project_category'

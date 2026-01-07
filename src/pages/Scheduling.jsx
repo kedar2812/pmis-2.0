@@ -6,6 +6,7 @@ import ImportScheduleModal from '@/components/scheduling/ImportScheduleModal';
 import schedulingService from '@/services/schedulingService';
 import projectService from '@/services/projectService';
 import { toast } from 'sonner';
+import AddScheduleTaskModal from '@/components/scheduling/AddScheduleTaskModal';
 
 const Scheduling = () => {
   const [tasks, setTasks] = useState([]);
@@ -52,28 +53,7 @@ const Scheduling = () => {
     loadTasks(pid);
   };
 
-  // Quick Add Modal (Inline for now or separate component later)
-  const handleSaveTask = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
 
-    const newTask = {
-      name: formData.get('name'),
-      startDate: formData.get('startDate'),
-      endDate: formData.get('endDate'),
-      progress: formData.get('progress'),
-      isMilestone: formData.get('isMilestone') === 'on'
-    };
-
-    try {
-      await schedulingService.createTask(newTask, selectedProject);
-      toast.success("Task Created");
-      setIsModalOpen(false);
-      loadTasks(selectedProject);
-    } catch (error) {
-      toast.error("Failed to create task");
-    }
-  };
 
   return (
     <div className="p-6 h-full flex flex-col space-y-4">
@@ -116,42 +96,13 @@ const Scheduling = () => {
         )}
       </div>
 
-      {/* Simple Add Task Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-96">
-            <h2 className="text-lg font-bold mb-4">Add Schedule Task</h2>
-            <form onSubmit={handleSaveTask} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700">Task Name</label>
-                <input name="name" required className="w-full border rounded p-2 text-sm" placeholder="e.g. Excavation Phase 1" />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700">Start Date</label>
-                  <input name="startDate" type="date" required className="w-full border rounded p-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700">End Date</label>
-                  <input name="endDate" type="date" required className="w-full border rounded p-2 text-sm" />
-                </div>
-              </div>
-              <div className="flex items-center gap-2 mt-2">
-                <input type="checkbox" name="isMilestone" id="isMilestone" className="w-4 h-4" />
-                <label htmlFor="isMilestone" className="text-sm font-medium">Mark as Milestone Link?</label>
-              </div>
-              <p className="text-[10px] text-slate-500 ml-6">
-                Milestones are required for Budget Allocation.
-              </p>
-
-              <div className="grid grid-cols-2 gap-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-primary-600 text-white">Create</Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Add Schedule Task Modal */}
+      <AddScheduleTaskModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        projectId={selectedProject}
+        onTaskCreated={() => loadTasks(selectedProject)}
+      />
 
       {/* Import Schedule Modal */}
       {isImportModalOpen && selectedProject && (

@@ -1,7 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSidebar } from '@/contexts/SidebarContext';
-import { Globe, Settings } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Button from '@/components/ui/Button';
@@ -110,8 +110,7 @@ const Header = ({ isDesktop = true }) => {
           </div>
           {/* Divider - hidden on mobile */}
           <div className="hidden sm:block h-6 w-px bg-slate-200 mx-1 sm:mx-2"></div>
-          {/* Globe icon - hidden on mobile */}
-          <Globe size={18} className="hidden sm:block text-slate-600" />
+          {/* Globe icon - hidden on mobile - REMOVED */}
           <Select
             value={language}
             onChange={handleLanguageChange}

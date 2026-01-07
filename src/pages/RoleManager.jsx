@@ -3,7 +3,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { Plus, Save, Trash2, Shield } from 'lucide-react';
+
 import { toast } from 'sonner';
+import Toggle from '@/components/ui/Toggle';
 
 const allPermissions = [
   'dashboard:view',
@@ -137,8 +139,8 @@ const RoleManager = () => {
                 <div
                   key={roleKey}
                   className={`p-3 rounded-lg border cursor-pointer transition-colors ${selectedRole === roleKey
-                      ? 'border-primary-600 bg-primary-50'
-                      : 'border-slate-200 hover:border-slate-300'
+                    ? 'border-primary-600 bg-primary-50'
+                    : 'border-slate-200 hover:border-slate-300'
                     }`}
                   onClick={() => handleSelectRole(roleKey)}
                 >
@@ -177,18 +179,18 @@ const RoleManager = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
                     {allPermissions.map((permission) => (
-                      <label
+                      <div
                         key={permission}
                         className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50"
+                        onClick={() => handleTogglePermission(permission)}
                       >
-                        <input
-                          type="checkbox"
+                        <Toggle
                           checked={selectedPermissions.includes(permission)}
                           onChange={() => handleTogglePermission(permission)}
-                          className="rounded"
+                          size="sm"
                         />
                         <span className="text-sm">{permission}</span>
-                      </label>
+                      </div>
                     ))}
                   </div>
                   <div className="flex justify-end pt-4 border-t">

@@ -8,7 +8,12 @@ const schedulingService = {
 
     createTask: async (data, projectId) => {
         const payload = transformTaskToBackend(data, projectId);
-        const response = await api.post('/scheduling/tasks/', payload);
+        // Use FormData to support potential file uploads or backend expectations
+        const formData = new FormData();
+        Object.keys(payload).forEach(key => {
+            formData.append(key, payload[key]);
+        });
+        const response = await api.post('/scheduling/tasks/', formData);
         return transformTaskToFrontend(response.data);
     },
 

@@ -13,6 +13,7 @@ import {
 import client from '@/api/client';
 import { toast } from 'sonner';
 import Button from '@/components/ui/Button';
+import Toggle from '@/components/ui/Toggle';
 
 const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUploaded }) => {
     const [files, setFiles] = useState([]);
@@ -379,15 +380,14 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                                 </select>
                             </div>
                             <div className="flex items-end">
-                                <label className="flex items-center gap-2 cursor-pointer pb-2">
-                                    <input
-                                        type="checkbox"
+                                <div className="flex items-center gap-3 pb-2">
+                                    <Toggle
                                         checked={isConfidential}
-                                        onChange={(e) => setIsConfidential(e.target.checked)}
-                                        className="w-4 h-4 rounded border-slate-300 text-primary-600"
+                                        onChange={(val) => setIsConfidential(val)}
+                                        size="sm"
                                     />
-                                    <span className="text-sm text-slate-700">Confidential</span>
-                                </label>
+                                    <span className="text-sm text-slate-700 font-medium">Confidential</span>
+                                </div>
                             </div>
                         </div>
 

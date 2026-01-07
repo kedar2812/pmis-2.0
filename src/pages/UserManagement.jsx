@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { toast } from 'sonner';
 import api from '@/api/client';
+import StatusBadge from '@/components/ui/StatusBadge';
 
 // Invite User Modal
 const InviteUserModal = ({ isOpen, onClose, onSuccess }) => {
@@ -363,6 +364,26 @@ const UserManagement = () => {
         }
     };
 
+
+    const handleStatusUpdate = async (userId, newStatus) => {
+        try {
+            // newStatus is "ACTIVE" or "DISABLED" (from StatusBadge)
+            const isActive = newStatus === 'ACTIVE';
+            await api.post(`/users/${userId}/toggle-status/`, { is_active: isActive });
+            toast.success(`User status updated to ${newStatus}`);
+            // Optimistic update
+            setUsers(users.map(u =>
+                u.id === userId
+                    ? { ...u, account_status: newStatus, is_active: isActive }
+                    : u
+            ));
+        } catch (error) {
+            console.error('Status update failed:', error);
+            toast.error('Failed to update status');
+            throw error; // Propagate to StatusBadge to stop loading state
+        }
+    };
+
     const getStatusBadge = (status) => {
         const styles = {
             'ACTIVE': 'bg-green-100 text-green-700 border-green-200',
@@ -412,7 +433,7 @@ const UserManagement = () => {
                 </div>
                 <div className="flex gap-3">
                     <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
-                        <RefreshCw size={18} className={`mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                        <RefreshCw size={18} className={`mr - 2 ${isRefreshing ? 'animate-spin' : ''} `} />
                         {isRefreshing ? 'Refreshing...' : 'Refresh'}
                     </Button>
                     <Button onClick={() => setIsInviteModalOpen(true)}>
@@ -473,19 +494,19 @@ const UserManagement = () => {
             <div className="flex gap-2">
                 <button
                     onClick={() => { setActiveTab('all'); fetchUsers(); }}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all ${activeTab === 'all' ? 'bg-primary-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
+                    className={`px - 4 py - 2 rounded - lg font - medium transition - all ${activeTab === 'all' ? 'bg-primary-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        } `}
                 >
                     All Users
                 </button>
                 <button
                     onClick={() => { setActiveTab('pending'); fetchPendingUsers(); }}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${activeTab === 'pending' ? 'bg-amber-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
+                    className={`px - 4 py - 2 rounded - lg font - medium transition - all flex items - center gap - 2 ${activeTab === 'pending' ? 'bg-amber-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        } `}
                 >
                     Pending Approval
                     {pendingUsers.length > 0 && (
-                        <span className={`px-2 py-0.5 rounded-full text-xs ${activeTab === 'pending' ? 'bg-white/20' : 'bg-amber-500 text-white'}`}>
+                        <span className={`px - 2 py - 0.5 rounded - full text - xs ${activeTab === 'pending' ? 'bg-white/20' : 'bg-amber-500 text-white'} `}>
                             {pendingUsers.length}
                         </span>
                     )}
@@ -575,14 +596,23 @@ const UserManagement = () => {
                                                 </div>
                                             </td>
                                             <td className="p-4">
-                                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${getRoleBadge(u.role)}`}>
+                                                <span className={`px - 2.5 py - 1 rounded - full text - xs font - semibold ${getRoleBadge(u.role)} `}>
                                                     {u.role?.replace('_', ' ')}
                                                 </span>
                                             </td>
                                             <td className="p-4">
-                                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusBadge(u.account_status)}`}>
-                                                    {u.account_status?.replace('_', ' ')}
-                                                </span>
+                                                <StatusBadge
+                                                    status={u.account_status}
+                                                    onToggle={(newStatus) => handleStatusUpdate(u.id, newStatus)}
+                                                    entityName={`${u.first_name} ${u.last_name} `}
+                                                    activeValue="ACTIVE"
+                                                    inactiveValue="DISABLED"
+                                                    customLabels={{
+                                                        'PENDING_APPROVAL': 'Pending Approval',
+                                                        'PENDING_INVITE': 'Pending Invite'
+                                                    }}
+                                                    readOnly={['PENDING_APPROVAL', 'PENDING_INVITE'].includes(u.account_status)}
+                                                />
                                             </td>
                                             <td className="p-4">
                                                 <div className="text-sm">
@@ -649,7 +679,7 @@ const UserManagement = () => {
                 onApprove={handleApprove}
                 onReject={handleReject}
             />
-        </div>
+        </div >
     );
 };
 

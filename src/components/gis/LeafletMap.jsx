@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import Toggle from '@/components/ui/Toggle';
 import { MapContainer, TileLayer, Marker, Popup, Polygon, Polyline, LayersControl, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -135,42 +136,38 @@ export const LeafletMap = ({ projects, gisFeatures }) => {
       <div className="absolute top-4 left-4 z-[1000] bg-white/95 backdrop-blur-xl rounded-xl shadow-glass border border-slate-200/50 p-4">
         <h4 className="font-semibold text-sm mb-3">Layer Controls</h4>
         <div className="space-y-2">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={activeLayers.satellite}
-              onChange={(e) => setActiveLayers({ ...activeLayers, satellite: e.target.checked })}
-              className="rounded"
-            />
+          <div className="flex items-center justify-between gap-4">
             <span className="text-sm">Satellite View</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={activeLayers.street}
-              onChange={(e) => setActiveLayers({ ...activeLayers, street: e.target.checked })}
-              className="rounded"
+            <Toggle
+              checked={activeLayers.satellite}
+              onChange={(val) => setActiveLayers({ ...activeLayers, satellite: val })}
+              size="sm"
             />
+          </div>
+          <div className="flex items-center justify-between gap-4">
             <span className="text-sm">Street Map</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={activeLayers.parcels}
-              onChange={(e) => setActiveLayers({ ...activeLayers, parcels: e.target.checked })}
-              className="rounded"
+            <Toggle
+              checked={activeLayers.street}
+              onChange={(val) => setActiveLayers({ ...activeLayers, street: val })}
+              size="sm"
             />
+          </div>
+          <div className="flex items-center justify-between gap-4">
             <span className="text-sm">Parcel Boundaries</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={activeLayers.utilities}
-              onChange={(e) => setActiveLayers({ ...activeLayers, utilities: e.target.checked })}
-              className="rounded"
+            <Toggle
+              checked={activeLayers.parcels}
+              onChange={(val) => setActiveLayers({ ...activeLayers, parcels: val })}
+              size="sm"
             />
+          </div>
+          <div className="flex items-center justify-between gap-4">
             <span className="text-sm">Utility Lines</span>
-          </label>
+            <Toggle
+              checked={activeLayers.utilities}
+              onChange={(val) => setActiveLayers({ ...activeLayers, utilities: val })}
+              size="sm"
+            />
+          </div>
         </div>
       </div>
     </div>

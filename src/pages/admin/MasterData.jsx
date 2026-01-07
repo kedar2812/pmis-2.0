@@ -14,6 +14,7 @@ import MasterFormModal from '@/components/masters/MasterFormModal';
 import DeleteConfirmModal from '@/components/masters/DeleteConfirmModal';
 import * as fieldConfigs from '@/components/masters/fieldConfigs';
 import { toast } from 'sonner';
+import StatusBadge from '@/components/ui/StatusBadge';
 
 // Tab Configuration
 const TABS = [
@@ -282,13 +283,66 @@ const MasterData = () => {
         return `${isEdit ? 'Edit' : 'Add'} ${titles[masterType] || 'Record'}`;
     };
 
-    // Status badge
-    const statusBadge = (status) => (
-        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
-            }`}>
-            {status}
-        </span>
-    );
+
+    const handleStatusUpdate = async (masterType, item, newStatus) => {
+        try {
+            const serviceMap = {
+                zones: mastersService.updateZone,
+                circles: mastersService.updateCircle,
+                divisions: mastersService.updateDivision,
+                subdivisions: mastersService.updateSubDivision,
+                districts: mastersService.updateDistrict,
+                towns: mastersService.updateTown,
+                schemeTypes: mastersService.updateSchemeType,
+                schemes: mastersService.updateScheme,
+                workTypes: mastersService.updateWorkType,
+                projectCategories: mastersService.updateProjectCategory,
+                // contractors handles separately
+                etpCharges: mastersService.updateETPCharge, // expects is_active bool
+            };
+
+            const updateFn = serviceMap[masterType];
+            if (!updateFn) {
+                toast.error(`Status update not supported for ${masterType}`);
+                return;
+            }
+
+            let payload = { status: newStatus };
+            if (masterType === 'etpCharges') {
+                payload = { is_active: newStatus === 'ACTIVE' };
+            }
+
+            await updateFn(item.id, payload);
+            toast.success('Status updated');
+            fetchTabData(activeTab);
+        } catch (error) {
+            console.error('Status update failed', error);
+            toast.error('Failed to update status');
+            throw error;
+        }
+    };
+
+    // Status badge helper for standard masters
+    const statusBadge = (val, item, masterType = activeTab) => {
+        // Some tables pass (val, item), renderDataTable passes (val, item) to col.render
+        // We need to know masterType. renderDataTable needs to pass it or we assume activeTab's types?
+        // Actually, renderDataTable calls it as col.render(item[col.key], item)
+        // But renderDataTable is generic. The masterType is passed to renderDataTable.
+        // We can wrap this in renderDataTable or just use a closure?
+        // Let's rely on the fact that `renderDataTable` knows the `masterType`.
+        // Wait, `renderDataTable` calls `col.render`.
+        // I will change the column definition in `renderTabContent` to pass the masterType implicitly or explicitly.
+
+        return (
+            <StatusBadge
+                status={val || 'Active'} // Default to Active if undefined
+                onToggle={(newStatus) => handleStatusUpdate(masterType, item, newStatus)}
+                entityName={item.name || item.code}
+                activeValue="Active"
+                inactiveValue="Inactive"
+            />
+        );
+    };
 
     // Render table
     const renderDataTable = (dataKey, columns, title, masterType) => {
@@ -388,7 +442,7 @@ const MasterData = () => {
                             { key: 'name', label: 'Zone Name' },
                             { key: 'state_covered', label: 'State/Region' },
                             { key: 'head', label: 'Zone Head' },
-                            { key: 'status', label: 'Status', render: statusBadge },
+                            { key: 'status', label: 'Status', render: (val, item) => statusBadge(val, item, 'zones') },
                         ], 'Zones', 'zones')}
 
                         {renderDataTable('circles', [
@@ -396,7 +450,7 @@ const MasterData = () => {
                             { key: 'name', label: 'Circle Name' },
                             { key: 'zone_name', label: 'Zone' },
                             { key: 'authority_level', label: 'Authority' },
-                            { key: 'status', label: 'Status', render: statusBadge },
+                            { key: 'status', label: 'Status', render: (val, item) => statusBadge(val, item, 'circles') },
                         ], 'Circles', 'circles')}
 
                         {renderDataTable('divisions', [
@@ -404,7 +458,7 @@ const MasterData = () => {
                             { key: 'name', label: 'Division Name' },
                             { key: 'circle_name', label: 'Circle' },
                             { key: 'hod', label: 'HOD' },
-                            { key: 'status', label: 'Status', render: statusBadge },
+                            { key: 'status', label: 'Status', render: (val, item) => statusBadge(val, item, 'divisions') },
                         ], 'Divisions', 'divisions')}
 
                         {renderDataTable('subdivisions', [
@@ -412,6 +466,7 @@ const MasterData = () => {
                             { key: 'name', label: 'Sub-Division Name' },
                             { key: 'division_name', label: 'Division' },
                             { key: 'jurisdiction_area', label: 'Jurisdiction' },
+                            { key: 'status', label: 'Status', render: (val, item) => statusBadge(val, item, 'subdivisions') },
                         ], 'Sub-Divisions', 'subdivisions')}
                     </div>
                 );
@@ -424,6 +479,7 @@ const MasterData = () => {
                             { key: 'name', label: 'District Name' },
                             { key: 'state_name', label: 'State' },
                             { key: 'pincode_range', label: 'Pincode Range' },
+                            { key: 'status', label: 'Status', render: (val, item) => statusBadge(val, item, 'districts') },
                         ], 'Districts', 'districts')}
 
                         {renderDataTable('towns', [
@@ -432,6 +488,7 @@ const MasterData = () => {
                             { key: 'district_name', label: 'District' },
                             { key: 'classification', label: 'Classification' },
                             { key: 'population', label: 'Population' },
+                            { key: 'status', label: 'Status', render: (val, item) => statusBadge(val, item, 'towns') },
                         ], 'Towns/Cities', 'towns')}
                     </div>
                 );
@@ -443,6 +500,7 @@ const MasterData = () => {
                             { key: 'code', label: 'Code' },
                             { key: 'name', label: 'Scheme Type' },
                             { key: 'category', label: 'Category' },
+                            { key: 'status', label: 'Status', render: (val, item) => statusBadge(val, item, 'schemeTypes') },
                         ], 'Scheme Types', 'schemeTypes')}
 
                         {renderDataTable('schemes', [
@@ -450,6 +508,7 @@ const MasterData = () => {
                             { key: 'name', label: 'Scheme Name' },
                             { key: 'scheme_type_name', label: 'Type' },
                             { key: 'funding_agency', label: 'Funding Agency' },
+                            { key: 'status', label: 'Status', render: (val, item) => statusBadge(val, item, 'schemes') },
                         ], 'Schemes', 'schemes')}
 
                         {renderDataTable('workTypes', [
@@ -457,6 +516,7 @@ const MasterData = () => {
                             { key: 'name', label: 'Work Type' },
                             { key: 'sector', label: 'Sector' },
                             { key: 'unit_of_measurement', label: 'UoM' },
+                            { key: 'status', label: 'Status', render: (val, item) => statusBadge(val, item, 'workTypes') },
                         ], 'Work Types', 'workTypes')}
 
                         {renderDataTable('projectCategories', [
@@ -464,6 +524,7 @@ const MasterData = () => {
                             { key: 'name', label: 'Category' },
                             { key: 'threshold_value', label: 'Threshold (₹)', render: (val) => `₹${Number(val).toLocaleString('en-IN')}` },
                             { key: 'approval_authority', label: 'Approval Authority' },
+                            { key: 'status', label: 'Status', render: (val, item) => statusBadge(val, item, 'projectCategories') },
                         ], 'Project Categories', 'projectCategories')}
                     </div>
                 );
@@ -548,21 +609,25 @@ const MasterData = () => {
                                                 <td className="px-4 py-3 text-slate-600">{contractor.contractor_type}</td>
                                                 <td className="px-4 py-3 text-slate-600">{contractor.registration_class}</td>
                                                 <td className="px-4 py-3">
-                                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium ${contractor.blacklisted
-                                                            ? 'bg-red-50 text-red-700 border border-red-200'
-                                                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                                        }`}>
-                                                        <span className={`w-1.5 h-1.5 rounded-full ${contractor.blacklisted ? 'bg-red-500' : 'bg-emerald-500'}`}></span>
-                                                        {contractor.blacklisted ? 'Blacklisted' : 'Active'}
-                                                    </span>
+                                                    <StatusBadge
+                                                        status={contractor.blacklisted ? 'BLACKLISTED' : 'ACTIVE'}
+                                                        onToggle={() => handleBlacklistToggle(contractor)}
+                                                        entityName={contractor.name}
+                                                        activeValue="ACTIVE"
+                                                        inactiveValue="BLACKLISTED"
+                                                        customStyles={{
+                                                            'BLACKLISTED': 'bg-red-50 text-red-700 border-red-200',
+                                                            'ACTIVE': 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                        }}
+                                                    />
                                                 </td>
                                                 {canEdit && (
                                                     <td className="px-4 py-3 text-center">
                                                         <button
                                                             onClick={() => handleBlacklistToggle(contractor)}
                                                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${contractor.blacklisted
-                                                                    ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
-                                                                    : 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
+                                                                ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
+                                                                : 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
                                                                 }`}
                                                         >
                                                             {contractor.blacklisted ? 'Restore' : 'Blacklist'}
@@ -684,14 +749,28 @@ const MasterData = () => {
                         label: 'Status',
                         render: (val, item) => {
                             const status = getETPStatus(item);
+                            // If calculating status based on date (Pending), maybe readOnly?
+                            // item.is_active is the source of truth for the switch.
+                            // If is_active is false => Inactive.
+                            // If true => Active or Pending.
                             return (
-                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium ${status.style}`}>
-                                    <span className={`w-1.5 h-1.5 rounded-full ${status.label === 'Active' ? 'bg-emerald-500' :
-                                        status.label === 'Pending' ? 'bg-amber-500' :
-                                            'bg-slate-400'
-                                        }`}></span>
-                                    {status.label}
-                                </span>
+                                <StatusBadge
+                                    status={item.is_active ? 'ACTIVE' : 'INACTIVE'}
+                                    onToggle={(newStatus) => handleStatusUpdate('etpCharges', item, newStatus)}
+                                    entityName={item.name}
+                                    activeValue="ACTIVE"
+                                    inactiveValue="INACTIVE"
+                                    customLabels={{
+                                        'ACTIVE': (item.effective_date && new Date(item.effective_date) > new Date().setHours(0, 0, 0, 0)) ? 'Pending' : 'Active',
+                                        'INACTIVE': 'Inactive'
+                                    }}
+                                    customStyles={{
+                                        'ACTIVE': (item.effective_date && new Date(item.effective_date) > new Date().setHours(0, 0, 0, 0))
+                                            ? 'bg-amber-50 text-amber-700 border-amber-300'
+                                            : 'bg-emerald-50 text-emerald-700 border-emerald-300',
+                                        'INACTIVE': 'bg-slate-100 text-slate-600 border-slate-300'
+                                    }}
+                                />
                             );
                         }
                     },
