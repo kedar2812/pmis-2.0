@@ -433,7 +433,7 @@ const UserManagement = () => {
                 </div>
                 <div className="flex gap-3">
                     <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
-                        <RefreshCw size={18} className={`mr - 2 ${isRefreshing ? 'animate-spin' : ''} `} />
+                        <RefreshCw size={18} className={`mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
                         {isRefreshing ? 'Refreshing...' : 'Refresh'}
                     </Button>
                     <Button onClick={() => setIsInviteModalOpen(true)}>
@@ -494,19 +494,23 @@ const UserManagement = () => {
             <div className="flex gap-2">
                 <button
                     onClick={() => { setActiveTab('all'); fetchUsers(); }}
-                    className={`px - 4 py - 2 rounded - lg font - medium transition - all ${activeTab === 'all' ? 'bg-primary-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        } `}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${activeTab === 'all'
+                            ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/30'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
                 >
                     All Users
                 </button>
                 <button
                     onClick={() => { setActiveTab('pending'); fetchPendingUsers(); }}
-                    className={`px - 4 py - 2 rounded - lg font - medium transition - all flex items - center gap - 2 ${activeTab === 'pending' ? 'bg-amber-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        } `}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${activeTab === 'pending'
+                            ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
                 >
                     Pending Approval
                     {pendingUsers.length > 0 && (
-                        <span className={`px - 2 py - 0.5 rounded - full text - xs ${activeTab === 'pending' ? 'bg-white/20' : 'bg-amber-500 text-white'} `}>
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${activeTab === 'pending' ? 'bg-white/20' : 'bg-amber-500 text-white'}`}>
                             {pendingUsers.length}
                         </span>
                     )}
@@ -596,7 +600,7 @@ const UserManagement = () => {
                                                 </div>
                                             </td>
                                             <td className="p-4">
-                                                <span className={`px - 2.5 py - 1 rounded - full text - xs font - semibold ${getRoleBadge(u.role)} `}>
+                                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${getRoleBadge(u.role)}`}>
                                                     {u.role?.replace('_', ' ')}
                                                 </span>
                                             </td>

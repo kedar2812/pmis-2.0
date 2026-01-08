@@ -126,6 +126,7 @@ const Sidebar = () => {
       icon: FileText,
       path: '/edms',
       permission: 'edms:view',
+      noTranslate: true,
     },
     {
       id: 'communications',
@@ -147,6 +148,7 @@ const Sidebar = () => {
       icon: Calculator,
       path: '/etp-master',
       permission: 'dashboard:view',
+      noTranslate: true,
     },
     {
       id: 'scheduling',
@@ -178,17 +180,19 @@ const Sidebar = () => {
     },
     {
       id: 'gis',
-      label: t('common.gis'),
+      label: 'GIS',
       icon: Map,
       path: '/gis',
       permission: 'gis:view',
+      noTranslate: true,
     },
     {
       id: 'bim',
-      label: t('common.bim'),
+      label: 'BIM',
       icon: Box,
       path: '/bim',
       permission: 'bim:view',
+      noTranslate: true,
     },
     {
       id: 'e-procurement',
@@ -203,6 +207,7 @@ const Sidebar = () => {
       icon: FileText,
       path: '/cost/boq',
       permission: 'cost:view',
+      noTranslate: true,
     },
     {
       id: 'cost-funds',
@@ -224,6 +229,7 @@ const Sidebar = () => {
       icon: FileText,
       path: '/cost/billing',
       permission: 'dashboard:view',
+      noTranslate: true,
     },
     {
       id: 'workflow',
@@ -312,7 +318,7 @@ const Sidebar = () => {
                     <Building2 className="w-6 h-6 text-white" />
                   </div>
                   <div className="min-w-0">
-                    <h2 className="text-lg font-heading font-bold text-primary-600 truncate">
+                    <h2 className="text-lg font-heading font-bold text-primary-600 truncate notranslate">
                       PMIS
                     </h2>
                     <p className="text-xs text-slate-500 truncate">
@@ -420,7 +426,7 @@ const Sidebar = () => {
                           animate="expanded"
                           exit="collapsed"
                           transition={textTransition}
-                          className="whitespace-nowrap"
+                          className={`whitespace-nowrap ${item.noTranslate ? 'notranslate' : ''}`}
                         >
                           {item.label}
                         </motion.span>

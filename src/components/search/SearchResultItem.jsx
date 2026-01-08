@@ -134,6 +134,7 @@ const SearchResultItem = memo(({ result, isSelected, onClick, query }) => {
                     <span className={`
             font-medium text-sm truncate
             ${isSelected ? 'text-primary-900' : 'text-slate-800'}
+            ${result.noTranslate ? 'notranslate' : ''}
           `}>
                         {highlightMatch(result.title, query)}
                     </span>

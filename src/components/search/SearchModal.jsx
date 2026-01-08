@@ -37,21 +37,21 @@ import { searchService } from '@/services/searchService';
 const NAVIGATION_PAGES = [
     { id: 'nav-dashboard', title: 'Dashboard', description: 'View your dashboard', path: '/dashboard', icon: LayoutDashboard, category: 'pages', keywords: ['dashboard', 'home', 'main'] },
     { id: 'nav-projects', title: 'Projects', description: 'Manage all projects', path: '/projects', icon: Briefcase, category: 'pages', keywords: ['projects', 'proj', 'project list'] },
-    { id: 'nav-edms', title: 'Documents (EDMS)', description: 'Document management system', path: '/edms', icon: FolderOpen, category: 'pages', keywords: ['documents', 'docs', 'edms', 'files', 'file manager'] },
+    { id: 'nav-edms', title: 'EDMS', description: 'Document management system', path: '/edms', icon: FolderOpen, category: 'pages', keywords: ['documents', 'docs', 'edms', 'files', 'file manager'], noTranslate: true },
     { id: 'nav-scheduling', title: 'Scheduling', description: 'View schedules and Gantt charts', path: '/scheduling', icon: Calendar, category: 'pages', keywords: ['schedule', 'scheduling', 'gantt', 'timeline', 'tasks'] },
     { id: 'nav-communications', title: 'Communications', description: 'Messages and threads', path: '/communications', icon: MessageSquare, category: 'pages', keywords: ['communications', 'messages', 'chat', 'inbox'] },
-    { id: 'nav-billing', title: 'RA Billing', description: 'Running account bills', path: '/cost/billing', icon: Receipt, category: 'pages', keywords: ['billing', 'ra billing', 'bills', 'invoices'] },
+    { id: 'nav-billing', title: 'RA Billing', description: 'Running account bills', path: '/cost/billing', icon: Receipt, category: 'pages', keywords: ['billing', 'ra billing', 'bills', 'invoices'], noTranslate: true },
     { id: 'nav-funds', title: 'Fund Management', description: 'Manage project funds', path: '/cost/funds', icon: CreditCard, category: 'pages', keywords: ['funds', 'fund management', 'finance'] },
     { id: 'nav-budgeting', title: 'Budgeting', description: 'Budget planning and tracking', path: '/cost/budgeting', icon: CreditCard, category: 'pages', keywords: ['budget', 'budgeting', 'cost planning'] },
-    { id: 'nav-boq', title: 'BOQ Management', description: 'Bill of quantities', path: '/cost/boq', icon: FileText, category: 'pages', keywords: ['boq', 'bill of quantities', 'quantities'] },
+    { id: 'nav-boq', title: 'BOQ Management', description: 'Bill of quantities', path: '/cost/boq', icon: FileText, category: 'pages', keywords: ['boq', 'bill of quantities', 'quantities'], noTranslate: true },
     { id: 'nav-users', title: 'User Management', description: 'Manage users and permissions', path: '/users', icon: Users, category: 'pages', keywords: ['users', 'user management', 'people', 'team'] },
     { id: 'nav-approvals', title: 'Approvals', description: 'Pending approvals', path: '/approvals', icon: CheckCircle2, category: 'pages', keywords: ['approvals', 'pending', 'approve', 'review'] },
     { id: 'nav-procurement', title: 'E-Procurement', description: 'Tenders and contracts', path: '/e-procurement', icon: Briefcase, category: 'pages', keywords: ['procurement', 'e-procurement', 'tenders', 'contracts'] },
-    { id: 'nav-gis', title: 'GIS', description: 'Geographic information system', path: '/gis', icon: Map, category: 'pages', keywords: ['gis', 'map', 'location', 'geo'] },
-    { id: 'nav-bim', title: 'BIM', description: 'Building information modeling', path: '/bim', icon: Box, category: 'pages', keywords: ['bim', 'building', '3d model'] },
+    { id: 'nav-gis', title: 'GIS', description: 'Geographic information system', path: '/gis', icon: Map, category: 'pages', keywords: ['gis', 'map', 'location', 'geo'], noTranslate: true },
+    { id: 'nav-bim', title: 'BIM', description: 'Building information modeling', path: '/bim', icon: Box, category: 'pages', keywords: ['bim', 'building', '3d model'], noTranslate: true },
     { id: 'nav-workflow', title: 'Workflow Config', description: 'Configure workflows', path: '/workflow', icon: Workflow, category: 'pages', keywords: ['workflow', 'workflows', 'automation'] },
     { id: 'nav-risk', title: 'Risk Management', description: 'Manage project risks', path: '/risk', icon: Shield, category: 'pages', keywords: ['risk', 'risks', 'risk management'] },
-    { id: 'nav-etp', title: 'ETP Master', description: 'ETP configuration', path: '/etp-master', icon: Settings, category: 'pages', keywords: ['etp', 'etp master', 'configuration'] },
+    { id: 'nav-etp', title: 'ETP Master', description: 'ETP configuration', path: '/etp-master', icon: Settings, category: 'pages', keywords: ['etp', 'etp master', 'configuration'], noTranslate: true },
     { id: 'nav-audit', title: 'Audit Logs', description: 'View system audit logs', path: '/admin/audit-logs', icon: BookOpen, category: 'pages', keywords: ['audit', 'logs', 'audit logs', 'history'] },
     { id: 'nav-master-data', title: 'Master Data', description: 'Manage master data', path: '/admin/master-data', icon: Settings, category: 'pages', keywords: ['master data', 'masters', 'configuration'] },
 ];
@@ -413,7 +413,7 @@ const SearchModal = ({ isOpen, onClose, onResultSelect }) => {
                                             <div className="p-1.5 rounded-md bg-slate-100 group-hover:bg-primary-100 transition-colors">
                                                 <Icon size={14} className="text-slate-500 group-hover:text-primary-600" />
                                             </div>
-                                            <span className="text-sm font-medium text-slate-700">{page.title}</span>
+                                            <span className={`text-sm font-medium text-slate-700 ${page.noTranslate ? 'notranslate' : ''}`}>{page.title}</span>
                                         </button>
                                     );
                                 })}

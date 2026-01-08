@@ -427,73 +427,38 @@ export const LanguageProvider = ({ children }) => {
     const savedLang = localStorage.getItem('pmis_language');
     if (savedLang) {
       setLanguage(savedLang);
-      // Wait for Google Translate to be ready, then trigger translation
-      setTimeout(() => triggerGoogleTranslate(savedLang), 1000);
+      // Only trigger translation for non-English languages
+      // English is the default - page already shows original English, no action needed
+      if (savedLang !== 'en') {
+        setTimeout(() => triggerGoogleTranslate(savedLang), 1000);
+      }
     }
   }, []);
 
   /**
    * Trigger Google Translate programmatically
-   * Uses multiple fallback methods to ensure translation works
+   * Uses combo box only - NO page reloads
+   * Empty string ('') restores original English
    */
   const triggerGoogleTranslate = (langCode) => {
-    // Method 1: Try the combo box (fastest, no reload)
     const googleSelect = document.querySelector('.goog-te-combo');
     if (googleSelect) {
-      googleSelect.value = langCode;
+      // For English: set to empty string to restore original
+      // For other languages: set to language code
+      googleSelect.value = langCode === 'en' ? '' : langCode;
       googleSelect.dispatchEvent(new Event('change', { bubbles: true }));
-      return;
     }
-
-    // Method 2: Try to re-initialize Google Translate
-    if (window.google && window.google.translate && window.google.translate.TranslateElement) {
-      try {
-        const element = document.getElementById('google_translate_element');
-        if (element) {
-          new window.google.translate.TranslateElement(
-            { pageLanguage: 'en', autoDisplay: false },
-            'google_translate_element'
-          );
-          // Try combo box again after re-init
-          setTimeout(() => {
-            const combo = document.querySelector('.goog-te-combo');
-            if (combo) {
-              combo.value = langCode;
-              combo.dispatchEvent(new Event('change', { bubbles: true }));
-            } else {
-              // Method 3: Use cookie and reload (last resort)
-              useCookieFallback(langCode);
-            }
-          }, 300);
-          return;
-        }
-      } catch (e) {
-        console.error('Google Translate re-init failed:', e);
-      }
-    }
-
-    // Method 3: Cookie-based approach (requires reload but always works)
-    useCookieFallback(langCode);
-  };
-
-  /**
-   * Fallback: Use cookies to set language (requires page reload)
-   */
-  const useCookieFallback = (langCode) => {
+    // If combo box not available, just update cookies for next page load (no reload now)
     if (langCode === 'en') {
-      // Reset to English by removing translation cookies
       document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname;
       document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + window.location.hostname;
     } else {
-      // Set translation cookies
       const cookieValue = `/en/${langCode}`;
       document.cookie = `googtrans=${cookieValue}; path=/;`;
       document.cookie = `googtrans=${cookieValue}; path=/; domain=${window.location.hostname}`;
       document.cookie = `googtrans=${cookieValue}; path=/; domain=.${window.location.hostname}`;
     }
-    // Reload to apply translation
-    window.location.reload();
   };
 
   const handleSetLanguage = (lang) => {
