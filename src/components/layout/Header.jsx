@@ -5,10 +5,11 @@ import { Settings } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Button from '@/components/ui/Button';
-import Select from '@/components/ui/Select';
 import GoogleTranslateWidget from '@/components/ui/GoogleTranslateWidget';
+import LanguageDropdown from '@/components/ui/LanguageDropdown';
 import NotificationDropdown from '@/components/communications/NotificationDropdown';
 import SettingsModal from '@/components/settings/SettingsModal';
+import GlobalSearchBar from '@/components/search/GlobalSearchBar';
 
 /**
  * Header - Top navigation bar component
@@ -23,7 +24,6 @@ import SettingsModal from '@/components/settings/SettingsModal';
  */
 const Header = ({ isDesktop = true }) => {
   const { user, logout } = useAuth();
-  const { language, setLanguage, t } = useLanguage();
   const { isCollapsed, isMobileMenuOpen } = useSidebar();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -54,18 +54,6 @@ const Header = ({ isDesktop = true }) => {
   const handleLogout = () => {
     logout();
     window.location.href = '/login';
-  };
-
-  const handleLanguageChange = (e) => {
-    const newLang = e.target.value;
-    setLanguage(newLang);
-
-    // Trigger Google Translate
-    const googleSelect = document.querySelector('.goog-te-combo');
-    if (googleSelect) {
-      googleSelect.value = newLang;
-      googleSelect.dispatchEvent(new Event('change'));
-    }
   };
 
   /**
@@ -99,32 +87,17 @@ const Header = ({ isDesktop = true }) => {
       }}
       className="absolute top-4 right-4 z-40 h-14 bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-sm flex items-center justify-between px-3 sm:px-4"
     >
-      <div className="flex-1"></div>
+      {/* Global Search Bar - Full bar on desktop, icon on mobile */}
+      <GlobalSearchBar isDesktop={isDesktop} />
 
-      <div className="flex items-center gap-2 sm:gap-4">
-
-        {/* Language Toggle - Responsive */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          <div className="hidden">
-            <GoogleTranslateWidget />
-          </div>
-          {/* Divider - hidden on mobile */}
-          <div className="hidden sm:block h-6 w-px bg-slate-200 mx-1 sm:mx-2"></div>
-          {/* Globe icon - hidden on mobile - REMOVED */}
-          <Select
-            value={language}
-            onChange={handleLanguageChange}
-            className="w-20 sm:w-32 text-xs sm:text-sm rounded-xl border-slate-200 bg-white/80 backdrop-blur-sm shadow-sm hover:border-slate-300 transition-colors"
-          >
-            <option value="en">English</option>
-            <option value="hi">हिंदी</option>
-            <option value="te">తెలుగు</option>
-            <option value="kn">ಕನ್ನಡ</option>
-            <option value="ta">தமிழ்</option>
-            <option value="ml">മലയാളം</option>
-            <option value="mr">मराठी</option>
-          </Select>
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Google Translate Widget (hidden) */}
+        <div className="hidden">
+          <GoogleTranslateWidget />
         </div>
+
+        {/* Language Dropdown - Beautiful redesigned */}
+        <LanguageDropdown />
 
         {/* Settings Icon */}
         <button
@@ -168,7 +141,7 @@ const Header = ({ isDesktop = true }) => {
                   className="w-full justify-start"
                   onClick={handleLogout}
                 >
-                  {t('common.logout')}
+                  Logout
                 </Button>
               </div>
             </div>

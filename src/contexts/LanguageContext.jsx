@@ -1,893 +1,514 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import i18n from '@/i18n';
 
-// Legacy translations object - kept for reference but now using i18next
-const translations = {
-  en: {
-    // Common
-    'app.title': 'PMIS - Zaheerabad Industrial Area',
-    'common.login': 'Login',
-    'common.logout': 'Logout',
-    'common.dashboard': 'Integrated Dashboard',
-    'common.projects': 'Projects',
-    'common.documents': 'Documents',
-    'common.schedule': 'Schedule',
-    'common.cost': 'Cost Management',
-    'common.risk': 'Risk Management',
-    'common.gis': 'GIS & Mapping',
-    'common.bim': '3D Model Viewer',
-    'common.selectRole': 'Select Role',
-    'common.welcome': 'Welcome',
-    'common.language': 'Language',
-    'common.profile': 'Profile',
-    'common.notifications': 'Notifications',
-    'common.search': 'Search',
-    'common.filter': 'Filter',
-    'common.export': 'Export',
-    'common.upload': 'Upload',
-    'common.save': 'Save',
-    'common.cancel': 'Cancel',
-    'common.delete': 'Delete',
-    'common.edit': 'Edit',
-    'common.view': 'View',
-    'common.status': 'Status',
-    'common.progress': 'Progress',
-    'common.budget': 'Budget',
-    'common.spent': 'Spent',
-    'common.remaining': 'Remaining',
-    'common.name': 'Name',
-    'common.date': 'Date',
-    'common.actions': 'Actions',
-    // Dashboard
-    'dashboard.title': 'Integrated Dashboard',
-    'dashboard.overview': 'Overview',
-    'dashboard.kpis': 'Key Performance Indicators',
-    'dashboard.recentProjects': 'Recent Projects',
-    'dashboard.activeRisks': 'Active Risks',
-    'dashboard.upcomingTasks': 'Upcoming Tasks',
-    // Login
-    'login.title': 'Programme Management Information System',
-    'login.subtitle': 'Zaheerabad Industrial Area',
-    'login.selectRole': 'Select your role to continue',
-    'login.enter': 'Enter System',
-    // Roles
-    'role.SPV_Official': 'SPV Official',
-    'role.PMNC_Team': 'PMNC Team',
-    'role.EPC_Contractor': 'EPC Contractor',
-    'role.Consultant_Design': 'Design Consultant',
-    'role.Govt_Department': 'Government Department',
-    'role.NICDC_HQ': 'NICDC Headquarters',
-    // Additional common
-    'common.target': 'Target',
-    'common.found': 'found',
-    'common.type': 'Type',
-    'common.category': 'Category',
-    'common.version': 'Version',
-    'common.size': 'Size',
-    'common.uploadedBy': 'Uploaded By',
-    'common.manager': 'Manager',
-    'common.location': 'Location',
-    'common.description': 'Description',
-    'common.startDate': 'Start Date',
-    'common.endDate': 'End Date',
-    'common.assignedTo': 'Assigned To',
-    'common.priority': 'Priority',
-    'common.impact': 'Impact',
-    'common.probability': 'Probability',
-    'common.owner': 'Owner',
-    'common.identified': 'Identified',
-    'common.allStatus': 'All Status',
-    'common.allTypes': 'All Types',
-    'common.allProjects': 'All Projects',
-    'common.project': 'Project',
-    'common.total': 'Total',
-    'common.inProgress': 'In Progress',
-    'common.completed': 'Completed',
-    'common.planning': 'Planning',
-    'common.onHold': 'On Hold',
-    'common.cancelled': 'Cancelled',
-    'common.draft': 'Draft',
-    'common.underReview': 'Under Review',
-    'common.approved': 'Approved',
-    'common.rejected': 'Rejected',
-    'common.closed': 'Closed',
-    'common.mitigated': 'Mitigated',
-    'common.assessed': 'Assessed',
-    'common.low': 'Low',
-    'common.medium': 'Medium',
-    'common.high': 'High',
-    'common.critical': 'Critical',
-    'common.notStarted': 'Not Started',
-    'common.delayed': 'Delayed',
-    'common.creating': 'Creating...',
-    'common.uploading': 'Uploading...',
-    'common.authenticating': 'Authenticating...',
-    'common.comingSoon': 'Coming soon',
-    'common.accessLevel': 'Access Level',
-    // Dashboard
-    'dashboard.searchPlaceholder': 'Search projects, tasks, risks...',
-    'dashboard.createProject': 'Create Project',
-    'dashboard.progress': 'Progress',
-    'dashboard.budgetVsSpent': 'Budget vs Spent (in Crores)',
-    'dashboard.riskDistribution': 'Distribution',
-    'dashboard.projectTimeline': 'Project Timeline',
-    'dashboard.noRisksFound': 'No risks found matching your search.',
-    'dashboard.noActiveRisks': 'No active risks.',
-    'dashboard.noTasksFound': 'No tasks found matching your search.',
-    'dashboard.noUpcomingTasks': 'No upcoming tasks.',
-    'dashboard.navigatingToRisk': 'Navigating to Risk Management',
-    'dashboard.viewingRiskDetails': 'Viewing risk details and mitigation plans.',
-    // Projects
-    'projects.title': 'Projects',
-    'projects.subtitle': 'Manage and track all infrastructure projects',
-    'projects.createProject': 'Create Project',
-    'projects.searchPlaceholder': 'Search projects...',
-    'projects.allStatus': 'All Status',
-    'projects.noProjectsFound': 'No projects found',
-    'projects.adjustFilters': 'Try adjusting your filters to see more results.',
-    'projects.getStarted': 'Get started by creating your first project.',
-    'projects.noProjectsAvailable': 'No projects available at the moment.',
-    'projects.budget': 'Budget',
-    'projects.budgetUtilization': 'Budget Utilization',
-    'projects.totalProjects': 'Total Projects',
-    'projects.totalBudget': 'Total Budget',
-    // EDMS
-    'edms.subtitle': 'Electronic Document Management System',
-    'edms.searchPlaceholder': 'Search documents...',
-    'edms.allStatus': 'All Status',
-    'edms.allTypes': 'All Types',
-    'edms.documentRepository': 'Document Repository',
-    'edms.documents': 'documents',
-    'edms.noDocumentsFound': 'No documents found',
-    'edms.adjustFilters': 'Try adjusting your filters to see more results.',
-    'edms.uploadFirst': 'Upload your first document to get started.',
-    'edms.uploadDocument': 'Upload Document',
-    'edms.showing': 'Showing',
-    'edms.to': 'to',
-    'edms.of': 'of',
-    'edms.previous': 'Previous',
-    'edms.next': 'Next',
-    'edms.page': 'Page',
-    'edms.permissionDenied': 'Permission Denied',
-    'edms.noDeletePermission': 'You do not have permission to delete documents. Contact your administrator.',
-    'edms.documentDeleted': 'Document deleted',
-    'edms.documentRemoved': 'The document has been removed from the repository.',
-    'edms.downloadStarted': 'Download started',
-    'edms.downloading': 'Downloading',
-    'edms.openingDocument': 'Opening document',
-    'edms.viewing': 'Viewing',
-    // Scheduling
-    'scheduling.subtitle': 'Project Scheduling and Timeline Tracking',
-    'scheduling.ganttChart': 'Gantt Chart',
-    'scheduling.listView': 'List View',
-    'scheduling.filterByProject': 'Filter by Project:',
-    'scheduling.ganttChartView': 'Gantt Chart View',
-    'scheduling.projectProgress': 'Project Progress',
-    'scheduling.start': 'Start',
-    'scheduling.end': 'End',
-    'scheduling.assigned': 'Assigned',
-    'scheduling.criticalPath': 'Critical Path',
-    'scheduling.taskUpdated': 'Task updated',
-    'scheduling.taskStatusUpdated': 'Task status has been updated.',
-    'scheduling.failedToUpdate': 'Failed to update task',
-    // Cost Management
-    'cost.subtitle': 'Budget Forecasting and Cost Management',
-    'cost.totalBudget': 'Total Budget',
-    'cost.totalSpent': 'Total Spent',
-    'cost.committed': 'Committed',
-    'cost.remaining': 'Remaining',
-    'cost.costForecastVsActual': 'Cost Forecast vs Actual',
-    'cost.forecasted': 'Forecasted',
-    'cost.actual': 'Actual',
-    'cost.budgetUtilization': 'Budget Utilization',
-    'cost.allocated': 'Allocated',
-    'cost.budgetByCategory': 'Budget by Category',
-    // Risk Management
-    'risk.subtitle': 'Risk Register and Mitigation Planning',
-    'risk.totalRisks': 'Total Risks',
-    'risk.activeRisks': 'Active Risks',
-    'risk.highImpact': 'High Impact',
-    'risk.mitigated': 'Mitigated',
-    'risk.risksByCategory': 'Risks by Category',
-    'risk.risksByStatus': 'Risks by Status',
-    'risk.mitigationPlan': 'Mitigation Plan:',
-    // BIM
-    'bim.subtitle': '3D Building Information Modeling Viewer',
-    'bim.modelViewer': '3D Model Viewer',
-    'bim.interactiveVisualization': 'Interactive 3D visualization of infrastructure components',
-    'bim.infrastructureModels': 'Infrastructure Models',
-    'bim.modelsDescription': '3D models of project components',
-    'bim.interactiveView': 'Interactive View',
-    'bim.rotateZoomExplore': 'Rotate, zoom, and explore models',
-    'bim.bimIntegration': 'BIM Integration',
-    'bim.bimData': 'Building Information Modeling data',
-    // GIS
-    'gis.subtitle': 'Geographic Information System & Spatial Mapping',
-    'gis.projectLocationsMap': 'Project Locations Map - India',
-    'gis.mapDescription': 'Interactive map showing all project locations and GIS features across India',
-    'gis.gisFeatures': 'GIS Features',
-    // Create Project Modal
-    'project.createNewProject': 'Create New Project',
-    'project.projectName': 'Project Name',
-    'project.description': 'Description',
-    'project.startDate': 'Start Date',
-    'project.endDate': 'End Date',
-    'project.budget': 'Budget (₹)',
-    'project.status': 'Status',
-    'project.category': 'Category',
-    'project.projectManager': 'Project Manager',
-    'project.required': '*',
-    'project.enterProjectName': 'Enter project name',
-    'project.enterDescription': 'Enter project description',
-    'project.enterBudget': 'Enter budget amount',
-    'project.categoryPlaceholder': 'e.g., Infrastructure, Utilities',
-    'project.enterManagerName': 'Enter manager name',
-    'project.projectNameRequired': 'Project name is required',
-    'project.descriptionRequired': 'Description is required',
-    'project.startDateRequired': 'Start date is required',
-    'project.endDateRequired': 'End date is required',
-    'project.endDateAfterStart': 'End date must be after start date',
-    'project.validBudgetRequired': 'Valid budget amount is required',
-    'project.categoryRequired': 'Category is required',
-    'project.managerRequired': 'Project manager is required',
-    'project.fixFormErrors': 'Please fix the form errors',
-    'project.createdSuccessfully': 'Project created successfully!',
-    'project.hasBeenAdded': 'has been added to the system.',
-    'project.failedToCreate': 'Failed to create project',
-    'project.tryAgain': 'Please try again.',
-    // Upload Modal
-    'upload.uploadDocument': 'Upload Document',
-    'upload.dragAndDrop': 'Drag and drop your file here',
-    'upload.or': 'or',
-    'upload.browseFiles': 'Browse Files',
-    'upload.fileUploadedSuccessfully': 'File uploaded successfully!',
-    'upload.hasBeenAdded': 'has been added to the repository.',
-    'upload.uploadFailed': 'Upload failed',
-    'upload.tryAgain': 'Please try again.',
-    // Header
-    'header.english': 'English',
-    'header.hindi': 'हिंदी',
-    'header.telugu': 'తెలుగు',
-    // Sidebar
-    'sidebar.pmisZia': 'PMIS ZIA',
-    'sidebar.programmeManagement': 'Programme Management',
-    'sidebar.expandSidebar': 'Expand sidebar',
-    'sidebar.collapseSidebar': 'Collapse sidebar',
-    // Login
-    'login.authenticating': 'Authenticating...',
-    'login.welcomeBack': 'Welcome back,',
-    // Status values
-    'status.planning': 'Planning',
-    'status.inProgress': 'In Progress',
-    'status.onHold': 'On Hold',
-    'status.completed': 'Completed',
-    'status.cancelled': 'Cancelled',
-    'status.draft': 'Draft',
-    'status.underReview': 'Under Review',
-    'status.approved': 'Approved',
-    'status.rejected': 'Rejected',
-    'status.closed': 'Closed',
-    'status.mitigated': 'Mitigated',
-    'status.assessed': 'Assessed',
-    'status.notStarted': 'Not Started',
-    'status.delayed': 'Delayed',
-    // Priority values
-    'priority.low': 'Low',
-    'priority.medium': 'Medium',
-    'priority.high': 'High',
-    'priority.critical': 'Critical',
-    // Impact values
-    'impact.low': 'Low',
-    'impact.medium': 'Medium',
-    'impact.high': 'High',
-    'impact.critical': 'Critical',
-  },
-  hi: {
-    // Common
-    'app.title': 'PMIS - ज़हीराबाद औद्योगिक क्षेत्र',
-    'common.login': 'लॉगिन',
-    'common.logout': 'लॉगआउट',
-    'common.dashboard': 'एकीकृत डैशबोर्ड',
-    'common.projects': 'परियोजनाएं',
-    'common.documents': 'दस्तावेज़',
-    'common.schedule': 'अनुसूची',
-    'common.cost': 'लागत प्रबंधन',
-    'common.risk': 'जोखिम प्रबंधन',
-    'common.gis': 'GIS और मानचित्रण',
-    'common.bim': '3D मॉडल व्यूअर',
-    'common.selectRole': 'भूमिका चुनें',
-    'common.welcome': 'स्वागत है',
-    'common.language': 'भाषा',
-    'common.profile': 'प्रोफ़ाइल',
-    'common.notifications': 'सूचनाएं',
-    'common.search': 'खोजें',
-    'common.filter': 'फ़िल्टर',
-    'common.export': 'निर्यात',
-    'common.upload': 'अपलोड',
-    'common.save': 'सहेजें',
-    'common.cancel': 'रद्द करें',
-    'common.delete': 'हटाएं',
-    'common.edit': 'संपादित करें',
-    'common.view': 'देखें',
-    'common.status': 'स्थिति',
-    'common.progress': 'प्रगति',
-    'common.budget': 'बजट',
-    'common.spent': 'खर्च',
-    'common.remaining': 'शेष',
-    'common.name': 'नाम',
-    'common.date': 'तारीख',
-    'common.actions': 'कार्रवाई',
-    // Dashboard
-    'dashboard.title': 'एकीकृत डैशबोर्ड',
-    'dashboard.overview': 'अवलोकन',
-    'dashboard.kpis': 'मुख्य प्रदर्शन संकेतक',
-    'dashboard.recentProjects': 'हाल की परियोजनाएं',
-    'dashboard.activeRisks': 'सक्रिय जोखिम',
-    'dashboard.upcomingTasks': 'आगामी कार्य',
-    // Login
-    'login.title': 'कार्यक्रम प्रबंधन सूचना प्रणाली',
-    'login.subtitle': 'ज़हीराबाद औद्योगिक क्षेत्र',
-    'login.selectRole': 'जारी रखने के लिए अपनी भूमिका चुनें',
-    'login.enter': 'सिस्टम में प्रवेश करें',
-    // Roles
-    'role.SPV_Official': 'SPV अधिकारी',
-    'role.PMNC_Team': 'PMNC टीम',
-    'role.EPC_Contractor': 'EPC ठेकेदार',
-    'role.Consultant_Design': 'डिज़ाइन सलाहकार',
-    'role.Govt_Department': 'सरकारी विभाग',
-    'role.NICDC_HQ': 'NICDC मुख्यालय',
-    // Additional common
-    'common.target': 'लक्ष्य',
-    'common.found': 'मिला',
-    'common.type': 'प्रकार',
-    'common.category': 'श्रेणी',
-    'common.version': 'संस्करण',
-    'common.size': 'आकार',
-    'common.uploadedBy': 'द्वारा अपलोड',
-    'common.manager': 'प्रबंधक',
-    'common.location': 'स्थान',
-    'common.description': 'विवरण',
-    'common.startDate': 'प्रारंभ तिथि',
-    'common.endDate': 'समाप्ति तिथि',
-    'common.assignedTo': 'को सौंपा गया',
-    'common.priority': 'प्राथमिकता',
-    'common.impact': 'प्रभाव',
-    'common.probability': 'संभावना',
-    'common.owner': 'मालिक',
-    'common.identified': 'पहचाना गया',
-    'common.allStatus': 'सभी स्थिति',
-    'common.allTypes': 'सभी प्रकार',
-    'common.allProjects': 'सभी परियोजनाएं',
-    'common.project': 'परियोजना',
-    'common.total': 'कुल',
-    'common.inProgress': 'प्रगति में',
-    'common.completed': 'पूर्ण',
-    'common.planning': 'योजना',
-    'common.onHold': 'रोक दिया गया',
-    'common.cancelled': 'रद्द',
-    'common.draft': 'ड्राफ्ट',
-    'common.underReview': 'समीक्षा के अधीन',
-    'common.approved': 'अनुमोदित',
-    'common.rejected': 'अस्वीकृत',
-    'common.closed': 'बंद',
-    'common.mitigated': 'कम किया गया',
-    'common.assessed': 'मूल्यांकन',
-    'common.low': 'कम',
-    'common.medium': 'मध्यम',
-    'common.high': 'उच्च',
-    'common.critical': 'गंभीर',
-    'common.notStarted': 'शुरू नहीं हुआ',
-    'common.delayed': 'विलंबित',
-    'common.creating': 'बनाया जा रहा है...',
-    'common.uploading': 'अपलोड हो रहा है...',
-    'common.authenticating': 'प्रमाणीकरण हो रहा है...',
-    'common.comingSoon': 'जल्द ही आ रहा है',
-    'common.accessLevel': 'पहुंच स्तर',
-    // Dashboard
-    'dashboard.searchPlaceholder': 'परियोजनाएं, कार्य, जोखिम खोजें...',
-    'dashboard.createProject': 'परियोजना बनाएं',
-    'dashboard.progress': 'प्रगति',
-    'dashboard.budgetVsSpent': 'बजट बनाम खर्च (करोड़ में)',
-    'dashboard.riskDistribution': 'वितरण',
-    'dashboard.projectTimeline': 'परियोजना समयरेखा',
-    'dashboard.noRisksFound': 'आपकी खोज से मेल खाने वाला कोई जोखिम नहीं मिला।',
-    'dashboard.noActiveRisks': 'कोई सक्रिय जोखिम नहीं।',
-    'dashboard.noTasksFound': 'आपकी खोज से मेल खाने वाला कोई कार्य नहीं मिला।',
-    'dashboard.noUpcomingTasks': 'कोई आगामी कार्य नहीं।',
-    'dashboard.navigatingToRisk': 'जोखिम प्रबंधन पर जा रहे हैं',
-    'dashboard.viewingRiskDetails': 'जोखिम विवरण और शमन योजनाएं देख रहे हैं।',
-    // Projects
-    'projects.title': 'परियोजनाएं',
-    'projects.subtitle': 'सभी बुनियादी ढांचा परियोजनाओं का प्रबंधन और ट्रैक करें',
-    'projects.createProject': 'परियोजना बनाएं',
-    'projects.searchPlaceholder': 'परियोजनाएं खोजें...',
-    'projects.allStatus': 'सभी स्थिति',
-    'projects.noProjectsFound': 'कोई परियोजना नहीं मिली',
-    'projects.adjustFilters': 'अधिक परिणाम देखने के लिए अपने फ़िल्टर समायोजित करने का प्रयास करें।',
-    'projects.getStarted': 'अपनी पहली परियोजना बनाकर शुरुआत करें।',
-    'projects.noProjectsAvailable': 'इस समय कोई परियोजना उपलब्ध नहीं है।',
-    'projects.budget': 'बजट',
-    'projects.budgetUtilization': 'बजट उपयोग',
-    'projects.totalProjects': 'कुल परियोजनाएं',
-    'projects.totalBudget': 'कुल बजट',
-    // EDMS
-    'edms.subtitle': 'इलेक्ट्रॉनिक दस्तावेज़ प्रबंधन प्रणाली',
-    'edms.searchPlaceholder': 'दस्तावेज़ खोजें...',
-    'edms.allStatus': 'सभी स्थिति',
-    'edms.allTypes': 'सभी प्रकार',
-    'edms.documentRepository': 'दस्तावेज़ भंडार',
-    'edms.documents': 'दस्तावेज़',
-    'edms.noDocumentsFound': 'कोई दस्तावेज़ नहीं मिला',
-    'edms.adjustFilters': 'अधिक परिणाम देखने के लिए अपने फ़िल्टर समायोजित करने का प्रयास करें।',
-    'edms.uploadFirst': 'शुरुआत करने के लिए अपना पहला दस्तावेज़ अपलोड करें।',
-    'edms.uploadDocument': 'दस्तावेज़ अपलोड करें',
-    'edms.showing': 'दिखा रहा है',
-    'edms.to': 'से',
-    'edms.of': 'का',
-    'edms.previous': 'पिछला',
-    'edms.next': 'अगला',
-    'edms.page': 'पृष्ठ',
-    'edms.permissionDenied': 'अनुमति अस्वीकृत',
-    'edms.noDeletePermission': 'आपके पास दस्तावेज़ हटाने की अनुमति नहीं है। अपने प्रशासक से संपर्क करें।',
-    'edms.documentDeleted': 'दस्तावेज़ हटा दिया गया',
-    'edms.documentRemoved': 'दस्तावेज़ को भंडार से हटा दिया गया है।',
-    'edms.downloadStarted': 'डाउनलोड शुरू हुआ',
-    'edms.downloading': 'डाउनलोड हो रहा है',
-    'edms.openingDocument': 'दस्तावेज़ खोला जा रहा है',
-    'edms.viewing': 'देख रहे हैं',
-    // Scheduling
-    'scheduling.subtitle': 'परियोजना अनुसूची और समयरेखा ट्रैकिंग',
-    'scheduling.ganttChart': 'गैंट चार्ट',
-    'scheduling.listView': 'सूची दृश्य',
-    'scheduling.filterByProject': 'परियोजना से फ़िल्टर करें:',
-    'scheduling.ganttChartView': 'गैंट चार्ट दृश्य',
-    'scheduling.projectProgress': 'परियोजना प्रगति',
-    'scheduling.start': 'शुरू',
-    'scheduling.end': 'समाप्त',
-    'scheduling.assigned': 'सौंपा गया',
-    'scheduling.criticalPath': 'महत्वपूर्ण पथ',
-    'scheduling.taskUpdated': 'कार्य अपडेट किया गया',
-    'scheduling.taskStatusUpdated': 'कार्य स्थिति अपडेट कर दी गई है।',
-    'scheduling.failedToUpdate': 'कार्य अपडेट करने में विफल',
-    // Cost Management
-    'cost.subtitle': 'बजट पूर्वानुमान और लागत प्रबंधन',
-    'cost.totalBudget': 'कुल बजट',
-    'cost.totalSpent': 'कुल खर्च',
-    'cost.committed': 'प्रतिबद्ध',
-    'cost.remaining': 'शेष',
-    'cost.costForecastVsActual': 'लागत पूर्वानुमान बनाम वास्तविक',
-    'cost.forecasted': 'पूर्वानुमानित',
-    'cost.actual': 'वास्तविक',
-    'cost.budgetUtilization': 'बजट उपयोग',
-    'cost.allocated': 'आवंटित',
-    'cost.budgetByCategory': 'श्रेणी के अनुसार बजट',
-    // Risk Management
-    'risk.subtitle': 'जोखिम रजिस्टर और शमन योजना',
-    'risk.totalRisks': 'कुल जोखिम',
-    'risk.activeRisks': 'सक्रिय जोखिम',
-    'risk.highImpact': 'उच्च प्रभाव',
-    'risk.mitigated': 'कम किया गया',
-    'risk.risksByCategory': 'श्रेणी के अनुसार जोखिम',
-    'risk.risksByStatus': 'स्थिति के अनुसार जोखिम',
-    'risk.mitigationPlan': 'शमन योजना:',
-    // BIM
-    'bim.subtitle': '3D बिल्डिंग सूचना मॉडलिंग व्यूअर',
-    'bim.modelViewer': '3D मॉडल व्यूअर',
-    'bim.interactiveVisualization': 'बुनियादी ढांचा घटकों की इंटरैक्टिव 3D विज़ुअलाइज़ेशन',
-    'bim.infrastructureModels': 'बुनियादी ढांचा मॉडल',
-    'bim.modelsDescription': 'परियोजना घटकों के 3D मॉडल',
-    'bim.interactiveView': 'इंटरैक्टिव दृश्य',
-    'bim.rotateZoomExplore': 'मॉडल को घुमाएं, ज़ूम करें और अन्वेषण करें',
-    'bim.bimIntegration': 'BIM एकीकरण',
-    'bim.bimData': 'बिल्डिंग सूचना मॉडलिंग डेटा',
-    // GIS
-    'gis.subtitle': 'भौगोलिक सूचना प्रणाली और स्थानिक मानचित्रण',
-    'gis.projectLocationsMap': 'परियोजना स्थान मानचित्र - भारत',
-    'gis.mapDescription': 'भारत भर में सभी परियोजना स्थानों और GIS सुविधाओं को दिखाने वाला इंटरैक्टिव मानचित्र',
-    'gis.gisFeatures': 'GIS सुविधाएं',
-    // Create Project Modal
-    'project.createNewProject': 'नई परियोजना बनाएं',
-    'project.projectName': 'परियोजना नाम',
-    'project.description': 'विवरण',
-    'project.startDate': 'प्रारंभ तिथि',
-    'project.endDate': 'समाप्ति तिथि',
-    'project.budget': 'बजट (₹)',
-    'project.status': 'स्थिति',
-    'project.category': 'श्रेणी',
-    'project.projectManager': 'परियोजना प्रबंधक',
-    'project.required': '*',
-    'project.enterProjectName': 'परियोजना नाम दर्ज करें',
-    'project.enterDescription': 'परियोजना विवरण दर्ज करें',
-    'project.enterBudget': 'बजट राशि दर्ज करें',
-    'project.categoryPlaceholder': 'उदा., बुनियादी ढांचा, उपयोगिताएं',
-    'project.enterManagerName': 'प्रबंधक नाम दर्ज करें',
-    'project.projectNameRequired': 'परियोजना नाम आवश्यक है',
-    'project.descriptionRequired': 'विवरण आवश्यक है',
-    'project.startDateRequired': 'प्रारंभ तिथि आवश्यक है',
-    'project.endDateRequired': 'समाप्ति तिथि आवश्यक है',
-    'project.endDateAfterStart': 'समाप्ति तिथि प्रारंभ तिथि के बाद होनी चाहिए',
-    'project.validBudgetRequired': 'वैध बजट राशि आवश्यक है',
-    'project.categoryRequired': 'श्रेणी आवश्यक है',
-    'project.managerRequired': 'परियोजना प्रबंधक आवश्यक है',
-    'project.fixFormErrors': 'कृपया फॉर्म त्रुटियों को ठीक करें',
-    'project.createdSuccessfully': 'परियोजना सफलतापूर्वक बनाई गई!',
-    'project.hasBeenAdded': 'सिस्टम में जोड़ दिया गया है।',
-    'project.failedToCreate': 'परियोजना बनाने में विफल',
-    'project.tryAgain': 'कृपया पुनः प्रयास करें।',
-    // Upload Modal
-    'upload.uploadDocument': 'दस्तावेज़ अपलोड करें',
-    'upload.dragAndDrop': 'अपनी फ़ाइल यहाँ खींचें और छोड़ें',
-    'upload.or': 'या',
-    'upload.browseFiles': 'फ़ाइलें ब्राउज़ करें',
-    'upload.fileUploadedSuccessfully': 'फ़ाइल सफलतापूर्वक अपलोड की गई!',
-    'upload.hasBeenAdded': 'भंडार में जोड़ दिया गया है।',
-    'upload.uploadFailed': 'अपलोड विफल',
-    'upload.tryAgain': 'कृपया पुनः प्रयास करें।',
-    // Header
-    'header.english': 'English',
-    'header.hindi': 'हिंदी',
-    'header.telugu': 'తెలుగు',
-    // Sidebar
-    'sidebar.pmisZia': 'PMIS ZIA',
-    'sidebar.programmeManagement': 'कार्यक्रम प्रबंधन',
-    'sidebar.expandSidebar': 'साइडबार विस्तारित करें',
-    'sidebar.collapseSidebar': 'साइडबार संकुचित करें',
-    // Login
-    'login.authenticating': 'प्रमाणीकरण हो रहा है...',
-    'login.welcomeBack': 'वापसी पर स्वागत है,',
-    // Status values
-    'status.planning': 'योजना',
-    'status.inProgress': 'प्रगति में',
-    'status.onHold': 'रोक दिया गया',
-    'status.completed': 'पूर्ण',
-    'status.cancelled': 'रद्द',
-    'status.draft': 'ड्राफ्ट',
-    'status.underReview': 'समीक्षा के अधीन',
-    'status.approved': 'अनुमोदित',
-    'status.rejected': 'अस्वीकृत',
-    'status.closed': 'बंद',
-    'status.mitigated': 'कम किया गया',
-    'status.assessed': 'मूल्यांकन',
-    'status.notStarted': 'शुरू नहीं हुआ',
-    'status.delayed': 'विलंबित',
-    // Priority values
-    'priority.low': 'कम',
-    'priority.medium': 'मध्यम',
-    'priority.high': 'उच्च',
-    'priority.critical': 'गंभीर',
-    // Impact values
-    'impact.low': 'कम',
-    'impact.medium': 'मध्यम',
-    'impact.high': 'उच्च',
-    'impact.critical': 'गंभीर',
-  },
-  te: {
-    // Common
-    'app.title': 'PMIS - జహీరాబాద్ ఇండస్ట్రియల్ ఏరియా',
-    'common.login': 'లాగిన్',
-    'common.logout': 'లాగ్అవుట్',
-    'common.dashboard': 'ఏకీకృత డాష్బోర్డ్',
-    'common.projects': 'ప్రాజెక్టులు',
-    'common.documents': 'పత్రాలు',
-    'common.schedule': 'షెడ్యూల్',
-    'common.cost': 'ఖర్చు నిర్వహణ',
-    'common.risk': 'రిస్క్ నిర్వహణ',
-    'common.gis': 'GIS & మ్యాపింగ్',
-    'common.bim': '3D మోడల్ వ్యూయర్',
-    'common.selectRole': 'పాత్ర ఎంచుకోండి',
-    'common.welcome': 'స్వాగతం',
-    'common.language': 'భాష',
-    'common.profile': 'ప్రొఫైల్',
-    'common.notifications': 'నోటిఫికేషన్లు',
-    'common.search': 'శోధించు',
-    'common.filter': 'ఫిల్టర్',
-    'common.export': 'ఎగుమతి',
-    'common.upload': 'అప్‌లోడ్',
-    'common.save': 'సేవ్',
-    'common.cancel': 'రద్దు చేయి',
-    'common.delete': 'తొలగించు',
-    'common.edit': 'సవరించు',
-    'common.view': 'చూడండి',
-    'common.status': 'స్థితి',
-    'common.progress': 'ప్రగతి',
-    'common.budget': 'బడ్జెట్',
-    'common.spent': 'ఖర్చు',
-    'common.remaining': 'మిగిలిన',
-    'common.name': 'పేరు',
-    'common.date': 'తేదీ',
-    'common.actions': 'చర్యలు',
-    // Dashboard
-    'dashboard.title': 'ఏకీకృత డాష్బోర్డ్',
-    'dashboard.overview': 'అవలోకనం',
-    'dashboard.kpis': 'ప్రధాన పనితీరు సూచికలు',
-    'dashboard.recentProjects': 'ఇటీవలి ప్రాజెక్టులు',
-    'dashboard.activeRisks': 'క్రియాశీల రిస్క్‌లు',
-    'dashboard.upcomingTasks': 'రాబోయే పనులు',
-    // Login
-    'login.title': 'ప్రోగ్రామ్ మేనేజ్మెంట్ ఇన్ఫర్మేషన్ సిస్టమ్',
-    'login.subtitle': 'జహీరాబాద్ ఇండస్ట్రియల్ ఏరియా',
-    'login.selectRole': 'కొనసాగించడానికి మీ పాత్రను ఎంచుకోండి',
-    'login.enter': 'సిస్టమ్‌లోకి ప్రవేశించండి',
-    // Roles
-    'role.SPV_Official': 'SPV అధికారి',
-    'role.PMNC_Team': 'PMNC టీమ్',
-    'role.EPC_Contractor': 'EPC కాంట్రాక్టర్',
-    'role.Consultant_Design': 'డిజైన్ కన్సల్టెంట్',
-    'role.Govt_Department': 'ప్రభుత్వ శాఖ',
-    'role.NICDC_HQ': 'NICDC ప్రధాన కార్యాలయం',
-    // Additional common
-    'common.target': 'లక్ష్యం',
-    'common.found': 'కనుగొనబడింది',
-    'common.type': 'రకం',
-    'common.category': 'వర్గం',
-    'common.version': 'సంస్కరణ',
-    'common.size': 'పరిమాణం',
-    'common.uploadedBy': 'అప్‌లోడ్ చేసినవారు',
-    'common.manager': 'నిర్వాహకుడు',
-    'common.location': 'స్థానం',
-    'common.description': 'వివరణ',
-    'common.startDate': 'ప్రారంభ తేదీ',
-    'common.endDate': 'ముగింపు తేదీ',
-    'common.assignedTo': 'కేటాయించబడింది',
-    'common.priority': 'ప్రాధాన్యత',
-    'common.impact': 'ప్రభావం',
-    'common.probability': 'సంభావ్యత',
-    'common.owner': 'యజమాని',
-    'common.identified': 'గుర్తించబడింది',
-    'common.allStatus': 'అన్ని స్థితి',
-    'common.allTypes': 'అన్ని రకాలు',
-    'common.allProjects': 'అన్ని ప్రాజెక్టులు',
-    'common.project': 'ప్రాజెక్ట్',
-    'common.total': 'మొత్తం',
-    'common.inProgress': 'ప్రగతిలో ఉంది',
-    'common.completed': 'పూర్తయింది',
-    'common.planning': 'ప్రణాళిక',
-    'common.onHold': 'పట్టుకున్నారు',
-    'common.cancelled': 'రద్దు చేయబడింది',
-    'common.draft': 'డ్రాఫ్ట్',
-    'common.underReview': 'సమీక్షలో ఉంది',
-    'common.approved': 'అనుమోదించబడింది',
-    'common.rejected': 'తిరస్కరించబడింది',
-    'common.closed': 'మూసివేయబడింది',
-    'common.mitigated': 'తగ్గించబడింది',
-    'common.assessed': 'మదింపు చేయబడింది',
-    'common.low': 'తక్కువ',
-    'common.medium': 'మధ్యస్థ',
-    'common.high': 'ఎక్కువ',
-    'common.critical': 'క్లిష్టమైన',
-    'common.notStarted': 'ప్రారంభించబడలేదు',
-    'common.delayed': 'విలంబం',
-    'common.creating': 'సృష్టిస్తున్నారు...',
-    'common.uploading': 'అప్‌లోడ్ చేస్తున్నారు...',
-    'common.authenticating': 'ప్రామాణీకరిస్తున్నారు...',
-    'common.comingSoon': 'త్వరలో వస్తుంది',
-    'common.accessLevel': 'ప్రాప్యత స్థాయి',
-    // Dashboard
-    'dashboard.searchPlaceholder': 'ప్రాజెక్టులు, పనులు, రిస్క్‌లు శోధించండి...',
-    'dashboard.createProject': 'ప్రాజెక్ట్ సృష్టించండి',
-    'dashboard.progress': 'ప్రగతి',
-    'dashboard.budgetVsSpent': 'బడ్జెట్ వర్సెస్ ఖర్చు (కోట్లలో)',
-    'dashboard.riskDistribution': 'పంపిణీ',
-    'dashboard.projectTimeline': 'ప్రాజెక్ట్ టైమ్‌లైన్',
-    'dashboard.noRisksFound': 'మీ శోధనకు సరిపడిన రిస్క్‌లు కనుగొనబడలేదు.',
-    'dashboard.noActiveRisks': 'క్రియాశీల రిస్క్‌లు లేవు.',
-    'dashboard.noTasksFound': 'మీ శోధనకు సరిపడిన పనులు కనుగొనబడలేదు.',
-    'dashboard.noUpcomingTasks': 'రాబోయే పనులు లేవు.',
-    'dashboard.navigatingToRisk': 'రిస్క్ నిర్వహణకు వెళ్తున్నారు',
-    'dashboard.viewingRiskDetails': 'రిస్క్ వివరాలు మరియు తగ్గింపు ప్రణాళికలను చూస్తున్నారు.',
-    // Projects
-    'projects.title': 'ప్రాజెక్టులు',
-    'projects.subtitle': 'అన్ని మౌలిక సదుపాయాల ప్రాజెక్టులను నిర్వహించండి మరియు ట్రాక్ చేయండి',
-    'projects.createProject': 'ప్రాజెక్ట్ సృష్టించండి',
-    'projects.searchPlaceholder': 'ప్రాజెక్టులు శోధించండి...',
-    'projects.allStatus': 'అన్ని స్థితి',
-    'projects.noProjectsFound': 'ప్రాజెక్టులు కనుగొనబడలేదు',
-    'projects.adjustFilters': 'మరిన్ని ఫలితాలను చూడటానికి మీ ఫిల్టర్‌లను సర్దుబాటు చేయడానికి ప్రయత్నించండి.',
-    'projects.getStarted': 'మీ మొదటి ప్రాజెక్ట్‌ను సృష్టించడం ద్వారా ప్రారంభించండి.',
-    'projects.noProjectsAvailable': 'ప్రస్తుతం ప్రాజెక్టులు అందుబాటులో లేవు.',
-    'projects.budget': 'బడ్జెట్',
-    'projects.budgetUtilization': 'బడ్జెట్ వినియోగం',
-    'projects.totalProjects': 'మొత్తం ప్రాజెక్టులు',
-    'projects.totalBudget': 'మొత్తం బడ్జెట్',
-    // EDMS
-    'edms.subtitle': 'ఎలక్ట్రానిక్ డాక్యుమెంట్ మేనేజ్‌మెంట్ సిస్టమ్',
-    'edms.searchPlaceholder': 'పత్రాలు శోధించండి...',
-    'edms.allStatus': 'అన్ని స్థితి',
-    'edms.allTypes': 'అన్ని రకాలు',
-    'edms.documentRepository': 'పత్ర రిపోజిటరీ',
-    'edms.documents': 'పత్రాలు',
-    'edms.noDocumentsFound': 'పత్రాలు కనుగొనబడలేదు',
-    'edms.adjustFilters': 'మరిన్ని ఫలితాలను చూడటానికి మీ ఫిల్టర్‌లను సర్దుబాటు చేయడానికి ప్రయత్నించండి.',
-    'edms.uploadFirst': 'ప్రారంభించడానికి మీ మొదటి పత్రాన్ని అప్‌లోడ్ చేయండి.',
-    'edms.uploadDocument': 'పత్రం అప్‌లోడ్ చేయండి',
-    'edms.showing': 'చూపిస్తున్నారు',
-    'edms.to': 'కు',
-    'edms.of': 'లో',
-    'edms.previous': 'మునుపటి',
-    'edms.next': 'తరువాత',
-    'edms.page': 'పేజీ',
-    'edms.permissionDenied': 'అనుమతి నిరాకరించబడింది',
-    'edms.noDeletePermission': 'మీకు పత్రాలను తొలగించే అనుమతి లేదు. మీ నిర్వాహకుడిని సంప్రదించండి.',
-    'edms.documentDeleted': 'పత్రం తొలగించబడింది',
-    'edms.documentRemoved': 'పత్రం రిపోజిటరీ నుండి తొలగించబడింది.',
-    'edms.downloadStarted': 'డౌన్‌లోడ్ ప్రారంభమైంది',
-    'edms.downloading': 'డౌన్‌లోడ్ చేస్తున్నారు',
-    'edms.openingDocument': 'పత్రం తెరుస్తున్నారు',
-    'edms.viewing': 'చూస్తున్నారు',
-    // Scheduling
-    'scheduling.subtitle': 'ప్రాజెక్ట్ షెడ్యూలింగ్ మరియు టైమ్‌లైన్ ట్రాకింగ్',
-    'scheduling.ganttChart': 'గాంట్ చార్ట్',
-    'scheduling.listView': 'జాబితా వ్యూ',
-    'scheduling.filterByProject': 'ప్రాజెక్ట్ ద్వారా ఫిల్టర్ చేయండి:',
-    'scheduling.ganttChartView': 'గాంట్ చార్ట్ వ్యూ',
-    'scheduling.projectProgress': 'ప్రాజెక్ట్ ప్రగతి',
-    'scheduling.start': 'ప్రారంభం',
-    'scheduling.end': 'ముగింపు',
-    'scheduling.assigned': 'కేటాయించబడింది',
-    'scheduling.criticalPath': 'క్లిష్టమైన మార్గం',
-    'scheduling.taskUpdated': 'పని నవీకరించబడింది',
-    'scheduling.taskStatusUpdated': 'పని స్థితి నవీకరించబడింది.',
-    'scheduling.failedToUpdate': 'పనిని నవీకరించడంలో విఫలమైంది',
-    // Cost Management
-    'cost.subtitle': 'బడ్జెట్ ఫోర్‌కాస్ట్ మరియు ఖర్చు నిర్వహణ',
-    'cost.totalBudget': 'మొత్తం బడ్జెట్',
-    'cost.totalSpent': 'మొత్తం ఖర్చు',
-    'cost.committed': 'కట్టుబడి',
-    'cost.remaining': 'మిగిలిన',
-    'cost.costForecastVsActual': 'ఖర్చు ఫోర్‌కాస్ట్ వర్సెస్ వాస్తవ',
-    'cost.forecasted': 'ఫోర్‌కాస్ట్ చేయబడింది',
-    'cost.actual': 'వాస్తవ',
-    'cost.budgetUtilization': 'బడ్జెట్ వినియోగం',
-    'cost.allocated': 'కేటాయించబడింది',
-    'cost.budgetByCategory': 'వర్గం ప్రకారం బడ్జెట్',
-    // Risk Management
-    'risk.subtitle': 'రిస్క్ రిజిస్టర్ మరియు తగ్గింపు ప్రణాళిక',
-    'risk.totalRisks': 'మొత్తం రిస్క్‌లు',
-    'risk.activeRisks': 'క్రియాశీల రిస్క్‌లు',
-    'risk.highImpact': 'ఎక్కువ ప్రభావం',
-    'risk.mitigated': 'తగ్గించబడింది',
-    'risk.risksByCategory': 'వర్గం ప్రకారం రిస్క్‌లు',
-    'risk.risksByStatus': 'స్థితి ప్రకారం రిస్క్‌లు',
-    'risk.mitigationPlan': 'తగ్గింపు ప్రణాళిక:',
-    // BIM
-    'bim.subtitle': '3D బిల్డింగ్ ఇన్ఫర్మేషన్ మోడలింగ్ వ్యూయర్',
-    'bim.modelViewer': '3D మోడల్ వ్యూయర్',
-    'bim.interactiveVisualization': 'మౌలిక సదుపాయాల భాగాల యొక్క ఇంటరాక్టివ్ 3D విజువలైజేషన్',
-    'bim.infrastructureModels': 'మౌలిక సదుపాయాల మోడల్‌లు',
-    'bim.modelsDescription': 'ప్రాజెక్ట్ భాగాల యొక్క 3D మోడల్‌లు',
-    'bim.interactiveView': 'ఇంటరాక్టివ్ వ్యూ',
-    'bim.rotateZoomExplore': 'మోడల్‌లను తిప్పండి, జూమ్ చేయండి మరియు అన్వేషించండి',
-    'bim.bimIntegration': 'BIM ఇంటిగ్రేషన్',
-    'bim.bimData': 'బిల్డింగ్ ఇన్ఫర్మేషన్ మోడలింగ్ డేటా',
-    // GIS
-    'gis.subtitle': 'జియోగ్రాఫిక్ ఇన్ఫర్మేషన్ సిస్టమ్ & స్పేషియల్ మ్యాపింగ్',
-    'gis.projectLocationsMap': 'ప్రాజెక్ట్ లొకేషన్‌ల మ్యాప్ - భారతదేశం',
-    'gis.mapDescription': 'భారతదేశం అంతటా అన్ని ప్రాజెక్ట్ లొకేషన్‌లు మరియు GIS ఫీచర్‌లను చూపించే ఇంటరాక్టివ్ మ్యాప్',
-    'gis.gisFeatures': 'GIS ఫీచర్‌లు',
-    // Create Project Modal
-    'project.createNewProject': 'కొత్త ప్రాజెక్ట్ సృష్టించండి',
-    'project.projectName': 'ప్రాజెక్ట్ పేరు',
-    'project.description': 'వివరణ',
-    'project.startDate': 'ప్రారంభ తేదీ',
-    'project.endDate': 'ముగింపు తేదీ',
-    'project.budget': 'బడ్జెట్ (₹)',
-    'project.status': 'స్థితి',
-    'project.category': 'వర్గం',
-    'project.projectManager': 'ప్రాజెక్ట్ నిర్వాహకుడు',
-    'project.required': '*',
-    'project.enterProjectName': 'ప్రాజెక్ట్ పేరు నమోదు చేయండి',
-    'project.enterDescription': 'ప్రాజెక్ట్ వివరణ నమోదు చేయండి',
-    'project.enterBudget': 'బడ్జెట్ మొత్తం నమోదు చేయండి',
-    'project.categoryPlaceholder': 'ఉదా., మౌలిక సదుపాయాలు, యుటిలిటీలు',
-    'project.enterManagerName': 'నిర్వాహకుడి పేరు నమోదు చేయండి',
-    'project.projectNameRequired': 'ప్రాజెక్ట్ పేరు అవసరం',
-    'project.descriptionRequired': 'వివరణ అవసరం',
-    'project.startDateRequired': 'ప్రారంభ తేదీ అవసరం',
-    'project.endDateRequired': 'ముగింపు తేదీ అవసరం',
-    'project.endDateAfterStart': 'ముగింపు తేదీ ప్రారంభ తేదీ తర్వాత ఉండాలి',
-    'project.validBudgetRequired': 'చెల్లుబాటు అయ్యే బడ్జెట్ మొత్తం అవసరం',
-    'project.categoryRequired': 'వర్గం అవసరం',
-    'project.managerRequired': 'ప్రాజెక్ట్ నిర్వాహకుడు అవసరం',
-    'project.fixFormErrors': 'దయచేసి ఫారమ్ లోపాలను సరిచేయండి',
-    'project.createdSuccessfully': 'ప్రాజెక్ట్ విజయవంతంగా సృష్టించబడింది!',
-    'project.hasBeenAdded': 'సిస్టమ్‌లో జోడించబడింది.',
-    'project.failedToCreate': 'ప్రాజెక్ట్ సృష్టించడంలో విఫలమైంది',
-    'project.tryAgain': 'దయచేసి మళ్లీ ప్రయత్నించండి.',
-    // Upload Modal
-    'upload.uploadDocument': 'పత్రం అప్‌లోడ్ చేయండి',
-    'upload.dragAndDrop': 'మీ ఫైల్‌ను ఇక్కడ లాగండి మరియు వదలండి',
-    'upload.or': 'లేదా',
-    'upload.browseFiles': 'ఫైల్‌లను బ్రౌజ్ చేయండి',
-    'upload.fileUploadedSuccessfully': 'ఫైల్ విజయవంతంగా అప్‌లోడ్ చేయబడింది!',
-    'upload.hasBeenAdded': 'రిపోజిటరీలో జోడించబడింది.',
-    'upload.uploadFailed': 'అప్‌లోడ్ విఫలమైంది',
-    'upload.tryAgain': 'దయచేసి మళ్లీ ప్రయత్నించండి.',
-    // Header
-    'header.english': 'English',
-    'header.hindi': 'हिंदी',
-    'header.telugu': 'తెలుగు',
-    // Sidebar
-    'sidebar.pmisZia': 'PMIS ZIA',
-    'sidebar.programmeManagement': 'ప్రోగ్రామ్ నిర్వహణ',
-    'sidebar.expandSidebar': 'సైడ్‌బార్‌ను విస్తరించండి',
-    'sidebar.collapseSidebar': 'సైడ్‌బార్‌ను కుదించండి',
-    // Login
-    'login.authenticating': 'ప్రామాణీకరిస్తున్నారు...',
-    'login.welcomeBack': 'తిరిగి స్వాగతం,',
-    // Status values
-    'status.planning': 'ప్రణాళిక',
-    'status.inProgress': 'ప్రగతిలో ఉంది',
-    'status.onHold': 'పట్టుకున్నారు',
-    'status.completed': 'పూర్తయింది',
-    'status.cancelled': 'రద్దు చేయబడింది',
-    'status.draft': 'డ్రాఫ్ట్',
-    'status.underReview': 'సమీక్షలో ఉంది',
-    'status.approved': 'అనుమోదించబడింది',
-    'status.rejected': 'తిరస్కరించబడింది',
-    'status.closed': 'మూసివేయబడింది',
-    'status.mitigated': 'తగ్గించబడింది',
-    'status.assessed': 'మదింపు చేయబడింది',
-    'status.notStarted': 'ప్రారంభించబడలేదు',
-    'status.delayed': 'విలంబం',
-    // Priority values
-    'priority.low': 'తక్కువ',
-    'priority.medium': 'మధ్యస్థ',
-    'priority.high': 'ఎక్కువ',
-    'priority.critical': 'క్లిష్టమైన',
-    // Impact values
-    'impact.low': 'తక్కువ',
-    'impact.medium': 'మధ్యస్థ',
-    'impact.high': 'ఎక్కువ',
-    'impact.critical': 'క్లిష్టమైన',
-  },
-};
+/**
+ * LanguageContext - Language management for Google Translate
+ * 
+ * This context manages the selected language and triggers Google Translate.
+ * Includes hardcoded English strings for all UI elements.
+ */
 
 const LanguageContext = createContext(undefined);
 
-export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState((i18n.language) || 'en');
+// All supported languages with their native names (alphabetically sorted)
+export const SUPPORTED_LANGUAGES = [
+  // A
+  { code: 'af', name: 'Afrikaans', native: 'Afrikaans' },
+  { code: 'sq', name: 'Albanian', native: 'Shqip' },
+  { code: 'am', name: 'Amharic', native: 'አማርኛ' },
+  { code: 'ar', name: 'Arabic', native: 'العربية' },
+  { code: 'hy', name: 'Armenian', native: 'Հայերdelays' },
+  { code: 'as', name: 'Assamese', native: 'অসমীয়া' },
+  { code: 'az', name: 'Azerbaijani', native: 'Azərbaycan' },
+  // B
+  { code: 'eu', name: 'Basque', native: 'Euskara' },
+  { code: 'be', name: 'Belarusian', native: 'Беларуская' },
+  { code: 'bs', name: 'Bosnian', native: 'Bosanski' },
+  { code: 'bg', name: 'Bulgarian', native: 'Български' },
+  { code: 'my', name: 'Burmese', native: 'မြန်မာ' },
+  // C
+  { code: 'ca', name: 'Catalan', native: 'Català' },
+  { code: 'ceb', name: 'Cebuano', native: 'Cebuano' },
+  { code: 'zh-CN', name: 'Chinese (Simplified)', native: '简体中文' },
+  { code: 'zh-TW', name: 'Chinese (Traditional)', native: '繁體中文' },
+  { code: 'hr', name: 'Croatian', native: 'Hrvatski' },
+  { code: 'cs', name: 'Czech', native: 'Čeština' },
+  // D
+  { code: 'da', name: 'Danish', native: 'Dansk' },
+  { code: 'nl', name: 'Dutch', native: 'Nederlands' },
+  // E
+  { code: 'et', name: 'Estonian', native: 'Eesti' },
+  // F
+  { code: 'fil', name: 'Filipino', native: 'Filipino' },
+  { code: 'fi', name: 'Finnish', native: 'Suomi' },
+  { code: 'fr', name: 'French', native: 'Français' },
+  // G
+  { code: 'gl', name: 'Galician', native: 'Galego' },
+  { code: 'ka', name: 'Georgian', native: 'ქართული' },
+  { code: 'de', name: 'German', native: 'Deutsch' },
+  { code: 'el', name: 'Greek', native: 'Ελληνικά' },
+  // H
+  { code: 'ht', name: 'Haitian Creole', native: 'Kreyòl Ayisyen' },
+  { code: 'ha', name: 'Hausa', native: 'Hausa' },
+  { code: 'haw', name: 'Hawaiian', native: 'ʻŌlelo Hawaiʻi' },
+  { code: 'iw', name: 'Hebrew', native: 'עברית' },
+  { code: 'hu', name: 'Hungarian', native: 'Magyar' },
+  // I
+  { code: 'is', name: 'Icelandic', native: 'Íslenska' },
+  { code: 'ig', name: 'Igbo', native: 'Igbo' },
+  { code: 'id', name: 'Indonesian', native: 'Bahasa Indonesia' },
+  { code: 'ga', name: 'Irish', native: 'Gaeilge' },
+  { code: 'it', name: 'Italian', native: 'Italiano' },
+  // J
+  { code: 'ja', name: 'Japanese', native: '日本語' },
+  { code: 'jv', name: 'Javanese', native: 'Basa Jawa' },
+  // K
+  { code: 'kk', name: 'Kazakh', native: 'Қазақ' },
+  { code: 'km', name: 'Khmer', native: 'ខ្មែរ' },
+  { code: 'rw', name: 'Kinyarwanda', native: 'Kinyarwanda' },
+  { code: 'ko', name: 'Korean', native: '한국어' },
+  { code: 'ku', name: 'Kurdish', native: 'Kurdî' },
+  { code: 'ky', name: 'Kyrgyz', native: 'Кыргызча' },
+  // L
+  { code: 'lo', name: 'Lao', native: 'ລາວ' },
+  { code: 'la', name: 'Latin', native: 'Latina' },
+  { code: 'lv', name: 'Latvian', native: 'Latviešu' },
+  { code: 'lt', name: 'Lithuanian', native: 'Lietuvių' },
+  { code: 'lb', name: 'Luxembourgish', native: 'Lëtzebuergesch' },
+  // M
+  { code: 'mk', name: 'Macedonian', native: 'Македонски' },
+  { code: 'mg', name: 'Malagasy', native: 'Malagasy' },
+  { code: 'ms', name: 'Malay', native: 'Bahasa Melayu' },
+  { code: 'mt', name: 'Maltese', native: 'Malti' },
+  { code: 'mi', name: 'Maori', native: 'Māori' },
+  { code: 'mn', name: 'Mongolian', native: 'Монгол' },
+  // N
+  { code: 'ne', name: 'Nepali', native: 'नेपाली' },
+  { code: 'no', name: 'Norwegian', native: 'Norsk' },
+  { code: 'ny', name: 'Nyanja', native: 'Chichewa' },
+  // O
+  { code: 'or', name: 'Odia', native: 'ଓଡ଼ିଆ' },
+  // P
+  { code: 'ps', name: 'Pashto', native: 'پښتو' },
+  { code: 'fa', name: 'Persian', native: 'فارسی' },
+  { code: 'pl', name: 'Polish', native: 'Polski' },
+  { code: 'pt', name: 'Portuguese', native: 'Português' },
+  // R
+  { code: 'ro', name: 'Romanian', native: 'Română' },
+  { code: 'ru', name: 'Russian', native: 'Русский' },
+  // S
+  { code: 'sm', name: 'Samoan', native: 'Gagana Samoa' },
+  { code: 'gd', name: 'Scots Gaelic', native: 'Gàidhlig' },
+  { code: 'sr', name: 'Serbian', native: 'Српски' },
+  { code: 'st', name: 'Sesotho', native: 'Sesotho' },
+  { code: 'sn', name: 'Shona', native: 'Shona' },
+  { code: 'sd', name: 'Sindhi', native: 'سنڌي' },
+  { code: 'si', name: 'Sinhala', native: 'සිංහල' },
+  { code: 'sk', name: 'Slovak', native: 'Slovenčina' },
+  { code: 'sl', name: 'Slovenian', native: 'Slovenščina' },
+  { code: 'so', name: 'Somali', native: 'Soomaali' },
+  { code: 'es', name: 'Spanish', native: 'Español' },
+  { code: 'su', name: 'Sundanese', native: 'Basa Sunda' },
+  { code: 'sw', name: 'Swahili', native: 'Kiswahili' },
+  { code: 'sv', name: 'Swedish', native: 'Svenska' },
+  // T
+  { code: 'tg', name: 'Tajik', native: 'Тоҷикӣ' },
+  { code: 'th', name: 'Thai', native: 'ไทย' },
+  { code: 'tr', name: 'Turkish', native: 'Türkçe' },
+  { code: 'tk', name: 'Turkmen', native: 'Türkmen' },
+  // U
+  { code: 'uk', name: 'Ukrainian', native: 'Українська' },
+  { code: 'uz', name: 'Uzbek', native: "O'zbek" },
+  // V
+  { code: 'vi', name: 'Vietnamese', native: 'Tiếng Việt' },
+  // W
+  { code: 'cy', name: 'Welsh', native: 'Cymraeg' },
+  // X
+  { code: 'xh', name: 'Xhosa', native: 'isiXhosa' },
+  // Y
+  { code: 'yi', name: 'Yiddish', native: 'ייִדיש' },
+  { code: 'yo', name: 'Yoruba', native: 'Yorùbá' },
+  // Z
+  { code: 'zu', name: 'Zulu', native: 'isiZulu' },
+];
 
-  // Sync i18next language with our state
+// Hardcoded English strings - Google Translate will translate these
+const STRINGS = {
+  // App
+  'app.title': 'PMIS - Zaheerabad Industrial Area',
+
+  // Common
+  'common.login': 'Login',
+  'common.logout': 'Logout',
+  'common.dashboard': 'Integrated Dashboard',
+  'common.projects': 'Projects',
+  'common.documents': 'Documents',
+  'common.schedule': 'Schedule',
+  'common.cost': 'Cost Management',
+  'common.risk': 'Risk Management',
+  'common.gis': 'GIS & Mapping',
+  'common.bim': '3D Model Viewer',
+  'common.selectRole': 'Select Role',
+  'common.welcome': 'Welcome',
+  'common.language': 'Language',
+  'common.profile': 'Profile',
+  'common.notifications': 'Notifications',
+  'common.search': 'Search',
+  'common.filter': 'Filter',
+  'common.export': 'Export',
+  'common.upload': 'Upload',
+  'common.save': 'Save',
+  'common.cancel': 'Cancel',
+  'common.delete': 'Delete',
+  'common.edit': 'Edit',
+  'common.view': 'View',
+  'common.status': 'Status',
+  'common.progress': 'Progress',
+  'common.budget': 'Budget',
+  'common.spent': 'Spent',
+  'common.remaining': 'Remaining',
+  'common.name': 'Name',
+  'common.date': 'Date',
+  'common.actions': 'Actions',
+  'common.target': 'Target',
+  'common.found': 'found',
+  'common.type': 'Type',
+  'common.category': 'Category',
+  'common.version': 'Version',
+  'common.size': 'Size',
+  'common.uploadedBy': 'Uploaded By',
+  'common.manager': 'Manager',
+  'common.location': 'Location',
+  'common.description': 'Description',
+  'common.startDate': 'Start Date',
+  'common.endDate': 'End Date',
+  'common.assignedTo': 'Assigned To',
+  'common.priority': 'Priority',
+  'common.impact': 'Impact',
+  'common.probability': 'Probability',
+  'common.owner': 'Owner',
+  'common.identified': 'Identified',
+  'common.allStatus': 'All Status',
+  'common.allTypes': 'All Types',
+  'common.allProjects': 'All Projects',
+  'common.project': 'Project',
+  'common.total': 'Total',
+  'common.inProgress': 'In Progress',
+  'common.completed': 'Completed',
+  'common.planning': 'Planning',
+  'common.onHold': 'On Hold',
+  'common.cancelled': 'Cancelled',
+  'common.draft': 'Draft',
+  'common.underReview': 'Under Review',
+  'common.approved': 'Approved',
+  'common.rejected': 'Rejected',
+  'common.closed': 'Closed',
+  'common.mitigated': 'Mitigated',
+  'common.assessed': 'Assessed',
+  'common.low': 'Low',
+  'common.medium': 'Medium',
+  'common.high': 'High',
+  'common.critical': 'Critical',
+  'common.notStarted': 'Not Started',
+  'common.delayed': 'Delayed',
+  'common.creating': 'Creating...',
+  'common.uploading': 'Uploading...',
+  'common.authenticating': 'Authenticating...',
+  'common.comingSoon': 'Coming soon',
+  'common.accessLevel': 'Access Level',
+
+  // Dashboard
+  'dashboard.title': 'Integrated Dashboard',
+  'dashboard.overview': 'Overview',
+  'dashboard.kpis': 'Key Performance Indicators',
+  'dashboard.recentProjects': 'Recent Projects',
+  'dashboard.activeRisks': 'Active Risks',
+  'dashboard.upcomingTasks': 'Upcoming Tasks',
+  'dashboard.searchPlaceholder': 'Search projects, tasks, risks...',
+  'dashboard.createProject': 'Create Project',
+  'dashboard.progress': 'Progress',
+  'dashboard.budgetVsSpent': 'Budget vs Spent (in Crores)',
+  'dashboard.riskDistribution': 'Distribution',
+  'dashboard.projectTimeline': 'Project Timeline',
+  'dashboard.noRisksFound': 'No risks found matching your search.',
+  'dashboard.noActiveRisks': 'No active risks.',
+  'dashboard.noTasksFound': 'No tasks found matching your search.',
+  'dashboard.noUpcomingTasks': 'No upcoming tasks.',
+
+  // Projects
+  'projects.title': 'Projects',
+  'projects.subtitle': 'Manage and track all infrastructure projects',
+  'projects.createProject': 'Create Project',
+  'projects.searchPlaceholder': 'Search projects...',
+  'projects.allStatus': 'All Status',
+  'projects.noProjectsFound': 'No projects found',
+  'projects.adjustFilters': 'Try adjusting your filters to see more results.',
+  'projects.getStarted': 'Get started by creating your first project.',
+  'projects.noProjectsAvailable': 'No projects available at the moment.',
+  'projects.budget': 'Budget',
+  'projects.budgetUtilization': 'Budget Utilization',
+  'projects.totalProjects': 'Total Projects',
+  'projects.totalBudget': 'Total Budget',
+
+  // EDMS
+  'edms.title': 'Documents',
+  'edms.subtitle': 'Electronic Document Management System',
+  'edms.searchPlaceholder': 'Search documents...',
+  'edms.allStatus': 'All Status',
+  'edms.allTypes': 'All Types',
+  'edms.documentRepository': 'Document Repository',
+  'edms.documents': 'documents',
+  'edms.noDocumentsFound': 'No documents found',
+  'edms.adjustFilters': 'Try adjusting your filters to see more results.',
+  'edms.uploadFirst': 'Upload your first document to get started.',
+  'edms.uploadDocument': 'Upload Document',
+
+  // Scheduling
+  'scheduling.title': 'Scheduling',
+  'scheduling.subtitle': 'Project Scheduling and Timeline Tracking',
+  'scheduling.ganttChart': 'Gantt Chart',
+  'scheduling.listView': 'List View',
+  'scheduling.filterByProject': 'Filter by Project:',
+  'scheduling.ganttChartView': 'Gantt Chart View',
+  'scheduling.projectProgress': 'Project Progress',
+
+  // Cost Management
+  'cost.title': 'Cost Management',
+  'cost.subtitle': 'Budget Forecasting and Cost Management',
+  'cost.totalBudget': 'Total Budget',
+  'cost.totalSpent': 'Total Spent',
+  'cost.committed': 'Committed',
+  'cost.remaining': 'Remaining',
+
+  // Risk Management
+  'risk.title': 'Risk Management',
+  'risk.subtitle': 'Risk Register and Mitigation Planning',
+  'risk.totalRisks': 'Total Risks',
+  'risk.activeRisks': 'Active Risks',
+  'risk.highImpact': 'High Impact',
+  'risk.mitigated': 'Mitigated',
+
+  // BIM
+  'bim.title': '3D Model Viewer',
+  'bim.subtitle': '3D Building Information Modeling Viewer',
+  'bim.modelViewer': '3D Model Viewer',
+
+  // GIS
+  'gis.title': 'GIS & Mapping',
+  'gis.subtitle': 'Geographic Information System & Spatial Mapping',
+  'gis.projectLocationsMap': 'Project Locations Map - India',
+
+  // Communications
+  'communications.title': 'Communications',
+  'communications.subtitle': 'Messages and Internal Communications',
+
+  // Procurement
+  'procurement.title': 'Procurement',
+  'procurement.subtitle': 'Tenders and Contract Management',
+
+  // E-Procurement
+  'eprocurement.title': 'E-Procurement',
+  'eprocurement.subtitle': 'Electronic Procurement Portal',
+
+  // Workflow
+  'workflow.title': 'Workflow Configuration',
+  'workflow.subtitle': 'Configure and Manage Approval Workflows',
+
+  // Approvals
+  'approvals.title': 'Approvals',
+  'approvals.subtitle': 'Pending Approvals and Reviews',
+
+  // Reimbursement
+  'reimbursement.title': 'Reimbursement',
+  'reimbursement.subtitle': 'Expense Claims and Reimbursements',
+
+  // RA Billing
+  'billing.title': 'RA Billing',
+  'billing.subtitle': 'Running Account Bills Management',
+
+  // Fund Management
+  'funds.title': 'Fund Management',
+  'funds.subtitle': 'Project Funds Allocation and Tracking',
+
+  // Budgeting
+  'budgeting.title': 'Budgeting',
+  'budgeting.subtitle': 'Budget Planning and Forecasting',
+
+  // BOQ
+  'boq.title': 'BOQ Management',
+  'boq.subtitle': 'Bill of Quantities Management',
+
+  // User Management
+  'users.title': 'User Management',
+  'users.subtitle': 'Manage Users, Roles and Permissions',
+
+  // Role Manager
+  'roles.title': 'Role Manager',
+  'roles.subtitle': 'Configure Roles and Access Control',
+
+  // ETP Master
+  'etp.title': 'ETP Master',
+  'etp.subtitle': 'ETP Configuration and Management',
+
+  // Audit Logs
+  'audit.title': 'Audit Logs',
+  'audit.subtitle': 'System Activity and Change History',
+
+  // Master Data
+  'masterdata.title': 'Master Data',
+  'masterdata.subtitle': 'Manage Reference Data and Configurations',
+
+  // Status values
+  'status.planning': 'Planning',
+  'status.inProgress': 'In Progress',
+  'status.onHold': 'On Hold',
+  'status.completed': 'Completed',
+  'status.cancelled': 'Cancelled',
+  'status.draft': 'Draft',
+  'status.underReview': 'Under Review',
+  'status.approved': 'Approved',
+  'status.rejected': 'Rejected',
+  'status.closed': 'Closed',
+  'status.mitigated': 'Mitigated',
+  'status.assessed': 'Assessed',
+  'status.notStarted': 'Not Started',
+  'status.delayed': 'Delayed',
+
+  // Priority values
+  'priority.low': 'Low',
+  'priority.medium': 'Medium',
+  'priority.high': 'High',
+  'priority.critical': 'Critical',
+
+  // Header
+  'header.english': 'English',
+  'header.hindi': 'हिंदी',
+  'header.telugu': 'తెలుగు',
+
+  // Sidebar
+  'sidebar.pmisZia': 'PMIS ZIA',
+  'sidebar.programmeManagement': 'Programme Management',
+
+  // Login
+  'login.title': 'Programme Management Information System',
+  'login.subtitle': 'Zaheerabad Industrial Area',
+  'login.selectRole': 'Select your role to continue',
+  'login.enter': 'Enter System',
+  'login.authenticating': 'Authenticating...',
+  'login.welcomeBack': 'Welcome back,',
+
+  // Create Project Modal
+  'project.createNewProject': 'Create New Project',
+  'project.projectName': 'Project Name',
+  'project.description': 'Description',
+  'project.startDate': 'Start Date',
+  'project.endDate': 'End Date',
+  'project.budget': 'Budget (₹)',
+  'project.status': 'Status',
+  'project.category': 'Category',
+  'project.projectManager': 'Project Manager',
+
+  // Upload Modal
+  'upload.uploadDocument': 'Upload Document',
+  'upload.dragAndDrop': 'Drag and drop your file here',
+  'upload.or': 'or',
+  'upload.browseFiles': 'Browse Files',
+
+  // Translation
+  'translation.translate': 'Translate',
+  'translation.enterTextToTranslate': 'Enter text to translate',
+  'translation.translationFailed': 'Translation failed',
+};
+
+export const LanguageProvider = ({ children }) => {
+  const [language, setLanguage] = useState('en');
+
+  // Load saved language from localStorage on mount
   useEffect(() => {
-    const handleLanguageChanged = (lng) => {
-      setLanguage((lng) || 'en');
-    };
-    i18n.on('languageChanged', handleLanguageChanged);
-    // Set initial language
-    setLanguage((i18n.language) || 'en');
-    return () => {
-      i18n.off('languageChanged', handleLanguageChanged);
-    };
+    const savedLang = localStorage.getItem('pmis_language');
+    if (savedLang) {
+      setLanguage(savedLang);
+      // Wait for Google Translate to be ready, then trigger translation
+      setTimeout(() => triggerGoogleTranslate(savedLang), 1000);
+    }
   }, []);
 
-  const handleSetLanguage = (lang) => {
-    i18n.changeLanguage(lang);
-    setLanguage(lang);
+  /**
+   * Trigger Google Translate programmatically
+   * Uses multiple fallback methods to ensure translation works
+   */
+  const triggerGoogleTranslate = (langCode) => {
+    // Method 1: Try the combo box (fastest, no reload)
+    const googleSelect = document.querySelector('.goog-te-combo');
+    if (googleSelect) {
+      googleSelect.value = langCode;
+      googleSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+
+    // Method 2: Try to re-initialize Google Translate
+    if (window.google && window.google.translate && window.google.translate.TranslateElement) {
+      try {
+        const element = document.getElementById('google_translate_element');
+        if (element) {
+          new window.google.translate.TranslateElement(
+            { pageLanguage: 'en', autoDisplay: false },
+            'google_translate_element'
+          );
+          // Try combo box again after re-init
+          setTimeout(() => {
+            const combo = document.querySelector('.goog-te-combo');
+            if (combo) {
+              combo.value = langCode;
+              combo.dispatchEvent(new Event('change', { bubbles: true }));
+            } else {
+              // Method 3: Use cookie and reload (last resort)
+              useCookieFallback(langCode);
+            }
+          }, 300);
+          return;
+        }
+      } catch (e) {
+        console.error('Google Translate re-init failed:', e);
+      }
+    }
+
+    // Method 3: Cookie-based approach (requires reload but always works)
+    useCookieFallback(langCode);
   };
 
-  // Use i18next's translation function, fallback to key if not found
-  const t = (key) => {
-    try {
-      // First try i18next if it's ready (preferred method)
-      if (i18n.isInitialized) {
-        const translated = i18n.t(key, { returnObjects: false });
-        // Only use i18next result if it's different from the key
-        if (translated && translated !== key && !translated.includes('[')) {
-          return translated;
-        }
-      }
-      
-      // Fallback to legacy translations (always available)
-      if (translations[language]?.[key]) {
-        return translations[language][key];
-      }
-      
-      // Last resort: return key if nothing found
-      return key;
-    } catch (error) {
-      // Fallback to legacy translations if i18n not ready
-      return translations[language]?.[key] || key;
+  /**
+   * Fallback: Use cookies to set language (requires page reload)
+   */
+  const useCookieFallback = (langCode) => {
+    if (langCode === 'en') {
+      // Reset to English by removing translation cookies
+      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname;
+      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + window.location.hostname;
+    } else {
+      // Set translation cookies
+      const cookieValue = `/en/${langCode}`;
+      document.cookie = `googtrans=${cookieValue}; path=/;`;
+      document.cookie = `googtrans=${cookieValue}; path=/; domain=${window.location.hostname}`;
+      document.cookie = `googtrans=${cookieValue}; path=/; domain=.${window.location.hostname}`;
     }
+    // Reload to apply translation
+    window.location.reload();
+  };
+
+  const handleSetLanguage = (lang) => {
+    setLanguage(lang);
+    localStorage.setItem('pmis_language', lang);
+    // Small delay to ensure state is saved before triggering
+    setTimeout(() => triggerGoogleTranslate(lang), 100);
+  };
+
+  /**
+   * Translation function - returns hardcoded English strings
+   * Google Translate handles the actual translation to other languages
+   */
+  const t = (key) => {
+    return STRINGS[key] || key;
   };
 
   return (
@@ -904,4 +525,3 @@ export const useLanguage = () => {
   }
   return context;
 };
-
