@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Toggle from '@/components/ui/Toggle';
+import Button from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 import userService from '@/api/services/userService';
 import mastersService from '@/api/services/mastersService';
@@ -826,12 +827,13 @@ const MasterDataSection = ({ navigate, onClose }) => {
         <div>
             <div className="flex items-center justify-between mb-4">
                 <SectionHeader title="Master Data" description="View and toggle status of reference data" />
-                <button
+                <Button
                     onClick={goToFullPage}
-                    className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200 flex items-center gap-2"
+                    className="bg-primary-950 hover:bg-primary-900 min-h-[36px]"
+                    size="sm"
                 >
                     <Database size={16} /> Open Master Data Page
-                </button>
+                </Button>
             </div>
 
             {/* All 5 Tabs with unique colors */}
@@ -847,8 +849,8 @@ const MasterDataSection = ({ navigate, onClose }) => {
                                 setIsSearchMode(false);
                             }}
                             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === tab.id && !isSearchMode
-                                    ? `${colors.bg} text-white shadow-lg`
-                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                ? `${colors.bg} text-white shadow-lg`
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                 }`}
                         >
                             <tab.icon size={14} /> {tab.label}
@@ -997,8 +999,8 @@ const MasterDataSection = ({ navigate, onClose }) => {
                                     onClick={confirmStatusChange}
                                     disabled={updating}
                                     className={`flex-1 px-4 py-3 text-sm font-semibold text-white transition-colors flex items-center justify-center gap-2 ${confirmModal.newStatus === 'Active'
-                                            ? 'bg-emerald-600 hover:bg-emerald-700'
-                                            : 'bg-amber-600 hover:bg-amber-700'
+                                        ? 'bg-emerald-600 hover:bg-emerald-700'
+                                        : 'bg-amber-600 hover:bg-amber-700'
                                         } disabled:opacity-50`}
                                 >
                                     {updating ? (

@@ -422,16 +422,65 @@ const STRINGS = {
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState('en');
 
+  /**
+   * Helper to clear all Google Translate cookies
+   * This is critical to stop the "Active Translation" state
+   */
+  const clearGoogleCookies = () => {
+    const domain = window.location.hostname;
+    const pastDate = 'Thu, 01 Jan 1970 00:00:00 UTC';
+
+    // Clear cookie for current domain, root path, and dot-prefixed domain
+    document.cookie = `googtrans=; expires=${pastDate}; path=/;`;
+    document.cookie = `googtrans=; expires=${pastDate}; path=/; domain=${domain}`;
+    document.cookie = `googtrans=; expires=${pastDate}; path=/; domain=.${domain}`;
+  };
+
+  // callback to reset widget
+  const resetWidgetToOriginal = () => {
+    const googleSelect = document.querySelector('.goog-te-combo');
+    if (googleSelect) {
+      googleSelect.value = '';
+      googleSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  };
+
+  // Manage "notranslate" meta tag dynamically
+  // This explicitly tells Google to STOP translating when we are in English
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="google"][content="notranslate"]');
+
+    if (language === 'en') {
+      // Create tag if it doesn't exist
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.name = 'google';
+        meta.content = 'notranslate';
+        document.head.appendChild(meta);
+      }
+    } else {
+      // Remove tag to allow translation
+      if (meta) {
+        meta.remove();
+      }
+    }
+  }, [language]);
+
   // Load saved language from localStorage on mount
   useEffect(() => {
     const savedLang = localStorage.getItem('pmis_language');
-    if (savedLang) {
+
+    if (savedLang && savedLang !== 'en') {
       setLanguage(savedLang);
       // Trigger translation for non-English languages after a delay
-      // to ensure Google Translate widget is loaded
-      if (savedLang !== 'en') {
-        setTimeout(() => triggerGoogleTranslate(savedLang), 1500);
-      }
+      setTimeout(() => triggerGoogleTranslate(savedLang), 1500);
+    } else {
+      // If 'en' or no preference, FORCE cleanup
+      // This ensures we don't start with active translation by accident
+      setLanguage('en');
+      clearGoogleCookies();
+      // Try to reset widget just in case
+      setTimeout(resetWidgetToOriginal, 1000);
     }
   }, []);
 
@@ -441,27 +490,27 @@ export const LanguageProvider = ({ children }) => {
    */
   const triggerGoogleTranslate = (langCode) => {
     const googleSelect = document.querySelector('.goog-te-combo');
+
+    // Method 1: Combo Box (Preferred)
     if (googleSelect) {
       // For English: set to empty string to restore original
       // For other languages: set to language code
       googleSelect.value = langCode === 'en' ? '' : langCode;
       googleSelect.dispatchEvent(new Event('change', { bubbles: true }));
-    } else {
-      // Retry after a delay if combo box not ready yet
+    } else if (langCode !== 'en') {
+      // Retry for non-English if API isn't ready
       setTimeout(() => {
         const retrySelect = document.querySelector('.goog-te-combo');
         if (retrySelect) {
-          retrySelect.value = langCode === 'en' ? '' : langCode;
+          retrySelect.value = langCode;
           retrySelect.dispatchEvent(new Event('change', { bubbles: true }));
         }
       }, 1000);
     }
 
-    // Set cookies for persistence
+    // Method 2: Cookie Management (Persistence)
     if (langCode === 'en') {
-      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname;
-      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + window.location.hostname;
+      clearGoogleCookies();
     } else {
       const cookieValue = `/en/${langCode}`;
       document.cookie = `googtrans=${cookieValue}; path=/;`;
@@ -471,10 +520,20 @@ export const LanguageProvider = ({ children }) => {
   };
 
   const handleSetLanguage = (lang) => {
+    // If switching TO English FROM another language, we MUST reload
+    // This is the only way to completely clear Google's DOM changes
+    if (lang === 'en' && language !== 'en') {
+      clearGoogleCookies();
+      localStorage.setItem('pmis_language', 'en');
+      setLanguage('en');
+      window.location.reload();
+      return;
+    }
+
     setLanguage(lang);
     localStorage.setItem('pmis_language', lang);
 
-    // Trigger the translation
+    // Trigger the translation (or reset)
     setTimeout(() => triggerGoogleTranslate(lang), 100);
   };
 

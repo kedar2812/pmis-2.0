@@ -53,10 +53,24 @@ const GoogleTranslateWidget = () => {
           visibility: hidden !important;
         }
         
-        /* Hide Google branding */
+        /* Hide Google branding & Cleanup UI */
         .goog-te-gadget,
-        .goog-logo-link {
+        .goog-logo-link,
+        .goog-te-gadget-icon,
+        .goog-te-gadget-simple,
+        .VIpgJd-ZVi9od-ORHb-OEVmcd {
           display: none !important;
+        }
+
+        /* Hide the 'Original text' popup - user only wants subtle highlighting */
+        .goog-tooltip,
+        .goog-tooltip:hover,
+        .goog-te-balloon-frame,
+        #goog-gt-tt {
+          display: none !important;
+          visibility: hidden !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
         }
       `;
             document.head.appendChild(style);
