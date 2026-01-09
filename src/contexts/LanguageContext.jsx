@@ -445,27 +445,6 @@ export const LanguageProvider = ({ children }) => {
     }
   };
 
-  // Manage "notranslate" meta tag dynamically
-  // This explicitly tells Google to STOP translating when we are in English
-  useEffect(() => {
-    let meta = document.querySelector('meta[name="google"][content="notranslate"]');
-
-    if (language === 'en') {
-      // Create tag if it doesn't exist
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.name = 'google';
-        meta.content = 'notranslate';
-        document.head.appendChild(meta);
-      }
-    } else {
-      // Remove tag to allow translation
-      if (meta) {
-        meta.remove();
-      }
-    }
-  }, [language]);
-
   // Load saved language from localStorage on mount
   useEffect(() => {
     const savedLang = localStorage.getItem('pmis_language');
