@@ -90,6 +90,7 @@ const mastersService = {
     createContractor: (data) => client.post('/masters/contractors/', data),
     updateContractor: (id, data) => client.patch(`/masters/contractors/${id}/`, data),
     deleteContractor: (id) => client.delete(`/masters/contractors/${id}/`),
+    syncContractorsFromUsers: () => client.post('/masters/contractors/sync_from_users/'),
 
     // ========== Finance Config ==========
     // ETP Charges

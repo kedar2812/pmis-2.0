@@ -59,21 +59,20 @@ const triggerTranslation = (langCode) => {
         }
     }
 
-    // Method 3: Use cookie-based approach (fallback)
+    // Method 3: Set cookies (translation will apply on next page load, NO forced reload)
     if (langCode === 'en') {
         // Reset to English by removing the translation cookie
         document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + window.location.hostname;
-        window.location.reload();
     } else {
         // Set translation cookie
         document.cookie = `googtrans=/en/${langCode}; path=/;`;
         document.cookie = `googtrans=/en/${langCode}; path=/; domain=.${window.location.hostname}`;
-        window.location.reload();
     }
 
     return false;
 };
+
 
 /**
  * LanguageDropdown - Beautiful, modern language selector

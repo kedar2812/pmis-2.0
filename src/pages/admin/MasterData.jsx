@@ -551,6 +551,25 @@ const MasterData = () => {
                     }
                 };
 
+                // Handle sync contractors from EPC Contractor users
+                const handleSyncContractors = async () => {
+                    try {
+                        const response = await mastersService.syncContractorsFromUsers();
+                        const { created, linked, errors } = response.data;
+                        if (created > 0 || linked > 0) {
+                            toast.success(`Synced ${created} new contractors, linked ${linked} existing`);
+                            fetchTabData('entities');
+                        } else if (errors && errors.length > 0) {
+                            toast.error('Some contractors failed to sync');
+                        } else {
+                            toast.info('All EPC Contractor users are already synced');
+                        }
+                    } catch (err) {
+                        console.error('Sync failed:', err);
+                        toast.error('Failed to sync contractors from users');
+                    }
+                };
+
                 const confirmBlacklist = async () => {
                     if (!blacklistModal.contractor) return;
                     setBlacklisting(true);
@@ -571,7 +590,7 @@ const MasterData = () => {
 
                 return (
                     <>
-                        {/* Contractors Table - No Add button, Blacklist action */}
+                        {/* Contractors Table - Sync button, Blacklist action */}
                         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
                             <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -580,9 +599,20 @@ const MasterData = () => {
                                         {data.contractors?.length || 0}
                                     </span>
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-slate-500">
-                                    <AlertCircle size={14} />
-                                    Contractors self-register via public registration
+                                <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                                        <AlertCircle size={14} />
+                                        Contractors self-register via public registration
+                                    </div>
+                                    {canEdit && (
+                                        <button
+                                            onClick={handleSyncContractors}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors"
+                                        >
+                                            <RefreshCw size={14} />
+                                            Sync from Users
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                             <div className="overflow-x-auto">

@@ -19,6 +19,8 @@ const AppLayout = () => {
   const location = useLocation();
   const { isCollapsed } = useSidebar();
 
+
+
   // Track if we're on desktop viewport for responsive layout
   const [isDesktop, setIsDesktop] = useState(
     typeof window !== 'undefined' ? window.innerWidth >= 1024 : true

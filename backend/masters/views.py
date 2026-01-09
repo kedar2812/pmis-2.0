@@ -254,6 +254,81 @@ class ContractorViewSet(BaseMasterViewSet):
         )
         serializer = ContractorListSerializer(contractors, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['post'])
+    def sync_from_users(self, request):
+        """
+        Create Contractor master records for all EPC_Contractor users 
+        who don't have a linked contractor profile.
+        """
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        # Find EPC Contractor users with active status but no linked contractor
+        epc_users = User.objects.filter(
+            role='EPC_Contractor',
+            account_status='ACTIVE',
+            contractor_profile__isnull=True
+        )
+        
+        created_count = 0
+        linked_count = 0
+        errors = []
+        
+        for user in epc_users:
+            try:
+                # Check if a contractor already exists with same PAN
+                if user.pan_number:
+                    existing = Contractor.objects.filter(pan=user.pan_number).first()
+                    if existing:
+                        existing.linked_user = user
+                        existing.save()
+                        linked_count += 1
+                        continue
+                
+                # Generate unique contractor code
+                last_contractor = Contractor.objects.order_by('-created_at').last()
+                if last_contractor and last_contractor.code.startswith('CON-'):
+                    try:
+                        last_num = int(last_contractor.code.split('-')[1])
+                        next_num = last_num + 1
+                    except:
+                        next_num = Contractor.objects.count() + 1
+                else:
+                    next_num = Contractor.objects.count() + 1
+                code = f"CON-{next_num:04d}"
+                
+                # Ensure unique code
+                while Contractor.objects.filter(code=code).exists():
+                    next_num += 1
+                    code = f"CON-{next_num:04d}"
+                
+                # Create contractor record
+                Contractor.objects.create(
+                    code=code,
+                    name=user.company_name or f"{user.first_name} {user.last_name}",
+                    contractor_type='Proprietorship',
+                    registration_class=getattr(user, 'registration_class', '') or '',
+                    pan=user.pan_number or '',
+                    gstin=getattr(user, 'gstin_number', '') or '',
+                    contact_person=f"{user.first_name} {user.last_name}",
+                    email=user.email,
+                    phone=user.phone_number or '',
+                    address=getattr(user, 'full_address', '') or '',
+                    blacklisted=False,
+                    linked_user=user,
+                )
+                created_count += 1
+            except Exception as e:
+                errors.append(f"User {user.email}: {str(e)}")
+        
+        return Response({
+            'message': f'Sync completed. Created {created_count} new contractors, linked {linked_count} existing.',
+            'created': created_count,
+            'linked': linked_count,
+            'total_epc_users': epc_users.count(),
+            'errors': errors if errors else None
+        })
 
 
 class ContractorBankAccountViewSet(BaseMasterViewSet):

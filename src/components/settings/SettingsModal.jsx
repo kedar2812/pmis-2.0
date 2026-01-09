@@ -477,86 +477,542 @@ const RolesPermissionsSection = () => {
 };
 
 // ============ MASTER DATA SECTION ============
+// Tab color configuration for unique colors per master type
+const TAB_COLORS = {
+    hierarchy: { bg: 'bg-emerald-500', hover: 'hover:bg-emerald-600', header: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-600' },
+    geography: { bg: 'bg-blue-500', hover: 'hover:bg-blue-600', header: 'bg-blue-50 border-blue-200', text: 'text-blue-600' },
+    classification: { bg: 'bg-purple-500', hover: 'hover:bg-purple-600', header: 'bg-purple-50 border-purple-200', text: 'text-purple-600' },
+    entities: { bg: 'bg-amber-500', hover: 'hover:bg-amber-600', header: 'bg-amber-50 border-amber-200', text: 'text-amber-600' },
+    etp: { bg: 'bg-rose-500', hover: 'hover:bg-rose-600', header: 'bg-rose-50 border-rose-200', text: 'text-rose-600' },
+};
+
 const MasterDataSection = ({ navigate, onClose }) => {
     const [activeTab, setActiveTab] = useState('hierarchy');
     const [loading, setLoading] = useState(false);
-    const [data, setData] = useState({ zones: [], circles: [], divisions: [], districts: [], towns: [], contractors: [] });
+    const [searchQuery, setSearchQuery] = useState('');
+    const [confirmModal, setConfirmModal] = useState({ open: false, item: null, type: null, newStatus: null });
+    const [updating, setUpdating] = useState(false);
+    const [isSearchMode, setIsSearchMode] = useState(false);
+    const [allDataLoaded, setAllDataLoaded] = useState(false);
+    const [data, setData] = useState({
+        zones: [], circles: [], divisions: [], subdivisions: [],
+        districts: [], towns: [],
+        schemeTypes: [], schemes: [], workTypes: [], projectCategories: [],
+        contractors: [],
+        etpCharges: []
+    });
 
-    useEffect(() => { fetchData(); }, [activeTab]);
+    // Load data for the current tab
+    useEffect(() => {
+        if (!isSearchMode) {
+            fetchTabData(activeTab);
+        }
+    }, [activeTab, isSearchMode]);
 
-    const fetchData = async () => {
+    // When search query changes, load all data for unified search
+    useEffect(() => {
+        if (searchQuery.trim()) {
+            setIsSearchMode(true);
+            if (!allDataLoaded) {
+                fetchAllData();
+            }
+        } else {
+            setIsSearchMode(false);
+        }
+    }, [searchQuery]);
+
+    const fetchTabData = async (tab) => {
         setLoading(true);
         try {
-            switch (activeTab) {
+            switch (tab) {
                 case 'hierarchy':
-                    const [z, c, d] = await Promise.all([mastersService.getZones(), mastersService.getCircles(), mastersService.getDivisions()]);
-                    setData(prev => ({ ...prev, zones: z.data || [], circles: c.data || [], divisions: d.data || [] }));
+                    const [z, c, d, s] = await Promise.all([
+                        mastersService.getZones(), mastersService.getCircles(),
+                        mastersService.getDivisions(), mastersService.getSubDivisions()
+                    ]);
+                    setData(prev => ({ ...prev, zones: z.data || [], circles: c.data || [], divisions: d.data || [], subdivisions: s.data || [] }));
                     break;
                 case 'geography':
                     const [dist, towns] = await Promise.all([mastersService.getDistricts(), mastersService.getTowns()]);
                     setData(prev => ({ ...prev, districts: dist.data || [], towns: towns.data || [] }));
                     break;
+                case 'classification':
+                    const [st, sc, wt, pc] = await Promise.all([
+                        mastersService.getSchemeTypes(), mastersService.getSchemes(),
+                        mastersService.getWorkTypes(), mastersService.getProjectCategories()
+                    ]);
+                    setData(prev => ({ ...prev, schemeTypes: st.data || [], schemes: sc.data || [], workTypes: wt.data || [], projectCategories: pc.data || [] }));
+                    break;
                 case 'entities':
                     const contractors = await mastersService.getContractors();
                     setData(prev => ({ ...prev, contractors: contractors.data || [] }));
+                    break;
+                case 'etp':
+                    const etp = await mastersService.getETPCharges();
+                    setData(prev => ({ ...prev, etpCharges: etp.data || [] }));
                     break;
             }
         } catch (e) { console.error(e); toast.error('Failed to load data'); }
         finally { setLoading(false); }
     };
 
+    // Fetch ALL data for unified search across all master types
+    const fetchAllData = async () => {
+        setLoading(true);
+        try {
+            const [z, c, d, s, dist, towns, st, sc, wt, pc, contractors, etp] = await Promise.all([
+                mastersService.getZones(), mastersService.getCircles(),
+                mastersService.getDivisions(), mastersService.getSubDivisions(),
+                mastersService.getDistricts(), mastersService.getTowns(),
+                mastersService.getSchemeTypes(), mastersService.getSchemes(),
+                mastersService.getWorkTypes(), mastersService.getProjectCategories(),
+                mastersService.getContractors(), mastersService.getETPCharges()
+            ]);
+            setData({
+                zones: z.data || [], circles: c.data || [], divisions: d.data || [], subdivisions: s.data || [],
+                districts: dist.data || [], towns: towns.data || [],
+                schemeTypes: st.data || [], schemes: sc.data || [], workTypes: wt.data || [], projectCategories: pc.data || [],
+                contractors: contractors.data || [],
+                etpCharges: etp.data || []
+            });
+            setAllDataLoaded(true);
+        } catch (e) { console.error(e); toast.error('Failed to load search data'); }
+        finally { setLoading(false); }
+    };
+
     const goToFullPage = () => { onClose(); navigate('/admin/master-data'); };
+
+    // Get service functions for each master type
+    const getUpdateService = (type) => {
+        const serviceMap = {
+            zones: mastersService.updateZone,
+            circles: mastersService.updateCircle,
+            divisions: mastersService.updateDivision,
+            subdivisions: mastersService.updateSubDivision,
+            districts: mastersService.updateDistrict,
+            towns: mastersService.updateTown,
+            schemeTypes: mastersService.updateSchemeType,
+            schemes: mastersService.updateScheme,
+            workTypes: mastersService.updateWorkType,
+            projectCategories: mastersService.updateProjectCategory,
+            contractors: mastersService.updateContractor,
+            etpCharges: mastersService.updateETPCharge,
+        };
+        return serviceMap[type];
+    };
+
+    // Handle toggle click - show confirmation
+    const handleToggleClick = (item, type, currentStatus) => {
+        const isActive = currentStatus === 'Active' || currentStatus === 'ACTIVE' || currentStatus === true;
+        const newStatus = isActive ? 'Inactive' : 'Active';
+        setConfirmModal({ open: true, item: { ...item }, type, newStatus });
+    };
+
+    // Close confirmation modal safely
+    const closeConfirmModal = () => {
+        if (!updating) {
+            setConfirmModal({ open: false, item: null, type: null, newStatus: null });
+        }
+    };
+
+    // Confirm status change - with proper state management to prevent crashes
+    const confirmStatusChange = async () => {
+        const { item, type, newStatus } = confirmModal;
+        if (!item || !type) return;
+
+        setUpdating(true);
+        try {
+            const updateFn = getUpdateService(type);
+            if (!updateFn) throw new Error('Update function not found');
+
+            let payload = { status: newStatus };
+
+            // Handle special cases
+            if (type === 'etpCharges') {
+                payload = { is_active: newStatus === 'Active' };
+            } else if (type === 'contractors') {
+                payload = { blacklisted: newStatus !== 'Active' };
+            }
+
+            await updateFn(item.id, payload);
+
+            // Close modal FIRST before updating data
+            setConfirmModal({ open: false, item: null, type: null, newStatus: null });
+            setUpdating(false);
+
+            // Show success and refresh data AFTER modal is closed
+            toast.success(`${item.name || item.code} is now ${newStatus}`);
+
+            // Delay the data refresh to let the modal animation complete
+            setTimeout(() => {
+                if (isSearchMode) {
+                    fetchAllData();
+                } else {
+                    fetchTabData(activeTab);
+                }
+            }, 100);
+
+        } catch (error) {
+            console.error('Status update failed:', error);
+            toast.error(error.response?.data?.detail || 'Failed to update status');
+            setUpdating(false);
+        }
+    };
+
+    // Get item status helper
+    const getItemStatus = (item, type) => {
+        if (type === 'etpCharges') return item.is_active !== false;
+        if (type === 'contractors') return !item.blacklisted;
+        return item.status === 'Active' || item.status === 'ACTIVE' || item.status === undefined;
+    };
+
+    // Filter items by search query
+    const filterItems = (items) => {
+        if (!searchQuery.trim()) return items;
+        const query = searchQuery.toLowerCase();
+        return items.filter(item =>
+            (item.name || '').toLowerCase().includes(query) ||
+            (item.code || '').toLowerCase().includes(query)
+        );
+    };
+
+    // Check if any items match search in a category
+    const hasSearchResults = (items) => filterItems(items).length > 0;
+
+    // Column component for master data with color support
+    const MasterColumn = ({ title, items, type, icon: Icon, colorClass }) => {
+        const filtered = filterItems(items);
+        if (isSearchMode && filtered.length === 0) return null;
+
+        return (
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="flex-1 min-w-[180px]"
+            >
+                <div className={`flex items-center gap-2 px-3 py-2 rounded-t-lg border ${colorClass || 'bg-slate-100 border-slate-200'}`}>
+                    {Icon && <Icon size={14} className="text-slate-600" />}
+                    <span className="text-sm font-semibold text-slate-700">{title}</span>
+                    <span className="text-xs text-slate-500 bg-white/80 px-1.5 py-0.5 rounded-full">{filtered.length}</span>
+                </div>
+                <div className="border border-t-0 border-slate-200 rounded-b-lg bg-white max-h-64 overflow-y-auto">
+                    {filtered.length === 0 ? (
+                        <div className="px-3 py-4 text-center text-sm text-slate-400">No entries</div>
+                    ) : (
+                        <div className="divide-y divide-slate-100">
+                            {filtered.map((item, idx) => {
+                                const isActive = getItemStatus(item, type);
+                                return (
+                                    <div key={item.id || idx} className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 transition-colors">
+                                        <span className={`text-sm ${isActive ? 'text-slate-700' : 'text-slate-400 line-through'}`}>
+                                            {item.name || item.code}
+                                        </span>
+                                        <Toggle
+                                            size="sm"
+                                            checked={isActive}
+                                            onChange={() => handleToggleClick(item, type, isActive ? 'Active' : 'Inactive')}
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            </motion.div>
+        );
+    };
+
+    // Search results view showing all matching results across all master types
+    const SearchResultsView = () => {
+        const hierarchyResults = hasSearchResults(data.zones) || hasSearchResults(data.circles) ||
+            hasSearchResults(data.divisions) || hasSearchResults(data.subdivisions);
+        const geographyResults = hasSearchResults(data.districts) || hasSearchResults(data.towns);
+        const classificationResults = hasSearchResults(data.schemeTypes) || hasSearchResults(data.schemes) ||
+            hasSearchResults(data.workTypes) || hasSearchResults(data.projectCategories);
+        const contractorResults = hasSearchResults(data.contractors);
+        const etpResults = hasSearchResults(data.etpCharges);
+
+        const hasAnyResults = hierarchyResults || geographyResults || classificationResults || contractorResults || etpResults;
+
+        if (!hasAnyResults) {
+            return (
+                <div className="py-12 text-center">
+                    <Search size={48} className="mx-auto text-slate-300 mb-4" />
+                    <p className="text-slate-500">No results found for "{searchQuery}"</p>
+                </div>
+            );
+        }
+
+        return (
+            <div className="space-y-6">
+                {/* Hierarchy Results */}
+                {hierarchyResults && (
+                    <div>
+                        <div className="flex items-center gap-2 mb-3">
+                            <Building2 size={16} className="text-emerald-600" />
+                            <span className="font-semibold text-slate-700">Hierarchy</span>
+                        </div>
+                        <div className="flex gap-4 flex-wrap">
+                            <MasterColumn title="Zones" items={data.zones} type="zones" icon={Building2} colorClass={TAB_COLORS.hierarchy.header} />
+                            <MasterColumn title="Circles" items={data.circles} type="circles" icon={Building2} colorClass={TAB_COLORS.hierarchy.header} />
+                            <MasterColumn title="Divisions" items={data.divisions} type="divisions" icon={Building2} colorClass={TAB_COLORS.hierarchy.header} />
+                            <MasterColumn title="Sub-Divisions" items={data.subdivisions} type="subdivisions" icon={Building2} colorClass={TAB_COLORS.hierarchy.header} />
+                        </div>
+                    </div>
+                )}
+
+                {/* Geography Results */}
+                {geographyResults && (
+                    <div>
+                        <div className="flex items-center gap-2 mb-3">
+                            <MapPin size={16} className="text-blue-600" />
+                            <span className="font-semibold text-slate-700">Geography</span>
+                        </div>
+                        <div className="flex gap-4 flex-wrap">
+                            <MasterColumn title="Districts" items={data.districts} type="districts" icon={MapPin} colorClass={TAB_COLORS.geography.header} />
+                            <MasterColumn title="Towns" items={data.towns} type="towns" icon={MapPin} colorClass={TAB_COLORS.geography.header} />
+                        </div>
+                    </div>
+                )}
+
+                {/* Classification Results */}
+                {classificationResults && (
+                    <div>
+                        <div className="flex items-center gap-2 mb-3">
+                            <FileText size={16} className="text-purple-600" />
+                            <span className="font-semibold text-slate-700">Classification</span>
+                        </div>
+                        <div className="flex gap-4 flex-wrap">
+                            <MasterColumn title="Scheme Types" items={data.schemeTypes} type="schemeTypes" icon={FileText} colorClass={TAB_COLORS.classification.header} />
+                            <MasterColumn title="Schemes" items={data.schemes} type="schemes" icon={FileText} colorClass={TAB_COLORS.classification.header} />
+                            <MasterColumn title="Work Types" items={data.workTypes} type="workTypes" icon={FileText} colorClass={TAB_COLORS.classification.header} />
+                            <MasterColumn title="Categories" items={data.projectCategories} type="projectCategories" icon={FileText} colorClass={TAB_COLORS.classification.header} />
+                        </div>
+                    </div>
+                )}
+
+                {/* Contractor Results */}
+                {contractorResults && (
+                    <div>
+                        <div className="flex items-center gap-2 mb-3">
+                            <Users size={16} className="text-amber-600" />
+                            <span className="font-semibold text-slate-700">Contractors</span>
+                        </div>
+                        <div className="flex gap-4 flex-wrap">
+                            <MasterColumn title="Contractors" items={data.contractors} type="contractors" icon={Users} colorClass={TAB_COLORS.entities.header} />
+                        </div>
+                    </div>
+                )}
+
+                {/* ETP Results */}
+                {etpResults && (
+                    <div>
+                        <div className="flex items-center gap-2 mb-3">
+                            <Calculator size={16} className="text-rose-600" />
+                            <span className="font-semibold text-slate-700">ETP Charges</span>
+                        </div>
+                        <div className="flex gap-4 flex-wrap">
+                            <MasterColumn title="ETP Charges" items={data.etpCharges} type="etpCharges" icon={Calculator} colorClass={TAB_COLORS.etp.header} />
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-6">
-                <SectionHeader title="Master Data" description="View and manage reference data" />
-                <button onClick={goToFullPage} className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600">Open Full Page</button>
+            <div className="flex items-center justify-between mb-4">
+                <SectionHeader title="Master Data" description="View and toggle status of reference data" />
+                <button
+                    onClick={goToFullPage}
+                    className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200 flex items-center gap-2"
+                >
+                    <Database size={16} /> Open Master Data Page
+                </button>
             </div>
-            <div className="flex gap-2 mb-4">
-                {MASTER_TABS.slice(0, 3).map(tab => (
-                    <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium ${activeTab === tab.id ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
-                        <tab.icon size={16} /> {tab.label}
+
+            {/* All 5 Tabs with unique colors */}
+            <div className="flex flex-wrap gap-2 mb-4">
+                {MASTER_TABS.map(tab => {
+                    const colors = TAB_COLORS[tab.id];
+                    return (
+                        <button
+                            key={tab.id}
+                            onClick={() => {
+                                setActiveTab(tab.id);
+                                setSearchQuery('');
+                                setIsSearchMode(false);
+                            }}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === tab.id && !isSearchMode
+                                    ? `${colors.bg} text-white shadow-lg`
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                }`}
+                        >
+                            <tab.icon size={14} /> {tab.label}
+                        </button>
+                    );
+                })}
+            </div>
+
+            {/* Search */}
+            <div className="relative mb-4">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                    type="text"
+                    placeholder="Search across all master data..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                />
+                {searchQuery && (
+                    <button
+                        onClick={() => { setSearchQuery(''); setIsSearchMode(false); }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 rounded-full"
+                    >
+                        <X size={14} className="text-slate-400" />
                     </button>
-                ))}
-            </div>
-            <SettingsCard>
-                {loading ? <LoadingSpinner /> : (
-                    <div className="overflow-x-auto">
-                        {activeTab === 'hierarchy' && (
-                            <table className="w-full text-sm">
-                                <thead><tr className="border-b"><th className="text-left py-2 px-3">Zones</th><th className="text-left py-2 px-3">Circles</th><th className="text-left py-2 px-3">Divisions</th></tr></thead>
-                                <tbody>
-                                    <tr>
-                                        <td className="py-2 px-3 align-top"><ul className="space-y-1">{data.zones.map(z => <li key={z.id} className="text-slate-700">{z.name}</li>)}</ul></td>
-                                        <td className="py-2 px-3 align-top"><ul className="space-y-1">{data.circles.map(c => <li key={c.id} className="text-slate-700">{c.name}</li>)}</ul></td>
-                                        <td className="py-2 px-3 align-top"><ul className="space-y-1">{data.divisions.map(d => <li key={d.id} className="text-slate-700">{d.name}</li>)}</ul></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        )}
-                        {activeTab === 'geography' && (
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <h5 className="font-medium mb-2">Districts ({data.districts.length})</h5>
-                                    <ul className="space-y-1 text-sm">{data.districts.slice(0, 10).map(d => <li key={d.id}>{d.name}</li>)}</ul>
-                                </div>
-                                <div>
-                                    <h5 className="font-medium mb-2">Towns ({data.towns.length})</h5>
-                                    <ul className="space-y-1 text-sm">{data.towns.slice(0, 10).map(t => <li key={t.id}>{t.name}</li>)}</ul>
-                                </div>
-                            </div>
-                        )}
-                        {activeTab === 'entities' && (
-                            <div>
-                                <h5 className="font-medium mb-2">Contractors ({data.contractors.length})</h5>
-                                <ul className="space-y-1 text-sm">{data.contractors.slice(0, 10).map(c => <li key={c.id} className="flex items-center justify-between"><span>{c.name}</span><span className={`px-2 py-0.5 rounded text-xs ${c.blacklisted ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>{c.blacklisted ? 'Blacklisted' : 'Active'}</span></li>)}</ul>
-                            </div>
-                        )}
-                    </div>
                 )}
-            </SettingsCard>
+            </div>
+
+            {/* Tab Content with Animation */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-4">
+                {loading ? <LoadingSpinner /> : (
+                    <AnimatePresence mode="wait">
+                        {isSearchMode ? (
+                            <motion.div
+                                key="search-results"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <SearchResultsView />
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key={activeTab}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-x-auto"
+                            >
+                                {activeTab === 'hierarchy' && (
+                                    <div className="flex gap-4">
+                                        <MasterColumn title="Zones" items={data.zones} type="zones" icon={Building2} colorClass={TAB_COLORS.hierarchy.header} />
+                                        <MasterColumn title="Circles" items={data.circles} type="circles" icon={Building2} colorClass={TAB_COLORS.hierarchy.header} />
+                                        <MasterColumn title="Divisions" items={data.divisions} type="divisions" icon={Building2} colorClass={TAB_COLORS.hierarchy.header} />
+                                        <MasterColumn title="Sub-Divisions" items={data.subdivisions} type="subdivisions" icon={Building2} colorClass={TAB_COLORS.hierarchy.header} />
+                                    </div>
+                                )}
+
+                                {activeTab === 'geography' && (
+                                    <div className="flex gap-4">
+                                        <MasterColumn title="Districts" items={data.districts} type="districts" icon={MapPin} colorClass={TAB_COLORS.geography.header} />
+                                        <MasterColumn title="Towns/Cities" items={data.towns} type="towns" icon={MapPin} colorClass={TAB_COLORS.geography.header} />
+                                    </div>
+                                )}
+
+                                {activeTab === 'classification' && (
+                                    <div className="flex gap-4">
+                                        <MasterColumn title="Scheme Types" items={data.schemeTypes} type="schemeTypes" icon={FileText} colorClass={TAB_COLORS.classification.header} />
+                                        <MasterColumn title="Schemes" items={data.schemes} type="schemes" icon={FileText} colorClass={TAB_COLORS.classification.header} />
+                                        <MasterColumn title="Work Types" items={data.workTypes} type="workTypes" icon={FileText} colorClass={TAB_COLORS.classification.header} />
+                                        <MasterColumn title="Categories" items={data.projectCategories} type="projectCategories" icon={FileText} colorClass={TAB_COLORS.classification.header} />
+                                    </div>
+                                )}
+
+                                {activeTab === 'entities' && (
+                                    <div className="flex gap-4">
+                                        <MasterColumn title="Contractors" items={data.contractors} type="contractors" icon={Users} colorClass={TAB_COLORS.entities.header} />
+                                    </div>
+                                )}
+
+                                {activeTab === 'etp' && (
+                                    <div className="flex gap-4">
+                                        <MasterColumn title="ETP Charges" items={data.etpCharges} type="etpCharges" icon={Calculator} colorClass={TAB_COLORS.etp.header} />
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                )}
+            </div>
+
+            {/* Confirmation Modal - Rendered via Portal to prevent DOM issues */}
+            {confirmModal.open && createPortal(
+                <AnimatePresence>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm"
+                        onClick={closeConfirmModal}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="p-6 text-center">
+                                <div className={`w-14 h-14 mx-auto mb-4 rounded-full flex items-center justify-center ${confirmModal.newStatus === 'Active' ? 'bg-emerald-100' : 'bg-amber-100'
+                                    }`}>
+                                    {confirmModal.newStatus === 'Active' ? (
+                                        <Check size={28} className="text-emerald-600" />
+                                    ) : (
+                                        <XCircle size={28} className="text-amber-600" />
+                                    )}
+                                </div>
+                                <h3 className="text-lg font-bold text-slate-800 mb-2">
+                                    Confirm Status Change
+                                </h3>
+                                <p className="text-sm text-slate-600 mb-1">
+                                    Are you sure you want to set
+                                </p>
+                                <p className="text-base font-semibold text-slate-900 mb-1">
+                                    "{confirmModal.item?.name || confirmModal.item?.code}"
+                                </p>
+                                <p className="text-sm text-slate-600">
+                                    to <span className={`font-semibold ${confirmModal.newStatus === 'Active' ? 'text-emerald-600' : 'text-amber-600'
+                                        }`}>{confirmModal.newStatus}</span>?
+                                </p>
+                                <p className="text-xs text-slate-400 mt-3">
+                                    This change will sync across the entire website.
+                                </p>
+                            </div>
+                            <div className="flex border-t border-slate-200">
+                                <button
+                                    onClick={closeConfirmModal}
+                                    disabled={updating}
+                                    className="flex-1 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={confirmStatusChange}
+                                    disabled={updating}
+                                    className={`flex-1 px-4 py-3 text-sm font-semibold text-white transition-colors flex items-center justify-center gap-2 ${confirmModal.newStatus === 'Active'
+                                            ? 'bg-emerald-600 hover:bg-emerald-700'
+                                            : 'bg-amber-600 hover:bg-amber-700'
+                                        } disabled:opacity-50`}
+                                >
+                                    {updating ? (
+                                        <><RefreshCw size={14} className="animate-spin" /> Updating...</>
+                                    ) : (
+                                        <>Confirm</>
+                                    )}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                </AnimatePresence>,
+                document.body
+            )}
         </div>
     );
 };

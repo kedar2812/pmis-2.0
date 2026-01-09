@@ -427,18 +427,17 @@ export const LanguageProvider = ({ children }) => {
     const savedLang = localStorage.getItem('pmis_language');
     if (savedLang) {
       setLanguage(savedLang);
-      // Only trigger translation for non-English languages
-      // English is the default - page already shows original English, no action needed
+      // Trigger translation for non-English languages after a delay
+      // to ensure Google Translate widget is loaded
       if (savedLang !== 'en') {
-        setTimeout(() => triggerGoogleTranslate(savedLang), 1000);
+        setTimeout(() => triggerGoogleTranslate(savedLang), 1500);
       }
     }
   }, []);
 
   /**
-   * Trigger Google Translate programmatically
-   * Uses combo box only - NO page reloads
-   * Empty string ('') restores original English
+   * Trigger Google Translate programmatically via the hidden combo box
+   * This provides seamless in-page translation
    */
   const triggerGoogleTranslate = (langCode) => {
     const googleSelect = document.querySelector('.goog-te-combo');
@@ -447,8 +446,18 @@ export const LanguageProvider = ({ children }) => {
       // For other languages: set to language code
       googleSelect.value = langCode === 'en' ? '' : langCode;
       googleSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    } else {
+      // Retry after a delay if combo box not ready yet
+      setTimeout(() => {
+        const retrySelect = document.querySelector('.goog-te-combo');
+        if (retrySelect) {
+          retrySelect.value = langCode === 'en' ? '' : langCode;
+          retrySelect.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }, 1000);
     }
-    // If combo box not available, just update cookies for next page load (no reload now)
+
+    // Set cookies for persistence
     if (langCode === 'en') {
       document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname;
@@ -464,7 +473,8 @@ export const LanguageProvider = ({ children }) => {
   const handleSetLanguage = (lang) => {
     setLanguage(lang);
     localStorage.setItem('pmis_language', lang);
-    // Small delay to ensure state is saved before triggering
+
+    // Trigger the translation
     setTimeout(() => triggerGoogleTranslate(lang), 100);
   };
 
