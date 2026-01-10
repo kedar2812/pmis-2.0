@@ -5,7 +5,7 @@ from .models import (
     SchemeType, Scheme, WorkType, ProjectCategory,
     Contractor, ContractorBankAccount,
     ETPMaster,
-)
+    Country, State, LocationDistrict, City)
 
 
 # Hierarchy Serializers
@@ -166,3 +166,67 @@ class TownNestedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Town
         fields = ['id', 'code', 'name', 'classification']
+
+# ========== Location Serializers (Country -> State -> City) ==========
+
+class CountrySerializer(serializers.ModelSerializer):
+    """Serializer for Country model"""
+    class Meta:
+        model = Country
+        fields = ['id', 'name', 'code', 'dial_code', 'is_active']
+        read_only_fields = ['id']
+
+
+class StateNestedSerializer(serializers.ModelSerializer):
+    """Nested serializer for State (used in cascading dropdowns)"""
+    class Meta:
+        model = State
+        fields = ['id', 'name', 'code']
+
+
+class StateSerializer(serializers.ModelSerializer):
+    """Full serializer for State model"""
+    country_name = serializers.CharField(source='country.name', read_only=True)
+    
+    class Meta:
+        model = State
+        fields = ['id', 'country', 'country_name', 'name', 'code', 'is_active']
+        read_only_fields = ['id']
+
+
+
+class LocationDistrictNestedSerializer(serializers.ModelSerializer):
+    """Nested serializer for LocationDistrict (used in cascading dropdowns)"""
+    class Meta:
+        model = LocationDistrict
+        fields = ['id', 'name', 'code']
+
+
+class LocationDistrictSerializer(serializers.ModelSerializer):
+    """Full serializer for LocationDistrict model"""
+    state_name = serializers.CharField(source='state.name', read_only=True)
+    country_name = serializers.CharField(source='state.country.name', read_only=True)
+
+    class Meta:
+        model = LocationDistrict
+        fields = ['id', 'state', 'state_name', 'country_name', 'name', 'code', 'is_active']
+        read_only_fields = ['id']
+
+
+class CityNestedSerializer(serializers.ModelSerializer):
+    """Nested serializer for City (used in cascading dropdowns)"""
+    class Meta:
+        model = City
+        fields = ['id', 'name', 'code']
+
+
+class CitySerializer(serializers.ModelSerializer):
+    """Full serializer for City model"""
+    district_name = serializers.CharField(source='district.name', read_only=True)
+    state_name = serializers.CharField(source='district.state.name', read_only=True)
+    country_name = serializers.CharField(source='district.state.country.name', read_only=True)
+    
+    class Meta:
+        model = City
+        fields = ['id', 'district', 'district_name', 'state_name', 'country_name', 'name', 'code', 'is_active']
+        read_only_fields = ['id']

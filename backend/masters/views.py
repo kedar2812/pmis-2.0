@@ -11,6 +11,8 @@ from .models import (
     SchemeType, Scheme, WorkType, ProjectCategory,
     Contractor, ContractorBankAccount,
     ETPMaster,
+    ETPMaster,
+    Country, State, LocationDistrict, City,
 )
 from .serializers import (
     ZoneSerializer, CircleSerializer, DivisionSerializer, SubDivisionSerializer,
@@ -19,6 +21,9 @@ from .serializers import (
     ContractorSerializer, ContractorListSerializer, ContractorBankAccountSerializer,
     ETPMasterSerializer,
     CircleNestedSerializer, DivisionNestedSerializer, SubDivisionNestedSerializer, TownNestedSerializer,
+    CountrySerializer, StateSerializer, CitySerializer,
+    CountrySerializer, StateSerializer, CitySerializer,
+    StateNestedSerializer, CityNestedSerializer, LocationDistrictSerializer, LocationDistrictNestedSerializer,
 )
 
 
@@ -366,3 +371,83 @@ class ETPMasterViewSet(BaseMasterViewSet):
         charges = ETPMaster.get_active_charges(charge_type='Recovery')
         serializer = self.get_serializer(charges, many=True)
         return Response(serializer.data)
+
+# ========== Location ViewSets (Country -> State -> City) ==========
+
+class CountryViewSet(BaseMasterViewSet):
+    """
+    Country master data ViewSet
+    Currently returns India only, expandable to more countries
+    Uses AllowAny for read operations (needed for contractor registration)
+    """
+    permission_classes = [permissions.AllowAny]
+    queryset = Country.objects.filter(is_active=True)
+    serializer_class = CountrySerializer
+    search_fields = ['name', 'code']
+    ordering_fields = ['name']
+    
+    @action(detail=True, methods=['get'])
+    def states(self, request, pk=None):
+        """Get all states for this country"""
+        country = self.get_object()
+        states = country.states.filter(is_active=True)
+        serializer = StateNestedSerializer(states, many=True)
+        return Response(serializer.data)
+
+
+class StateViewSet(BaseMasterViewSet):
+    """
+    State/Province master data ViewSet
+    Filterable by country for cascading dropdowns
+    Uses AllowAny for read operations (needed for contractor registration)
+    """
+    permission_classes = [permissions.AllowAny]
+    queryset = State.objects.select_related('country').filter(is_active=True)
+    serializer_class = StateSerializer
+    filterset_fields = ['country']
+    search_fields = ['name', 'code']
+    ordering_fields = ['name']
+    
+    @action(detail=True, methods=['get'])
+    def districts(self, request, pk=None):
+        """Get all districts for this state"""
+        state = self.get_object()
+        districts = state.location_districts.filter(is_active=True)
+        serializer = LocationDistrictNestedSerializer(districts, many=True)
+        return Response(serializer.data)
+
+
+class LocationDistrictViewSet(BaseMasterViewSet):
+    """
+    District master data ViewSet (between State and City)
+    Filterable by state for cascading dropdowns
+    Uses AllowAny for read operations (needed for contractor registration)
+    """
+    permission_classes = [permissions.AllowAny]
+    queryset = LocationDistrict.objects.select_related('state', 'state__country').filter(is_active=True)
+    serializer_class = LocationDistrictSerializer
+    filterset_fields = ['state']
+    search_fields = ['name', 'code']
+    ordering_fields = ['name']
+    
+    @action(detail=True, methods=['get'])
+    def cities(self, request, pk=None):
+        """Get all cities for this district"""
+        district = self.get_object()
+        cities = district.cities.filter(is_active=True)
+        serializer = CityNestedSerializer(cities, many=True)
+        return Response(serializer.data)
+
+
+class CityViewSet(BaseMasterViewSet):
+    """
+    City master data ViewSet
+    Filterable by district (was state) for cascading dropdowns
+    Uses AllowAny for read operations (needed for contractor registration)
+    """
+    permission_classes = [permissions.AllowAny]
+    queryset = City.objects.select_related('district', 'district__state', 'district__state__country').filter(is_active=True)
+    serializer_class = CitySerializer
+    filterset_fields = ['district']
+    search_fields = ['name', 'code']
+    ordering_fields = ['name']
