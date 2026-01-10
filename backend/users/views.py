@@ -77,6 +77,38 @@ class UserListView(ListAPIView):
         return queryset
 
 
+class EligibleManagersListView(ListAPIView):
+    """
+    List users eligible to be assigned as Project Managers.
+    
+    Eligible roles:
+    - SPV_Official: State Project Vehicle officials
+    - PMNC_Team: Project Management & Coordination Team
+    - GOVT_DEPARTMENT: Government Department representatives  
+    - NICDC_HQ: NICDC Headquarters staff
+    
+    Only ACTIVE users are returned for assignment.
+    """
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
+    
+    # Define eligible roles for project management
+    ELIGIBLE_ROLES = [
+        'SPV_Official',
+        'PMNC_Team', 
+        'GOVT_DEPARTMENT',
+        'NICDC_HQ'
+    ]
+    
+    def get_queryset(self):
+        return User.objects.filter(
+            role__in=self.ELIGIBLE_ROLES,
+            account_status=User.AccountStatus.ACTIVE,
+            is_active=True
+        ).order_by('first_name', 'last_name')
+
+
 class UserDetailView(RetrieveUpdateAPIView):
     """Get/Update user details (Admin only)."""
     queryset = User.objects.all()

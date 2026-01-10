@@ -166,7 +166,16 @@ const UnifiedDashboard = () => {
         earned_value: { cpi: 1.0, spi: 1.0 },
         cash_flow: [],
         recent_activity: [],
-        top_projects: []
+        top_projects: [],
+        // New progress tracking data
+        portfolio_progress: {
+            physical_progress: 0,
+            financial_progress: 0,
+            earned_value: 0,
+            schedule_variance: 0,
+            active_projects: 0
+        },
+        progress_state_counts: { claimed: 0, verified: 0, flagged: 0 }
     };
 
     useEffect(() => {
@@ -227,6 +236,16 @@ const UnifiedDashboard = () => {
     const recentActivity = stats?.recent_activity || [];
     const topProjects = stats?.top_projects || [];
 
+    // NEW: Aggregated Progress from computed backend values
+    const portfolioProgress = stats?.portfolio_progress || {
+        physical_progress: 0,
+        financial_progress: 0,
+        earned_value: 0,
+        schedule_variance: 0,
+        active_projects: 0
+    };
+    const progressStateCounts = stats?.progress_state_counts || { claimed: 0, verified: 0, flagged: 0 };
+
     // Chart data
     const financialChartData = projects.slice(0, 8).map(p => ({
         name: (p.name || 'Project').substring(0, 12),
@@ -240,13 +259,13 @@ const UnifiedDashboard = () => {
         outflow: c.outflow,
     }));
 
-    // Calculate KPIs
-    const physicalProgress = projects.length > 0
-        ? Math.round(projects.reduce((sum, p) => sum + (Number(p.progress) || 0), 0) / projects.length)
-        : 0;
-    const financialProgress = financialSummary.utilization
-        ? Math.round(financialSummary.utilization)
-        : 0;
+    // KPIs from computed backend values (not calculated client-side)
+    // These are now aggregated from task-level progress data
+    const physicalProgress = Math.round(portfolioProgress.physical_progress || 0);
+    const financialProgress = Math.round(portfolioProgress.financial_progress || 0);
+    const portfolioEarnedValue = portfolioProgress.earned_value || 0;
+    const scheduleVariance = portfolioProgress.schedule_variance || 0;
+    const flaggedProjects = progressStateCounts.flagged || 0;
 
     const greeting = () => {
         const hour = new Date().getHours();

@@ -77,7 +77,31 @@ const GoogleTranslateWidget = () => {
         }
 
         // ========================================
-        // STEP 2: INITIALIZE GOOGLE TRANSLATE
+        // STEP 2: CLEAR ANY EXISTING TRANSLATION COOKIES IF LANGUAGE IS ENGLISH
+        // ========================================
+
+        const savedLang = localStorage.getItem('pmis_language');
+        const isEnglish = !savedLang || savedLang === 'en';
+
+        if (isEnglish) {
+            // Aggressively clear Google Translate cookies
+            const domain = window.location.hostname;
+            const pastDate = 'Thu, 01 Jan 1970 00:00:00 UTC';
+            document.cookie = `googtrans=; expires=${pastDate}; path=/;`;
+            document.cookie = `googtrans=; expires=${pastDate}; path=/; domain=${domain}`;
+            document.cookie = `googtrans=; expires=${pastDate}; path=/; domain=.${domain}`;
+
+            // Also clear from all subdomains
+            const parts = domain.split('.');
+            while (parts.length > 1) {
+                const d = parts.join('.');
+                document.cookie = `googtrans=; expires=${pastDate}; path=/; domain=.${d}`;
+                parts.shift();
+            }
+        }
+
+        // ========================================
+        // STEP 3: INITIALIZE GOOGLE TRANSLATE
         // ========================================
 
         window.googleTranslateElementInit = () => {
@@ -91,6 +115,17 @@ const GoogleTranslateWidget = () => {
                         },
                         'google_translate_element'
                     );
+
+                    // If English, immediately reset the widget
+                    if (isEnglish) {
+                        setTimeout(() => {
+                            const googleSelect = document.querySelector('.goog-te-combo');
+                            if (googleSelect) {
+                                googleSelect.value = '';
+                                googleSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                            }
+                        }, 500);
+                    }
                 }
             } catch (err) {
                 console.error("Google Translate Init Error:", err);

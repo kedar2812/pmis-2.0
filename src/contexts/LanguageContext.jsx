@@ -5,7 +5,24 @@ import { createContext, useContext, useState, useEffect } from 'react';
  * 
  * This context manages the selected language and triggers Google Translate.
  * Includes hardcoded English strings for all UI elements.
+ * 
+ * Note: Google Translate modifies the DOM directly which can conflict with React's
+ * virtual DOM reconciliation. We add a workaround to suppress these errors.
  */
+
+// Patch to prevent "removeChild" errors from Google Translate DOM manipulation
+if (typeof window !== 'undefined') {
+  const originalRemoveChild = Node.prototype.removeChild;
+  Node.prototype.removeChild = function (child) {
+    if (child.parentNode !== this) {
+      if (console.warn) {
+        console.warn('Google Translate DOM conflict: Cannot remove child from parent');
+      }
+      return child;
+    }
+    return originalRemoveChild.apply(this, arguments);
+  };
+}
 
 const LanguageContext = createContext(undefined);
 

@@ -34,6 +34,9 @@ const userService = {
     // Get user by role
     getUsersByRole: (role) => client.get('/users/', { params: { role } }),
 
+    // Get users eligible to be project managers (RBAC-based)
+    getEligibleManagers: () => client.get('/users/eligible-managers/'),
+
     // Get roles summary (count users per role)
     getRolesSummary: async () => {
         const response = await client.get('/users/');

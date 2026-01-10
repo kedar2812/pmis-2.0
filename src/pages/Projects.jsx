@@ -78,15 +78,10 @@ const Projects = () => {
   }, [projects, searchQuery, statusFilter]);
 
   const handleCreateProject = async (projectData) => {
-    try {
-      await projectService.createProject(projectData);
-      toast.success('Project created successfully');
-      setIsCreateModalOpen(false);
-      fetchProjects(); // Reload list
-    } catch (error) {
-      console.error('Create project failed:', error);
-      toast.error('Failed to create project');
-    }
+    // Create project - toast is already shown by modal
+    await projectService.createProject(projectData);
+    setIsCreateModalOpen(false);
+    fetchData(); // Reload list
   };
 
   const getStatusBadgeColor = (status) => {

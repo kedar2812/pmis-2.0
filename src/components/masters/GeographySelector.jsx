@@ -94,7 +94,7 @@ const GeographySelector = ({
                     disabled={isDisabled || isLoading}
                     className={selectClasses}
                 >
-                    <option value="">{isLoading ? 'Loading...' : placeholder}</option>
+                    <option value="">{placeholder}</option>
                     {options.map(opt => (
                         <option key={opt.id} value={opt.id}>
                             {opt.code ? `${opt.code} - ${opt[displayKey]}` : opt[displayKey]}

@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.validators import MinValueValidator
+from decimal import Decimal
 
 
 class Project(models.Model):
@@ -7,7 +9,14 @@ class Project(models.Model):
     
     Uses ForeignKey with SET_NULL to maintain data integrity while allowing
     flexibility when master records are deleted or not yet assigned.
+    
+    Progress Tracking:
+    - physical_progress: Computed from task-level execution data.
+    - financial_progress: Computed from earned value vs budget.
+    - These fields are READ-ONLY and cannot be set via API or Admin.
     """
+    
+    # ========== STATUS CHOICES ==========
     STATUS_CHOICES = [
         ('Planning', 'Planning'),
         ('In Progress', 'In Progress'),
@@ -15,8 +24,19 @@ class Project(models.Model):
         ('On Hold', 'On Hold'),
         ('Under Review', 'Under Review'),
     ]
+    
+    class ProgressState(models.TextChoices):
+        """
+        Indicates the verification state of progress values.
+        - CLAIMED: Computed but not externally verified (default)
+        - VERIFIED: Approved by Authority/PMC
+        - FLAGGED: Rule violation or anomaly detected
+        """
+        CLAIMED = 'CLAIMED', 'Claimed'
+        VERIFIED = 'VERIFIED', 'Verified'
+        FLAGGED = 'FLAGGED', 'Flagged'
 
-    # Basic Information
+    # ========== BASIC INFORMATION ==========
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Planning')
@@ -24,9 +44,47 @@ class Project(models.Model):
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     
-    progress = models.FloatField(default=0.0)
-    budget = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
-    spent = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    # ========== LEGACY PROGRESS (TO BE DEPRECATED) ==========
+    progress = models.FloatField(
+        default=0.0,
+        help_text='DEPRECATED: Use physical_progress instead. Kept for backward compatibility.'
+    )
+    
+    # ========== COMPUTED PROGRESS FIELDS (READ-ONLY) ==========
+    physical_progress = models.FloatField(
+        default=0.0,
+        validators=[MinValueValidator(0.0)],
+        help_text='Computed physical progress (0-100%). DO NOT EDIT DIRECTLY.'
+    )
+    
+    financial_progress = models.FloatField(
+        default=0.0,
+        validators=[MinValueValidator(0.0)],
+        help_text='Computed financial progress (EV/Budget %). DO NOT EDIT DIRECTLY.'
+    )
+    
+    earned_value = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        help_text='Computed Earned Value (EV). DO NOT EDIT DIRECTLY.'
+    )
+    
+    progress_state = models.CharField(
+        max_length=20,
+        choices=ProgressState.choices,
+        default=ProgressState.CLAIMED,
+        help_text='Verification state of progress values'
+    )
+    
+    schedule_variance = models.FloatField(
+        default=0.0,
+        help_text='Schedule variance percentage. Negative = behind schedule.'
+    )
+    
+    # ========== FINANCIAL ==========
+    budget = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'))
+    spent = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'))
     
     # ========== HIERARCHY (Master References) ==========
     zone = models.ForeignKey(

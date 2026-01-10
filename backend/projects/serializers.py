@@ -26,6 +26,9 @@ class ProjectSerializer(serializers.ModelSerializer):
     """
     Project serializer with master data references.
     
+    IMPORTANT: Progress fields are READ-ONLY. They are computed by the
+    ProjectProgressCalculator service and cannot be set via API.
+    
     For reading: Returns nested objects with id, code, name for display.
     For writing: Accepts just the ID for each foreign key field.
     """
@@ -48,11 +51,28 @@ class ProjectSerializer(serializers.ModelSerializer):
     hierarchy_display = serializers.CharField(read_only=True)
     location_display = serializers.CharField(read_only=True)
     
+    # Progress state display
+    progress_state_display = serializers.CharField(
+        source='get_progress_state_display', 
+        read_only=True
+    )
+    
     class Meta:
         model = Project
         fields = [
             'id', 'name', 'description', 'status', 
-            'start_date', 'end_date', 'progress', 
+            'start_date', 'end_date', 
+            
+            # All progress fields (READ-ONLY)
+            'progress',  # Legacy
+            'physical_progress',
+            'financial_progress',
+            'earned_value',
+            'progress_state',
+            'progress_state_display',
+            'schedule_variance',
+            
+            # Financial
             'budget', 'spent', 'location', 
             
             # Hierarchy FKs (write) + names (read)
@@ -81,8 +101,18 @@ class ProjectSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = [
-            'id', 'created_at', 'updated_at', 
-            'hierarchy_display', 'location_display'
+            'id', 
+            'created_at', 
+            'updated_at', 
+            'hierarchy_display', 
+            'location_display',
+            # CRITICAL: All computed progress fields are strictly read-only
+            'progress',
+            'physical_progress',
+            'financial_progress',
+            'earned_value',
+            'progress_state',
+            'schedule_variance',
         ]
 
     def get_location(self, obj):
@@ -94,4 +124,5 @@ class ProjectSerializer(serializers.ModelSerializer):
                 "address": obj.address
             }
         return None
+
 

@@ -71,14 +71,37 @@ class DashboardStatsView(APIView):
         
         # Get projects data
         projects = Project.objects.all()
+        active_projects = projects.filter(status='In Progress')
         
         # Project counts by status
         project_stats = {
             'total': projects.count(),
-            'in_progress': projects.filter(status='In Progress').count(),
+            'in_progress': active_projects.count(),
             'planning': projects.filter(status='Planning').count(),
             'completed': projects.filter(status='Completed').count(),
             'on_hold': projects.filter(status='On Hold').count(),
+        }
+        
+        # ========== AGGREGATED PROGRESS (from computed fields) ==========
+        # Physical Progress: Weighted average by budget across active projects
+        progress_aggregates = active_projects.aggregate(
+            total_budget=Sum('budget'),
+            total_earned_value=Sum('earned_value'),
+            avg_physical_progress=Avg('physical_progress'),
+            avg_financial_progress=Avg('financial_progress'),
+            avg_schedule_variance=Avg('schedule_variance'),
+        )
+        
+        portfolio_physical_progress = float(progress_aggregates['avg_physical_progress'] or 0)
+        portfolio_financial_progress = float(progress_aggregates['avg_financial_progress'] or 0)
+        portfolio_earned_value = float(progress_aggregates['total_earned_value'] or 0)
+        portfolio_schedule_variance = float(progress_aggregates['avg_schedule_variance'] or 0)
+        
+        # Progress state summary
+        progress_state_counts = {
+            'claimed': active_projects.filter(progress_state='CLAIMED').count(),
+            'verified': active_projects.filter(progress_state='VERIFIED').count(),
+            'flagged': active_projects.filter(progress_state='FLAGGED').count(),
         }
         
         # Financial summary
@@ -462,6 +485,15 @@ class DashboardStatsView(APIView):
             'change_requests': change_requests,
             'earned_value': earned_value_metrics,
             'cash_flow': cash_flow,
+            # ========== NEW: Aggregated Progress KPIs ==========
+            'portfolio_progress': {
+                'physical_progress': round(portfolio_physical_progress, 1),
+                'financial_progress': round(portfolio_financial_progress, 1),
+                'earned_value': round(portfolio_earned_value, 2),
+                'schedule_variance': round(portfolio_schedule_variance, 1),
+                'active_projects': project_stats['in_progress'],
+            },
+            'progress_state_counts': progress_state_counts,
         })
 
 

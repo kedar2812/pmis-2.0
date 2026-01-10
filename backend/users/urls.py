@@ -4,7 +4,8 @@ from .views import (
     InviteUserView, AcceptInviteView,
     ContractorRegistrationView, PendingUsersView,
     ApproveUserView, RejectUserView, ToggleUserStatusView,
-    PasswordResetRequestView, PasswordResetConfirmView
+    PasswordResetRequestView, PasswordResetConfirmView,
+    EligibleManagersListView
 )
 
 urlpatterns = [
@@ -14,6 +15,7 @@ urlpatterns = [
     
     # User management (Admin)
     path('', UserListView.as_view(), name='user-list'),
+    path('eligible-managers/', EligibleManagersListView.as_view(), name='eligible-managers'),
     path('<int:pk>/', UserDetailView.as_view(), name='user-detail'),
     path('<int:pk>/toggle-status/', ToggleUserStatusView.as_view(), name='user-toggle-status'),
     
