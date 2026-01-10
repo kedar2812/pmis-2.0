@@ -2,10 +2,15 @@
  * IFSC Input Component
  * Validates IFSC code and auto-fills bank branch details
  * Uses self-hosted IFSC database - NO external APIs
+ * 
+ * Features:
+ * - Only shows errors AFTER user has interacted (touched) the field
+ * - Validates format and looks up in database on blur
+ * - Auto-fills bank and branch name on successful lookup
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { fetchIFSCDetails, isValidIFSCFormat } from '@/services/ifscService';
-import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Loader2, CheckCircle, AlertCircle, Search } from 'lucide-react';
 import { toast } from 'sonner';
 
 const IFSCInput = ({
@@ -18,14 +23,37 @@ const IFSCInput = ({
     const [loading, setLoading] = useState(false);
     const [validated, setValidated] = useState(false);
     const [validationError, setValidationError] = useState('');
+    const [touched, setTouched] = useState(false); // Track if user has interacted
+
+    // Reset states when value is cleared externally
+    useEffect(() => {
+        if (!value) {
+            setValidated(false);
+            setValidationError('');
+            setTouched(false);
+        }
+    }, [value]);
 
     const validateIFSC = async () => {
-        // Skip if empty or wrong length
-        if (!value || value.length !== 11) return;
+        setTouched(true); // Mark as touched on blur
+
+        // Skip validation if empty (let form-level validation handle required)
+        if (!value) {
+            setValidated(false);
+            setValidationError('');
+            return;
+        }
+
+        // Skip if not complete (11 chars)
+        if (value.length !== 11) {
+            setValidationError('IFSC code must be 11 characters');
+            setValidated(false);
+            return;
+        }
 
         // Check format first
         if (!isValidIFSCFormat(value)) {
-            setValidationError('Invalid IFSC format');
+            setValidationError('Invalid IFSC format (e.g., SBIN0001234)');
             setValidated(false);
             return;
         }
@@ -36,6 +64,7 @@ const IFSCInput = ({
         try {
             const branchData = await fetchIFSCDetails(value);
             setValidated(true);
+            setValidationError('');
 
             // Call parent callback with branch data
             if (onBranchDataFetched) {
@@ -46,20 +75,27 @@ const IFSCInput = ({
         } catch (err) {
             setValidationError(err.message);
             setValidated(false);
-            toast.error(err.message);
+            // Only show toast for actual lookup failures, not format issues
+            if (err.message.includes('not found')) {
+                toast.error('IFSC code not found in database');
+            }
         } finally {
             setLoading(false);
         }
     };
 
     const handleChange = (e) => {
-        const newValue = e.target.value.toUpperCase();
+        const newValue = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
         onChange(newValue);
         setValidated(false);
-        setValidationError('');
+        // Clear validation error when user starts typing again
+        if (validationError) {
+            setValidationError('');
+        }
     };
 
-    const displayError = error || validationError;
+    // Only show error if field has been touched OR there's a form-level error
+    const displayError = touched ? (validationError || error) : '';
 
     return (
         <div>
@@ -76,10 +112,10 @@ const IFSCInput = ({
                     placeholder="SBIN0001234"
                     disabled={disabled}
                     className={`w-full px-4 py-2.5 pr-10 rounded-xl border transition-all outline-none focus:ring-2 ${displayError
-                            ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
-                            : validated
-                                ? 'border-green-300 focus:border-green-500 focus:ring-green-100'
-                                : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
+                        ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
+                        : validated
+                            ? 'border-green-300 focus:border-green-500 focus:ring-green-100'
+                            : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
                         } ${disabled ? 'bg-slate-50 cursor-not-allowed' : 'bg-white'}`}
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -90,7 +126,10 @@ const IFSCInput = ({
                         <CheckCircle size={18} className="text-green-600" />
                     )}
                     {displayError && !loading && (
-                        <AlertCircle size={18} className="text-red-600" />
+                        <AlertCircle size={18} className="text-red-500" />
+                    )}
+                    {!loading && !validated && !displayError && value && (
+                        <Search size={18} className="text-slate-400" />
                     )}
                 </div>
             </div>
@@ -99,9 +138,14 @@ const IFSCInput = ({
                     <AlertCircle size={14} /> {displayError}
                 </p>
             )}
-            {!displayError && (
+            {!displayError && !validated && (
                 <p className="mt-1 text-xs text-slate-500">
-                    Format: ABCD0123456 (4 letters, 0, 6 alphanumeric)
+                    Enter 11-character IFSC code (e.g., SBIN0001234)
+                </p>
+            )}
+            {validated && (
+                <p className="mt-1 text-xs text-green-600 flex items-center gap-1">
+                    <CheckCircle size={12} /> IFSC verified - branch details auto-filled
                 </p>
             )}
         </div>

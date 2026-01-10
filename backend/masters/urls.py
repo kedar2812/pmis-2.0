@@ -6,6 +6,8 @@ from .views import (
     SchemeTypeViewSet, SchemeViewSet, WorkTypeViewSet, ProjectCategoryViewSet,
     ContractorViewSet, ContractorBankAccountViewSet,
     ETPMasterViewSet,
+    ETPMasterViewSet,
+    CountryViewSet, StateViewSet, LocationDistrictViewSet, CityViewSet,
 )
 
 router = DefaultRouter()
@@ -32,6 +34,12 @@ router.register(r'contractor-bank-accounts', ContractorBankAccountViewSet, basen
 
 # Finance Config
 router.register(r'etp-charges', ETPMasterViewSet, basename='etp-charge')
+
+# Locations (Country -> State -> District -> City)
+router.register(r'countries', CountryViewSet, basename='country')
+router.register(r'states', StateViewSet, basename='state')
+router.register(r'location-districts', LocationDistrictViewSet, basename='location-district')
+router.register(r'cities', CityViewSet, basename='city')
 
 urlpatterns = [
     path('', include(router.urls)),

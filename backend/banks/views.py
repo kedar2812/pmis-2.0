@@ -32,6 +32,16 @@ class BankListView(APIView):
                 .distinct()
                 .order_by('bank_name')
             )
+            
+            # If no banks found, return helpful error message
+            if not bank_names:
+                return Response({
+                    'count': 0,
+                    'banks': [],
+                    'warning': 'No bank data available. Please run: python manage.py import_ifsc_data',
+                    'help': 'Visit https://github.com/snarayanank2/indian_banks for data source'
+                }, status=status.HTTP_200_OK)
+            
             # Cache for 24 hours
             cache.set(cache_key, bank_names, 60 * 60 * 24)
         

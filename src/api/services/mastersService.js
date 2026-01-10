@@ -49,6 +49,21 @@ const mastersService = {
     updateTown: (id, data) => client.patch(`/masters/towns/${id}/`, data),
     deleteTown: (id) => client.delete(`/masters/towns/${id}/`),
 
+    // ========== Locations (Country → State → District → City) ==========
+    getCountries: (params = {}) => client.get('/masters/countries/', { params }),
+    getCountry: (id) => client.get(`/masters/countries/${id}/`),
+
+    getStates: (params = {}) => client.get('/masters/states/', { params }),
+    getState: (id) => client.get(`/masters/states/${id}/`),
+    getStateDistricts: (stateId) => client.get(`/masters/states/${stateId}/districts/`),
+
+    getLocationDistricts: (params = {}) => client.get('/masters/location-districts/', { params }),
+    getLocationDistrict: (id) => client.get(`/masters/location-districts/${id}/`),
+    getDistrictCities: (districtId) => client.get(`/masters/location-districts/${districtId}/cities/`),
+
+    getCities: (params = {}) => client.get('/masters/cities/', { params }),
+    getCity: (id) => client.get(`/masters/cities/${id}/`),
+
     // ========== Classification ==========
     // Scheme Types
     getSchemeTypes: () => client.get('/masters/scheme-types/'),

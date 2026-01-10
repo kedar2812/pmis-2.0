@@ -11,6 +11,7 @@ import api from '@/api/client';
 import Button from '@/components/ui/Button';
 import SearchableSelect from '@/components/ui/SearchableSelect';
 import IFSCInput from '@/components/contractor/IFSCInput';
+import LocationSelector from '@/components/masters/LocationSelector';
 import { fetchBankList } from '@/services/ifscService';
 
 // InputField moved OUTSIDE the main component to prevent re-creation on every render
@@ -71,9 +72,13 @@ const ContractorRegistration = () => {
         building_number: '',
         street: '',
         area: '',
-        city: '',
-        state: '',
-        country: 'India',
+        // Location (cascading dropdowns)
+        location: {
+            country: '',
+            state: '',
+            district: '',
+            city: ''
+        },
         zip_code: '',
         // Bank
         bank_name: '',
@@ -117,6 +122,14 @@ const ContractorRegistration = () => {
         }
     };
 
+    const handleLocationChange = (locationValue) => {
+        setFormData(prev => ({ ...prev, location: locationValue }));
+        // Clear location-related errors
+        if (errors.location) {
+            setErrors(prev => ({ ...prev, location: '' }));
+        }
+    };
+
     const validateStep = (step) => {
         const newErrors = {};
 
@@ -146,8 +159,10 @@ const ContractorRegistration = () => {
 
         if (step === 3) {
             if (!formData.street) newErrors.street = 'Street is required';
-            if (!formData.city) newErrors.city = 'City is required';
-            if (!formData.state) newErrors.state = 'State is required';
+            if (!formData.location.country) newErrors.location = 'Please select a country';
+            else if (!formData.location.state) newErrors.location = 'Please select a state';
+            else if (!formData.location.district) newErrors.location = 'Please select a district';
+            else if (!formData.location.city) newErrors.location = 'Please select a city';
             if (!formData.zip_code) newErrors.zip_code = 'PIN code is required';
         }
 
@@ -166,11 +181,13 @@ const ContractorRegistration = () => {
 
     const handleNext = () => {
         if (validateStep(currentStep)) {
+            setErrors({}); // Clear errors before moving to next step
             setCurrentStep(prev => prev + 1);
         }
     };
 
     const handleBack = () => {
+        setErrors({}); // Clear errors when navigating back
         setCurrentStep(prev => prev - 1);
     };
 
@@ -386,14 +403,21 @@ const ContractorRegistration = () => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <InputField label="Area/Locality" name="area" placeholder="Industrial Estate" value={formData.area} onChange={handleChange} error={errors.area} />
-                                <InputField label="City" name="city" required placeholder="Hyderabad" value={formData.city} onChange={handleChange} error={errors.city} />
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-4">
-                                <InputField label="State" name="state" required placeholder="Telangana" value={formData.state} onChange={handleChange} error={errors.state} />
-                                <InputField label="Country" name="country" placeholder="India" value={formData.country} onChange={handleChange} error={errors.country} />
                                 <InputField label="PIN Code" name="zip_code" required placeholder="500001" value={formData.zip_code} onChange={handleChange} error={errors.zip_code} />
                             </div>
+
+                            {/* Location Selector - Cascading Dropdowns */}
+                            <LocationSelector
+                                value={formData.location}
+                                onChange={handleLocationChange}
+                                required
+                                className="mt-2"
+                            />
+                            {errors.location && (
+                                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                                    <AlertCircle size={14} /> {errors.location}
+                                </p>
+                            )}
                         </motion.div>
                     )}
 
