@@ -104,7 +104,11 @@ class Command(BaseCommand):
         self.stdout.write(f'Found {len(ifsc_data)} banks, {len(bank_names)} bank names')
 
         # Determine which banks to import
-        if options['banks']:
+        if options['banks'] and options['banks'].upper() == 'ALL':
+            # Import ALL banks
+            bank_codes = list(ifsc_data.keys())
+            self.stdout.write(f'Importing ALL {len(bank_codes)} banks...')
+        elif options['banks']:
             bank_codes = [b.strip().upper() for b in options['banks'].split(',')]
         else:
             bank_codes = [b for b in self.PRIORITY_BANKS if b in ifsc_data]
