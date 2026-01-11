@@ -38,10 +38,11 @@ else:
 
 echo ""
 echo "Step 5/6: Checking and importing bank data..."
-BANK_COUNT=$(python manage.py shell -c "from banks.models import BankBranch; print(BankBranch.objects.count())" 2>/dev/null || echo "0")
+# Use tail -1 to get only the last line (the actual count), ignoring Django's auto-import messages
+BANK_COUNT=$(python manage.py shell -c "from banks.models import BankBranch; print(BankBranch.objects.count())" 2>/dev/null | tail -1 | tr -d '[:space:]')
 echo "Current bank count: $BANK_COUNT"
 
-if [ "$BANK_COUNT" = "0" ] || [ -z "$BANK_COUNT" ]; then
+if [ "$BANK_COUNT" = "0" ] || [ -z "$BANK_COUNT" ] || ! [[ "$BANK_COUNT" =~ ^[0-9]+$ ]]; then
     echo "No bank data found. Starting import..."
     
     echo "Downloading Razorpay IFSC data..."
@@ -64,10 +65,11 @@ fi
 
 echo ""
 echo "Step 6/6: Checking and importing location data..."
-COUNTRY_COUNT=$(python manage.py shell -c "from masters.models import Country; print(Country.objects.count())" 2>/dev/null || echo "0")
+# Use tail -1 to get only the last line (the actual count)
+COUNTRY_COUNT=$(python manage.py shell -c "from masters.models import Country; print(Country.objects.count())" 2>/dev/null | tail -1 | tr -d '[:space:]')
 echo "Current country count: $COUNTRY_COUNT"
 
-if [ "$COUNTRY_COUNT" = "0" ] || [ -z "$COUNTRY_COUNT" ]; then
+if [ "$COUNTRY_COUNT" = "0" ] || [ -z "$COUNTRY_COUNT" ] || ! [[ "$COUNTRY_COUNT" =~ ^[0-9]+$ ]]; then
     echo "No location data found. Importing India locations..."
     python manage.py populate_india_locations || echo "WARNING: Location import had issues"
     echo "Location data import complete!"
