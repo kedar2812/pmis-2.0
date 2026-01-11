@@ -67,8 +67,13 @@ class Command(BaseCommand):
         data_dir = options['data_dir']
         
         # Make data_dir relative to backend directory
+        # Command is at banks/management/commands/import_razorpay_ifsc.py
+        # Need to go up: commands -> management -> banks -> backend
         if not os.path.isabs(data_dir):
-            backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            cmd_dir = os.path.dirname(os.path.abspath(__file__))  # commands/
+            management_dir = os.path.dirname(cmd_dir)             # management/
+            banks_dir = os.path.dirname(management_dir)           # banks/
+            backend_dir = os.path.dirname(banks_dir)              # backend/
             data_dir = os.path.join(backend_dir, data_dir)
         
         # Load IFSC list
