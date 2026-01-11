@@ -12,7 +12,21 @@ echo "Running database migrations..."
 python manage.py migrate
 
 echo "Creating superuser if needed..."
-python create_superuser.py
+python manage.py shell -c "
+import os
+from django.contrib.auth import get_user_model
+User = get_user_model()
+email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@pmis.gov.in')
+password = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
+username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
+if not password:
+    print('DJANGO_SUPERUSER_PASSWORD not set. Skipping superuser creation.')
+elif User.objects.filter(email=email).exists():
+    print(f'Superuser already exists: {email}')
+else:
+    User.objects.create_superuser(email=email, username=username, password=password, first_name='System', last_name='Admin')
+    print(f'Superuser created: {email}')
+"
 
 echo "Checking bank data..."
 # Check if bank data exists, if not import it automatically
