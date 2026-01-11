@@ -41,14 +41,14 @@ echo "Step 5/6: Checking and importing bank data..."
 # Use tail -1 to get only the last line (the actual count), ignoring Django's auto-import messages
 BANK_COUNT=$(python manage.py shell -c "from banks.models import BankBranch; print(BankBranch.objects.count())" 2>/dev/null | tail -1 | tr -d '[:space:]')
 echo "Current bank count: $BANK_COUNT"
-
-if [ "$BANK_COUNT" = "0" ] || [ -z "$BANK_COUNT" ] || ! [[ "$BANK_COUNT" =~ ^[0-9]+$ ]]; then
-    echo "No bank data found. Starting import..."
+# Import if less than 100k branches (indicates only partial/priority import done)
+if [ "$BANK_COUNT" -lt 100000 ] 2>/dev/null || [ -z "$BANK_COUNT" ] || ! [[ "$BANK_COUNT" =~ ^[0-9]+$ ]]; then
+    echo "Bank data incomplete ($BANK_COUNT branches). Starting full import..."
     
     echo "Downloading Razorpay IFSC data..."
     if git clone --depth 1 https://github.com/razorpay/ifsc.git temp_razorpay_ifsc; then
         echo "Importing ALL bank data (this may take 2-5 minutes for ~160,000 branches)..."
-        python manage.py import_razorpay_ifsc --data-dir temp_razorpay_ifsc/src --banks=ALL --limit-per-bank=0 || echo "WARNING: Bank import had issues"
+        python manage.py import_razorpay_ifsc --data-dir temp_razorpay_ifsc/src --banks=ALL --limit-per-bank=0 --clear || echo "WARNING: Bank import had issues"
         
         echo "Cleaning up..."
         rm -rf temp_razorpay_ifsc
