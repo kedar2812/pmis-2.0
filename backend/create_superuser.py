@@ -6,7 +6,7 @@ Used during Render deployment to ensure admin access.
 import os
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
 django.setup()
 
 from django.contrib.auth import get_user_model
