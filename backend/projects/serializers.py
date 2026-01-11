@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Project, WorkPackage
+from .models import Project, WorkPackage, FundingSource
 from users.serializers import UserSerializer
 
 
@@ -20,6 +20,13 @@ class WorkPackageSerializer(serializers.ModelSerializer):
         if obj.contractor:
             return f"{obj.contractor.first_name} {obj.contractor.last_name}".strip() or obj.contractor.username
         return None
+
+
+class FundingSourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FundingSource
+        fields = ['id', 'project', 'source', 'amount', 'document', 'created_at']
+        read_only_fields = ['id', 'created_at']
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -46,6 +53,12 @@ class ProjectSerializer(serializers.ModelSerializer):
     scheme_name = serializers.CharField(source='scheme.name', read_only=True, default='')
     work_type_name = serializers.CharField(source='work_type.name', read_only=True, default='')
     project_category_name = serializers.CharField(source='project_category.name', read_only=True, default='')
+    
+    # Manager relationship
+    manager_name = serializers.SerializerMethodField()
+    
+    # Nested fundings (writable)
+    fundings = FundingSourceSerializer(many=True, read_only=False, required=False)
     
     # Computed display fields
     hierarchy_display = serializers.CharField(read_only=True)
@@ -96,7 +109,10 @@ class ProjectSerializer(serializers.ModelSerializer):
             
             # Legacy/other fields
             'lat', 'lng', 'address',
-            'manager', 'stakeholders', 'category', 
+            'manager', 'manager_name',
+            'admin_approval_reference_no', 'admin_approval_date', 'admin_approval_document',
+            'fundings',
+            'stakeholders', 'category', 
             'land_acquisition_status', 'work_packages',
             'created_at', 'updated_at'
         ]
@@ -124,5 +140,37 @@ class ProjectSerializer(serializers.ModelSerializer):
                 "address": obj.address
             }
         return None
+    
+    def get_manager_name(self, obj):
+        if obj.manager:
+            return f"{obj.manager.first_name} {obj.manager.last_name}".strip() or obj.manager.username
+        return None
+    
+    def create(self, validated_data):
+        fundings_data = validated_data.pop('fundings', [])
+        project = Project.objects.create(**validated_data)
+        
+        # Create funding sources
+        for funding_data in fundings_data:
+            FundingSource.objects.create(project=project, **funding_data)
+        
+        return project
+    
+    def update(self, instance, validated_data):
+        fundings_data = validated_data.pop('fundings', None)
+        
+        # Update project fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        # Update fundings if provided
+        if fundings_data is not None:
+            # Clear existing and recreate
+            instance.fundings.all().delete()
+            for funding_data in fundings_data:
+                FundingSource.objects.create(project=instance, **funding_data)
+        
+        return instance
 
 

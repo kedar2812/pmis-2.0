@@ -112,7 +112,8 @@ class Message(models.Model):
         if self.pk:
             existing = Message.objects.filter(pk=self.pk).first()
             if existing:
-                raise Exception("Messages are immutable and cannot be edited. Create a new message with a reference instead.")
+                from django.core.exceptions import ValidationError
+                raise ValidationError("Messages are immutable and cannot be edited. Create a new message with a reference instead.")
         
         # Auto-set is_ruling flag
         if self.message_type == self.MessageType.RULING:

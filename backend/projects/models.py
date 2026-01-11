@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from decimal import Decimal
+import uuid
 
 
 class Project(models.Model):
@@ -168,7 +169,31 @@ class Project(models.Model):
     address = models.CharField(max_length=500, blank=True, help_text='Physical address or landmark')
     
     # ========== METADATA ==========
-    manager = models.CharField(max_length=255, blank=True)
+    manager_legacy = models.CharField(max_length=255, blank=True, null=True, help_text="Old manager field - will be migrated")
+    manager = models.ForeignKey(
+        'users.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='managed_projects',
+        help_text='Project Manager assigned to this project'
+    )
+    admin_approval_reference_no = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text='Administrative approval reference number'
+    )
+    admin_approval_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text='Date of administrative approval'
+    )
+    admin_approval_document = models.FileField(
+        upload_to='projects/approvals/%Y/%m/',
+        null=True,
+        blank=True,
+        help_text='Uploaded approval document (PDF/Image)'
+    )
     stakeholders = models.JSONField(default=list, blank=True)
     category = models.CharField(max_length=100, blank=True, help_text='Legacy category field')
     land_acquisition_status = models.FloatField(default=0.0)
@@ -234,3 +259,33 @@ class WorkPackage(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.project.name})"
+
+
+class FundingSource(models.Model):
+    """
+    Tracks funding sources/patterns for projects.
+    Previously this data was sent from frontend but discarded by backend.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='fundings'
+    )
+    source = models.CharField(max_length=255, help_text="Funding source name/type")
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    document = models.FileField(
+        upload_to='projects/funding_docs/%Y/%m/',
+        null=True,
+        blank=True,
+        help_text="Supporting document for this funding source"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.source}: ₹{self.amount} ({self.project.name})"
+

@@ -6,8 +6,12 @@ from rest_framework.decorators import action
 from django.db.models import Sum, Count, Q, Avg
 from django.utils import timezone
 from datetime import timedelta
-from .models import Project, WorkPackage
+import logging
+
+from .models import Project, WorkPackage, FundingSource
 from .serializers import ProjectSerializer, WorkPackageSerializer
+
+logger = logging.getLogger(__name__)
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -127,8 +131,10 @@ class DashboardStatsView(APIView):
             # Overdue = pending > 48 hours
             two_days_ago = timezone.now() - timedelta(hours=48)
             overdue_approvals = pending_docs.filter(created_at__lt=two_days_ago).count()
-        except Exception:
-            pass
+        except ImportError:
+            logger.warning("EDMS module not available for dashboard stats")
+        except Exception as e:
+            logger.error(f"Failed to fetch EDMS approval data: {e}")
         
         # Get critical risks count
         critical_risks = 0
@@ -136,8 +142,8 @@ class DashboardStatsView(APIView):
             critical_risks = projects.filter(
                 Q(status='In Progress') & Q(progress__lt=50)
             ).count()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"Failed to calculate critical risks: {e}")
         
         # Schedule health from scheduling module
         schedule_health = {
@@ -174,8 +180,10 @@ class DashboardStatsView(APIView):
                     'percentage': round((on_track / total_tasks * 100), 1),
                     'no_data': False
                 }
-        except Exception:
-            pass
+        except ImportError:
+            logger.warning("Scheduling module not available for dashboard stats")
+        except Exception as e:
+            logger.error(f"Failed to fetch scheduling data: {e}")
         
         # Procurement data
         procurement_summary = {

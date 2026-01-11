@@ -81,6 +81,9 @@ class ScheduleTaskViewSet(viewsets.ModelViewSet):
             created_count = 0
             updated_count = 0
             
+            tasks_to_create = []
+            tasks_to_update = []
+            
             for row in importer.import_data(file_obj, mapping):
                 # Standardize Fields based on mapping or internal schema
                 # For Excel, mapping keys should match our internal codes if possible, or we handle here
@@ -108,7 +111,7 @@ class ScheduleTaskViewSet(viewsets.ModelViewSet):
                          except: pass
                     return None # Fallback
 
-                # Update or Create
+                # Build task data
                 task_data = {
                     'project_id': project_id,
                     'name': name,
@@ -125,13 +128,23 @@ class ScheduleTaskViewSet(viewsets.ModelViewSet):
                     task = ScheduleTask.objects.filter(project_id=project_id, external_id=ext_id).first()
                 
                 if task:
+                    # Update existing task
                     for k, v in task_data.items():
                         setattr(task, k, v)
-                    task.save()
-                    updated_count += 1
+                    tasks_to_update.append(task)
                 else:
-                    ScheduleTask.objects.create(**task_data)
-                    created_count += 1
+                    # Prepare for bulk creation
+                    tasks_to_create.append(ScheduleTask(**task_data))
+            
+            # Bulk operations
+            if tasks_to_create:
+                ScheduleTask.objects.bulk_create(tasks_to_create)
+                created_count = len(tasks_to_create)
+            
+            if tasks_to_update:
+                for task in tasks_to_update:
+                    task.save()
+                updated_count = len(tasks_to_update)
 
             return Response({
                 'status': 'success',

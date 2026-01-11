@@ -98,6 +98,21 @@ class User(AbstractUser):
         ]
     )
     
+    # Contractor Registration Class (for EPC_Contractor role)
+    registration_class = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        choices=[
+            ('Class A', 'Class A (Unlimited)'),
+            ('Class B', 'Class B (Up to ₹50 Cr)'),
+            ('Class C', 'Class C (Up to ₹10 Cr)'),
+            ('Class D', 'Class D (Up to ₹2 Cr)'),
+            ('Class E', 'Class E (Up to ₹50 Lakh)'),
+        ],
+        help_text="Contractor registration class (only for EPC_Contractor role)"
+    )
+    
     # User Presence Tracking
     last_seen = models.DateTimeField(null=True, blank=True, help_text="Last activity timestamp")
     is_online = models.BooleanField(default=False, help_text="Currently active status")
