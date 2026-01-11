@@ -6,6 +6,37 @@ from django.conf import settings
 from django.db import migrations, models
 
 
+def migrate_manager_to_fk(apps, schema_editor):
+    """
+    Data migration: Attempt to link existing manager string values to User objects.
+    If not found, leave manager as null (the legacy value is preserved in manager_legacy).
+    """
+    Project = apps.get_model('projects', 'Project')
+    User = apps.get_model('users', 'User')
+    
+    for project in Project.objects.all():
+        # Try to find a matching user by username, email, or name
+        manager_str = project.manager_legacy
+        if manager_str:
+            manager_str = manager_str.strip()
+            # Try matching by username (case-insensitive)
+            user = User.objects.filter(username__iexact=manager_str).first()
+            if not user:
+                # Try matching by email
+                user = User.objects.filter(email__iexact=manager_str).first()
+            if not user:
+                # Try matching by first_name + last_name
+                user = User.objects.filter(first_name__iexact=manager_str).first()
+            if user:
+                project.manager = user
+                project.save(update_fields=['manager'])
+
+
+def reverse_manager_migration(apps, schema_editor):
+    """Reverse data migration - nothing to do since we preserve manager_legacy."""
+    pass
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -14,6 +45,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Step 1: Add admin approval fields
         migrations.AddField(
             model_name='project',
             name='admin_approval_date',
@@ -29,16 +61,31 @@ class Migration(migrations.Migration):
             name='admin_approval_reference_no',
             field=models.CharField(blank=True, help_text='Administrative approval reference number', max_length=100),
         ),
-        migrations.AddField(
+        
+        # Step 2: Rename old manager CharField to manager_legacy (preserves existing data)
+        migrations.RenameField(
+            model_name='project',
+            old_name='manager',
+            new_name='manager_legacy',
+        ),
+        # Update the manager_legacy field definition to be nullable
+        migrations.AlterField(
             model_name='project',
             name='manager_legacy',
             field=models.CharField(blank=True, help_text='Old manager field - will be migrated', max_length=255, null=True),
         ),
-        migrations.AlterField(
+        
+        # Step 3: Add the new manager field as a ForeignKey
+        migrations.AddField(
             model_name='project',
             name='manager',
             field=models.ForeignKey(blank=True, help_text='Project Manager assigned to this project', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='managed_projects', to=settings.AUTH_USER_MODEL),
         ),
+        
+        # Step 4: Data migration to link existing manager strings to User objects
+        migrations.RunPython(migrate_manager_to_fk, reverse_manager_migration),
+        
+        # Step 5: Create FundingSource model
         migrations.CreateModel(
             name='FundingSource',
             fields=[
