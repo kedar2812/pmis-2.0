@@ -47,8 +47,8 @@ if [ "$BANK_COUNT" -lt 100000 ] 2>/dev/null || [ -z "$BANK_COUNT" ] || ! [[ "$BA
     
     echo "Downloading Razorpay IFSC data..."
     if git clone --depth 1 https://github.com/razorpay/ifsc.git temp_razorpay_ifsc; then
-        echo "Importing ALL bank data (this may take 2-5 minutes for ~160,000 branches)..."
-        python manage.py import_razorpay_ifsc --data-dir temp_razorpay_ifsc/src --banks=ALL --limit-per-bank=0 --clear || echo "WARNING: Bank import had issues"
+        echo "Importing ALL bank data using fast static import (takes ~30 seconds)..."
+        python manage.py import_banks_fast --data-dir temp_razorpay_ifsc/src --clear || echo "WARNING: Bank import had issues"
         
         echo "Cleaning up..."
         rm -rf temp_razorpay_ifsc
