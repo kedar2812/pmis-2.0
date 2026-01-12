@@ -339,18 +339,45 @@ const BOQManagement = () => {
             const newMapping = { item_code: '', description: '', uom: '', quantity: '', rate: '' };
             (res.headers || []).forEach(h => {
                 const lower = h.toLowerCase();
-                if (!newMapping.item_code && (lower.includes('code') || lower.includes('s.no') || lower.includes('sno') || lower.includes('sl.no') || lower === 'no' || lower === 'id')) {
-                    newMapping.item_code = h;
-                }
-                if (!newMapping.description && (lower.includes('desc') || lower.includes('particular') || lower.includes('item') || lower.includes('work'))) {
+
+                // ======== DESCRIPTION - Check FIRST (highest priority) ========
+                // Matches: Description, Work Description, Item Description, Particulars, etc.
+                if (!newMapping.description && (
+                    lower.includes('desc') ||
+                    lower.includes('particular') ||
+                    lower.includes('work')
+                )) {
                     newMapping.description = h;
                 }
+
+                // ======== ITEM CODE - Check SECOND (with exclusions) ========
+                // Matches: Item Code, S.No, Code, ID - but NOT if already matched as description
+                // Also exclude if the column name contains description-like keywords
+                if (!newMapping.item_code && !lower.includes('desc') && !lower.includes('particular') && (
+                    lower.includes('code') ||
+                    lower.includes('s.no') ||
+                    lower.includes('sno') ||
+                    lower.includes('sl.no') ||
+                    lower.includes('sr.no') ||
+                    lower.includes('serial') ||
+                    lower === 'no' ||
+                    lower === 'id' ||
+                    (lower.includes('item') && lower.includes('no'))  // "Item No" specifically
+                )) {
+                    newMapping.item_code = h;
+                }
+
+                // ======== UNIT OF MEASUREMENT ========
                 if (!newMapping.uom && (lower.includes('unit') || lower.includes('uom') || lower === 'u/m')) {
                     newMapping.uom = h;
                 }
-                if (!newMapping.quantity && (lower.includes('qty') || lower.includes('quant') || lower.includes('nos'))) {
+
+                // ======== QUANTITY ========
+                if (!newMapping.quantity && (lower.includes('qty') || lower.includes('quant') || lower.includes('nos') || lower === 'quantity')) {
                     newMapping.quantity = h;
                 }
+
+                // ======== RATE ========
                 if (!newMapping.rate && (lower.includes('rate') || lower.includes('price') || lower.includes('cost'))) {
                     newMapping.rate = h;
                 }

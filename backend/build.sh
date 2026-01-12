@@ -41,26 +41,43 @@ echo "Step 5/6: Checking and importing bank data..."
 # Use tail -1 to get only the last line (the actual count), ignoring Django's auto-import messages
 BANK_COUNT=$(python manage.py shell -c "from banks.models import BankBranch; print(BankBranch.objects.count())" 2>/dev/null | tail -1 | tr -d '[:space:]')
 echo "Current bank count: $BANK_COUNT"
-# Import if less than 100k branches (indicates only partial/priority import done)
+
+# Check if existing data has placeholder branch names (indicates incomplete import)
+PLACEHOLDER_COUNT=$(python manage.py shell -c "from banks.models import BankBranch; print(BankBranch.objects.filter(branch_name__startswith='Branch ').count())" 2>/dev/null | tail -1 | tr -d '[:space:]')
+echo "Branches with placeholder names: $PLACEHOLDER_COUNT"
+
+# Import if: less than 100k branches, OR too many placeholders (>50% of data), OR count is invalid
+NEEDS_REIMPORT=false
 if [ "$BANK_COUNT" -lt 100000 ] 2>/dev/null || [ -z "$BANK_COUNT" ] || ! [[ "$BANK_COUNT" =~ ^[0-9]+$ ]]; then
-    echo "Bank data incomplete ($BANK_COUNT branches). Starting full import..."
+    NEEDS_REIMPORT=true
+    echo "Bank data incomplete ($BANK_COUNT branches). Needs import."
+elif [ "$PLACEHOLDER_COUNT" -gt 50000 ] 2>/dev/null; then
+    NEEDS_REIMPORT=true
+    echo "Too many placeholder branch names ($PLACEHOLDER_COUNT). Needs re-import with API data."
+fi
+
+if [ "$NEEDS_REIMPORT" = true ]; then
+    echo "Starting full bank import with API enrichment..."
     
     echo "Downloading Razorpay IFSC data..."
     if git clone --depth 1 https://github.com/razorpay/ifsc.git temp_razorpay_ifsc; then
-        echo "Importing ALL bank data using fast static import (takes ~30 seconds)..."
-        python manage.py import_banks_fast --data-dir temp_razorpay_ifsc/src --clear || echo "WARNING: Bank import had issues"
+        echo "Importing bank data with real branch names from Razorpay API..."
+        echo "This may take 5-10 minutes depending on API response times."
+        python manage.py import_banks_fast --data-dir temp_razorpay_ifsc/src --clear --threads 30 || echo "WARNING: Bank import had issues"
         
         echo "Cleaning up..."
         rm -rf temp_razorpay_ifsc
         
         # Verify import
         FINAL_COUNT=$(python manage.py shell -c "from banks.models import BankBranch; print(BankBranch.objects.count())" 2>/dev/null || echo "0")
+        SAMPLE=$(python manage.py shell -c "from banks.models import BankBranch; b=BankBranch.objects.filter(ifsc_code__startswith='SBIN').first(); print(f'{b.ifsc_code}: {b.branch_name}' if b else 'No SBI branches')" 2>/dev/null || echo "N/A")
         echo "Bank data import complete! Total branches: $FINAL_COUNT"
+        echo "Sample branch: $SAMPLE"
     else
         echo "WARNING: Could not clone IFSC repository (continuing anyway)"
     fi
 else
-    echo "Bank data already exists: $BANK_COUNT branches"
+    echo "Bank data already exists with proper branch names: $BANK_COUNT branches"
 fi
 
 echo ""

@@ -197,9 +197,17 @@ const ContractorRegistration = () => {
 
         setIsSubmitting(true);
         try {
-            // Convert to uppercase for validation fields
+            // Extract location names for backend (serializer expects string values, not IDs)
+            const { location, ...restFormData } = formData;
+
+            // Build submit data with location names as flat fields
             const submitData = {
-                ...formData,
+                ...restFormData,
+                // Use name values from LocationSelector (fall back to empty string if not set)
+                city: location.cityName || '',
+                state: location.stateName || '',
+                country: location.countryName || 'India',
+                // Convert to uppercase for validation fields
                 pan_number: formData.pan_number.toUpperCase(),
                 gstin_number: formData.gstin_number.toUpperCase(),
                 ifsc_code: formData.ifsc_code.toUpperCase(),

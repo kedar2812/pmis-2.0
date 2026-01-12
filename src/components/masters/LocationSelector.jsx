@@ -75,13 +75,16 @@ const LocationSelector = ({
 
             // Auto-select India if it's the only country (UX improvement)
             if (res.data?.length === 1 && !value.country) {
-                // We can't call handleCountryChange directly as it expects an event
-                // So we trigger onChange directly
+                // Trigger onChange with both ID and Name
                 onChange({
                     country: res.data[0].id,
+                    countryName: res.data[0].name,
                     state: '',
+                    stateName: '',
                     district: '',
-                    city: ''
+                    districtName: '',
+                    city: '',
+                    cityName: ''
                 });
             }
         } catch (error) {
@@ -133,19 +136,34 @@ const LocationSelector = ({
         }
     }, []);
 
-    const handleChange = (field, newVal) => {
+    const handleChange = (field, newVal, options) => {
+        // Find the selected option to get its name
+        const selectedOption = options.find(opt => String(opt.id) === String(newVal));
+        const selectedName = selectedOption?.name || '';
+
         const nextValue = { ...value, [field]: newVal };
 
-        // Reset dependent fields
+        // Also store the name for backend submission
+        // Use fieldName pattern: countryName, stateName, districtName, cityName
+        const nameField = `${field}Name`;
+        nextValue[nameField] = selectedName;
+
+        // Reset dependent fields (both ID and Name values)
         if (field === 'country') {
             nextValue.state = '';
+            nextValue.stateName = '';
             nextValue.district = '';
+            nextValue.districtName = '';
             nextValue.city = '';
+            nextValue.cityName = '';
         } else if (field === 'state') {
             nextValue.district = '';
+            nextValue.districtName = '';
             nextValue.city = '';
+            nextValue.cityName = '';
         } else if (field === 'district') {
             nextValue.city = '';
+            nextValue.cityName = '';
         }
 
         onChange(nextValue);
@@ -160,7 +178,7 @@ const LocationSelector = ({
             <div className="relative">
                 <select
                     value={value[field] || ''}
-                    onChange={(e) => handleChange(field, e.target.value)}
+                    onChange={(e) => handleChange(field, e.target.value, options)}
                     disabled={disabled || fieldDisabled || isLoading}
                     className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none disabled:bg-slate-50 disabled:cursor-not-allowed appearance-none truncate"
                 >
