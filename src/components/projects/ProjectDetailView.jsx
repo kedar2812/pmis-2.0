@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
     Calendar,
     DollarSign,
@@ -14,9 +15,14 @@ import {
     Users,
     Briefcase,
     MessageSquare,
+    Shield,
+    AlertTriangle,
+    Plus,
+    ExternalLink,
+    Loader2,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { tasks, risks } from '@/mock';
+import { tasks } from '@/mock';
 import { DynamicChart } from '@/components/ui/DynamicChart';
 import { getStatusColor } from '@/lib/colors';
 import {
@@ -29,16 +35,38 @@ import { AddContractorModal } from '@/components/procurement/AddContractorModal'
 import Button from '@/components/ui/Button';
 import NewThreadModal from '@/components/communications/NewThreadModal';
 import { toast } from 'sonner';
+import riskService from '@/api/services/riskService';
 
 export const ProjectDetailView = ({ project, packages = [], contractors = [], onAddContractor }) => {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
     const [isAddContractorModalOpen, setIsAddContractorModalOpen] = useState(false);
     const [showNewThread, setShowNewThread] = useState(false);
 
+    // Risk state
+    const [projectRisks, setProjectRisks] = useState([]);
+    const [risksLoading, setRisksLoading] = useState(false);
+
+    // Fetch project risks
+    useEffect(() => {
+        const fetchRisks = async () => {
+            if (!project?.id) return;
+            setRisksLoading(true);
+            try {
+                const res = await riskService.getProjectRisks(project.id);
+                setProjectRisks(res.data || []);
+            } catch (err) {
+                console.error('Failed to fetch project risks:', err);
+            } finally {
+                setRisksLoading(false);
+            }
+        };
+        fetchRisks();
+    }, [project?.id]);
+
     if (!project) return null;
 
     const projectTasks = tasks.filter((task) => task.projectId === project.id);
-    const projectRisks = risks.filter((risk) => risk.projectId === project.id);
 
     const budgetUtilization = calculateBudgetUtilization(project.budget, project.spent);
     const budgetRemaining = calculateRemainingBudget(project.budget, project.spent, 0);
@@ -93,9 +121,11 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
         {}
     );
 
-    const riskImpactCounts = projectRisks.reduce(
+    // Count risks by severity from real data
+    const riskSeverityCounts = projectRisks.reduce(
         (acc, risk) => {
-            acc[risk.impact] = (acc[risk.impact] || 0) + 1;
+            const sev = risk.severity || 'LOW';
+            acc[sev] = (acc[sev] || 0) + 1;
             return acc;
         },
         {}
@@ -486,40 +516,108 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                 )}
 
                 {activeTab === 'risks' && (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                        {/* Risks Overview */}
-                        {projectRisks.length > 0 ? (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Risk Overview</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        {Object.entries(riskImpactCounts).map(([impact, count]) => {
-                                            const impactColors = {
-                                                Low: 'bg-success-50 text-success-700',
-                                                Medium: 'bg-warning-50 text-warning-700',
-                                                High: 'bg-accent-50 text-accent-700',
-                                                Critical: 'bg-error-50 text-error-700',
-                                            };
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                        {/* Header */}
+                        <div className="flex justify-between items-center">
+                            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <Shield size={20} className="text-orange-500" />
+                                Project Risks
+                            </h3>
+                            <Button
+                                onClick={() => navigate(`/risk?project=${project.id}`)}
+                                className="bg-orange-600 text-white hover:bg-orange-700 flex items-center gap-2"
+                            >
+                                <Plus size={16} /> Add Risk
+                            </Button>
+                        </div>
+
+                        {risksLoading ? (
+                            <div className="flex items-center justify-center py-12">
+                                <Loader2 className="animate-spin text-primary-600" size={32} />
+                            </div>
+                        ) : projectRisks.length > 0 ? (
+                            <>
+                                {/* Risk Summary Cards */}
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].map((severity) => {
+                                        const count = riskSeverityCounts[severity] || 0;
+                                        const colors = {
+                                            CRITICAL: 'bg-red-50 text-red-700 border-red-200',
+                                            HIGH: 'bg-orange-50 text-orange-700 border-orange-200',
+                                            MEDIUM: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+                                            LOW: 'bg-green-50 text-green-700 border-green-200',
+                                        };
+                                        return (
+                                            <div key={severity} className={`text-center p-4 rounded-lg border ${colors[severity]}`}>
+                                                <p className="text-3xl font-bold">{count}</p>
+                                                <p className="text-sm font-medium mt-1">{severity}</p>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Risk List */}
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-base">Active Risks</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-3">
+                                        {projectRisks.slice(0, 10).map((risk) => {
+                                            const sevColors = riskService.getSeverityColor(risk.severity);
+                                            const statusColors = riskService.getStatusColor(risk.status);
                                             return (
-                                                <div key={impact} className="text-center p-4 rounded-lg bg-gray-50">
-                                                    <p className="text-2xl font-bold">{count}</p>
-                                                    <p className={`text-sm mt-1 px-2 py-1 rounded ${impactColors[impact]}`}>
-                                                        {impact}
-                                                    </p>
+                                                <div
+                                                    key={risk.id}
+                                                    className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-primary-300 cursor-pointer transition-colors"
+                                                    onClick={() => navigate(`/risk?risk=${risk.id}`)}
+                                                >
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className="text-xs text-gray-500 font-mono">{risk.risk_code}</span>
+                                                                <span className={`px-2 py-0.5 rounded-full text-xs ${sevColors.bg} ${sevColors.text}`}>
+                                                                    {risk.severity}
+                                                                </span>
+                                                                <span className={`px-2 py-0.5 rounded-full text-xs ${statusColors.bg} ${statusColors.text}`}>
+                                                                    {risk.status}
+                                                                </span>
+                                                            </div>
+                                                            <h4 className="font-medium text-gray-900">{risk.title}</h4>
+                                                            <p className="text-sm text-gray-500 mt-1 line-clamp-1">{risk.description}</p>
+                                                        </div>
+                                                        <div className="text-right ml-4">
+                                                            <div className="text-2xl font-bold text-gray-900">{risk.risk_score}</div>
+                                                            <div className="text-xs text-gray-500">Score</div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             );
                                         })}
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                        {projectRisks.length > 10 && (
+                                            <button
+                                                onClick={() => navigate(`/risk?project=${project.id}`)}
+                                                className="w-full py-2 text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center justify-center gap-1"
+                                            >
+                                                View all {projectRisks.length} risks <ExternalLink size={14} />
+                                            </button>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </>
                         ) : (
-                            <EmptyState
-                                icon={Target}
-                                title="No Risks Identified"
-                                description="No risks have been recorded for this project yet."
-                            />
+                            <div className="border border-dashed border-slate-300 rounded-xl p-12 text-center bg-slate-50">
+                                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <AlertTriangle size={32} className="text-orange-500" />
+                                </div>
+                                <h4 className="text-slate-900 font-medium mb-1">No Risks Identified</h4>
+                                <p className="text-slate-500 text-sm mb-4">Start tracking potential risks for this project.</p>
+                                <Button
+                                    onClick={() => navigate(`/risk?project=${project.id}`)}
+                                    variant="outline"
+                                >
+                                    <Plus size={16} className="mr-1" /> Add First Risk
+                                </Button>
+                            </div>
                         )}
                     </motion.div>
                 )}

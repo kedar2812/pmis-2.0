@@ -6,6 +6,12 @@ const projectService = {
         return response.data;
     },
 
+    // Alias for getAllProjects (used by RiskManagement)
+    getProjects: async () => {
+        const response = await client.get('/projects/');
+        return response;
+    },
+
     getProjectById: async (id) => {
         const response = await client.get(`/projects/${id}/`);
         return response.data;

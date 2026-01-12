@@ -289,3 +289,8 @@ class FundingSource(models.Model):
     def __str__(self):
         return f"{self.source}: ₹{self.amount} ({self.project.name})"
 
+
+# Import Risk models to make them accessible via projects.models
+from .risk_models import Risk, RiskDocument, RiskMitigationAction, MitigationProofDocument, RiskAuditLog
+
+

@@ -1,235 +1,551 @@
+import { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { risks, projects } from '@/mock';
-import { AlertTriangle, CheckCircle, Clock, XCircle } from 'lucide-react';
-import { getStatusColor, getImpactColor, getPriorityColor } from '@/lib/colors';
 import { DynamicChart } from '@/components/ui/DynamicChart';
+import riskService from '@/api/services/riskService';
+import projectService from '@/api/services/projectService';
+import {
+  AlertTriangle, CheckCircle, Clock, XCircle, Plus, Search,
+  Filter, ChevronDown, ChevronRight, FileText, Shield,
+  TrendingUp, TrendingDown, Calendar, User, Building,
+  AlertCircle, Target, BarChart3, Loader2, RefreshCw
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import CreateRiskModal from '@/components/risks/CreateRiskModal';
+import RiskDetailPanel from '@/components/risks/RiskDetailPanel';
 
 const RiskManagement = () => {
   const { t } = useLanguage();
 
-  const getStatusIcon = (status) => {
-    const statusColors = getStatusColor(status);
-    switch (status) {
-      case 'Closed':
-        return <CheckCircle className={statusColors.icon} size={20} />;
-      case 'Mitigated':
-        return <CheckCircle className={statusColors.icon} size={20} />;
-      case 'Assessed':
-        return <Clock className={statusColors.icon} size={20} />;
-      default:
-        return <AlertTriangle className={statusColors.icon} size={20} />;
+  // State
+  const [risks, setRisks] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProject, setSelectedProject] = useState('');
+  const [selectedSeverity, setSelectedSeverity] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
+
+  // UI State
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedRisk, setSelectedRisk] = useState(null);
+  const [showDetailPanel, setShowDetailPanel] = useState(false);
+  const [expandedProjects, setExpandedProjects] = useState({});
+
+  // Fetch data
+  useEffect(() => {
+    fetchData();
+  }, [selectedProject, selectedSeverity, selectedStatus]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const filters = {};
+      if (selectedProject) filters.project = selectedProject;
+      if (selectedSeverity) filters.severity = selectedSeverity;
+      if (selectedStatus) filters.status = selectedStatus;
+
+      const [risksRes, projectsRes, statsRes] = await Promise.all([
+        riskService.getRisks(filters),
+        projectService.getProjects(),
+        riskService.getRiskStats()
+      ]);
+
+      setRisks(risksRes.data || []);
+      setProjects(projectsRes.data || []);
+      setStats(statsRes.data || null);
+    } catch (err) {
+      console.error('Failed to fetch risk data:', err);
+      setError('Failed to load risk data. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getStatusBadgeColor = (status) => {
-    const statusColors = getStatusColor(status);
-    return `${statusColors.bg} ${statusColors.text}`;
-  };
-
-  // Risk distribution by category
-  const riskByCategory = risks.reduce((acc, risk) => {
-    acc[risk.category] = (acc[risk.category] || 0) + 1;
-    return acc;
-  }, {});
-
-  const categoryData = Object.entries(riskByCategory).map(([name, value]) => ({
-    name,
-    value,
-  }));
-
-  // Risk distribution by status
-  const riskByStatus = risks.reduce((acc, risk) => {
-    acc[risk.status] = (acc[risk.status] || 0) + 1;
-    return acc;
-  }, {});
-
-  const statusData = Object.entries(riskByStatus).map(([name, value]) => ({
-    name,
-    value,
-  }));
-
-  // High-contrast vibrant color palette: Emerald, Violet, Amber, Rose, Cyan
-  const COLORS = ['#10b981', '#8b5cf6', '#f59e0b', '#f43f5e', '#06b6d4'];
+  // Filter risks by search query
+  const filteredRisks = useMemo(() => {
+    if (!searchQuery) return risks;
+    const query = searchQuery.toLowerCase();
+    return risks.filter(risk =>
+      risk.title?.toLowerCase().includes(query) ||
+      risk.risk_code?.toLowerCase().includes(query) ||
+      risk.description?.toLowerCase().includes(query) ||
+      risk.project_name?.toLowerCase().includes(query)
+    );
+  }, [risks, searchQuery]);
 
   // Group risks by project
-  const risksByProject = projects.map((project) => ({
-    project,
-    projectRisks: risks.filter((risk) => risk.projectId === project.id),
-  }));
+  const risksByProject = useMemo(() => {
+    const grouped = {};
+    filteredRisks.forEach(risk => {
+      const projectId = risk.project;
+      if (!grouped[projectId]) {
+        grouped[projectId] = {
+          projectName: risk.project_name || 'Unknown Project',
+          risks: []
+        };
+      }
+      grouped[projectId].risks.push(risk);
+    });
+    return grouped;
+  }, [filteredRisks]);
+
+  // Chart data
+  const categoryData = useMemo(() => {
+    const counts = {};
+    risks.forEach(risk => {
+      const cat = risk.category || 'OTHER';
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+    return Object.entries(counts).map(([name, value]) => ({
+      name: riskService.CATEGORIES.find(c => c.value === name)?.label || name,
+      value
+    }));
+  }, [risks]);
+
+  const severityData = useMemo(() => {
+    if (!stats) return [];
+    return [
+      { name: 'Critical', value: stats.by_severity?.critical || 0, color: '#ef4444' },
+      { name: 'High', value: stats.by_severity?.high || 0, color: '#f97316' },
+      { name: 'Medium', value: stats.by_severity?.medium || 0, color: '#eab308' },
+      { name: 'Low', value: stats.by_severity?.low || 0, color: '#22c55e' }
+    ];
+  }, [stats]);
+
+  // Handlers
+  const handleRiskClick = (risk) => {
+    setSelectedRisk(risk);
+    setShowDetailPanel(true);
+  };
+
+  const handleCreateSuccess = (newRisk) => {
+    setRisks(prev => [newRisk, ...prev]);
+    setShowCreateModal(false);
+    fetchData(); // Refresh stats
+  };
+
+  const handleUpdateSuccess = (updatedRisk) => {
+    setRisks(prev => prev.map(r => r.id === updatedRisk.id ? updatedRisk : r));
+    setSelectedRisk(updatedRisk);
+    fetchData(); // Refresh stats
+  };
+
+  const toggleProjectExpand = (projectId) => {
+    setExpandedProjects(prev => ({
+      ...prev,
+      [projectId]: !prev[projectId]
+    }));
+  };
+
+  // Severity badge component
+  const SeverityBadge = ({ severity }) => {
+    const colors = riskService.getSeverityColor(severity);
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors.bg} ${colors.text}`}>
+        {severity}
+      </span>
+    );
+  };
+
+  // Status badge component
+  const StatusBadge = ({ status }) => {
+    const colors = riskService.getStatusColor(status);
+    const statusLabel = riskService.STATUSES.find(s => s.value === status)?.label || status;
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors.bg} ${colors.text}`}>
+        {statusLabel}
+      </span>
+    );
+  };
+
+  // Loading state
+  if (loading && risks.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+        <span className="ml-2 text-gray-600">Loading risk data...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('common.risk')}</h1>
-        <p className="text-gray-600 mt-1">{t('risk.subtitle')}</p>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <Shield className="text-orange-600" />
+            {t('common.risk') || 'Risk Management'}
+          </h1>
+          <p className="text-gray-600 mt-1">
+            {t('risk.subtitle') || 'Identify, assess, and mitigate project risks'}
+          </p>
+        </div>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors shadow-md"
+        >
+          <Plus size={20} />
+          <span>Add New Risk</span>
+        </button>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        {/* Total Risks */}
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{t('risk.totalRisks')}</p>
-                <p className="text-2xl font-bold mt-2">{risks.length}</p>
+                <p className="text-sm text-blue-700 font-medium">Total Risks</p>
+                <p className="text-3xl font-bold text-blue-900 mt-1">{stats?.total || 0}</p>
               </div>
-              <AlertTriangle className="text-orange-600" size={32} />
+              <div className="p-3 bg-blue-500/20 rounded-xl">
+                <BarChart3 className="text-blue-600" size={28} />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
+        {/* Critical Risks */}
+        <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{t('risk.activeRisks')}</p>
-                <p className="text-2xl font-bold mt-2">
-                  {risks.filter((r) => r.status !== 'Closed').length}
-                </p>
+                <p className="text-sm text-red-700 font-medium">Critical</p>
+                <p className="text-3xl font-bold text-red-900 mt-1">{stats?.by_severity?.critical || 0}</p>
               </div>
-              <Clock className="text-warning-600" size={32} />
+              <div className="p-3 bg-red-500/20 rounded-xl">
+                <AlertCircle className="text-red-600" size={28} />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
+        {/* High Risks */}
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{t('risk.highImpact')}</p>
-                <p className="text-2xl font-bold mt-2">
-                  {risks.filter((r) => r.impact === 'High' || r.impact === 'Critical').length}
-                </p>
+                <p className="text-sm text-orange-700 font-medium">High</p>
+                <p className="text-3xl font-bold text-orange-900 mt-1">{stats?.by_severity?.high || 0}</p>
               </div>
-              <XCircle className="text-error-600" size={32} />
+              <div className="p-3 bg-orange-500/20 rounded-xl">
+                <AlertTriangle className="text-orange-600" size={28} />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
+        {/* Overdue */}
+        <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{t('risk.mitigated')}</p>
-                <p className="text-2xl font-bold mt-2">
-                  {risks.filter((r) => r.status === 'Mitigated' || r.status === 'Closed').length}
+                <p className="text-sm text-amber-700 font-medium">Overdue</p>
+                <p className="text-3xl font-bold text-amber-900 mt-1">{stats?.overdue_count || 0}</p>
+              </div>
+              <div className="p-3 bg-amber-500/20 rounded-xl">
+                <Clock className="text-amber-600" size={28} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Mitigated */}
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-green-700 font-medium">Mitigated</p>
+                <p className="text-3xl font-bold text-green-900 mt-1">
+                  {(stats?.by_status?.MITIGATED || 0) + (stats?.by_status?.CLOSED || 0)}
                 </p>
               </div>
-              <CheckCircle className="text-success-600" size={32} />
+              <div className="p-3 bg-green-500/20 rounded-xl">
+                <CheckCircle className="text-green-600" size={28} />
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Charts */}
+      {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <CardHeader>
-            <CardTitle>{t('risk.risksByCategory')}</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Risks by Category</CardTitle>
           </CardHeader>
           <CardContent>
-            <DynamicChart
-              data={categoryData}
-              dataKey="value"
-              height={300}
-              defaultType="bar"
-              name="Risks"
-            />
+            {categoryData.length > 0 ? (
+              <DynamicChart
+                data={categoryData}
+                dataKey="value"
+                height={280}
+                defaultType="bar"
+                name="Risks"
+              />
+            ) : (
+              <div className="h-64 flex items-center justify-center text-gray-500">
+                No data available
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>{t('risk.risksByStatus')}</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Risk Severity Distribution</CardTitle>
           </CardHeader>
           <CardContent>
-            <DynamicChart
-              data={statusData}
-              dataKey="value"
-              height={300}
-              defaultType="pie"
-              colors={COLORS}
-            />
+            {severityData.length > 0 && severityData.some(d => d.value > 0) ? (
+              <DynamicChart
+                data={severityData}
+                dataKey="value"
+                height={280}
+                defaultType="pie"
+                colors={['#ef4444', '#f97316', '#eab308', '#22c55e']}
+              />
+            ) : (
+              <div className="h-64 flex items-center justify-center text-gray-500">
+                No data available
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Risk Register */}
-      <div className="space-y-6">
-        {risksByProject.map(({ project, projectRisks }) => {
-          if (projectRisks.length === 0) return null;
+      {/* Filters */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-wrap gap-4">
+            {/* Search */}
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <input
+                type="text"
+                placeholder="Search risks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
 
-          return (
-            <Card key={project.id}>
-              <CardHeader>
-                <CardTitle>{project.name}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {projectRisks.map((risk) => (
-                    <div
-                      key={risk.id}
-                      className="p-4 bg-gray-50 rounded-lg border border-gray-200"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            {getStatusIcon(risk.status)}
-                            <h3 className="font-medium text-lg">{risk.title}</h3>
-                          </div>
-                          <p className="text-sm text-gray-600 mb-3">{risk.description}</p>
-                          <div className="flex flex-wrap gap-2">
-                            <span className="text-xs text-gray-500">{t('common.category')}:</span>
-                            <span className="px-2 py-1 bg-gray-200 rounded text-xs">{risk.category}</span>
-                            <span className="text-xs text-gray-500 ml-2">{t('common.owner')}:</span>
-                            <span className="px-2 py-1 bg-gray-200 rounded text-xs">{risk.owner}</span>
-                            <span className="text-xs text-gray-500 ml-2">{t('common.identified')}:</span>
-                            <span className="px-2 py-1 bg-gray-200 rounded text-xs">
-                              {new Date(risk.identifiedDate).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                          <span
-                            className={`px-3 py-1 rounded text-xs font-medium ${getImpactColor(risk.impact)}`}
-                          >
-                            {t('common.impact')}: {risk.impact}
-                          </span>
-                          <span
-                            className={`px-3 py-1 rounded text-xs font-medium ${getPriorityColor(risk.probability).bg} ${getPriorityColor(risk.probability).text}`}
-                          >
-                            {t('common.probability')}: {risk.probability}
-                          </span>
-                          <span
-                            className={`px-3 py-1 rounded text-xs font-medium ${getStatusBadgeColor(risk.status)}`}
-                          >
-                            {risk.status}
-                          </span>
-                        </div>
-                      </div>
-                      {risk.mitigationPlan && (
-                        <div className="mt-3 pt-3 border-t border-gray-200">
-                          <p className="text-sm font-medium mb-1">{t('risk.mitigationPlan')}</p>
-                          <p className="text-sm text-gray-600">{risk.mitigationPlan}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+            {/* Project Filter */}
+            <select
+              value={selectedProject}
+              onChange={(e) => setSelectedProject(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="">All Projects</option>
+              {projects.map(p => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+
+            {/* Severity Filter */}
+            <select
+              value={selectedSeverity}
+              onChange={(e) => setSelectedSeverity(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="">All Severities</option>
+              <option value="CRITICAL">Critical</option>
+              <option value="HIGH">High</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="LOW">Low</option>
+            </select>
+
+            {/* Status Filter */}
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="">All Statuses</option>
+              {riskService.STATUSES.map(s => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </select>
+
+            {/* Refresh */}
+            <button
+              onClick={fetchData}
+              disabled={loading}
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
+            >
+              <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+              Refresh
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Risk List by Project */}
+      <div className="space-y-4">
+        {Object.entries(risksByProject).length === 0 ? (
+          <Card>
+            <CardContent className="p-12 text-center">
+              <Shield className="mx-auto text-gray-400 mb-4" size={48} />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Risks Found</h3>
+              <p className="text-gray-600 mb-4">
+                {searchQuery || selectedProject || selectedSeverity || selectedStatus
+                  ? 'No risks match your current filters. Try adjusting your search.'
+                  : 'No risks have been registered yet. Click "Add New Risk" to get started.'}
+              </p>
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+              >
+                <Plus size={18} />
+                Add New Risk
+              </button>
+            </CardContent>
+          </Card>
+        ) : (
+          Object.entries(risksByProject).map(([projectId, { projectName, risks: projectRisks }]) => (
+            <Card key={projectId}>
+              <CardHeader
+                className="cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => toggleProjectExpand(projectId)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {expandedProjects[projectId] ? (
+                      <ChevronDown className="text-gray-500" size={20} />
+                    ) : (
+                      <ChevronRight className="text-gray-500" size={20} />
+                    )}
+                    <Building className="text-primary-600" size={20} />
+                    <CardTitle className="text-lg">{projectName}</CardTitle>
+                    <span className="px-2 py-1 bg-gray-100 rounded-full text-sm text-gray-600">
+                      {projectRisks.length} {projectRisks.length === 1 ? 'risk' : 'risks'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {projectRisks.filter(r => r.severity === 'CRITICAL').length > 0 && (
+                      <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">
+                        {projectRisks.filter(r => r.severity === 'CRITICAL').length} Critical
+                      </span>
+                    )}
+                    {projectRisks.filter(r => r.severity === 'HIGH').length > 0 && (
+                      <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+                        {projectRisks.filter(r => r.severity === 'HIGH').length} High
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </CardContent>
+              </CardHeader>
+
+              <AnimatePresence>
+                {(expandedProjects[projectId] !== false) && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <CardContent className="pt-0">
+                      <div className="space-y-3">
+                        {projectRisks.map((risk) => (
+                          <div
+                            key={risk.id}
+                            onClick={() => handleRiskClick(risk)}
+                            className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-primary-300 hover:shadow-sm cursor-pointer transition-all"
+                          >
+                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-xs text-gray-500 font-mono">{risk.risk_code}</span>
+                                  <SeverityBadge severity={risk.severity} />
+                                  <StatusBadge status={risk.status} />
+                                  {risk.is_overdue && (
+                                    <span className="px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs animate-pulse">
+                                      Overdue
+                                    </span>
+                                  )}
+                                </div>
+                                <h3 className="font-medium text-gray-900 mb-1">{risk.title}</h3>
+                                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                                  {risk.category && (
+                                    <span className="flex items-center gap-1">
+                                      <Target size={14} />
+                                      {riskService.CATEGORIES.find(c => c.value === risk.category)?.label}
+                                    </span>
+                                  )}
+                                  {risk.owner_name && (
+                                    <span className="flex items-center gap-1">
+                                      <User size={14} />
+                                      {risk.owner_name}
+                                    </span>
+                                  )}
+                                  {risk.target_resolution && (
+                                    <span className="flex items-center gap-1">
+                                      <Calendar size={14} />
+                                      Due: {new Date(risk.target_resolution).toLocaleDateString()}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm">
+                                <div className="text-center">
+                                  <div className="text-2xl font-bold text-gray-900">{risk.risk_score}</div>
+                                  <div className="text-xs text-gray-500">Score</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-lg font-semibold text-gray-700">{risk.mitigation_count || 0}</div>
+                                  <div className="text-xs text-gray-500">Mitigations</div>
+                                </div>
+                                {risk.document_count > 0 && (
+                                  <div className="text-center">
+                                    <div className="text-lg font-semibold text-gray-700">{risk.document_count}</div>
+                                    <div className="text-xs text-gray-500">Docs</div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </Card>
-          );
-        })}
+          ))
+        )}
       </div>
+
+      {/* Create Risk Modal */}
+      {showCreateModal && (
+        <CreateRiskModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={handleCreateSuccess}
+          projects={projects}
+        />
+      )}
+
+      {/* Risk Detail Panel */}
+      {showDetailPanel && selectedRisk && (
+        <RiskDetailPanel
+          isOpen={showDetailPanel}
+          onClose={() => {
+            setShowDetailPanel(false);
+            setSelectedRisk(null);
+          }}
+          risk={selectedRisk}
+          onUpdate={handleUpdateSuccess}
+        />
+      )}
     </div>
   );
 };
 
 export default RiskManagement;
-
-
-
-
-
-

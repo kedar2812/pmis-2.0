@@ -392,32 +392,46 @@ class DashboardStatsView(APIView):
         except Exception:
             pass
         
-        # Risk summary
+        # Risk summary - NOW USING REAL RISK DATA
         risk_summary = {
+            'critical': 0,
             'high': 0,
             'medium': 0,
             'low': 0,
             'total': 0,
+            'overdue': 0,
             'top_risks': []
         }
         try:
-            # If you have a Risk model
-            from projects.models import Risk
-            risks = Risk.objects.all()
+            from projects.risk_models import Risk
+            active_risks = Risk.objects.filter(is_active=True).exclude(status='CLOSED')
             risk_summary = {
-                'high': risks.filter(severity='HIGH').count(),
-                'medium': risks.filter(severity='MEDIUM').count(),
-                'low': risks.filter(severity='LOW').count(),
-                'total': risks.count(),
-                'top_risks': list(risks.filter(severity='HIGH').values('id', 'title', 'project__name')[:3])
+                'critical': active_risks.filter(severity='CRITICAL').count(),
+                'high': active_risks.filter(severity='HIGH').count(),
+                'medium': active_risks.filter(severity='MEDIUM').count(),
+                'low': active_risks.filter(severity='LOW').count(),
+                'total': active_risks.count(),
+                'overdue': active_risks.filter(
+                    target_resolution__lt=today
+                ).exclude(status__in=['CLOSED', 'MITIGATED']).count(),
+                'top_risks': list(
+                    active_risks.filter(severity__in=['CRITICAL', 'HIGH'])
+                    .select_related('project', 'owner')
+                    .values('id', 'risk_code', 'title', 'severity', 'status', 'project__name')[:5]
+                )
             }
-        except Exception:
-            # Estimate from project progress
+            # Update critical_risks count
+            critical_risks = risk_summary['critical'] + risk_summary['high']
+        except Exception as e:
+            logger.warning(f"Failed to fetch risk data: {e}")
+            # Estimate from project progress as fallback
             risk_summary = {
+                'critical': 0,
                 'high': projects.filter(progress__lt=30, status='In Progress').count(),
                 'medium': projects.filter(progress__gte=30, progress__lt=60, status='In Progress').count(),
                 'low': projects.filter(progress__gte=60, status='In Progress').count(),
                 'total': projects.filter(status='In Progress').count(),
+                'overdue': 0,
                 'top_risks': []
             }
         
