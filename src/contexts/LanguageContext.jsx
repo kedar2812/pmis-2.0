@@ -529,6 +529,9 @@ export const LanguageProvider = ({ children }) => {
     setLanguage(lang);
     localStorage.setItem('pmis_language', lang);
 
+    // Dispatch custom event to notify GoogleTranslateWidget to load script
+    window.dispatchEvent(new CustomEvent('pmis-language-change', { detail: { language: lang } }));
+
     // Trigger the translation (or reset)
     setTimeout(() => triggerGoogleTranslate(lang), 100);
   };

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
@@ -298,12 +298,19 @@ const UserManagement = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
+    // Ref to prevent duplicate fetches in React StrictMode
+    const hasFetched = useRef(false);
+
     useEffect(() => {
         // Access control
         if (user && !['SPV_Official', 'NICDC_HQ'].includes(user.role)) {
             navigate('/dashboard');
             return;
         }
+        // Prevent double-fetch in StrictMode
+        if (hasFetched.current) return;
+        hasFetched.current = true;
+
         fetchUsers();
         fetchPendingUsers();
     }, [user, navigate]);
@@ -466,7 +473,7 @@ const UserManagement = () => {
                         </div>
                     </div>
                 </Card>
-                <Card className="p-4 cursor-pointer hover:bg-amber-50 transition-colors" onClick={() => { setActiveTab('pending'); fetchPendingUsers(); }}>
+                <Card className="p-4 cursor-pointer hover:bg-amber-50 transition-colors" onClick={() => setActiveTab('pending')}>
                     <div className="flex items-center gap-3">
                         <div className="p-3 rounded-xl bg-amber-100">
                             <Clock className="w-6 h-6 text-amber-600" />
@@ -493,19 +500,19 @@ const UserManagement = () => {
             {/* Tabs */}
             <div className="flex gap-2">
                 <button
-                    onClick={() => { setActiveTab('all'); fetchUsers(); }}
+                    onClick={() => setActiveTab('all')}
                     className={`px-4 py-2 rounded-lg font-medium transition-all ${activeTab === 'all'
-                            ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/30'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/30'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                         }`}
                 >
                     All Users
                 </button>
                 <button
-                    onClick={() => { setActiveTab('pending'); fetchPendingUsers(); }}
+                    onClick={() => setActiveTab('pending')}
                     className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${activeTab === 'pending'
-                            ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                         }`}
                 >
                     Pending Approval

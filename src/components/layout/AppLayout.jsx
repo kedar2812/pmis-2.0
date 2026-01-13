@@ -1,10 +1,11 @@
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useSidebar } from '@/contexts/SidebarContext';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
-import { useState, useEffect, useCallback } from 'react';
+import { PageLoading } from '@/components/ui/Loading';
 
 /**
  * AppLayout - Main application layout component
@@ -79,20 +80,20 @@ const AppLayout = () => {
         <Header isDesktop={isDesktop} />
         <main className="px-4 sm:px-6 pb-4 sm:pb-6" style={{ paddingTop: '88px' }}>
           <Breadcrumbs />
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={location.pathname}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{
-                duration: 0.2,
-                ease: 'easeInOut',
-              }}
-            >
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.1 }}
+          >
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-12">
+                <PageLoading text="Loading..." />
+              </div>
+            }>
               <Outlet />
-            </motion.div>
-          </AnimatePresence>
+            </Suspense>
+          </motion.div>
         </main>
       </motion.div>
     </div>

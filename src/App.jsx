@@ -1,43 +1,45 @@
+import { lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { SidebarProvider } from './contexts/SidebarContext';
 
-
 import { ToastProvider } from './components/ui/Toast';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import AppLayout from './components/layout/AppLayout';
+
+// Keep auth-related pages as eager imports (needed before login)
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Projects from './pages/Projects';
-
-import RABilling from '@/pages/RABilling';
-import FundManagement from '@/pages/FundManagement';
-import Budgeting from '@/pages/Budgeting';
-import BOQManagement from '@/pages/BOQManagement';
-import Scheduling from '@/pages/Scheduling';
-import CostManagement from './pages/CostManagement';
-import RiskManagement from './pages/RiskManagement';
-import GIS from './pages/GIS';
-import BIM from './pages/BIM';
-import WorkflowConfig from './pages/WorkflowConfig';
-import EProcurement from './pages/EProcurement';
-import Reimbursement from './pages/Reimbursement';
-import RoleManager from './pages/RoleManager';
-import ProjectDetailsPage from './pages/ProjectDetailsPage';
-import AuditLogs from './pages/admin/AuditLogs';
-import MasterData from './pages/admin/MasterData';
-import UserManagement from './pages/UserManagement';
-
-import EDMS from './pages/EDMS';
-import DocumentViewerPage from './pages/DocumentViewerPage';
-import Communications from './pages/Communications';
-import Approvals from './pages/Approvals';
 import ContractorRegistration from './pages/ContractorRegistration';
 import AcceptInvite from './pages/AcceptInvite';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
-import ETPMaster from './pages/ETPMaster';
+
+// Lazy load all protected pages for code-splitting
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Projects = lazy(() => import('./pages/Projects'));
+const ProjectDetailsPage = lazy(() => import('./pages/ProjectDetailsPage'));
+const RABilling = lazy(() => import('./pages/RABilling'));
+const FundManagement = lazy(() => import('./pages/FundManagement'));
+const Budgeting = lazy(() => import('./pages/Budgeting'));
+const BOQManagement = lazy(() => import('./pages/BOQManagement'));
+const Scheduling = lazy(() => import('./pages/Scheduling'));
+const CostManagement = lazy(() => import('./pages/CostManagement'));
+const RiskManagement = lazy(() => import('./pages/RiskManagement'));
+const GIS = lazy(() => import('./pages/GIS'));
+const BIM = lazy(() => import('./pages/BIM'));
+const WorkflowConfig = lazy(() => import('./pages/WorkflowConfig'));
+const EProcurement = lazy(() => import('./pages/EProcurement'));
+const Reimbursement = lazy(() => import('./pages/Reimbursement'));
+const RoleManager = lazy(() => import('./pages/RoleManager'));
+const AuditLogs = lazy(() => import('./pages/admin/AuditLogs'));
+const MasterData = lazy(() => import('./pages/admin/MasterData'));
+const UserManagement = lazy(() => import('./pages/UserManagement'));
+const EDMS = lazy(() => import('./pages/EDMS'));
+const DocumentViewerPage = lazy(() => import('./pages/DocumentViewerPage'));
+const Communications = lazy(() => import('./pages/Communications'));
+const Approvals = lazy(() => import('./pages/Approvals'));
+const ETPMaster = lazy(() => import('./pages/ETPMaster'));
 
 const ProtectedRoute = ({ children, requiredPermission }) => {
   const { user } = useAuth();
