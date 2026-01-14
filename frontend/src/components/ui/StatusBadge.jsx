@@ -110,7 +110,7 @@ const StatusBadge = ({
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden"
+                            className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl dark:shadow-2xl w-full max-w-sm overflow-hidden"
                         >
                             <div className="p-6">
                                 <div className="flex items-start gap-4">
@@ -118,10 +118,10 @@ const StatusBadge = ({
                                         <AlertCircle size={24} />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold text-slate-900">
+                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                                             {isActive ? 'Deactivate' : 'Activate'} {entityName}?
                                         </h3>
-                                        <p className="text-slate-500 text-sm mt-1">
+                                        <p className="text-slate-500 dark:text-neutral-400 text-sm mt-1">
                                             Are you sure you want to declare <strong>{entityName}</strong> as <strong>{labels[nextStatus] || nextStatus}</strong>?
                                         </p>
                                     </div>

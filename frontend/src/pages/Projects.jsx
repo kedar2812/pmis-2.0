@@ -100,8 +100,8 @@ const Projects = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary-950">{t('projects.title')}</h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">{t('projects.subtitle')}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{t('projects.title')}</h1>
+          <p className="text-slate-600 dark:text-neutral-400 mt-1 text-sm sm:text-base">{t('projects.subtitle')}</p>
         </div>
         {canCreateProject && (
           <div className="flex gap-2 sm:gap-3">
@@ -143,7 +143,7 @@ const Projects = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">{t('projects.totalProjects')}</p>
+                    <p className="text-sm text-slate-600 dark:text-neutral-400">{t('projects.totalProjects')}</p>
                     <p className="text-2xl font-bold mt-1">{projects.length}</p>
                   </div>
                   <FolderOpen className="text-primary-600" size={32} />
@@ -229,20 +229,20 @@ const Projects = () => {
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-neutral-500" size={18} />
               <input
                 type="text"
                 placeholder={t('projects.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+                className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 aria-label="Search projects"
               />
             </div>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+              className="px-4 py-2 border border-slate-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               aria-label="Filter by status"
             >
               <option value="all">{t('projects.allStatus')}</option>
@@ -309,7 +309,7 @@ const Projects = () => {
                     {/* Project Progress */}
                     <div>
                       <div className="flex items-center justify-between text-sm mb-2">
-                        <span className="text-gray-600">{t('common.progress')}</span>
+                        <span className="text-slate-600 dark:text-neutral-400">{t('common.progress')}</span>
                         <span className="font-semibold text-primary-600">{project.progress}%</span>
                       </div>
                       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -356,12 +356,12 @@ const Projects = () => {
                     ) : project.landAcquisitionStatus !== undefined ? (
                       <div>
                         <div className="flex items-center justify-between text-sm mb-2">
-                          <span className="text-gray-600">Land Acquisition Status</span>
+                          <span className="text-slate-600 dark:text-neutral-400">Land Acquisition Status</span>
                           <span className="font-semibold text-primary-600">
                             {project.landAcquisitionStatus}%
                           </span>
                         </div>
-                        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="w-full h-2 bg-slate-200 dark:bg-neutral-700 rounded-full overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${project.landAcquisitionStatus}%` }}

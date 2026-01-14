@@ -88,7 +88,7 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
                         variants={itemVariants}
                         whileHover={{ scale: 1.02 }}
                         onClick={() => handleCardClick('delayed')}
-                        className="bg-white border-l-4 border-indigo-500 cursor-pointer"
+                        className="bg-white dark:bg-neutral-900 border-l-4 border-indigo-500 cursor-pointer"
                     >
                         <MotionCardContent className="p-4 flex items-center gap-4">
                             <div className="p-3 bg-indigo-50 rounded-full">
@@ -96,7 +96,7 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
                             </div>
                             <div>
                                 <p className="text-sm text-slate-500">{t('common.delayed')}</p>
-                                <p className="text-xl font-bold text-slate-800">
+                                <p className="text-xl font-bold text-slate-800 dark:text-white">
                                     {delayedTasks.length > 0 ? `- ${delayedTasks.length} ${t('dashboard.upcomingTasks')} ` : t('common.onTrack')}
                                 </p>
                             </div>
@@ -107,7 +107,7 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
                         variants={itemVariants}
                         whileHover={{ scale: 1.02 }}
                         onClick={() => handleCardClick('risks')}
-                        className="bg-white border-l-4 border-amber-500 cursor-pointer"
+                        className="bg-white dark:bg-neutral-900 border-l-4 border-amber-500 cursor-pointer"
                     >
                         <MotionCardContent className="p-4 flex items-center gap-4">
                             <div className="p-3 bg-amber-50 rounded-full">
@@ -115,19 +115,19 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
                             </div>
                             <div>
                                 <p className="text-sm text-slate-500">{t('risk.activeRisks')}</p>
-                                <p className="text-xl font-bold text-slate-800">{activeRiskCount}</p>
+                                <p className="text-xl font-bold text-slate-800 dark:text-white">{activeRiskCount}</p>
                             </div>
                         </MotionCardContent>
                     </MotionCard>
 
-                    <MotionCard variants={itemVariants} className="bg-white border-l-4 border-cyan-500">
+                    <MotionCard variants={itemVariants} className="bg-white dark:bg-neutral-900 border-l-4 border-cyan-500">
                         <MotionCardContent className="p-4 flex items-center gap-4">
                             <div className="p-3 bg-cyan-50 rounded-full">
                                 <ClipboardList className="text-cyan-600" size={24} />
                             </div>
                             <div>
                                 <p className="text-sm text-slate-500">Open RFIs</p>
-                                <p className="text-xl font-bold text-slate-800">8</p>
+                                <p className="text-xl font-bold text-slate-800 dark:text-white">8</p>
                             </div>
                         </MotionCardContent>
                     </MotionCard>
@@ -136,7 +136,7 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
                         variants={itemVariants}
                         whileHover={{ scale: 1.02 }}
                         onClick={() => handleCardClick('completed')}
-                        className="bg-white border-l-4 border-emerald-500 cursor-pointer"
+                        className="bg-white dark:bg-neutral-900 border-l-4 border-emerald-500 cursor-pointer"
                     >
                         <MotionCardContent className="p-4 flex items-center gap-4">
                             <div className="p-3 bg-emerald-50 rounded-full">
@@ -144,7 +144,7 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
                             </div>
                             <div>
                                 <p className="text-sm text-slate-500">{t('common.completed')}</p>
-                                <p className="text-xl font-bold text-slate-800">{completedTasksCount}/{totalTasksCount}</p>
+                                <p className="text-xl font-bold text-slate-800 dark:text-white">{completedTasksCount}/{totalTasksCount}</p>
                             </div>
                         </MotionCardContent>
                     </MotionCard>
@@ -187,11 +187,11 @@ const PMNCDashboard = ({ projects, tasks, risks }) => {
                         </MotionCardHeader>
                         <MotionCardContent>
                             <div className="space-y-4">
-                                <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                                <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-neutral-800 rounded-lg">
                                     <span className="text-sm font-medium">Safety Audits</span>
                                     <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">{t('common.approved')}</span>
                                 </div>
-                                <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                                <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-neutral-800 rounded-lg">
                                     <span className="text-sm font-medium">Quality Checks</span>
                                     <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">98% Pass</span>
                                 </div>

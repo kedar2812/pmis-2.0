@@ -115,13 +115,13 @@ const HealthSummaryPanel = ({
     ];
 
     const getStatusIcon = (healthy, noData) => {
-        if (noData) return <AlertCircle size={14} className="text-slate-400" />;
+        if (noData) return <AlertCircle size={14} className="text-slate-400 dark:text-neutral-500" />;
         if (healthy) return <CheckCircle size={14} className="text-emerald-500" />;
         return <XCircle size={14} className="text-rose-500" />;
     };
 
     const getStatusColor = (healthy, noData) => {
-        if (noData) return 'text-slate-500';
+        if (noData) return 'text-slate-500 dark:text-neutral-400';
         if (healthy) return 'text-emerald-600';
         return 'text-rose-600';
     };
@@ -130,13 +130,13 @@ const HealthSummaryPanel = ({
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-xl border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.08)] p-6"
+            className="relative overflow-hidden rounded-2xl bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl border border-slate-200 dark:border-neutral-700 shadow-sm dark:shadow-lg p-6"
         >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 dark:from-white/5 via-transparent to-transparent pointer-events-none" />
 
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-800">Project Health</h3>
-                <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded">Quick Status</span>
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Project Health</h3>
+                <span className="text-xs text-slate-400 dark:text-neutral-500 bg-slate-100 dark:bg-neutral-800 px-2 py-1 rounded">Quick Status</span>
             </div>
 
             <div className="space-y-3">
@@ -146,19 +146,19 @@ const HealthSummaryPanel = ({
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-50 cursor-pointer group transition-colors"
+                        className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-50 dark:hover:bg-neutral-800 cursor-pointer group transition-colors"
                         onClick={item.onClick}
                     >
                         <div className="flex items-center gap-3">
-                            <item.icon size={18} className="text-slate-600" />
-                            <span className="text-sm font-medium text-slate-700 w-20">{item.label}</span>
+                            <item.icon size={18} className="text-slate-600 dark:text-neutral-300" />
+                            <span className="text-sm font-medium text-slate-700 dark:text-neutral-200 w-20">{item.label}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             {getStatusIcon(item.healthy, item.noData)}
                             <span className={`text-sm ${getStatusColor(item.healthy, item.noData)}`}>
                                 {item.status}
                             </span>
-                            <ArrowRight size={14} className="text-slate-300 group-hover:text-primary-500 transition-colors" />
+                            <ArrowRight size={14} className="text-slate-300 dark:text-neutral-600 group-hover:text-blue-500 dark:group-hover:text-indigo-400 transition-colors" />
                         </div>
                     </motion.div>
                 ))}

@@ -37,14 +37,14 @@ const PhaseProgressCard = ({
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-xl border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.08)] p-6"
+            className="relative overflow-hidden rounded-2xl bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl border border-slate-200 dark:border-neutral-700 shadow-sm dark:shadow-lg p-6"
         >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 dark:from-white/5 via-transparent to-transparent pointer-events-none" />
 
             <div className="flex items-center justify-between mb-5">
-                <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white">{title}</h3>
                 <button
-                    className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+                    className="text-sm text-blue-600 dark:text-indigo-400 hover:text-blue-700 dark:hover:text-indigo-300 font-medium flex items-center gap-1"
                     onClick={() => navigate('/projects')}
                 >
                     View All <ChevronRight size={16} />
@@ -62,7 +62,7 @@ const PhaseProgressCard = ({
                         onClick={() => handlePhaseClick(phase)}
                     >
                         <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors">
+                            <span className="text-sm font-medium text-slate-700 dark:text-neutral-200 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                                 {phase.name}
                             </span>
                             <span
@@ -72,7 +72,7 @@ const PhaseProgressCard = ({
                                 {phase.progress}%
                             </span>
                         </div>
-                        <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-2.5 bg-slate-100 dark:bg-neutral-800 rounded-full overflow-hidden">
                             <motion.div
                                 className="h-full rounded-full"
                                 style={{ backgroundColor: phase.color }}
@@ -86,7 +86,7 @@ const PhaseProgressCard = ({
             </div>
 
             {displayPhases.length === 0 && (
-                <p className="text-center text-slate-400 text-sm py-4">No phase data available</p>
+                <p className="text-center text-slate-400 dark:text-neutral-500 text-sm py-4">No phase data available</p>
             )}
         </motion.div>
     );

@@ -224,17 +224,17 @@ const DocumentDetailModal = ({
     }
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] shadow-2xl overflow-hidden flex flex-col"
+                className="bg-white dark:bg-neutral-900 rounded-2xl w-full max-w-4xl max-h-[90vh] shadow-2xl overflow-hidden flex flex-col"
             >
                 {/* Header */}
-                <div className="flex justify-between items-start p-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50">
+                <div className="flex justify-between items-start p-4 border-b border-slate-200 dark:border-neutral-700 bg-gradient-to-r from-slate-50 to-blue-50 dark:from-neutral-800 dark:to-neutral-800">
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                            <h2 className="text-lg font-bold text-slate-800 truncate">
+                            <h2 className="text-lg font-bold text-slate-800 dark:text-white truncate">
                                 {document.title}
                             </h2>
                             {document.is_confidential && (

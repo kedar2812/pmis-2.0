@@ -125,7 +125,7 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
         animate={{ opacity: 1, backdropFilter: 'blur(12px)' }}
         exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm"
         style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
         onClick={onClose}
       >
@@ -134,7 +134,7 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.3, ease: 'easeInOut' }}
-          className="w-full h-full max-w-7xl max-h-[95vh] overflow-y-auto bg-white rounded-lg shadow-2xl"
+          className="w-full h-full max-w-7xl max-h-[95vh] overflow-y-auto bg-white dark:bg-neutral-900 rounded-lg shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}

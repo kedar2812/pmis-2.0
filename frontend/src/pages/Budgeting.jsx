@@ -102,14 +102,14 @@ const Budgeting = () => {
         <div className="p-6 space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Budget Allocation</h1>
-                    <p className="text-slate-500 text-sm">Link Funds to Schedule Milestones (No Money Without Time)</p>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Budget Allocation</h1>
+                    <p className="text-slate-500 dark:text-neutral-400 text-sm">Link Funds to Schedule Milestones (No Money Without Time)</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <select
                         value={selectedProject || ''}
                         onChange={handleProjectChange}
-                        className="px-3 py-2 border rounded-lg text-sm bg-white"
+                        className="px-3 py-2 border border-slate-200 dark:border-neutral-700 rounded-lg text-sm bg-white dark:bg-neutral-900 text-slate-900 dark:text-white"
                     >
                         {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                     </select>
@@ -121,9 +121,9 @@ const Budgeting = () => {
 
             {/* Content */}
             <div className="grid grid-cols-1 gap-6">
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-slate-200 dark:border-neutral-700 overflow-hidden">
                     <table className="w-full text-sm text-left">
-                        <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-200">
+                        <thead className="bg-slate-50 dark:bg-neutral-800 text-slate-500 dark:text-neutral-300 font-medium border-b border-slate-200 dark:border-neutral-700">
                             <tr>
                                 <th className="px-6 py-4">Linked Milestone</th>
                                 <th className="px-6 py-4">Cost Category</th>
@@ -132,20 +132,20 @@ const Budgeting = () => {
                                 <th className="px-6 py-4">Status</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
                             {budgets.map(item => (
-                                <tr key={item.id} className="hover:bg-slate-50">
-                                    <td className="px-6 py-4 font-medium text-slate-900 flex items-center gap-2">
+                                <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-neutral-800">
+                                    <td className="px-6 py-4 font-medium text-slate-900 dark:text-white flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-amber-500"></div>
                                         {item.milestone_name}
                                     </td>
-                                    <td className="px-6 py-4 text-slate-600 font-mono text-xs uppercase bg-slate-50 rounded px-2 w-fit">
+                                    <td className="px-6 py-4 text-slate-600 dark:text-neutral-300 font-mono text-xs uppercase bg-slate-50 dark:bg-neutral-800 rounded px-2 w-fit">
                                         {item.cost_category}
                                     </td>
-                                    <td className="px-6 py-4 text-slate-500 italic">
+                                    <td className="px-6 py-4 text-slate-500 dark:text-neutral-400 italic">
                                         {item.fund_name || funds.find(f => f.id === item.fund_head)?.name || 'Unknown Fund'}
                                     </td>
-                                    <td className="px-6 py-4 text-right font-bold text-slate-800">
+                                    <td className="px-6 py-4 text-right font-bold text-slate-800 dark:text-white">
                                         {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
                                     </td>
                                     <td className="px-6 py-4">
@@ -157,11 +157,11 @@ const Budgeting = () => {
                     </table>
                     {budgets.length === 0 && !loading && (
                         <div className="p-12 text-center flex flex-col items-center">
-                            <div className="bg-slate-50 p-4 rounded-full mb-3">
-                                <Coins size={32} className="text-slate-400" />
+                            <div className="bg-slate-50 dark:bg-neutral-800 p-4 rounded-full mb-3">
+                                <Coins size={32} className="text-slate-400 dark:text-neutral-500" />
                             </div>
-                            <h3 className="text-slate-900 font-bold mb-1">No Budget Allocated</h3>
-                            <p className="text-slate-500 text-sm max-w-sm">
+                            <h3 className="text-slate-900 dark:text-white font-bold mb-1">No Budget Allocated</h3>
+                            <p className="text-slate-500 dark:text-neutral-400 text-sm max-w-sm">
                                 Create a Milestone in Scheduling first, then allocate funds to it here.
                             </p>
                         </div>
@@ -180,7 +180,7 @@ const Budgeting = () => {
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 onClick={() => setIsModalOpen(false)}
-                                className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm"
+                                className="fixed inset-0 z-[9999] bg-black/50 dark:bg-black/70 backdrop-blur-sm"
                             />
                             {/* Modal Content */}
                             <motion.div
@@ -202,8 +202,8 @@ const Budgeting = () => {
                                     </div>
                                     <form onSubmit={handleSave} className="space-y-4">
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-700">Cost Category</label>
-                                            <select name="cost_category" className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
+                                            <label className="block text-xs font-bold text-slate-700 dark:text-neutral-300">Cost Category</label>
+                                            <select name="cost_category" className="w-full bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-600 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
                                                 <option value="civil_works">Civil Works</option>
                                                 <option value="electrical">Electrical</option>
                                                 <option value="plumbing">Plumbing</option>
@@ -211,8 +211,8 @@ const Budgeting = () => {
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-700">Select Milestone (Required)</label>
-                                            <select name="milestone" required className="w-full border border-amber-200 bg-amber-50 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
+                                            <label className="block text-xs font-bold text-slate-700 dark:text-neutral-300">Select Milestone (Required)</label>
+                                            <select name="milestone" required className="w-full border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 dark:text-white rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
                                                 <option value="">Select a Scheduled Milestone...</option>
                                                 {milestones.map(m => (
                                                     <option key={m.id} value={m.id}>{m.name} ({m.progress}%)</option>
@@ -223,8 +223,8 @@ const Budgeting = () => {
                                             )}
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-700">Fund Source</label>
-                                            <select name="fund_head" required className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
+                                            <label className="block text-xs font-bold text-slate-700 dark:text-neutral-300">Fund Source</label>
+                                            <select name="fund_head" required className="w-full bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-600 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
                                                 <option value="">Select Fund...</option>
                                                 {funds.map(f => (
                                                     <option key={f.id} value={f.id}>{f.name}</option>
@@ -232,12 +232,12 @@ const Budgeting = () => {
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-700">Amount to Allocate (INR)</label>
-                                            <input name="amount" type="number" required className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+                                            <label className="block text-xs font-bold text-slate-700 dark:text-neutral-300">Amount to Allocate (INR)</label>
+                                            <input name="amount" type="number" required className="w-full bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-600 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-700">Description</label>
-                                            <textarea name="description" className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none" rows="2"></textarea>
+                                            <label className="block text-xs font-bold text-slate-700 dark:text-neutral-300">Description</label>
+                                            <textarea name="description" className="w-full bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-600 rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none" rows="2"></textarea>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-2 pt-4">

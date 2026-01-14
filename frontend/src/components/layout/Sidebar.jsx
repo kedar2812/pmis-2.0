@@ -37,6 +37,7 @@ import { cn } from '@/lib/utils';
  * - Auto-close when navigating on mobile
  * - Scrollbar only visible when sidebar is expanded
  * - Smooth spring animations
+ * - Dark Mode: Uses semantic design tokens for automatic theme switching
  */
 
 // Sidebar width variants for liquid motion
@@ -261,13 +262,13 @@ const Sidebar = () => {
       {/* Mobile menu hamburger button - only visible when sidebar is CLOSED */}
       {!isMobileMenuOpen && (
         <motion.button
-          className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-white/80 backdrop-blur-md shadow-glass border border-transparent min-w-[44px] min-h-[44px] flex items-center justify-center"
+          className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md shadow-lg border border-slate-200 dark:border-neutral-700 min-w-[44px] min-h-[44px] flex items-center justify-center"
           onClick={() => setIsMobileMenuOpen(true)}
           whileTap={{ scale: 0.95 }}
           whileHover={{ scale: 1.05 }}
           aria-label="Open menu"
         >
-          <Menu size={24} className="text-slate-700" />
+          <Menu size={24} className="text-slate-800 dark:text-neutral-100" />
         </motion.button>
       )}
 
@@ -281,8 +282,8 @@ const Sidebar = () => {
         className={cn(
           // Base styles
           'fixed top-4 left-4 z-40 h-[calc(100vh-2rem)]',
-          'bg-white/80 backdrop-blur-xl border border-slate-200/50',
-          'rounded-2xl shadow-glass overflow-hidden',
+          'bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl border border-slate-200 dark:border-neutral-700',
+          'rounded-2xl shadow-lg overflow-hidden',
           // Mobile: slide in/out with smooth transition
           'transition-transform duration-300 ease-out',
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-[120%]',
@@ -296,7 +297,7 @@ const Sidebar = () => {
           {/* Header with logo and collapse button */}
           <div
             className={cn(
-              'border-b border-slate-200/50 flex items-center justify-between overflow-hidden flex-shrink-0',
+              'border-b border-slate-200 dark:border-neutral-700 flex items-center justify-between overflow-hidden flex-shrink-0',
               shouldShowExpanded ? 'p-6' : 'p-3'
             )}
           >
@@ -314,14 +315,14 @@ const Sidebar = () => {
                   transition={textTransition}
                   className="flex items-center gap-3 whitespace-nowrap min-w-0"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-md flex-shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-md flex-shrink-0">
                     <Building2 className="w-6 h-6 text-white" />
                   </div>
                   <div className="min-w-0">
-                    <h2 className="text-lg font-heading font-bold text-primary-600 truncate notranslate">
+                    <h2 className="text-lg font-heading font-bold text-blue-600 truncate notranslate">
                       PMIS
                     </h2>
-                    <p className="text-xs text-slate-500 truncate">
+                    <p className="text-xs text-slate-500 dark:text-neutral-400 truncate">
                       Zaheerabad Industrial Area
                     </p>
                   </div>
@@ -333,7 +334,7 @@ const Sidebar = () => {
                   transition={textTransition}
                   className="w-full flex items-center justify-center"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-md">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-md">
                     <Building2 className="w-5 h-5 text-white" />
                   </div>
                 </motion.div>
@@ -344,11 +345,11 @@ const Sidebar = () => {
             {isMobile && isMobileMenuOpen && (
               <motion.button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="lg:hidden p-2 hover:bg-slate-100/50 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className="lg:hidden p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 whileTap={{ scale: 0.9 }}
                 aria-label="Close menu"
               >
-                <X size={24} className="text-slate-600" />
+                <X size={24} className="text-slate-600 dark:text-neutral-300" />
               </motion.button>
             )}
 
@@ -357,7 +358,7 @@ const Sidebar = () => {
               layout
               onClick={() => setIsCollapsed(!isCollapsed)}
               className={cn(
-                'hidden lg:flex rounded-lg hover:bg-slate-100/50 transition-colors flex-shrink-0',
+                'hidden lg:flex rounded-lg hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors flex-shrink-0',
                 isCollapsed ? 'p-1.5' : 'p-2'
               )}
               whileHover={{ scale: 1.1 }}
@@ -365,9 +366,9 @@ const Sidebar = () => {
               aria-label={isCollapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
             >
               {isCollapsed ? (
-                <ChevronRight size={18} className="text-slate-600" />
+                <ChevronRight size={18} className="text-slate-600 dark:text-neutral-300" />
               ) : (
-                <ChevronLeft size={20} className="text-slate-600" />
+                <ChevronLeft size={20} className="text-slate-600 dark:text-neutral-300" />
               )}
             </motion.button>
           </div>
@@ -398,10 +399,10 @@ const Sidebar = () => {
                     onClick={handleLinkClick}
                     className={cn(
                       'flex items-center gap-3 rounded-xl transition-all duration-200 overflow-hidden',
-                      'focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2',
+                      'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
                       isActive
-                        ? 'bg-gradient-to-r from-primary-50 to-blue-50 text-primary-700 font-semibold shadow-sm pl-3 py-3 pr-4'
-                        : 'text-slate-700 hover:bg-slate-100/50 hover:text-primary-600 px-4 py-3'
+                        ? 'bg-blue-50 dark:bg-neutral-800 text-blue-700 dark:text-blue-400 font-semibold shadow-sm pl-3 py-3 pr-4'
+                        : 'text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-neutral-800 hover:text-blue-600 dark:hover:text-blue-400 px-4 py-3'
                     )}
                     title={!shouldShowExpanded ? item.label : undefined}
                     aria-label={item.label}
@@ -409,7 +410,7 @@ const Sidebar = () => {
                     {/* Active indicator pill */}
                     {isActive && (
                       <motion.div
-                        className="h-6 w-1 bg-gradient-to-b from-primary-600 to-primary-700 rounded-full shadow-blue-glow flex-shrink-0"
+                        className="h-6 w-1 bg-gradient-to-b from-blue-600 to-blue-700 rounded-full shadow-md flex-shrink-0"
                         layoutId="activeIndicator"
                         initial={{ scaleY: 0 }}
                         animate={{ scaleY: 1 }}

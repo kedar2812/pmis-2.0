@@ -66,8 +66,8 @@ const FundManagement = () => {
         <div className="p-6 space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Fund Management</h1>
-                    <p className="text-slate-500 text-sm">Track Grants, Loans, and Budgetary Allocations</p>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Fund Management</h1>
+                    <p className="text-slate-500 dark:text-neutral-400 text-sm">Track Grants, Loans, and Budgetary Allocations</p>
                 </div>
                 <Button onClick={() => setIsModalOpen(true)} className="bg-primary-600 text-white">
                     <Plus size={18} className="mr-2" /> Add Fund Source
@@ -90,7 +90,7 @@ const FundManagement = () => {
             </div>
 
             {/* List */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-slate-200 dark:border-neutral-700 overflow-hidden">
                 <table className="w-full text-sm text-left">
                     <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-200">
                         <tr>

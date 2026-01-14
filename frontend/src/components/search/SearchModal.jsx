@@ -279,7 +279,7 @@ const SearchModal = ({ isOpen, onClose, onResultSelect }) => {
         >
             {/* Backdrop */}
             <motion.div
-                className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+                className="absolute inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm"
                 onClick={onClose}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -288,7 +288,7 @@ const SearchModal = ({ isOpen, onClose, onResultSelect }) => {
 
             {/* Modal Content */}
             <motion.div
-                className="relative w-full max-w-2xl bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200/60 overflow-hidden"
+                className="relative w-full max-w-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200/60 dark:border-neutral-700/60 overflow-hidden"
                 initial={{ opacity: 0, scale: 0.95, y: -20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -20 }}

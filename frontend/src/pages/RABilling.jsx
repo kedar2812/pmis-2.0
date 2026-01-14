@@ -151,8 +151,8 @@ const RABilling = () => {
         <div className="p-6 space-y-6 print:hidden">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-heading font-bold text-slate-900">RA Billing Register</h1>
-                    <p className="text-slate-500 mt-1">Manage Contractor Running Account Bills and Certifications</p>
+                    <h1 className="text-3xl font-heading font-bold text-slate-900 dark:text-white">RA Billing Register</h1>
+                    <p className="text-slate-500 dark:text-neutral-400 mt-1">Manage Contractor Running Account Bills and Certifications</p>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={handleExportSummary} className="gap-2">
@@ -187,8 +187,8 @@ const RABilling = () => {
                                 <stat.icon className={stat.color} size={24} />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-slate-500">{stat.label}</p>
-                                <h3 className="text-2xl font-bold text-slate-900">{stat.value}</h3>
+                                <p className="text-sm font-medium text-slate-500 dark:text-neutral-400">{stat.label}</p>
+                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{stat.value}</h3>
                             </div>
                         </Card>
                     </motion.div>
@@ -199,11 +199,11 @@ const RABilling = () => {
             <Card className="p-4">
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500" size={20} />
                         <input
                             type="text"
                             placeholder="Search by Bill No, Project, or Contractor..."
-                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-indigo-500 transition-all"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />

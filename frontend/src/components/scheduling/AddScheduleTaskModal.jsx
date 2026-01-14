@@ -98,8 +98,8 @@ const AddScheduleTaskModal = ({ isOpen, onClose, projectId, onTaskCreated, editT
 
     if (!isOpen) return null;
 
-    const inputClasses = "w-full border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none";
-    const labelClasses = "block text-sm font-semibold text-slate-700 mb-1.5";
+    const inputClasses = "w-full border border-slate-200 dark:border-neutral-600 bg-white dark:bg-neutral-900 dark:text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none";
+    const labelClasses = "block text-sm font-semibold text-slate-700 dark:text-neutral-300 mb-1.5";
 
     return createPortal(
         <AnimatePresence>
@@ -111,7 +111,7 @@ const AddScheduleTaskModal = ({ isOpen, onClose, projectId, onTaskCreated, editT
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={!isLoading ? onClose : undefined}
-                        className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-[9999] bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm"
                     />
                     {/* Modal Content */}
                     <motion.div
@@ -122,20 +122,20 @@ const AddScheduleTaskModal = ({ isOpen, onClose, projectId, onTaskCreated, editT
                         className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none"
                     >
                         <div
-                            className="bg-white rounded-xl shadow-2xl pointer-events-auto w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col"
+                            className="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl pointer-events-auto w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Header */}
-                            <div className="flex justify-between items-center p-5 border-b border-slate-100 bg-slate-50/50 flex-shrink-0">
-                                <h2 className="text-lg font-bold text-slate-800">
+                            <div className="flex justify-between items-center p-5 border-b border-slate-100 dark:border-neutral-700 bg-slate-50/50 dark:bg-neutral-800/50 flex-shrink-0">
+                                <h2 className="text-lg font-bold text-slate-800 dark:text-white">
                                     {editTask ? 'Edit Task' : 'Add Schedule Task'}
                                 </h2>
                                 <button
                                     onClick={onClose}
                                     disabled={isLoading}
-                                    className="p-1 hover:bg-slate-100 rounded-full transition-colors disabled:opacity-50"
+                                    className="p-1 hover:bg-slate-100 dark:hover:bg-neutral-700 rounded-full transition-colors disabled:opacity-50"
                                 >
-                                    <X size={20} className="text-slate-500" />
+                                    <X size={20} className="text-slate-500 dark:text-neutral-400" />
                                 </button>
                             </div>
 

@@ -367,20 +367,20 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
     );
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden"
+                className="bg-white dark:bg-neutral-900 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden"
             >
                 {/* Header */}
-                <div className="flex justify-between items-center p-4 border-b border-slate-200 bg-gradient-to-r from-primary-50 to-blue-50">
+                <div className="flex justify-between items-center p-4 border-b border-slate-200 dark:border-neutral-700 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-neutral-800 dark:to-neutral-800">
                     <div>
-                        <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <FileSpreadsheet className="text-primary-600" size={20} />
+                        <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            <FileSpreadsheet className="text-primary-600 dark:text-indigo-400" size={20} />
                             Import Schedule
                         </h2>
-                        <p className="text-xs text-slate-500 mt-0.5">
+                        <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5">
                             {step === 1 && 'Step 1: Upload File'}
                             {step === 2 && 'Step 2: Map Columns'}
                             {step === 3 && 'Step 3: Complete'}
@@ -388,10 +388,10 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+                        className="p-2 hover:bg-white/50 dark:hover:bg-neutral-700 rounded-lg transition-colors"
                         disabled={importing}
                     >
-                        <X size={20} className="text-slate-500" />
+                        <X size={20} className="text-slate-500 dark:text-neutral-400" />
                     </button>
                 </div>
 

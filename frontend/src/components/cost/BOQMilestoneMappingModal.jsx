@@ -142,28 +142,28 @@ const BOQMilestoneMappingModal = ({ boqItem, projectId, onClose, onUpdated }) =>
     };
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="bg-white rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden"
+                className="bg-white dark:bg-neutral-900 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden"
             >
                 {/* Header */}
-                <div className="flex justify-between items-center p-4 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50">
+                <div className="flex justify-between items-center p-4 border-b border-slate-200 dark:border-neutral-700 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-neutral-800 dark:to-neutral-800">
                     <div>
-                        <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <Link2 className="text-amber-600" size={20} />
+                        <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            <Link2 className="text-amber-600 dark:text-amber-400" size={20} />
                             Link to Milestones
                         </h2>
-                        <p className="text-xs text-slate-500 mt-0.5">
+                        <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5">
                             Allocate BOQ cost across schedule milestones
                         </p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+                        className="p-2 hover:bg-white/50 dark:hover:bg-neutral-700 rounded-lg transition-colors"
                     >
-                        <X size={20} className="text-slate-500" />
+                        <X size={20} className="text-slate-500 dark:text-neutral-400" />
                     </button>
                 </div>
 

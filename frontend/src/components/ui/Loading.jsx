@@ -35,16 +35,16 @@ const Loading = ({
             exit={{ opacity: 0 }}
             className="flex flex-col items-center justify-center gap-3"
         >
-            <Loader2 className={`${spinnerSize} text-primary-600 animate-spin`} />
+            <Loader2 className={`${spinnerSize} text-blue-600 dark:text-indigo-400 animate-spin`} />
             {text && (
-                <p className={`${textSize} text-slate-600 font-medium`}>{text}</p>
+                <p className={`${textSize} text-slate-600 dark:text-neutral-300 font-medium`}>{text}</p>
             )}
         </motion.div>
     );
 
     if (fullScreen) {
         return (
-            <div className="fixed inset-0 bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-neutral-950 dark:to-neutral-900 flex items-center justify-center z-50">
                 {content}
             </div>
         );
@@ -52,7 +52,7 @@ const Loading = ({
 
     if (overlay) {
         return (
-            <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10 rounded-xl">
+            <div className="absolute inset-0 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-sm flex items-center justify-center z-10 rounded-xl">
                 {content}
             </div>
         );
@@ -103,11 +103,11 @@ export const CardLoading = ({ count = 3 }) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: i * 0.1 }}
-                    className="bg-white rounded-2xl shadow-sm p-6 animate-pulse"
+                    className="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm dark:shadow-lg p-6 animate-pulse"
                 >
-                    <div className="h-4 bg-slate-200 rounded w-3/4 mb-3"></div>
-                    <div className="h-3 bg-slate-100 rounded w-1/2 mb-4"></div>
-                    <div className="h-8 bg-slate-100 rounded w-full"></div>
+                    <div className="h-4 bg-slate-200 dark:bg-neutral-700 rounded w-3/4 mb-3"></div>
+                    <div className="h-3 bg-slate-100 dark:bg-neutral-800 rounded w-1/2 mb-4"></div>
+                    <div className="h-8 bg-slate-100 dark:bg-neutral-800 rounded w-full"></div>
                 </motion.div>
             ))}
         </>
@@ -125,7 +125,7 @@ export const TableLoading = ({ rows = 5, cols = 4 }) => {
                 <tr key={rowIndex} className="animate-pulse">
                     {Array.from({ length: cols }).map((_, colIndex) => (
                         <td key={colIndex} className="px-4 py-3">
-                            <div className="h-4 bg-slate-200 rounded w-full"></div>
+                            <div className="h-4 bg-slate-200 dark:bg-neutral-700 rounded w-full"></div>
                         </td>
                     ))}
                 </tr>

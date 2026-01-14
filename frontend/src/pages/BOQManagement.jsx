@@ -558,15 +558,15 @@ const BOQManagement = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-neutral-300 bg-clip-text text-transparent">
                         Bill of Quantities (BOQ)
                     </h1>
-                    <p className="text-slate-500 mt-1">Manage Contract Baselines and Sanctioned Quantities</p>
+                    <p className="text-slate-500 dark:text-neutral-400 mt-1">Manage Contract Baselines and Sanctioned Quantities</p>
                 </div>
 
                 <div className="flex gap-2 items-center flex-nowrap shrink-0">
                     <select
-                        className="px-3 py-2 border border-slate-200 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm"
+                        className="px-3 py-2 border border-slate-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-900 text-slate-900 dark:text-white shadow-sm focus:ring-2 focus:ring-primary-500 dark:focus:ring-indigo-500 focus:border-primary-500 transition-all text-sm"
                         value={selectedProject}
                         onChange={(e) => setSelectedProject(e.target.value)}
                     >
@@ -684,8 +684,8 @@ const BOQManagement = () => {
                                         <div className="p-4 bg-primary-100 rounded-full mb-6">
                                             <FileSpreadsheet className="w-12 h-12 text-primary-600" />
                                         </div>
-                                        <h3 className="text-xl font-semibold text-slate-900 mb-2">Upload Excel File</h3>
-                                        <p className="text-slate-500 mb-6 text-center max-w-md">
+                                        <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Upload Excel File</h3>
+                                        <p className="text-slate-500 dark:text-neutral-400 mb-6 text-center max-w-md">
                                             Upload your BOQ Excel file (.xlsx). Ensure the first row contains column headers.
                                         </p>
 
@@ -716,7 +716,7 @@ const BOQManagement = () => {
                                         </Button>
 
                                         {impFile && (
-                                            <div className="mt-4 px-4 py-2 bg-white rounded-lg border border-primary-200 text-sm text-slate-700 flex items-center gap-2">
+                                            <div className="mt-4 px-4 py-2 bg-white dark:bg-neutral-800 rounded-lg border border-primary-200 dark:border-indigo-600 text-sm text-slate-700 dark:text-neutral-200 flex items-center gap-2">
                                                 <FileSpreadsheet className="w-4 h-4 text-primary-500" />
                                                 {impFile.name}
                                             </div>
@@ -781,8 +781,8 @@ const BOQManagement = () => {
                                         <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
                                             <Check className="w-8 h-8 text-green-600" />
                                         </div>
-                                        <h3 className="text-2xl font-bold text-slate-900 mb-2">Import Complete!</h3>
-                                        <p className="text-slate-500 mb-6">
+                                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Import Complete!</h3>
+                                        <p className="text-slate-500 dark:text-neutral-400 mb-6">
                                             Successfully imported <span className="font-bold text-primary-600">{importResult.imported}</span> BOQ items.
                                         </p>
                                         {importResult.errors?.length > 0 && (

@@ -5,6 +5,159 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   SEMANTIC DESIGN TOKENS
+   Dark Mode Architecture using CSS Variables
+   ============================================ */
+
+@layer base {
+  :root {
+    /* ===== Background Colors ===== */
+    /* Primary: Main page background */
+    --bg-primary: 255 255 255;
+    /* white */
+    /* Secondary: Alternate sections, sidebars */
+    --bg-secondary: 248 250 252;
+    /* slate-50 */
+    /* Surface: Cards, panels, elevated surfaces */
+    --bg-surface: 241 245 249;
+    /* slate-100 */
+    /* Card: Specific card backgrounds */
+    --bg-card: 255 255 255;
+    /* white */
+    /* Hover: Interactive element hover states */
+    --bg-hover: 241 245 249;
+    /* slate-100 */
+    /* Active: Selected/active states */
+    --bg-active: 226 232 240;
+    /* slate-200 */
+
+    /* ===== Text Colors ===== */
+    /* Primary: Headings, primary text */
+    --text-primary: 15 23 42;
+    /* slate-900 */
+    /* Secondary: Body text, labels */
+    --text-secondary: 71 85 105;
+    /* slate-600 */
+    /* Muted: Subtle text, placeholders */
+    --text-muted: 100 116 139;
+    /* slate-500 */
+    /* Inverse: Text on dark backgrounds */
+    --text-inverse: 248 250 252;
+    /* slate-50 */
+
+    /* ===== Border Colors ===== */
+    /* Default: Standard borders */
+    --border-default: 226 232 240;
+    /* slate-200 */
+    /* Muted: Subtle dividers */
+    --border-muted: 241 245 249;
+    /* slate-100 */
+    /* Focus: Focused interactive elements */
+    --border-focus: 37 99 235;
+    /* blue-600 */
+
+    /* ===== Semantic State Colors ===== */
+    /* Success */
+    --success-bg: 220 252 231;
+    /* green-100 */
+    --success-text: 22 163 74;
+    /* green-600 */
+    --success-border: 134 239 172;
+    /* green-300 */
+
+    /* Error */
+    --error-bg: 254 226 226;
+    /* red-100 */
+    --error-text: 220 38 38;
+    /* red-600 */
+    --error-border: 252 165 165;
+    /* red-300 */
+
+    /* Warning */
+    --warning-bg: 254 243 199;
+    /* amber-100 */
+    --warning-text: 217 119 6;
+    /* amber-600 */
+    --warning-border: 253 230 138;
+    /* amber-200 */
+
+    /* Info */
+    --info-bg: 219 234 254;
+    /* blue-100 */
+    --info-text: 37 99 235;
+    /* blue-600 */
+    --info-border: 147 197 253;
+    /* blue-300 */
+
+    /* ===== Accent/Brand Colors ===== */
+    /* Primary accent */
+    --accent-primary: 37 99 235;
+    /* blue-600 */
+    --accent-primary-hover: 29 78 216;
+    /* blue-700 */
+    --accent-primary-active: 30 64 175;
+    /* blue-800 */
+
+    /* Secondary accent (if needed) */
+    --accent-secondary: 99 102 241;
+    /* indigo-500 */
+    --accent-secondary-hover: 79 70 229;
+    /* indigo-600 */
+
+    /* ===== Shadow Colors ===== */
+    --shadow-sm: 0 0 0 0;
+    /* Light mode uses default shadows */
+    --shadow-md: 0 0 0 0;
+    --shadow-lg: 0 0 0 0;
+  }
+
+  /* DARK MODE - Simple Background Inversion */
+  .dark {
+    /* ===== Only Background & Text Inversion ===== */
+    /* Background: White → Black */
+    --bg-primary: 0 0 0;
+    /* Black */
+    --bg-secondary: 17 24 39;
+    /* Very dark gray */
+    --bg-surface: 31 41 55;
+    /* Dark gray */
+    --bg-card: 17 24 39;
+    /* Very dark gray */
+    --bg-hover: 31 41 55;
+    /* Dark gray */
+    --bg-active: 55 65 81;
+    /* Medium gray */
+
+    /* Text: Black → White */
+    --text-primary: 255 255 255;
+    /* White */
+    --text-secondary: 209 213 219;
+    /* Light gray */
+    --text-muted: 156 163 175;
+    /* Medium gray */
+    --text-inverse: 0 0 0;
+    /* Black (for light backgrounds) */
+
+    /* Borders: Adjusted for dark background */
+    --border-default: 55 65 81;
+    /* Visible on dark */
+    --border-muted: 31 41 55;
+    /* Subtle on dark */
+    --border-focus: 59 130 246;
+    /* Keep blue for focus */
+
+    /* ===== Keep All Other Colors Unchanged ===== */
+    /* Success, Error, Warning, Info stay the same as light mode */
+    /* Accent colors stay the same as light mode */
+    /* These are defined in the :root and DON'T change in dark mode */
+  }
+}
+
+/* ============================================
+   ORIGINAL ROOT STYLES
+   ============================================ */
+
 :root {
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -67,16 +220,26 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
+  background: rgb(203 213 225 / 0.5);
+  border-radius: 10px;
+  transition: background 0.2s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: rgb(148 163 184 / 0.7);
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+  background: rgb(71 85 105 / 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgb(100 116 139 / 0.7);
 }
 
 /* Backdrop blur support for better browser compatibility */

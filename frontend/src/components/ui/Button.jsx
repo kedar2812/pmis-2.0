@@ -44,7 +44,7 @@ const Button = forwardRef(
               backgroundSize: '200% 100%',
             }}
           />
-          
+
           {/* Shine effect */}
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
@@ -52,7 +52,7 @@ const Button = forwardRef(
             animate={{ x: hovered ? '100%' : '-100%' }}
             transition={{ duration: 0.6, ease: 'easeInOut' }}
           />
-          
+
           <span className="relative z-10 text-white font-semibold flex items-center gap-2 whitespace-nowrap">{children}</span>
         </motion.button>
       );
@@ -66,9 +66,9 @@ const Button = forwardRef(
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2',
           'disabled:pointer-events-none disabled:opacity-50',
           {
-            'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50': variant === 'outline',
-            'text-slate-700 hover:bg-slate-100': variant === 'ghost',
-            'bg-red-600 text-white hover:bg-red-700': variant === 'destructive',
+            'border border-slate-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-slate-700 dark:text-neutral-200 hover:bg-slate-50 dark:hover:bg-neutral-800': variant === 'outline',
+            'text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-neutral-800': variant === 'ghost',
+            'bg-red-600 dark:bg-red-700 text-white hover:bg-red-700 dark:hover:bg-red-800': variant === 'destructive',
             'h-8 px-3 text-sm': size === 'sm',
             'h-10 px-4': size === 'md',
             'h-12 px-6 text-lg': size === 'lg',

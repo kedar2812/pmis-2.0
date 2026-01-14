@@ -36,12 +36,12 @@ const Toggle = ({
             {(label || description) && (
                 <div className="flex-1 mr-4">
                     {label && (
-                        <span className="text-sm font-medium text-slate-700">
+                        <span className="text-sm font-medium text-slate-700 dark:text-neutral-300">
                             {label}
                         </span>
                     )}
                     {description && (
-                        <p className="text-xs text-slate-400 mt-0.5">
+                        <p className="text-xs text-slate-400 dark:text-neutral-500 mt-0.5">
                             {description}
                         </p>
                     )}
@@ -60,7 +60,7 @@ const Toggle = ({
                     rounded-full cursor-pointer
                     transition-colors duration-200 ease-in-out
                     focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
-                    ${isOn ? 'bg-primary-600' : 'bg-slate-300'}
+                    ${isOn ? 'bg-primary-600' : 'bg-slate-300 dark:bg-neutral-600'}
                     ${disabled ? 'cursor-not-allowed' : 'hover:opacity-90'}
                 `}
             >

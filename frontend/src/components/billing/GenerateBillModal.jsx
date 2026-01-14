@@ -305,31 +305,31 @@ export const GenerateBillModal = ({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm print:bg-white print:static print:inset-auto"
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm print:bg-white print:static print:inset-auto"
                 >
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden print:shadow-none print:w-full print:max-w-none print:max-h-none print:h-auto"
+                        className="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden print:shadow-none print:w-full print:max-w-none print:max-h-none print:h-auto"
                         onClick={e => e.stopPropagation()}
                     >
                         {/* Header */}
-                        <div className="flex-none bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between z-10 print:hidden">
+                        <div className="flex-none bg-white dark:bg-neutral-900 border-b border-slate-200 dark:border-neutral-700 px-6 py-4 flex items-center justify-between z-10 print:hidden">
                             <div className="flex items-center gap-3">
                                 {viewMode === 'preview' && (
-                                    <button onClick={() => setViewMode('success')} className="p-1 hover:bg-slate-100 rounded-full mr-1">
-                                        <ArrowLeft size={20} className="text-slate-600" />
+                                    <button onClick={() => setViewMode('success')} className="p-1 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full mr-1">
+                                        <ArrowLeft size={20} className="text-slate-600 dark:text-neutral-400" />
                                     </button>
                                 )}
-                                <div className="p-2 bg-indigo-50 text-indigo-700 rounded-lg">
+                                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-lg">
                                     <Calculator size={24} />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-bold text-slate-900">
+                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                                         {viewMode === 'edit' ? 'RA Bill Calculator' : viewMode === 'preview' ? 'Bill Preview' : 'Bill Generated'}
                                     </h2>
-                                    <p className="text-sm text-slate-500">
+                                    <p className="text-sm text-slate-500 dark:text-neutral-400">
                                         {viewMode === 'edit' ? 'Generate Rule-based Running Account Bills' : 'Review and Print'}
                                     </p>
                                 </div>
@@ -337,7 +337,7 @@ export const GenerateBillModal = ({
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={onClose}
-                                    className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                    className="p-2 text-slate-400 dark:text-neutral-400 hover:text-slate-600 dark:hover:text-neutral-300 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
                                 >
                                     <X size={20} />
                                 </button>

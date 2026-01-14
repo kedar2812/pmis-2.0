@@ -7,6 +7,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PMIS - Zaheerabad Industrial Area</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <!-- FOUC Prevention: Apply dark mode before React hydrates -->
+  <!-- This script runs synchronously to prevent white flash on page load -->
+  <script>
+    (function() {
+      try {
+        // Get theme from localStorage (default to 'system')
+        const theme = localStorage.getItem('app-theme') || 'system';
+        
+        // Determine if we should apply dark mode
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const shouldBeDark = theme === 'dark' || (theme === 'system' && prefersDark);
+        
+        // Apply dark class immediately if needed
+        if (shouldBeDark) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (e) {
+        // Fail silently - React will handle theme on load
+        console.warn('Failed to apply initial theme:', e);
+      }
+    })();
+  </script>
 </head>
 
 <body>

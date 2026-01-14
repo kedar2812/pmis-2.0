@@ -58,28 +58,28 @@ const InviteUserModal = ({ isOpen, onClose, onSuccess }) => {
     if (!isOpen) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4"
+                className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full max-w-lg mx-4"
             >
-                <div className="p-6 border-b border-slate-200">
-                    <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <div className="p-6 border-b border-slate-200 dark:border-neutral-700">
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                         <UserPlus className="text-primary-600" size={24} />
                         Invite Internal User
                     </h2>
-                    <p className="text-sm text-slate-500 mt-1">Send an invite to a new team member</p>
+                    <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">Send an invite to a new team member</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Email <span className="text-red-500">*</span></label>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Email <span className="text-red-500">*</span></label>
                         <input
                             type="email"
                             value={formData.email}
                             onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                            className={`w-full px-4 py-2 rounded-lg border ${errors.email ? 'border-red-300' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-primary-500`}
+                            className={`w-full px-4 py-2 bg-white dark:bg-neutral-900 dark:text-white rounded-lg border ${errors.email ? 'border-red-300' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-primary-500`}
                             placeholder="user@example.com"
                         />
                         {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
@@ -87,27 +87,27 @@ const InviteUserModal = ({ isOpen, onClose, onSuccess }) => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">First Name <span className="text-red-500">*</span></label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">First Name <span className="text-red-500">*</span></label>
                             <input
                                 type="text"
                                 value={formData.first_name}
                                 onChange={(e) => setFormData(prev => ({ ...prev, first_name: e.target.value }))}
-                                className={`w-full px-4 py-2 rounded-lg border ${errors.first_name ? 'border-red-300' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-primary-500`}
+                                className={`w-full px-4 py-2 bg-white dark:bg-neutral-900 dark:text-white rounded-lg border ${errors.first_name ? 'border-red-300' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-primary-500`}
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Last Name <span className="text-red-500">*</span></label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Last Name <span className="text-red-500">*</span></label>
                             <input
                                 type="text"
                                 value={formData.last_name}
                                 onChange={(e) => setFormData(prev => ({ ...prev, last_name: e.target.value }))}
-                                className={`w-full px-4 py-2 rounded-lg border ${errors.last_name ? 'border-red-300' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-primary-500`}
+                                className={`w-full px-4 py-2 bg-white dark:bg-neutral-900 dark:text-white rounded-lg border ${errors.last_name ? 'border-red-300' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-primary-500`}
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Role <span className="text-red-500">*</span></label>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Role <span className="text-red-500">*</span></label>
                         <select
                             value={formData.role}
                             onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
@@ -123,7 +123,7 @@ const InviteUserModal = ({ isOpen, onClose, onSuccess }) => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Department</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Department</label>
                             <input
                                 type="text"
                                 value={formData.department}
@@ -132,7 +132,7 @@ const InviteUserModal = ({ isOpen, onClose, onSuccess }) => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Phone</label>
                             <input
                                 type="text"
                                 value={formData.phone_number}
@@ -197,47 +197,47 @@ const UserDetailModal = ({ isOpen, onClose, user, onApprove, onReject }) => {
                     {/* User Info */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <p className="text-xs text-slate-500 uppercase font-medium">Role</p>
-                            <p className="text-slate-900 font-medium">{user.role?.replace('_', ' ')}</p>
+                            <p className="text-xs text-slate-500 dark:text-neutral-400 uppercase font-medium">Role</p>
+                            <p className="text-slate-900 dark:text-white font-medium">{user.role?.replace('_', ' ')}</p>
                         </div>
                         <div>
-                            <p className="text-xs text-slate-500 uppercase font-medium">Status</p>
-                            <p className="text-slate-900 font-medium">{user.account_status}</p>
+                            <p className="text-xs text-slate-500 dark:text-neutral-400 uppercase font-medium">Status</p>
+                            <p className="text-slate-900 dark:text-white font-medium">{user.account_status}</p>
                         </div>
                         {user.company_name && (
                             <div className="col-span-2">
-                                <p className="text-xs text-slate-500 uppercase font-medium">Company</p>
-                                <p className="text-slate-900 font-medium">{user.company_name}</p>
+                                <p className="text-xs text-slate-500 dark:text-neutral-400 uppercase font-medium">Company</p>
+                                <p className="text-slate-900 dark:text-white font-medium">{user.company_name}</p>
                             </div>
                         )}
                         {user.pan_number && (
                             <>
                                 <div>
-                                    <p className="text-xs text-slate-500 uppercase font-medium">PAN</p>
-                                    <p className="text-slate-900 font-mono">{user.pan_number}</p>
+                                    <p className="text-xs text-slate-500 dark:text-neutral-400 uppercase font-medium">PAN</p>
+                                    <p className="text-slate-900 dark:text-white font-mono">{user.pan_number}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-500 uppercase font-medium">GSTIN</p>
-                                    <p className="text-slate-900 font-mono">{user.gstin_number}</p>
+                                    <p className="text-xs text-slate-500 dark:text-neutral-400 uppercase font-medium">GSTIN</p>
+                                    <p className="text-slate-900 dark:text-white font-mono">{user.gstin_number}</p>
                                 </div>
                             </>
                         )}
                         {user.bank_name && (
                             <>
                                 <div>
-                                    <p className="text-xs text-slate-500 uppercase font-medium">Bank</p>
-                                    <p className="text-slate-900">{user.bank_name}</p>
+                                    <p className="text-xs text-slate-500 dark:text-neutral-400 uppercase font-medium">Bank</p>
+                                    <p className="text-slate-900 dark:text-white">{user.bank_name}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-500 uppercase font-medium">IFSC</p>
-                                    <p className="text-slate-900 font-mono">{user.ifsc_code}</p>
+                                    <p className="text-xs text-slate-500 dark:text-neutral-400 uppercase font-medium">IFSC</p>
+                                    <p className="text-slate-900 dark:text-white font-mono">{user.ifsc_code}</p>
                                 </div>
                             </>
                         )}
                         {user.full_address && (
                             <div className="col-span-2">
-                                <p className="text-xs text-slate-500 uppercase font-medium">Address</p>
-                                <p className="text-slate-900">{user.full_address}</p>
+                                <p className="text-xs text-slate-500 dark:text-neutral-400 uppercase font-medium">Address</p>
+                                <p className="text-slate-900 dark:text-white">{user.full_address}</p>
                             </div>
                         )}
                     </div>
@@ -433,10 +433,10 @@ const UserManagement = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-heading font-bold text-slate-900 flex items-center gap-2">
+                    <h1 className="text-3xl font-heading font-bold text-slate-900 dark:text-white flex items-center gap-2">
                         <Users className="text-primary-600" /> User Management
                     </h1>
-                    <p className="text-slate-500 mt-1">Manage system users, roles, and approvals</p>
+                    <p className="text-slate-500 dark:text-neutral-400 mt-1">Manage system users, roles, and approvals</p>
                 </div>
                 <div className="flex gap-3">
                     <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
@@ -457,8 +457,8 @@ const UserManagement = () => {
                             <Users className="w-6 h-6 text-primary-600" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-slate-900">{users.length}</p>
-                            <p className="text-sm text-slate-500">Total Users</p>
+                            <p className="text-2xl font-bold text-slate-900 dark:text-white">{users.length}</p>
+                            <p className="text-sm text-slate-500 dark:text-neutral-400">Total Users</p>
                         </div>
                     </div>
                 </Card>
@@ -468,8 +468,8 @@ const UserManagement = () => {
                             <CheckCircle2 className="w-6 h-6 text-green-600" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-slate-900">{users.filter(u => u.account_status === 'ACTIVE').length}</p>
-                            <p className="text-sm text-slate-500">Active</p>
+                            <p className="text-2xl font-bold text-slate-900 dark:text-white">{users.filter(u => u.account_status === 'ACTIVE').length}</p>
+                            <p className="text-sm text-slate-500 dark:text-neutral-400">Active</p>
                         </div>
                     </div>
                 </Card>
@@ -479,8 +479,8 @@ const UserManagement = () => {
                             <Clock className="w-6 h-6 text-amber-600" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-slate-900">{pendingUsers.length}</p>
-                            <p className="text-sm text-slate-500">Pending Approval</p>
+                            <p className="text-2xl font-bold text-slate-900 dark:text-white">{pendingUsers.length}</p>
+                            <p className="text-sm text-slate-500 dark:text-neutral-400">Pending Approval</p>
                         </div>
                     </div>
                 </Card>
@@ -490,8 +490,8 @@ const UserManagement = () => {
                             <Building2 className="w-6 h-6 text-orange-600" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-slate-900">{users.filter(u => u.role === 'EPC_Contractor').length}</p>
-                            <p className="text-sm text-slate-500">Contractors</p>
+                            <p className="text-2xl font-bold text-slate-900 dark:text-white">{users.filter(u => u.role === 'EPC_Contractor').length}</p>
+                            <p className="text-sm text-slate-500 dark:text-neutral-400">Contractors</p>
                         </div>
                     </div>
                 </Card>
@@ -565,7 +565,7 @@ const UserManagement = () => {
             </Card>
 
             {/* Users Table */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-slate-200 dark:border-neutral-700 overflow-hidden">
                 {isLoading ? (
                     <div className="p-12 text-center">
                         <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary-600" />
@@ -597,9 +597,9 @@ const UserManagement = () => {
                                                         <p className="font-medium text-slate-900">
                                                             {u.first_name} {u.last_name}
                                                         </p>
-                                                        <p className="text-sm text-slate-500">{u.username}</p>
+                                                        <p className="text-sm text-slate-500 dark:text-neutral-400">{u.username}</p>
                                                         {u.company_name && (
-                                                            <p className="text-xs text-slate-400 flex items-center gap-1">
+                                                            <p className="text-xs text-slate-400 dark:text-neutral-500 flex items-center gap-1">
                                                                 <Building2 size={12} /> {u.company_name}
                                                             </p>
                                                         )}
@@ -627,7 +627,7 @@ const UserManagement = () => {
                                             </td>
                                             <td className="p-4">
                                                 <div className="text-sm">
-                                                    <p className="text-slate-600 flex items-center gap-1">
+                                                    <p className="text-slate-600 dark:text-neutral-300 flex items-center gap-1">
                                                         <Mail size={14} className="text-slate-400" /> {u.email}
                                                     </p>
                                                     {u.phone_number && (
@@ -637,7 +637,7 @@ const UserManagement = () => {
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="p-4 text-sm text-slate-500">
+                                            <td className="p-4 text-sm text-slate-500 dark:text-neutral-400">
                                                 {u.date_joined ? new Date(u.date_joined).toLocaleDateString() : '-'}
                                             </td>
                                             <td className="p-4">

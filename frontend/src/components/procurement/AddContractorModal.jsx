@@ -229,28 +229,28 @@ export const AddContractorModal = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
+                className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 dark:bg-black/70 backdrop-blur-sm"
             >
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden"
+                    className="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden"
                     onClick={e => e.stopPropagation()}
                 >
-                    <div className="flex-none bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between z-10">
+                    <div className="flex-none bg-white dark:bg-neutral-900 border-b border-slate-200 dark:border-neutral-700 px-6 py-4 flex items-center justify-between z-10">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-primary-50 text-white rounded-lg">
-                                <Building2 size={24} className="text-primary-600" />
+                            <div className="p-2 bg-primary-50 dark:bg-primary-900/30 text-white rounded-lg">
+                                <Building2 size={24} className="text-primary-600 dark:text-primary-400" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-slate-900">{isEditing ? 'Edit Contractor' : 'Add New Contractor'}</h2>
-                                <p className="text-sm text-slate-500">{isEditing ? 'Update contractor details' : 'Enter contractor details for procurement'}</p>
+                                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{isEditing ? 'Edit Contractor' : 'Add New Contractor'}</h2>
+                                <p className="text-sm text-slate-500 dark:text-neutral-400">{isEditing ? 'Update contractor details' : 'Enter contractor details for procurement'}</p>
                             </div>
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                            className="p-2 text-slate-400 dark:text-neutral-400 hover:text-slate-600 dark:hover:text-neutral-300 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
                         >
                             <X size={20} />
                         </button>

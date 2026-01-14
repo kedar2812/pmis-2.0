@@ -27,7 +27,7 @@ const MetricsDetailModal = ({ isOpen, onClose, title, description, items, docume
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                    className="absolute inset-0 bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm"
                 />
 
                 {/* Modal Content */}
@@ -35,16 +35,16 @@ const MetricsDetailModal = ({ isOpen, onClose, title, description, items, docume
                     initial={{ opacity: 0, scale: 0.9, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    className="relative w-full max-w-2xl bg-white/90 glass-panel rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[85vh]"
+                    className="relative w-full max-w-2xl bg-white/90 dark:bg-neutral-900/90 glass-panel rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[85vh]"
                 >
                     {/* Header */}
-                    <div className="flex justify-between items-center p-4 sm:p-6 border-b border-slate-200/50 bg-white/50">
-                        <h3 className="text-lg sm:text-xl font-bold text-slate-800 bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
+                    <div className="flex justify-between items-center p-4 sm:p-6 border-b border-slate-200/50 dark:border-neutral-700/50 bg-white/50 dark:bg-neutral-800/50">
+                        <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent dark:from-indigo-400 dark:to-purple-400">
                             {title}
                         </h3>
                         <button
                             onClick={onClose}
-                            className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 hover:text-red-500 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                            className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-700 rounded-full transition-colors text-slate-500 dark:text-neutral-400 hover:text-red-500 dark:hover:text-red-400 min-w-[44px] min-h-[44px] flex items-center justify-center"
                         >
                             <X size={20} />
                         </button>

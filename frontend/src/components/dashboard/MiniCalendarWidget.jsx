@@ -75,30 +75,30 @@ const MiniCalendarWidget = ({ milestones = [], onDateClick }) => {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-xl border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.08)] p-5"
+            className="relative overflow-hidden rounded-2xl bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl border border-slate-200 dark:border-neutral-700 shadow-sm dark:shadow-lg p-5"
         >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 dark:from-white/5 via-transparent to-transparent pointer-events-none" />
 
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                    <Calendar size={18} className="text-primary-600" />
-                    <h3 className="text-md font-semibold text-slate-800">
+                    <Calendar size={18} className="text-blue-600 dark:text-indigo-400" />
+                    <h3 className="text-md font-semibold text-slate-800 dark:text-white">
                         {monthNames[currentMonth]} {currentYear}
                     </h3>
                 </div>
                 <div className="flex items-center gap-1">
                     <button
                         onClick={prevMonth}
-                        className="p-1 hover:bg-slate-100 rounded transition-colors"
+                        className="p-1 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded transition-colors"
                     >
-                        <ChevronLeft size={18} className="text-slate-500" />
+                        <ChevronLeft size={18} className="text-slate-500 dark:text-neutral-400" />
                     </button>
                     <button
                         onClick={nextMonth}
-                        className="p-1 hover:bg-slate-100 rounded transition-colors"
+                        className="p-1 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded transition-colors"
                     >
-                        <ChevronRight size={18} className="text-slate-500" />
+                        <ChevronRight size={18} className="text-slate-500 dark:text-neutral-400" />
                     </button>
                 </div>
             </div>
@@ -106,7 +106,7 @@ const MiniCalendarWidget = ({ milestones = [], onDateClick }) => {
             {/* Day names */}
             <div className="grid grid-cols-7 gap-1 mb-2">
                 {dayNames.map((day, i) => (
-                    <div key={i} className="text-center text-xs font-medium text-slate-400 py-1">
+                    <div className="text-center text-xs font-medium text-slate-400 dark:text-neutral-500 py-1">
                         {day}
                     </div>
                 ))}
@@ -124,7 +124,7 @@ const MiniCalendarWidget = ({ milestones = [], onDateClick }) => {
                             ${!day ? '' : 'cursor-pointer'}
                             ${isToday(day) ? 'bg-primary-500 text-white font-bold' : ''}
                             ${hasMilestone(day) && !isToday(day) ? 'bg-amber-100 text-amber-700 font-medium' : ''}
-                            ${!isToday(day) && !hasMilestone(day) && day ? 'text-slate-600 hover:bg-slate-50' : ''}
+                            ${!isToday(day) && !hasMilestone(day) && day ? 'text-slate-600 dark:text-neutral-300 hover:bg-slate-50 dark:hover:bg-neutral-800' : ''}
                         `}
                         onClick={() => day && handleDateClick(day)}
                     >
@@ -137,14 +137,14 @@ const MiniCalendarWidget = ({ milestones = [], onDateClick }) => {
             </div>
 
             {/* Legend */}
-            <div className="flex items-center gap-4 mt-4 pt-3 border-t border-slate-100">
+            <div className="flex items-center gap-4 mt-4 pt-3 border-t border-slate-100 dark:border-neutral-800">
                 <div className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-primary-500" />
-                    <span className="text-xs text-slate-500">Today</span>
+                    <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
+                    <span className="text-xs text-slate-500 dark:text-neutral-400">Today</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                    <span className="text-xs text-slate-500">Milestone</span>
+                    <span className="text-xs text-slate-500 dark:text-neutral-400">Milestone</span>
                 </div>
             </div>
         </motion.div>

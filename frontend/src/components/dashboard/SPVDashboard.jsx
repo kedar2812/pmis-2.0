@@ -164,7 +164,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-slate-500">{t('projects.totalBudget')}</p>
-                  <h3 className="text-2xl font-bold text-slate-800 mt-2">{formatBudget(totalBudget)}</h3>
+                  <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-2">{formatBudget(totalBudget)}</h3>
                   <p className="text-xs text-emerald-600 flex items-center mt-1">
                     <TrendingUp size={12} className="mr-1" /> {t('common.approved')}
                   </p>
@@ -187,7 +187,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-slate-500">{t('projects.totalProjects')}</p>
-                  <h3 className="text-2xl font-bold text-slate-800 mt-2">{activeProjectsCount}</h3>
+                  <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-2">{activeProjectsCount}</h3>
                   <p className="text-xs text-blue-600 flex items-center mt-1">
                     <Activity size={12} className="mr-1" /> {t('common.inProgress')}
                   </p>
@@ -210,7 +210,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-slate-500">{t('common.underReview')}</p>
-                  <h3 className="text-2xl font-bold text-slate-800 mt-2">{pendingApprovalsCount}</h3>
+                  <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-2">{pendingApprovalsCount}</h3>
                   <p className="text-xs text-amber-600 flex items-center mt-1">
                     Click to review documents
                   </p>
@@ -233,7 +233,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-slate-500">{t('risk.activeRisks')}</p>
-                  <h3 className="text-2xl font-bold text-slate-800 mt-2">
+                  <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-2">
                     {criticalRisksCount}
                   </h3>
                   <p className="text-xs text-rose-600 flex items-center mt-1">
@@ -297,7 +297,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
         {/* Milestone Performance Section */}
         {runningProjects.length > 0 && (
           <motion.div variants={itemVariants} className="mt-6">
-            <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
               <Activity size={18} className="text-primary-500" />
               Cost Performance by Milestone
             </h3>

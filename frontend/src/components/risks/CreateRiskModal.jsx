@@ -190,7 +190,7 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/50"
+                    className="absolute inset-0 bg-black/50 dark:bg-black/70"
                     onClick={onClose}
                 />
 
@@ -199,7 +199,7 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+                    className="relative bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
                 >
                     {/* Header */}
                     <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-orange-500 to-red-500">

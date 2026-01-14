@@ -69,7 +69,7 @@ const SearchableSelect = ({
     return (
         <div ref={containerRef} className="relative">
             {label && (
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1.5">
                     {label}
                     {required && <span className="text-red-500 ml-1">*</span>}
                 </label>
@@ -81,13 +81,13 @@ const SearchableSelect = ({
                     onClick={() => !disabled && setIsOpen(!isOpen)}
                     disabled={disabled}
                     className={`w-full px-4 py-2.5 pr-10 text-left rounded-xl border transition-all outline-none focus:ring-2 ${error
-                            ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
-                            : isOpen
-                                ? 'border-primary-500 ring-2 ring-primary-100'
-                                : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
+                        ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
+                        : isOpen
+                            ? 'border-primary-500 ring-2 ring-primary-100'
+                            : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
                         } ${disabled ? 'bg-slate-50 cursor-not-allowed' : 'bg-white'}`}
                 >
-                    <span className={value ? 'text-slate-900' : 'text-slate-400'}>
+                    <span className={value ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-neutral-500'}>
                         {value || placeholder}
                     </span>
                 </button>
@@ -107,7 +107,7 @@ const SearchableSelect = ({
                     )}
                     <ChevronDown
                         size={18}
-                        className={`text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                        className={`text-slate-400 dark:text-neutral-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
                     />
                 </div>
             </div>
@@ -158,7 +158,7 @@ const SearchableSelect = ({
                                     </button>
                                 ))
                             ) : (
-                                <div className="px-4 py-8 text-center text-slate-400">
+                                <div className="px-4 py-8 text-center text-slate-400 dark:text-neutral-500">
                                     <p>No results found</p>
                                     {searchTerm && (
                                         <p className="text-sm mt-1">Try a different search term</p>

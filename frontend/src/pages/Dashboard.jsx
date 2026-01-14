@@ -81,8 +81,8 @@ const Dashboard = () => {
       default:
         return (
           <div className="flex flex-col items-center justify-center p-8 text-center">
-            <h2 className="text-xl font-bold text-slate-800">Access Denied / Role Unknown</h2>
-            <p className="text-slate-500">Please contact the administrator to assign a valid role.</p>
+            <h2 className="text-xl font-bold text-slate-800 dark:text-white">Access Denied / Role Unknown</h2>
+            <p className="text-slate-500 dark:text-neutral-400">Please contact the administrator to assign a valid role.</p>
           </div>
         );
     }

@@ -24,10 +24,10 @@ const GlassCard = ({ children, className = '', onClick, hoverable = false }) => 
     <motion.div
         className={`
             relative overflow-hidden rounded-2xl
-            bg-white/80 backdrop-blur-xl
-            border border-white/30
-            shadow-[0_8px_32px_rgba(0,0,0,0.08)]
-            ${hoverable ? 'hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] hover:bg-white/90 cursor-pointer' : ''}
+            bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl
+            border border-slate-200 dark:border-neutral-700
+            shadow-sm dark:shadow-lg
+            ${hoverable ? 'hover:shadow-lg dark:hover:shadow-xl hover:bg-white dark:hover:bg-neutral-800/90 cursor-pointer' : ''}
             transition-all duration-300
             ${className}
         `}
@@ -35,7 +35,7 @@ const GlassCard = ({ children, className = '', onClick, hoverable = false }) => 
         whileHover={hoverable ? { y: -2, scale: 1.005 } : {}}
         whileTap={hoverable ? { scale: 0.995 } : {}}
     >
-        <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/10 dark:from-white/5 via-transparent to-transparent pointer-events-none" />
         {children}
     </motion.div>
 );
@@ -63,9 +63,9 @@ const KPICard = ({ icon: Icon, label, value, subtext, color, trend, onClick }) =
                 )}
             </div>
             <div className="mt-4">
-                <p className="text-sm text-slate-500 font-medium">{label}</p>
-                <p className="text-2xl font-bold text-slate-900 mt-1">{value}</p>
-                {subtext && <p className="text-xs text-slate-400 mt-1">{subtext}</p>}
+                <p className="text-sm text-slate-500 dark:text-neutral-400 font-medium">{label}</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{value}</p>
+                {subtext && <p className="text-xs text-slate-400 dark:text-neutral-500 mt-1">{subtext}</p>}
             </div>
         </GlassCard>
     );
@@ -74,17 +74,17 @@ const KPICard = ({ icon: Icon, label, value, subtext, color, trend, onClick }) =
 // Milestone Item
 const MilestoneItem = ({ milestone, onClick }) => (
     <motion.div
-        className="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-lg cursor-pointer"
+        className="flex items-center gap-4 p-3 hover:bg-slate-50 dark:hover:bg-neutral-800 rounded-lg cursor-pointer"
         onClick={onClick}
         whileHover={{ x: 4 }}
     >
         <div className="w-3 h-3 rounded-full bg-primary-500 ring-4 ring-primary-100" />
         <div className="flex-1">
-            <p className="text-sm font-medium text-slate-700">{milestone.name}</p>
-            <p className="text-xs text-slate-400">{milestone.project}</p>
+            <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">{milestone.name}</p>
+            <p className="text-xs text-slate-400 dark:text-neutral-500">{milestone.project}</p>
         </div>
         <div className="text-right">
-            <p className="text-xs font-medium text-slate-600">
+            <p className="text-xs font-medium text-slate-600 dark:text-neutral-400">
                 {milestone.date ? new Date(milestone.date).toLocaleDateString() : 'TBD'}
             </p>
         </div>
@@ -123,8 +123,8 @@ const RiskBadge = ({ level, count }) => {
     return (
         <div className="flex items-center gap-2">
             <div className={`w-3 h-3 rounded-full ${colors[level]}`} />
-            <span className="text-sm font-medium text-slate-600 capitalize">{level}</span>
-            <span className="text-sm font-bold text-slate-800">{count}</span>
+            <span className="text-sm font-medium text-slate-600 dark:text-neutral-300 capitalize">{level}</span>
+            <span className="text-sm font-bold text-slate-800 dark:text-white">{count}</span>
         </div>
     );
 };
@@ -135,7 +135,7 @@ const EVMGauge = ({ label, value, isGood }) => (
         <div className={`text-3xl font-bold ${isGood ? 'text-emerald-600' : 'text-rose-600'}`}>
             {value.toFixed(2)}
         </div>
-        <div className="text-xs text-slate-500 mt-1">{label}</div>
+        <div className="text-xs text-slate-500 dark:text-neutral-400 mt-1">{label}</div>
         <div className={`text-xs mt-1 ${isGood ? 'text-emerald-500' : 'text-rose-500'}`}>
             {isGood ? '✓ On Track' : '⚠ Attention'}
         </div>
@@ -283,10 +283,10 @@ const UnifiedDashboard = () => {
                 className="flex flex-col md:flex-row md:items-center justify-between gap-4"
             >
                 <div>
-                    <h1 className="text-3xl font-heading font-bold text-slate-900">
+                    <h1 className="text-3xl font-heading font-bold text-slate-900 dark:text-white">
                         {greeting()}, {user?.first_name || 'Admin'}
                     </h1>
-                    <p className="text-slate-500 mt-1">
+                    <p className="text-slate-500 dark:text-neutral-400 mt-1">
                         PMIS Command Center • {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                 </div>
@@ -370,12 +370,12 @@ const UnifiedDashboard = () => {
                 {/* Budget vs Spent Chart */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                             <DollarSign size={20} className="text-emerald-600" />
                             Budget vs Spent
                         </h3>
                         <button
-                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
                             onClick={(e) => { e.stopPropagation(); setGraphModalMetric('budget'); setGraphModalOpen(true); }}
                         >
                             <Maximize2 size={16} className="text-slate-400 hover:text-primary-500" />
@@ -396,12 +396,12 @@ const UnifiedDashboard = () => {
                 {/* Project Status Chart */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                             <Activity size={20} className="text-blue-600" />
                             Project Status Distribution
                         </h3>
                         <button
-                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
                             onClick={(e) => { e.stopPropagation(); setGraphModalMetric('count'); setGraphModalOpen(true); }}
                         >
                             <Maximize2 size={16} className="text-slate-400 hover:text-primary-500" />
@@ -428,7 +428,7 @@ const UnifiedDashboard = () => {
                 {/* Milestones */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                             <Flag size={20} className="text-primary-600" />
                             Upcoming Milestones
                         </h3>
@@ -442,7 +442,7 @@ const UnifiedDashboard = () => {
                                 <MilestoneItem key={m.id || idx} milestone={m} onClick={() => navigate('/scheduling')} />
                             ))
                         ) : (
-                            <p className="text-center py-8 text-slate-400 text-sm">No upcoming milestones</p>
+                            <p className="text-center py-8 text-slate-400 dark:text-neutral-500 text-sm">No upcoming milestones</p>
                         )}
                     </div>
                 </GlassCard>
@@ -450,7 +450,7 @@ const UnifiedDashboard = () => {
                 {/* Alerts & Critical Path */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                             <AlertTriangle size={20} className="text-amber-500" />
                             Alerts & Critical Items
                         </h3>
@@ -463,14 +463,14 @@ const UnifiedDashboard = () => {
                         ) : (
                             <div className="text-center py-6">
                                 <CheckCircle size={32} className="mx-auto text-emerald-400 mb-2" />
-                                <p className="text-sm text-slate-500">All systems operational</p>
+                                <p className="text-sm text-slate-500 dark:text-neutral-400">All systems operational</p>
                             </div>
                         )}
                         {criticalPathTasks.length > 0 && (
                             <div className="mt-4 pt-4 border-t border-slate-100">
                                 <p className="text-xs font-medium text-slate-400 uppercase mb-2">Critical Path Tasks</p>
                                 {criticalPathTasks.slice(0, 2).map((t, idx) => (
-                                    <div key={idx} className={`text-sm py-1 ${t.is_overdue ? 'text-rose-600' : 'text-slate-600'}`}>
+                                    <div key={idx} className={`text-sm py-1 ${t.is_overdue ? 'text-rose-600' : 'text-slate-600 dark:text-neutral-400'}`}>
                                         • {t.name} ({t.project})
                                     </div>
                                 ))}
@@ -488,11 +488,11 @@ const UnifiedDashboard = () => {
                 {/* GIS Map Placeholder */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                             <Map size={20} className="text-blue-600" />
                             Project Locations (GIS)
                         </h3>
-                        <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded">Phase 2</span>
+                        <span className="text-xs text-slate-400 dark:text-neutral-500 bg-slate-100 dark:bg-neutral-800 px-2 py-1 rounded">Phase 2</span>
                     </div>
                     <div className="h-48 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-300">
                         <div className="text-center">
@@ -509,7 +509,7 @@ const UnifiedDashboard = () => {
                 {/* Risk Summary */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                             <Shield size={20} className="text-rose-500" />
                             Risk Summary
                         </h3>
@@ -532,7 +532,7 @@ const UnifiedDashboard = () => {
                 {/* Change Requests */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                             <GitPullRequest size={20} className="text-violet-500" />
                             Change Requests / Variations
                         </h3>
@@ -555,7 +555,7 @@ const UnifiedDashboard = () => {
                                 >
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <p className="text-sm font-medium text-slate-700">{cr.title}</p>
+                                            <p className="text-sm font-medium text-slate-700 dark:text-neutral-300">{cr.title}</p>
                                             <p className="text-xs text-slate-400">{cr.contract}</p>
                                         </div>
                                         <span className="text-xs px-2 py-1 bg-violet-200 text-violet-700 rounded">
@@ -576,7 +576,7 @@ const UnifiedDashboard = () => {
                 {/* EVM Metrics */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                             <BarChart3 size={20} className="text-emerald-600" />
                             Earned Value Analysis
                         </h3>
@@ -595,12 +595,12 @@ const UnifiedDashboard = () => {
                 {/* Cash Flow Chart */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                             <Wallet size={20} className="text-blue-600" />
                             Cash Flow Trend
                         </h3>
                         <button
-                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
                             onClick={() => { setGraphModalMetric('spent'); setGraphModalOpen(true); }}
                         >
                             <Maximize2 size={16} className="text-slate-400 hover:text-primary-500" />
@@ -621,7 +621,7 @@ const UnifiedDashboard = () => {
             <GlassCard className="overflow-hidden">
                 <div className="p-6 border-b border-slate-100">
                     <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                             <FolderOpen size={20} className="text-primary-600" />
                             Project Portfolio
                         </h3>
@@ -635,8 +635,8 @@ const UnifiedDashboard = () => {
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full">
-                        <thead className="bg-slate-50/80">
-                            <tr className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+                        <thead className="bg-slate-50 dark:bg-neutral-800/50">
+                            <tr className="text-xs font-medium text-slate-500 dark:text-neutral-400 uppercase tracking-wider">
                                 <th className="py-3 pl-6 text-left">Project</th>
                                 <th className="py-3 text-left">Status</th>
                                 <th className="py-3 text-right">Budget</th>
@@ -658,28 +658,28 @@ const UnifiedDashboard = () => {
                                 return (
                                     <tr key={project.id || idx} className="hover:bg-slate-50/50 cursor-pointer" onClick={() => navigate(`/projects/${project.id}`)}>
                                         <td className="py-3 pl-6">
-                                            <p className="font-medium text-slate-800">{project.name}</p>
+                                            <p className="font-medium text-slate-800 dark:text-white">{project.name}</p>
                                         </td>
                                         <td className="py-3">
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[project.status] || 'bg-slate-100 text-slate-700'}`}>
                                                 {project.status || 'Unknown'}
                                             </span>
                                         </td>
-                                        <td className="py-3 text-right text-sm font-medium text-slate-700">
+                                        <td className="py-3 text-right text-sm font-medium text-slate-700 dark:text-neutral-300">
                                             ₹{(budget / 10000000).toFixed(2)} Cr
                                         </td>
-                                        <td className="py-3 text-right text-sm text-slate-600">
+                                        <td className="py-3 text-right text-sm text-slate-600 dark:text-neutral-400">
                                             ₹{(spent / 10000000).toFixed(2)} Cr
                                         </td>
                                         <td className="py-3 pr-6">
                                             <div className="flex items-center gap-2">
-                                                <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                                <div className="flex-1 h-2 bg-slate-100 dark:bg-neutral-800 rounded-full overflow-hidden">
                                                     <div
                                                         className="h-full bg-gradient-to-r from-primary-500 to-primary-600 rounded-full"
                                                         style={{ width: `${progress}%` }}
                                                     />
                                                 </div>
-                                                <span className="text-xs font-medium text-slate-500 w-10 text-right">{progress}%</span>
+                                                <span className="text-xs font-medium text-slate-500 dark:text-neutral-400 w-10 text-right">{progress}%</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -687,7 +687,7 @@ const UnifiedDashboard = () => {
                             })}
                             {topProjects.length === 0 && projects.length === 0 && (
                                 <tr>
-                                    <td colSpan={5} className="py-8 text-center text-slate-400">No projects found</td>
+                                    <td colSpan={5} className="py-8 text-center text-slate-400 dark:text-neutral-500">No projects found</td>
                                 </tr>
                             )}
                         </tbody>

@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button';
 import GoogleTranslateWidget from '@/components/ui/GoogleTranslateWidget';
 import LanguageDropdown from '@/components/ui/LanguageDropdown';
 import NotificationDropdown from '@/components/communications/NotificationDropdown';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 import SettingsModal from '@/components/settings/SettingsModal';
 import GlobalSearchBar from '@/components/search/GlobalSearchBar';
 
@@ -21,6 +22,8 @@ import GlobalSearchBar from '@/components/search/GlobalSearchBar';
  * - Desktop: Positioned after sidebar with dynamic left offset
  * - Mobile: Full width with left margin for hamburger menu
  * - Hidden when mobile sidebar is open
+ * 
+ * Dark Mode: Uses semantic design tokens for automatic theme switching
  */
 const Header = ({ isDesktop = true }) => {
   const { user, logout } = useAuth();
@@ -85,7 +88,7 @@ const Header = ({ isDesktop = true }) => {
         damping: 30,
         mass: 0.5,
       }}
-      className="absolute top-4 right-4 z-40 h-14 bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-sm flex items-center justify-between px-3 sm:px-4"
+      className="absolute top-4 right-4 z-40 h-14 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl border border-slate-200 dark:border-neutral-700 rounded-2xl shadow-sm flex items-center justify-between px-3 sm:px-4"
     >
       {/* Global Search Bar - Full bar on desktop, icon on mobile */}
       <GlobalSearchBar isDesktop={isDesktop} />
@@ -99,13 +102,16 @@ const Header = ({ isDesktop = true }) => {
         {/* Language Dropdown - Beautiful redesigned */}
         <LanguageDropdown />
 
+        {/* Theme Toggle - NEW */}
+        <ThemeToggle />
+
         {/* Settings Icon */}
         <button
           onClick={() => setShowSettings(true)}
-          className="p-2 rounded-xl hover:bg-slate-100/60 transition-all duration-200 hover:scale-105 group"
+          className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-neutral-800 transition-all duration-200 hover:scale-105 group"
           title="Settings"
         >
-          <Settings size={20} className="text-slate-500 group-hover:text-blue-600 group-hover:rotate-90 transition-all duration-300" />
+          <Settings size={20} className="text-slate-600 dark:text-neutral-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:rotate-90 transition-all duration-300" />
         </button>
 
         {/* Notifications - Using Communications NotificationDropdown */}
@@ -118,22 +124,22 @@ const Header = ({ isDesktop = true }) => {
               setShowProfile(!showProfile);
               setShowNotifications(false);
             }}
-            className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-xl hover:bg-slate-100/60 transition-all duration-200 hover:scale-105"
+            className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-neutral-800 transition-all duration-200 hover:scale-105"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-600 to-primary-700 flex items-center justify-center text-white text-sm font-semibold shadow-blue-glow ring-2 ring-primary-100">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 flex items-center justify-center text-white text-sm font-semibold shadow-lg ring-2 ring-blue-100 dark:ring-blue-500/30">
               {user?.name.charAt(0).toUpperCase()}
             </div>
-            <span className="hidden md:block text-sm font-semibold text-slate-700">
+            <span className="hidden md:block text-sm font-semibold text-slate-800 dark:text-neutral-100">
               {user?.name}
             </span>
           </button>
 
           {showProfile && (
-            <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-xl rounded-2xl shadow-glass border border-slate-200/50 z-[60]">
-              <div className="p-4 border-b border-slate-200/50">
-                <p className="font-semibold text-sm text-slate-900">{user?.name}</p>
-                <p className="text-xs text-slate-500">{user?.email}</p>
-                <p className="text-xs text-slate-400 mt-1">{user?.role}</p>
+            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-neutral-900 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200 dark:border-neutral-700 z-[60]">
+              <div className="p-4 border-b border-slate-200 dark:border-neutral-700">
+                <p className="font-semibold text-sm text-slate-900 dark:text-white">{user?.name}</p>
+                <p className="text-xs text-slate-600 dark:text-neutral-300">{user?.email}</p>
+                <p className="text-xs text-slate-400 dark:text-neutral-500 mt-1">{user?.role}</p>
               </div>
               <div className="p-2">
                 <Button

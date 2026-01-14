@@ -354,32 +354,32 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
   if (!isOpen) return null;
 
   // Common input classes matching website UI
-  const inputClasses = "w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all";
-  const labelClasses = "block text-sm font-medium text-slate-700 mb-1.5";
-  const errorClasses = "text-xs text-red-500 mt-1";
+  const inputClasses = "w-full px-3 py-2.5 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-950 text-slate-700 dark:text-white text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-indigo-500/30 outline-none transition-all";
+  const labelClasses = "block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1.5";
+  const errorClasses = "text-xs text-red-500 dark:text-red-400 mt-1";
 
   return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm p-4"
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="w-full max-w-4xl bg-white rounded-xl sm:rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]"
+        className="w-full max-w-4xl bg-white dark:bg-neutral-900 rounded-xl sm:rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white z-10">
+        <div className="p-4 sm:p-6 border-b border-slate-100 dark:border-neutral-700 flex justify-between items-center bg-white dark:bg-neutral-900 z-10">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Create New Project</h2>
-            <p className="text-xs sm:text-sm text-slate-500">Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1].title}</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Create New Project</h2>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-neutral-400">Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1].title}</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
-            <X size={24} className="text-slate-500" />
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
+            <X size={24} className="text-slate-500 dark:text-neutral-400" />
           </button>
         </div>
 

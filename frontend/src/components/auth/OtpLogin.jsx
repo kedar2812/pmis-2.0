@@ -58,7 +58,7 @@ const OtpLogin = () => {
 
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-primary-950 to-slate-900">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
             <div className="min-h-screen flex">
                 {/* Left Panel - Branding */}
                 <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
@@ -76,32 +76,32 @@ const OtpLogin = () => {
                                     <Building2 className="w-8 h-8 text-white" />
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-bold text-white">PMIS</h2>
-                                    <p className="text-primary-300 text-sm">Zaheerabad Industrial Area</p>
+                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">PMIS</h2>
+                                    <p className="text-blue-600 dark:text-primary-300 text-sm">Zaheerabad Industrial Area</p>
                                 </div>
                             </div>
 
                             {/* Main Title */}
-                            <h1 className="text-4xl xl:text-5xl font-bold text-white mb-6 leading-tight">
+                            <h1 className="text-4xl xl:text-5xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
                                 <span className="block">
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-blue-400">P</span>
-                                    <span className="text-white">rogramme</span>
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-primary-400 dark:to-blue-400">P</span>
+                                    <span className="text-slate-900 dark:text-white">rogramme</span>
                                 </span>
                                 <span className="block">
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-blue-400">M</span>
-                                    <span className="text-white">anagement</span>
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-primary-400 dark:to-blue-400">M</span>
+                                    <span className="text-slate-900 dark:text-white">anagement</span>
                                 </span>
                                 <span className="block">
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-blue-400">I</span>
-                                    <span className="text-white">nformation</span>
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-primary-400 dark:to-blue-400">I</span>
+                                    <span className="text-slate-900 dark:text-white">nformation</span>
                                 </span>
                                 <span className="block">
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-blue-400">S</span>
-                                    <span className="text-white">ystem</span>
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-primary-400 dark:to-blue-400">S</span>
+                                    <span className="text-slate-900 dark:text-white">ystem</span>
                                 </span>
                             </h1>
 
-                            <p className="text-slate-400 text-lg mb-8 max-w-md pr-4">
+                            <p className="text-slate-600 dark:text-slate-400 text-lg mb-8 max-w-md pr-4">
                                 Streamlining infrastructure development with integrated project tracking,
                                 document management, and real-time collaboration.
                             </p>
@@ -124,22 +124,22 @@ const OtpLogin = () => {
                                     <Building2 className="w-6 h-6 text-white" />
                                 </div>
                                 <div className="text-left">
-                                    <h2 className="text-xl font-bold text-slate-900">PMIS</h2>
-                                    <p className="text-slate-500 text-xs">Zaheerabad Industrial Area</p>
+                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">PMIS</h2>
+                                    <p className="text-slate-500 dark:text-neutral-400 text-xs">Zaheerabad Industrial Area</p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Form Card */}
                         <div
-                            className="bg-white rounded-3xl p-8 md:p-10 border border-slate-100"
+                            className="bg-white dark:bg-neutral-900 rounded-3xl p-8 md:p-10 border border-slate-200 dark:border-neutral-700"
                             style={{ boxShadow: '0 0 60px rgba(255, 255, 255, 0.15)' }}
                         >
                             <div className="text-center mb-8">
-                                <h1 className="text-2xl font-bold text-slate-900 mb-2">
+                                <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
                                     Welcome back
                                 </h1>
-                                <p className="text-slate-500">
+                                <p className="text-slate-500 dark:text-neutral-400">
                                     Sign in to access your dashboard
                                 </p>
                             </div>
@@ -147,7 +147,7 @@ const OtpLogin = () => {
                             <form onSubmit={handleLogin} className="space-y-5" noValidate>
                                 {/* Username Field */}
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-2">
                                         Username
                                     </label>
                                     <div className="relative">
@@ -169,9 +169,9 @@ const OtpLogin = () => {
                                                 onFocus={() => setFocusedField('username')}
                                                 onBlur={() => setFocusedField(null)}
                                                 placeholder="Enter your username"
-                                                className={`w-full pl-12 pr-4 py-3.5 rounded-xl border-2 transition-all duration-200 font-medium text-slate-800 placeholder:text-slate-400 bg-slate-50 focus:bg-white outline-none ${focusedField === 'username'
-                                                    ? 'border-primary-500 ring-4 ring-primary-500/10'
-                                                    : 'border-slate-200 hover:border-slate-300'
+                                                className={`w-full pl-12 pr-4 py-3.5 rounded-xl border-2 transition-all duration-200 font-medium text-slate-800 dark:text-neutral-100 placeholder:text-slate-400 dark:placeholder:text-neutral-500 bg-slate-50 dark:bg-neutral-800 focus:bg-white dark:focus:bg-neutral-700 outline-none ${focusedField === 'username'
+                                                    ? 'border-blue-500 ring-4 ring-blue-500/10 dark:ring-blue-500/20'
+                                                    : 'border-slate-200 dark:border-neutral-600 hover:border-slate-300 dark:hover:border-neutral-500'
                                                     }`}
                                             />
                                         </motion.div>
@@ -180,7 +180,7 @@ const OtpLogin = () => {
 
                                 {/* Password Field */}
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-2">
                                         Password
                                     </label>
                                     <div className="relative">
@@ -202,15 +202,15 @@ const OtpLogin = () => {
                                                 onFocus={() => setFocusedField('password')}
                                                 onBlur={() => setFocusedField(null)}
                                                 placeholder="Enter your password"
-                                                className={`w-full pl-12 pr-12 py-3.5 rounded-xl border-2 transition-all duration-200 font-medium text-slate-800 placeholder:text-slate-400 bg-slate-50 focus:bg-white outline-none ${focusedField === 'password'
-                                                    ? 'border-primary-500 ring-4 ring-primary-500/10'
-                                                    : 'border-slate-200 hover:border-slate-300'
+                                                className={`w-full pl-12 pr-12 py-3.5 rounded-xl border-2 transition-all duration-200 font-medium text-slate-800 dark:text-neutral-100 placeholder:text-slate-400 dark:placeholder:text-neutral-500 bg-slate-50 dark:bg-neutral-800 focus:bg-white dark:focus:bg-neutral-700 outline-none ${focusedField === 'password'
+                                                    ? 'border-blue-500 ring-4 ring-blue-500/10 dark:ring-blue-500/20'
+                                                    : 'border-slate-200 dark:border-neutral-600 hover:border-slate-300 dark:hover:border-neutral-500'
                                                     }`}
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 hover:text-slate-600 dark:hover:text-neutral-300 transition-colors"
                                             >
                                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                             </button>
@@ -220,7 +220,7 @@ const OtpLogin = () => {
                                     <div className="text-right mt-2">
                                         <Link
                                             to="/forgot-password"
-                                            className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+                                            className="text-sm text-blue-600 dark:text-indigo-400 hover:text-blue-700 dark:hover:text-indigo-300 font-medium transition-colors"
                                         >
                                             Forgot password?
                                         </Link>

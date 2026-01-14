@@ -179,11 +179,11 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.3, ease: 'easeInOut' }}
-          className="w-full h-full max-w-7xl max-h-[95vh] overflow-y-auto bg-white rounded-lg shadow-2xl"
+          className="w-full h-full max-w-7xl max-h-[95vh] overflow-y-auto bg-white dark:bg-neutral-900 rounded-lg shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <div className="sticky top-0 z-10 bg-white dark:bg-neutral-900 border-b border-slate-200 dark:border-neutral-700 px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div
                 className={`p-3 rounded-full ${isPositive ? 'bg-success-50' : 'bg-error-50'}`}
@@ -191,22 +191,22 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                 {isPositive ? (
                   <TrendingUp className="text-success-600" size={28} />
                 ) : kpi.trend === 'stable' ? (
-                  <Minus className="text-gray-600" size={28} />
+                  <Minus className="text-slate-600 dark:text-neutral-400" size={28} />
                 ) : (
                   <TrendingDown className="text-error-600" size={28} />
                 )}
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-primary-950">{kpiInfo.title}</h2>
-                <p className="text-sm text-gray-600 mt-1">{kpi.category} Category</p>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{kpiInfo.title}</h2>
+                <p className="text-sm text-slate-600 dark:text-neutral-400 mt-1">{kpi.category} Category</p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
               aria-label="Close modal"
             >
-              <X size={24} />
+              <X size={24} className="text-slate-600 dark:text-neutral-300" />
             </button>
           </div>
 
@@ -217,7 +217,7 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <div className="text-center md:text-left">
-                    <p className="text-sm text-gray-600 mb-1">Current Value</p>
+                    <p className="text-sm text-slate-600 dark:text-neutral-400 mb-1">Current Value</p>
                     <p className="text-3xl font-bold text-primary-950">
                       {kpi.value} {kpi.unit}
                     </p>
@@ -260,12 +260,12 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-gray-700 leading-relaxed">{kpiInfo.description}</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+                <p className="text-slate-700 dark:text-neutral-300 leading-relaxed">{kpiInfo.description}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-neutral-700">
                   {kpiInfo.details.map((detail, index) => (
                     <div key={index} className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary-600 mt-2 flex-shrink-0" />
-                      <p className="text-sm text-gray-600">{detail}</p>
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
+                      <p className="text-sm text-slate-600 dark:text-neutral-400">{detail}</p>
                     </div>
                   ))}
                 </div>
@@ -321,8 +321,8 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                 <ul className="space-y-3">
                   {kpiInfo.insights.map((insight, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <div className="w-2 h-2 rounded-full bg-primary-600 mt-2 flex-shrink-0" />
-                      <p className="text-gray-700">{insight}</p>
+                      <div className="w-2 h-2 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
+                      <p className="text-slate-700 dark:text-neutral-300">{insight}</p>
                     </li>
                   ))}
                 </ul>
@@ -332,7 +332,7 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
             {/* Metadata Card */}
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-neutral-400">
                   <Calendar size={16} />
                   <span>
                     Last Updated:{' '}

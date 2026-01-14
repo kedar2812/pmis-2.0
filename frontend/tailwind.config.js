@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class', // Enable class-based dark mode
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -7,6 +8,38 @@ export default {
   theme: {
     extend: {
       colors: {
+        // ===== SEMANTIC DESIGN TOKENS =====
+        // Auto-switch between light/dark modes
+        // Usage: bg-app-bg, text-app-heading, border-app, etc.
+
+        app: {
+          // Backgrounds
+          bg: 'rgb(var(--bg-primary) / <alpha-value>)',
+          'bg-secondary': 'rgb(var(--bg-secondary) / <alpha-value>)',
+          surface: 'rgb(var(--bg-surface) / <alpha-value>)',
+          card: 'rgb(var(--bg-card) / <alpha-value>)',
+          hover: 'rgb(var(--bg-hover) / <alpha-value>)',
+          active: 'rgb(var(--bg-active) / <alpha-value>)',
+
+          // Text
+          heading: 'rgb(var(--text-primary) / <alpha-value>)',
+          text: 'rgb(var(--text-secondary) / <alpha-value>)',
+          muted: 'rgb(var(--text-muted) / <alpha-value>)',
+          inverse: 'rgb(var(--text-inverse) / <alpha-value>)',
+
+          // Borders
+          border: 'rgb(var(--border-default) / <alpha-value>)',
+          'border-subtle': 'rgb(var(--border-muted) / <alpha-value>)',
+          'border-focus': 'rgb(var(--border-focus) / <alpha-value>)',
+
+          // Brand/Accent
+          accent: 'rgb(var(--accent-primary) / <alpha-value>)',
+          'accent-hover': 'rgb(var(--accent-primary-hover) / <alpha-value>)',
+        },
+
+        // ===== LEGACY COLOR PALETTE =====
+        // Keep existing colors for backward compatibility
+        // These will be gradually migrated to semantic tokens
         primary: {
           50: '#eff6ff',
           100: '#dbeafe',

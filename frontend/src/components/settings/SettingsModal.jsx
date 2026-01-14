@@ -102,7 +102,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 <>
                     <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100]"
+                        className="fixed inset-0 bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm z-[100]"
                         onClick={onClose}
                     />
                     <motion.div
@@ -112,16 +112,16 @@ const SettingsModal = ({ isOpen, onClose }) => {
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
                         className="fixed inset-4 md:inset-10 lg:inset-16 z-[101] flex"
                     >
-                        <div className="w-full h-full bg-white/90 backdrop-blur-xl rounded-3xl border border-white/30 shadow-[0_32px_64px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col">
+                        <div className="w-full h-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl rounded-3xl border border-white/30 dark:border-neutral-700/30 shadow-[0_32px_64px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col">
                             {/* Header */}
-                            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200/50">
+                            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200/50 dark:border-neutral-700/50">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl">
                                         <Settings className="text-white" size={20} />
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-bold text-slate-800">Settings</h2>
-                                        <p className="text-xs text-slate-400">Manage your PMIS configuration</p>
+                                        <h2 className="text-xl font-bold text-slate-800 dark:text-white">Settings</h2>
+                                        <p className="text-xs text-slate-400 dark:text-neutral-500">Manage your PMIS configuration</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
@@ -130,8 +130,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                             <Check size={14} /> {saveMessage}
                                         </span>
                                     )}
-                                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-xl">
-                                        <X size={20} className="text-slate-500" />
+                                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-xl">
+                                        <X size={20} className="text-slate-500 dark:text-neutral-400" />
                                     </button>
                                 </div>
                             </div>
@@ -139,7 +139,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                             {/* Content */}
                             <div className="flex-1 flex overflow-hidden">
                                 {/* Sidebar */}
-                                <div className="w-64 border-r border-slate-200/50 flex flex-col bg-slate-50/50">
+                                <div className="w-64 border-r border-slate-200/50 dark:border-neutral-700/50 flex flex-col bg-slate-50/50 dark:bg-neutral-800/50">
                                     <div className="p-4">
                                         <div className="relative">
                                             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -148,7 +148,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                 placeholder="Search settings..."
                                                 value={searchQuery}
                                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                                className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                className="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
                                             />
                                         </div>
                                     </div>
@@ -159,7 +159,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                 onClick={() => setActiveSection(section.id)}
                                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeSection === section.id
                                                     ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                                                    : 'text-slate-600 hover:bg-white hover:shadow-sm'
+                                                    : 'text-slate-600 dark:text-neutral-300 hover:bg-white dark:hover:bg-neutral-800 hover:shadow-sm'
                                                     }`}
                                             >
                                                 <section.icon size={18} />
@@ -168,16 +168,16 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                             </button>
                                         ))}
                                     </nav>
-                                    <div className="p-4 border-t border-slate-200/50">
-                                        <div className="flex items-center gap-3 px-3 py-2 bg-white rounded-xl">
+                                    <div className="p-4 border-t border-slate-200/50 dark:border-neutral-700/50">
+                                        <div className="flex items-center gap-3 px-3 py-2 bg-white dark:bg-neutral-900 rounded-xl">
                                             <div className="w-8 h-8 bg-gradient-to-br from-primary-600 to-violet-500 rounded-full flex items-center justify-center">
                                                 <span className="text-white text-sm font-medium">
                                                     {user?.first_name?.[0] || 'A'}
                                                 </span>
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium text-slate-700 truncate">{user?.first_name || 'Admin'}</p>
-                                                <p className="text-xs text-slate-400 truncate">{user?.role || 'Super Admin'}</p>
+                                                <p className="text-sm font-medium text-slate-700 dark:text-white truncate">{user?.first_name || 'Admin'}</p>
+                                                <p className="text-xs text-slate-400 dark:text-neutral-500 truncate">{user?.role || 'Super Admin'}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -217,22 +217,22 @@ const SettingsModal = ({ isOpen, onClose }) => {
 // Helper Components
 const SectionHeader = ({ title, description }) => (
     <div className="mb-6">
-        <h3 className="text-lg font-bold text-slate-800">{title}</h3>
-        {description && <p className="text-sm text-slate-500 mt-1">{description}</p>}
+        <h3 className="text-lg font-bold text-slate-800 dark:text-white">{title}</h3>
+        {description && <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">{description}</p>}
     </div>
 );
 
 const SettingsCard = ({ children, className = '' }) => (
-    <div className={`bg-white rounded-2xl border border-slate-200 p-6 ${className}`}>{children}</div>
+    <div className={`bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-700 p-6 ${className}`}>{children}</div>
 );
 
 const SettingsRow = ({ icon: Icon, title, description, children }) => (
-    <div className="flex items-center justify-between py-4 border-b border-slate-100 last:border-0">
+    <div className="flex items-center justify-between py-4 border-b border-slate-100 dark:border-neutral-800 last:border-0">
         <div className="flex items-center gap-4">
-            {Icon && <div className="p-2 bg-slate-100 rounded-lg"><Icon size={18} className="text-slate-600" /></div>}
+            {Icon && <div className="p-2 bg-slate-100 dark:bg-neutral-800 rounded-lg"><Icon size={18} className="text-slate-600 dark:text-neutral-300" /></div>}
             <div>
-                <p className="text-sm font-medium text-slate-700">{title}</p>
-                {description && <p className="text-xs text-slate-400 mt-0.5">{description}</p>}
+                <p className="text-sm font-medium text-slate-700 dark:text-white">{title}</p>
+                {description && <p className="text-xs text-slate-400 dark:text-neutral-500 mt-0.5">{description}</p>}
             </div>
         </div>
         <div>{children}</div>
@@ -426,17 +426,17 @@ const RolesPermissionsSection = () => {
                 <SettingsCard>
                     <div className="flex items-center gap-2 mb-4">
                         <input type="text" value={newRoleName} onChange={(e) => setNewRoleName(e.target.value)} placeholder="New role name"
-                            className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg" onKeyPress={(e) => e.key === 'Enter' && handleCreateRole()} />
+                            className="flex-1 px-3 py-2 text-sm bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-600 rounded-lg" onKeyPress={(e) => e.key === 'Enter' && handleCreateRole()} />
                         <button onClick={handleCreateRole} className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"><Plus size={16} /></button>
                     </div>
                     <div className="space-y-2">
                         {Object.entries(roles).map(([key, data]) => (
                             <div key={key} onClick={() => handleSelectRole(key)}
-                                className={`p-3 rounded-lg border cursor-pointer ${selectedRole === key ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`}>
+                                className={`p-3 rounded-lg border cursor-pointer ${selectedRole === key ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-neutral-700 hover:border-slate-300 dark:hover:border-neutral-600'}`}>
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="font-semibold text-sm">{key.replace(/_/g, ' ')}</p>
-                                        <p className="text-xs text-slate-500">{data.accessLevel} • {data.permissions.length} permissions</p>
+                                        <p className="font-semibold text-sm dark:text-white">{key.replace(/_/g, ' ')}</p>
+                                        <p className="text-xs text-slate-500 dark:text-neutral-400">{data.accessLevel} • {data.permissions.length} permissions</p>
                                     </div>
                                     <button onClick={(e) => { e.stopPropagation(); handleDeleteRole(key); }} className="p-1 text-red-500 hover:bg-red-50 rounded"><Trash2 size={14} /></button>
                                 </div>
@@ -468,7 +468,7 @@ const RolesPermissionsSection = () => {
                                 </div>
                             </>
                         ) : (
-                            <div className="py-12 text-center text-slate-500">Select a role to manage permissions</div>
+                            <div className="py-12 text-center text-slate-500 dark:text-neutral-400">Select a role to manage permissions</div>
                         )}
                     </SettingsCard>
                 </div>
@@ -698,16 +698,16 @@ const MasterDataSection = ({ navigate, onClose }) => {
                     <span className="text-sm font-semibold text-slate-700">{title}</span>
                     <span className="text-xs text-slate-500 bg-white/80 px-1.5 py-0.5 rounded-full">{filtered.length}</span>
                 </div>
-                <div className="border border-t-0 border-slate-200 rounded-b-lg bg-white max-h-64 overflow-y-auto">
+                <div className="border border-t-0 border-slate-200 dark:border-neutral-700 rounded-b-lg bg-white dark:bg-neutral-900 max-h-64 overflow-y-auto">
                     {filtered.length === 0 ? (
-                        <div className="px-3 py-4 text-center text-sm text-slate-400">No entries</div>
+                        <div className="px-3 py-4 text-center text-sm text-slate-400 dark:text-neutral-500">No entries</div>
                     ) : (
                         <div className="divide-y divide-slate-100">
                             {filtered.map((item, idx) => {
                                 const isActive = getItemStatus(item, type);
                                 return (
-                                    <div key={item.id || idx} className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 transition-colors">
-                                        <span className={`text-sm ${isActive ? 'text-slate-700' : 'text-slate-400 line-through'}`}>
+                                    <div key={item.id || idx} className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 dark:hover:bg-neutral-800 transition-colors">
+                                        <span className={`text-sm ${isActive ? 'text-slate-700 dark:text-neutral-300' : 'text-slate-400 dark:text-neutral-600 line-through'}`}>
                                             {item.name || item.code}
                                         </span>
                                         <Toggle
@@ -753,7 +753,7 @@ const MasterDataSection = ({ navigate, onClose }) => {
                     <div>
                         <div className="flex items-center gap-2 mb-3">
                             <Building2 size={16} className="text-emerald-600" />
-                            <span className="font-semibold text-slate-700">Hierarchy</span>
+                            <span className="font-semibold text-slate-700 dark:text-white">Hierarchy</span>
                         </div>
                         <div className="flex gap-4 flex-wrap">
                             <MasterColumn title="Zones" items={data.zones} type="zones" icon={Building2} colorClass={TAB_COLORS.hierarchy.header} />
@@ -769,7 +769,7 @@ const MasterDataSection = ({ navigate, onClose }) => {
                     <div>
                         <div className="flex items-center gap-2 mb-3">
                             <MapPin size={16} className="text-blue-600" />
-                            <span className="font-semibold text-slate-700">Geography</span>
+                            <span className="font-semibold text-slate-700 dark:text-white">Geography</span>
                         </div>
                         <div className="flex gap-4 flex-wrap">
                             <MasterColumn title="Districts" items={data.districts} type="districts" icon={MapPin} colorClass={TAB_COLORS.geography.header} />
@@ -783,7 +783,7 @@ const MasterDataSection = ({ navigate, onClose }) => {
                     <div>
                         <div className="flex items-center gap-2 mb-3">
                             <FileText size={16} className="text-purple-600" />
-                            <span className="font-semibold text-slate-700">Classification</span>
+                            <span className="font-semibold text-slate-700 dark:text-white">Classification</span>
                         </div>
                         <div className="flex gap-4 flex-wrap">
                             <MasterColumn title="Scheme Types" items={data.schemeTypes} type="schemeTypes" icon={FileText} colorClass={TAB_COLORS.classification.header} />

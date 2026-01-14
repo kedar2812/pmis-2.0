@@ -56,20 +56,20 @@ const EditBOQItemModal = ({ isOpen, onClose, item, onSave }) => {
     if (!isOpen) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden"
+                className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden"
             >
-                <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50">
-                    <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                        <Edit2 className="w-5 h-5 text-primary-600" />
+                <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800">
+                    <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <Edit2 className="w-5 h-5 text-primary-600 dark:text-indigo-400" />
                         Edit BOQ Item
                     </h3>
-                    <button onClick={onClose} className="p-1 hover:bg-slate-200 rounded-lg">
-                        <X className="w-5 h-5 text-slate-500" />
+                    <button onClick={onClose} className="p-1 hover:bg-slate-200 dark:hover:bg-neutral-700 rounded-lg">
+                        <X className="w-5 h-5 text-slate-500 dark:text-neutral-400" />
                     </button>
                 </div>
 

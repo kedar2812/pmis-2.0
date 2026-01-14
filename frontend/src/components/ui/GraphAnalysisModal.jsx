@@ -141,27 +141,27 @@ const GraphAnalysisModal = ({ isOpen, onClose, projects, initialMetric = 'budget
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                    className="absolute inset-0 bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm"
                 />
 
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh]"
+                    className="relative w-full max-w-5xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl flex flex-col max-h-[90vh]"
                 >
                     {/* Header */}
-                    <div className="flex justify-between items-center p-6 border-b border-slate-200">
+                    <div className="flex justify-between items-center p-6 border-b border-slate-200 dark:border-neutral-700">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-indigo-100 text-indigo-700 rounded-lg">
+                            <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-lg">
                                 <Settings2 size={24} />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-slate-800">Custom Report Generator</h3>
-                                <p className="text-sm text-slate-500">Analyze project portfolio dimensions</p>
+                                <h3 className="text-xl font-bold text-slate-800 dark:text-white">Custom Report Generator</h3>
+                                <p className="text-sm text-slate-500 dark:text-neutral-400">Analyze project portfolio dimensions</p>
                             </div>
                         </div>
-                        <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full text-slate-500">
+                        <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full text-slate-500 dark:text-neutral-400">
                             <X size={24} />
                         </button>
                     </div>

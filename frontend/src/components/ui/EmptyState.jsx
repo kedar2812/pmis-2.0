@@ -61,15 +61,15 @@ export const EmptyState = ({
       transition={{ duration: 0.4 }}
       className="flex flex-col items-center justify-center py-16 px-4 text-center"
     >
-      <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-6">
-        <FinalIcon className="w-10 h-10 text-slate-400" />
+      <div className="w-20 h-20 bg-slate-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-6">
+        <FinalIcon className="w-10 h-10 text-slate-400 dark:text-neutral-500" />
       </div>
 
-      <h3 className="text-lg font-semibold text-slate-900 mb-2">
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
         {finalTitle}
       </h3>
 
-      <p className="text-slate-600 max-w-md mb-6">
+      <p className="text-slate-600 dark:text-neutral-400 max-w-md mb-6">
         {finalDescription}
       </p>
 
@@ -99,10 +99,10 @@ export const TableEmptyState = ({
     <tr>
       <td colSpan={colSpan} className="py-16">
         <div className="flex flex-col items-center justify-center text-center">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-            <IconComponent className="w-8 h-8 text-slate-400" />
+          <div className="w-16 h-16 bg-slate-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-4">
+            <IconComponent className="w-8 h-8 text-slate-400 dark:text-neutral-500" />
           </div>
-          <p className="text-slate-500 font-medium">{message}</p>
+          <p className="text-slate-500 dark:text-neutral-400 font-medium">{message}</p>
         </div>
       </td>
     </tr>
@@ -124,14 +124,14 @@ export const CardEmptyState = ({
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="bg-white/50 backdrop-blur-sm border-2 border-dashed border-slate-200 rounded-2xl py-16 px-8"
+        className="bg-white/50 dark:bg-neutral-900/50 backdrop-blur-sm border-2 border-dashed border-slate-200 dark:border-neutral-700 rounded-2xl py-16 px-8"
       >
         <div className="flex flex-col items-center justify-center text-center">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-            <FileX className="w-8 h-8 text-slate-400" />
+          <div className="w-16 h-16 bg-slate-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-4">
+            <FileX className="w-8 h-8 text-slate-400 dark:text-neutral-500" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">{title}</h3>
-          <p className="text-slate-500 mb-6 max-w-sm">{description}</p>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{title}</h3>
+          <p className="text-slate-500 dark:text-neutral-400 mb-6 max-w-sm">{description}</p>
           {onAction && (
             <button
               onClick={onAction}

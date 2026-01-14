@@ -61,8 +61,8 @@ const RadialProgressCard = ({
             className={`
                 relative overflow-hidden rounded-2xl
                 bg-gradient-to-br ${colorConfig.bg}
-                border border-white/50
-                shadow-[0_8px_32px_rgba(0,0,0,0.06)]
+                border border-slate-200 dark:border-neutral-700
+                shadow-sm dark:shadow-lg
                 p-6 cursor-pointer
                 transition-all duration-300
             `}
@@ -104,7 +104,7 @@ const RadialProgressCard = ({
                     {/* Center percentage */}
                     <div className="absolute inset-0 flex items-center justify-center">
                         <motion.span
-                            className={`${config.fontSize} font-bold text-slate-800`}
+                            className={`${config.fontSize} font-bold text-slate-800 dark:text-white`}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.5 }}
@@ -115,11 +115,11 @@ const RadialProgressCard = ({
                 </div>
 
                 {/* Label */}
-                <p className="text-sm font-semibold text-slate-700 mt-3 text-center">{label}</p>
+                <p className="text-sm font-semibold text-slate-700 dark:text-neutral-200 mt-3 text-center">{label}</p>
 
                 {/* Subtext */}
                 {subtext && (
-                    <p className="text-xs text-slate-500 mt-1 text-center">{subtext}</p>
+                    <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1 text-center">{subtext}</p>
                 )}
             </div>
         </motion.div>

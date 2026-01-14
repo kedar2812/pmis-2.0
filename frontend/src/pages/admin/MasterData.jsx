@@ -354,11 +354,11 @@ const MasterData = () => {
         );
 
         return (
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+            <div className="bg-white dark:bg-neutral-900 rounded-xl border border-slate-200 dark:border-neutral-700 overflow-hidden">
+                <div className="px-4 py-3 border-b border-slate-100 dark:border-neutral-800 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-slate-700">{title}</h3>
-                        <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                        <h3 className="font-semibold text-slate-700 dark:text-white">{title}</h3>
+                        <span className="text-xs text-slate-400 dark:text-neutral-500 bg-slate-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">
                             {filtered.length}
                         </span>
                     </div>
@@ -371,29 +371,29 @@ const MasterData = () => {
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                        <thead className="bg-slate-50">
+                        <thead className="bg-slate-50 dark:bg-neutral-800">
                             <tr>
                                 {columns.map(col => (
-                                    <th key={col.key} className="text-left px-4 py-3 font-medium text-slate-600">
+                                    <th key={col.key} className="text-left px-4 py-3 font-medium text-slate-600 dark:text-neutral-300">
                                         {col.label}
                                     </th>
                                 ))}
-                                {canEdit && <th className="text-right px-4 py-3 font-medium text-slate-600 w-24">Actions</th>}
+                                {canEdit && <th className="text-right px-4 py-3 font-medium text-slate-600 dark:text-neutral-300 w-24">Actions</th>}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
                             {filtered.length === 0 ? (
                                 <tr>
-                                    <td colSpan={columns.length + (canEdit ? 1 : 0)} className="text-center py-8 text-slate-400">
+                                    <td colSpan={columns.length + (canEdit ? 1 : 0)} className="text-center py-8 text-slate-400 dark:text-neutral-500">
                                         <Database size={32} className="mx-auto mb-2 opacity-30" />
                                         No records found
                                     </td>
                                 </tr>
                             ) : (
                                 filtered.map((item, idx) => (
-                                    <tr key={item.id || idx} className="hover:bg-slate-50 transition-colors">
+                                    <tr key={item.id || idx} className="hover:bg-slate-50 dark:hover:bg-neutral-800 transition-colors">
                                         {columns.map(col => (
-                                            <td key={col.key} className="px-4 py-3 text-slate-700">
+                                            <td key={col.key} className="px-4 py-3 text-slate-700 dark:text-neutral-300">
                                                 {col.render ? col.render(item[col.key], item) : item[col.key] || '-'}
                                             </td>
                                         ))}
@@ -591,11 +591,11 @@ const MasterData = () => {
                 return (
                     <>
                         {/* Contractors Table - Sync button, Blacklist action */}
-                        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                        <div className="bg-white dark:bg-neutral-900 rounded-xl border border-slate-200 dark:border-neutral-700 overflow-hidden">
+                            <div className="px-4 py-3 border-b border-slate-100 dark:border-neutral-800 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <h3 className="font-semibold text-slate-700">Contractors</h3>
-                                    <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                                    <h3 className="font-semibold text-slate-700 dark:text-white">Contractors</h3>
+                                    <span className="text-xs text-slate-400 dark:text-neutral-500 bg-slate-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">
                                         {data.contractors?.length || 0}
                                     </span>
                                 </div>
@@ -617,27 +617,27 @@ const MasterData = () => {
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
-                                    <thead className="bg-slate-50">
+                                    <thead className="bg-slate-50 dark:bg-neutral-800">
                                         <tr>
-                                            <th className="text-left px-4 py-3 font-medium text-slate-600">Code</th>
-                                            <th className="text-left px-4 py-3 font-medium text-slate-600">Contractor Name</th>
-                                            <th className="text-left px-4 py-3 font-medium text-slate-600">Type</th>
-                                            <th className="text-left px-4 py-3 font-medium text-slate-600">Class</th>
-                                            <th className="text-left px-4 py-3 font-medium text-slate-600">Status</th>
-                                            {canEdit && <th className="text-center px-4 py-3 font-medium text-slate-600 w-32">Actions</th>}
+                                            <th className="text-left px-4 py-3 font-medium text-slate-600 dark:text-neutral-300">Code</th>
+                                            <th className="text-left px-4 py-3 font-medium text-slate-600 dark:text-neutral-300">Contractor Name</th>
+                                            <th className="text-left px-4 py-3 font-medium text-slate-600 dark:text-neutral-300">Type</th>
+                                            <th className="text-left px-4 py-3 font-medium text-slate-600 dark:text-neutral-300">Class</th>
+                                            <th className="text-left px-4 py-3 font-medium text-slate-600 dark:text-neutral-300">Status</th>
+                                            {canEdit && <th className="text-center px-4 py-3 font-medium text-slate-600 dark:text-neutral-300 w-32">Actions</th>}
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-100">
+                                    <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
                                         {(data.contractors || []).filter(item =>
                                             Object.values(item).some(val =>
                                                 String(val).toLowerCase().includes(searchQuery.toLowerCase())
                                             )
                                         ).map((contractor, idx) => (
-                                            <tr key={contractor.id || idx} className="hover:bg-slate-50 transition-colors">
-                                                <td className="px-4 py-3 font-mono text-slate-700">{contractor.code}</td>
-                                                <td className="px-4 py-3 text-slate-800 font-medium">{contractor.name}</td>
-                                                <td className="px-4 py-3 text-slate-600">{contractor.contractor_type}</td>
-                                                <td className="px-4 py-3 text-slate-600">{contractor.registration_class}</td>
+                                            <tr key={contractor.id || idx} className="hover:bg-slate-50 dark:hover:bg-neutral-800 transition-colors">
+                                                <td className="px- py-3 font-mono text-slate-700 dark:text-neutral-300">{contractor.code}</td>
+                                                <td className="px-4 py-3 text-slate-800 dark:text-white font-medium">{contractor.name}</td>
+                                                <td className="px-4 py-3 text-slate-600 dark:text-neutral-400">{contractor.contractor_type}</td>
+                                                <td className="px-4 py-3 text-slate-600 dark:text-neutral-400">{contractor.registration_class}</td>
                                                 <td className="px-4 py-3">
                                                     <StatusBadge
                                                         status={contractor.blacklisted ? 'BLACKLISTED' : 'ACTIVE'}
@@ -697,7 +697,7 @@ const MasterData = () => {
                                         </p>
                                     </div>
                                     <div className="p-6">
-                                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                                        <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-2">
                                             Reason for Blacklisting <span className="text-red-500">*</span>
                                         </label>
                                         <textarea
@@ -705,7 +705,7 @@ const MasterData = () => {
                                             onChange={(e) => setBlacklistReason(e.target.value)}
                                             placeholder="Enter reason for blacklisting this contractor..."
                                             rows={3}
-                                            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                                            className="w-full px-4 py-2 bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                                         />
                                         <div className="flex justify-end gap-3 mt-6">
                                             <Button
@@ -816,8 +816,8 @@ const MasterData = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800">Master Data</h1>
-                    <p className="text-slate-500 mt-1">Manage reference data for projects, billing, and administration</p>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Master Data</h1>
+                    <p className="text-slate-500 dark:text-neutral-400 mt-1">Manage reference data for projects, billing, and administration</p>
                 </div>
                 <Button variant="outline" size="sm" onClick={() => fetchTabData(activeTab)}>
                     <RefreshCw size={16} className="mr-2" />

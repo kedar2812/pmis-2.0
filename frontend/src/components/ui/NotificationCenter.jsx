@@ -81,14 +81,14 @@ const NotificationCenter = ({ isOpen, onClose, notifications = [] }) => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="absolute right-0 top-12 w-96 max-h-[32rem] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden z-50"
+                className="absolute right-0 top-12 w-96 max-h-[32rem] bg-white dark:bg-neutral-900 rounded-2xl shadow-xl dark:shadow-2xl border border-slate-200 dark:border-neutral-700 overflow-hidden z-50"
             >
                 {/* Header */}
-                <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+                <div className="px-4 py-3 border-b border-slate-100 dark:border-neutral-800 bg-slate-50 dark:bg-neutral-800">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <Bell className="w-5 h-5 text-primary-600" />
-                            <h3 className="font-semibold text-slate-800">Notifications</h3>
+                            <Bell className="w-5 h-5 text-blue-600 dark:text-indigo-400" />
+                            <h3 className="font-semibold text-slate-800 dark:text-white">Notifications</h3>
                             {unreadCount > 0 && (
                                 <span className="px-2 py-0.5 bg-primary-600 text-white text-xs rounded-full">
                                     {unreadCount}
@@ -128,9 +128,9 @@ const NotificationCenter = ({ isOpen, onClose, notifications = [] }) => {
                 <div className="max-h-96 overflow-y-auto">
                     {localNotifications.length === 0 ? (
                         <div className="py-12 text-center">
-                            <Bell className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                            <p className="text-slate-500 text-sm">No notifications</p>
-                            <p className="text-slate-400 text-xs">You're all caught up!</p>
+                            <Bell className="w-10 h-10 text-slate-300 dark:text-neutral-600 mx-auto mb-3" />
+                            <p className="text-slate-500 dark:text-neutral-400 text-sm">No notifications</p>
+                            <p className="text-slate-400 dark:text-neutral-500 text-xs">You're all caught up!</p>
                         </div>
                     ) : (
                         <div className="divide-y divide-slate-100">
@@ -145,7 +145,7 @@ const NotificationCenter = ({ isOpen, onClose, notifications = [] }) => {
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: index * 0.05 }}
                                         onClick={() => handleClick(notification)}
-                                        className={`p-4 hover:bg-slate-50 cursor-pointer transition-colors ${!notification.read ? 'bg-blue-50/30' : ''
+                                        className={`p-4 hover:bg-slate-50 dark:hover:bg-neutral-800 cursor-pointer transition-colors ${!notification.read ? 'bg-blue-50/30 dark:bg-indigo-900/10' : ''
                                             }`}
                                     >
                                         <div className="flex items-start gap-3">
@@ -154,7 +154,7 @@ const NotificationCenter = ({ isOpen, onClose, notifications = [] }) => {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-start justify-between gap-2">
-                                                    <p className={`text-sm ${!notification.read ? 'font-semibold text-slate-900' : 'text-slate-700'}`}>
+                                                    <p className={`text-sm ${!notification.read ? 'font-semibold text-slate-900 dark:text-white' : 'text-slate-700 dark:text-neutral-300'}`}>
                                                         {notification.title}
                                                     </p>
                                                     {!notification.read && (
@@ -184,7 +184,7 @@ const NotificationCenter = ({ isOpen, onClose, notifications = [] }) => {
 
                 {/* Footer */}
                 {localNotifications.length > 0 && (
-                    <div className="px-4 py-3 border-t border-slate-100 bg-slate-50">
+                    <div className="px-4 py-3 border-t border-slate-100 dark:border-neutral-800 bg-slate-50 dark:bg-neutral-800">
                         <button
                             onClick={() => {
                                 navigate('/approvals');
@@ -210,9 +210,9 @@ export const NotificationBell = ({ count = 0, onClick }) => {
     return (
         <button
             onClick={onClick}
-            className="relative p-2 rounded-xl hover:bg-slate-100 transition-colors"
+            className="relative p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
         >
-            <Bell className="w-5 h-5 text-slate-600" />
+            <Bell className="w-5 h-5 text-slate-600 dark:text-neutral-300" />
             {count > 0 && (
                 <motion.span
                     initial={{ scale: 0 }}

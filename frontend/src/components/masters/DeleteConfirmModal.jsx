@@ -38,7 +38,7 @@ const DeleteConfirmModal = ({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
+                        className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-[9999]"
                     />
 
                     {/* Modal */}
@@ -48,30 +48,30 @@ const DeleteConfirmModal = ({
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
                     >
-                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+                        <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
                             {/* Header */}
-                            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-neutral-700">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-red-100 rounded-lg">
-                                        <AlertTriangle size={20} className="text-red-600" />
+                                    <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                                        <AlertTriangle size={20} className="text-red-600 dark:text-red-400" />
                                     </div>
-                                    <h2 className="text-lg font-semibold text-slate-800">{title}</h2>
+                                    <h2 className="text-lg font-semibold text-slate-800 dark:text-white">{title}</h2>
                                 </div>
                                 <button
                                     onClick={onClose}
-                                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                                    className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
                                     disabled={loading}
                                 >
-                                    <X size={20} className="text-slate-500" />
+                                    <X size={20} className="text-slate-500 dark:text-neutral-400" />
                                 </button>
                             </div>
 
                             {/* Content */}
                             <div className="p-6">
-                                <p className="text-slate-600">{message}</p>
+                                <p className="text-slate-600 dark:text-neutral-300">{message}</p>
                                 {itemName && (
-                                    <div className="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                                        <p className="text-sm font-medium text-slate-700">{itemName}</p>
+                                    <div className="mt-3 p-3 bg-slate-50 dark:bg-neutral-800 rounded-lg border border-slate-200 dark:border-neutral-700">
+                                        <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">{itemName}</p>
                                     </div>
                                 )}
                             </div>

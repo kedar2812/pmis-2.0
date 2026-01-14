@@ -101,24 +101,24 @@ const GlobalSearchBar = ({ isDesktop = true }) => {
                         onClick={handleSearchBarClick}
                         className={`
               flex items-center gap-3 px-4 py-2.5 
-              bg-slate-50/80 hover:bg-slate-100/80
-              border border-slate-200/60 hover:border-slate-300/80
+              bg-slate-50/80 dark:bg-neutral-800/80 hover:bg-slate-100/80 dark:hover:bg-neutral-700/80
+              border border-slate-200/60 dark:border-neutral-600/60 hover:border-slate-300/80 dark:hover:border-neutral-500/80
               rounded-xl cursor-text
               transition-all duration-200 ease-out
               group
-              ${isFocused ? 'ring-2 ring-primary-500/20 border-primary-400/60' : ''}
+              ${isFocused ? 'ring-2 ring-primary-500/20 border-primary-400/60 dark:border-primary-600/60' : ''}
             `}
                     >
                         <Search
                             size={18}
-                            className="text-slate-400 group-hover:text-slate-500 transition-colors"
+                            className="text-slate-400 dark:text-neutral-400 group-hover:text-slate-500 dark:group-hover:text-neutral-300 transition-colors"
                         />
-                        <span className="text-slate-400 text-sm flex-1 select-none">
+                        <span className="text-slate-400 dark:text-neutral-400 text-sm flex-1 select-none">
                             Search anything...
                         </span>
-                        <div className="flex items-center gap-1 px-2 py-1 bg-white/80 rounded-md border border-slate-200/60">
-                            <Command size={12} className="text-slate-400" />
-                            <span className="text-xs text-slate-400 font-medium">K</span>
+                        <div className="flex items-center gap-1 px-2 py-1 bg-white/80 dark:bg-neutral-700/80 rounded-md border border-slate-200/60 dark:border-neutral-600/60">
+                            <Command size={12} className="text-slate-400 dark:text-neutral-400" />
+                            <span className="text-xs text-slate-400 dark:text-neutral-400 font-medium">K</span>
                         </div>
                     </div>
                 </motion.div>
@@ -133,13 +133,13 @@ const GlobalSearchBar = ({ isDesktop = true }) => {
         <>
             <motion.button
                 onClick={handleSearchBarClick}
-                className="p-2 rounded-xl hover:bg-slate-100/60 transition-all duration-200 hover:scale-105 group"
+                className="p-2 rounded-xl hover:bg-slate-100/60 dark:hover:bg-neutral-800/60 transition-all duration-200 hover:scale-105 group"
                 whileTap={{ scale: 0.95 }}
                 title="Search (Ctrl+K)"
             >
                 <Search
                     size={20}
-                    className="text-slate-500 group-hover:text-primary-600 transition-colors"
+                    className="text-slate-500 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-500 transition-colors"
                 />
             </motion.button>
 

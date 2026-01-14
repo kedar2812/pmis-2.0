@@ -49,8 +49,8 @@ export const Breadcrumbs = () => {
               <Link
                 to={crumb.path || '#'}
                 className={cn(
-                  'flex items-center text-gray-500 hover:text-gray-700',
-                  isLast && 'text-gray-900 font-medium'
+                  'flex items-center text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200',
+                  isLast && 'text-slate-900 dark:text-white font-medium'
                 )}
                 aria-label="Home"
               >
@@ -58,13 +58,13 @@ export const Breadcrumbs = () => {
               </Link>
             ) : (
               <>
-                <ChevronRight size={16} className="text-gray-400 mx-2" />
+                <ChevronRight size={16} className="text-slate-400 dark:text-neutral-600 mx-2" />
                 {isLast ? (
-                  <span className="text-gray-900 font-medium">{crumb.label}</span>
+                  <span className="text-slate-900 dark:text-white font-medium">{crumb.label}</span>
                 ) : (
                   <Link
                     to={crumb.path || '#'}
-                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                    className="text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200 transition-colors"
                   >
                     {crumb.label}
                   </Link>

@@ -171,11 +171,11 @@ const Approvals = () => {
         <div className="p-6 max-w-6xl mx-auto">
             {/* Header */}
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
                     <Clock className="text-amber-600" />
                     Pending Approvals
                 </h1>
-                <p className="text-sm text-slate-500 mt-1">
+                <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">
                     Documents and BOQ requests requiring your action
                 </p>
             </div>
@@ -185,15 +185,15 @@ const Approvals = () => {
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm"
+                    className="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-slate-200 dark:border-neutral-700 shadow-sm"
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-slate-500">Total Pending</p>
-                            <p className="text-3xl font-bold text-slate-800">{totalPending}</p>
+                            <p className="text-sm text-slate-500 dark:text-neutral-400">Total Pending</p>
+                            <p className="text-3xl font-bold text-slate-800 dark:text-white">{totalPending}</p>
                         </div>
-                        <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
-                            <FileText size={24} className="text-slate-500" />
+                        <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-neutral-800 flex items-center justify-center">
+                            <FileText size={24} className="text-slate-500 dark:text-neutral-400" />
                         </div>
                     </div>
                 </motion.div>
@@ -240,7 +240,7 @@ const Approvals = () => {
                     <select
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
-                        className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm"
+                        className="px-3 py-2 bg-slate-50 dark:bg-neutral-900 border border-slate-200 dark:border-neutral-700 text-slate-900 dark:text-white rounded-lg text-sm"
                     >
                         <option value="all">All Pending ({totalPending})</option>
                         <option value="documents">Documents Only ({documents.length})</option>

@@ -149,8 +149,8 @@ const LanguageDropdown = () => {
         w-full flex items-center gap-3 px-4 py-2.5 text-left
         transition-all duration-150 rounded-lg mx-1
         ${isActive
-                    ? 'bg-primary-100 text-primary-700'
-                    : 'hover:bg-slate-50 text-slate-700'}
+                    ? 'bg-blue-100 dark:bg-indigo-900/30 text-blue-700 dark:text-indigo-300'
+                    : 'hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200'}
       `}
             whileHover={{ x: 2 }}
             whileTap={{ scale: 0.98 }}
@@ -175,8 +175,8 @@ const LanguageDropdown = () => {
           flex items-center gap-2 px-3 py-2 
           rounded-xl border transition-all duration-200
           ${isOpen
-                        ? 'bg-primary-50 border-primary-200 text-primary-700'
-                        : 'bg-white/80 border-slate-200/60 text-slate-700 hover:bg-slate-50 hover:border-slate-300'}
+                        ? 'bg-blue-50 dark:bg-indigo-900/20 border-blue-200 dark:border-indigo-700 text-blue-700 dark:text-indigo-300'
+                        : 'bg-white/90 dark:bg-neutral-900/90 border-slate-200 dark:border-neutral-700 text-slate-700 dark:text-neutral-200 hover:bg-slate-50 dark:hover:bg-neutral-800 hover:border-slate-300 dark:hover:border-neutral-600'}
         `}
                 whileTap={{ scale: 0.98 }}
             >
@@ -201,19 +201,19 @@ const LanguageDropdown = () => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
                         transition={{ duration: 0.15, ease: 'easeOut' }}
-                        className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-200/60 overflow-hidden z-[100]"
+                        className="absolute right-0 mt-2 w-72 bg-white dark:bg-neutral-900 rounded-2xl shadow-xl dark:shadow-2xl border border-slate-200 dark:border-neutral-700 overflow-hidden z-[100]"
                     >
                         {/* Search Input */}
-                        <div className="p-3 border-b border-slate-100">
-                            <div className="flex items-center gap-2 px-3 py-2.5 bg-slate-50 rounded-xl">
-                                <Search size={16} className="text-slate-400" />
+                        <div className="p-3 border-b border-slate-100 dark:border-neutral-800">
+                            <div className="flex items-center gap-2 px-3 py-2.5 bg-slate-50 dark:bg-neutral-800 rounded-xl">
+                                <Search size={16} className="text-slate-400 dark:text-neutral-500" />
                                 <input
                                     ref={searchInputRef}
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Search languages..."
-                                    className="flex-1 bg-transparent text-sm text-slate-700 placeholder-slate-400 focus:outline-none"
+                                    className="flex-1 bg-transparent text-sm text-slate-700 dark:text-neutral-200 placeholder-slate-400 dark:placeholder-neutral-500 focus:outline-none"
                                 />
                             </div>
                         </div>

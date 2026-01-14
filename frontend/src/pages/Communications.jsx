@@ -225,7 +225,7 @@ const Communications = () => {
     return (
         <div className="h-[calc(100vh-4rem)] flex flex-col">
             {/* Header */}
-            <div className="bg-white border-b border-slate-200 p-3 sm:p-4">
+            <div className="bg-white dark:bg-neutral-900 border-b border-slate-200 dark:border-neutral-700 p-3 sm:p-4">
                 {/* Title Row */}
                 <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
@@ -233,15 +233,15 @@ const Communications = () => {
                         {showThreadDetailOnMobile && (
                             <button
                                 onClick={handleMobileBack}
-                                className="p-2 -ml-2 hover:bg-slate-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0"
+                                className="p-2 -ml-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0"
                                 aria-label="Back to thread list"
                             >
-                                <ArrowLeft size={24} className="text-slate-600" />
+                                <ArrowLeft size={24} className="text-slate-600 dark:text-neutral-300" />
                             </button>
                         )}
                         <div className="min-w-0 flex-1">
-                            <h1 className="text-lg sm:text-2xl font-bold text-slate-900 flex items-center gap-2 sm:gap-3">
-                                <MessageSquare className="text-primary-600 hidden sm:block flex-shrink-0" size={28} />
+                            <h1 className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2 sm:gap-3">
+                                <MessageSquare className="text-primary-600 dark:text-indigo-400 hidden sm:block flex-shrink-0" size={28} />
                                 <span className="truncate">
                                     {showThreadDetailOnMobile && selectedThread
                                         ? selectedThread.subject || 'Conversation'
@@ -249,7 +249,7 @@ const Communications = () => {
                                     }
                                 </span>
                             </h1>
-                            <p className="text-slate-500 text-xs sm:text-sm mt-0.5 hidden sm:block">
+                            <p className="text-slate-500 dark:text-neutral-400 text-xs sm:text-sm mt-0.5 hidden sm:block">
                                 Official, auditable communication system
                             </p>
                         </div>
@@ -314,14 +314,14 @@ const Communications = () => {
                                 <input
                                     type="text"
                                     placeholder="Search threads..."
-                                    className="w-full pl-10 pr-4 py-2 min-h-[44px] border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    className="w-full pl-10 pr-4 py-2 min-h-[44px] border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-indigo-500"
                                     value={filters.search}
                                     onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                                 />
                             </div>
                             <div className="flex gap-2 sm:gap-4">
                                 <select
-                                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2 min-h-[44px] border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2 min-h-[44px] border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-indigo-500"
                                     value={filters.status}
                                     onChange={(e) => setFilters({ ...filters, status: e.target.value })}
                                 >
@@ -332,7 +332,7 @@ const Communications = () => {
                                     <option value="CLOSED">Closed</option>
                                 </select>
                                 <select
-                                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2 min-h-[44px] border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2 min-h-[44px] border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-indigo-500"
                                     value={filters.type}
                                     onChange={(e) => setFilters({ ...filters, type: e.target.value })}
                                 >
@@ -360,7 +360,7 @@ const Communications = () => {
                             ? (showThreadListOnMobile ? 'w-full' : 'hidden')
                             : 'w-[320px] lg:w-[380px]'
                         }
-                        border-r border-slate-200 bg-slate-50 overflow-y-auto
+                        border-r border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-950 overflow-y-auto
                         transition-all duration-200
                     `}
                 >
@@ -379,7 +379,7 @@ const Communications = () => {
                             ? (showThreadDetailOnMobile ? 'w-full' : 'hidden')
                             : 'flex-1'
                         }
-                        bg-white overflow-hidden
+                        bg-white dark:bg-neutral-900 overflow-hidden
                     `}
                 >
                     {selectedThread ? (
@@ -389,7 +389,7 @@ const Communications = () => {
                             onClose={handleMobileBack}
                         />
                     ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-slate-400 p-4">
+                        <div className="h-full flex flex-col items-center justify-center text-slate-400 dark:text-neutral-500 p-4">
                             <MessageSquare size={64} className="opacity-30 mb-4" />
                             <p className="text-lg text-center">Select a thread to view</p>
                             <p className="text-sm mt-1 text-center">or create a new communication thread</p>

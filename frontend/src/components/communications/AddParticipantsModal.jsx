@@ -95,7 +95,7 @@ const AddParticipantsModal = ({ thread, onClose, onAdded }) => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]"
+                className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999]"
                 onClick={onClose}
             >
                 <motion.div
@@ -104,19 +104,19 @@ const AddParticipantsModal = ({ thread, onClose, onAdded }) => {
                     exit={{ scale: 0.95, opacity: 0 }}
                     transition={{ duration: 0.2 }}
                     onClick={(e) => e.stopPropagation()}
-                    className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden"
+                    className="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden"
                 >
                     {/* Header */}
-                    <div className="flex items-center justify-between p-6 border-b">
-                        <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+                    <div className="flex items-center justify-between p-6 border-b dark:border-neutral-700">
+                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
                             <UserPlus className="text-primary-600" size={28} />
                             Add Participants
                         </h2>
                         <button
                             onClick={onClose}
-                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
                         >
-                            <X size={20} />
+                            <X size={20} className="dark:text-neutral-400" />
                         </button>
                     </div>
 

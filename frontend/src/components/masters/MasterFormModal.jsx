@@ -220,7 +220,7 @@ const MasterFormModal = ({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
+                        className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-[9999]"
                     />
 
                     {/* Modal */}
@@ -230,16 +230,16 @@ const MasterFormModal = ({
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
                     >
-                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden">
+                        <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden">
                             {/* Header */}
-                            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-                                <h2 className="text-lg font-semibold text-slate-800">{title}</h2>
+                            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-neutral-700">
+                                <h2 className="text-lg font-semibold text-slate-800 dark:text-white">{title}</h2>
                                 <button
                                     onClick={onClose}
-                                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                                    className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
                                     disabled={loading}
                                 >
-                                    <X size={20} className="text-slate-500" />
+                                    <X size={20} className="text-slate-500 dark:text-neutral-400" />
                                 </button>
                             </div>
 
