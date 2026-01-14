@@ -144,6 +144,14 @@ class RABill(models.Model):
     
     status = models.CharField(max_length=20, choices=BillStatus.choices, default=BillStatus.DRAFT)
     
+    # PDF File Storage - saved to project-specific folder
+    bill_pdf_file = models.FileField(
+        upload_to='projects/ra_bills/',
+        null=True,
+        blank=True,
+        help_text="Generated PDF bill saved to media/projects/{project_id}/ra_bills/"
+    )
+    
     metadata = models.JSONField(default=dict, blank=True, help_text="Store override flags or extra sync data")
 
     created_at = models.DateTimeField(auto_now_add=True)

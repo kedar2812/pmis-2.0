@@ -451,7 +451,21 @@ class RABillViewSet(viewsets.ModelViewSet):
         if warnings:
             metadata['warnings'] = warnings
             
-        serializer.save(metadata=metadata)
+        bill = serializer.save(metadata=metadata)
+        
+        # Auto-generate PDF bill
+        try:
+            from finance.services import generate_ra_bill_pdf
+            pdf_url = generate_ra_bill_pdf(bill)
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info(f"Generated PDF for bill {bill.bill_no}: {pdf_url}")
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Failed to generate PDF for bill {bill.bill_no}: {str(e)}")
+            # Don't fail the bill creation if PDF generation fails
+            pass
 
     def get_queryset(self):
         qs = super().get_queryset()

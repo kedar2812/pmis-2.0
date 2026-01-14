@@ -20,17 +20,40 @@ const OtpLogin = () => {
         }
     }, [isAuthenticated, navigate]);
 
-    const handleLogin = async (e) => {
+    const handleLogin = (e) => {
+        console.log('========== LOGIN HANDLER CALLED ==========');
         e.preventDefault();
+        e.stopPropagation();
+
+        if (isLoading) {
+            console.log('Already loading, aborting');
+            return false;
+        }
+
+        console.log('Setting loading to true, username:', username);
         setIsLoading(true);
 
-        const result = await login(username, password);
+        login(username, password)
+            .then(result => {
+                console.log('========== LOGIN RESULT ==========', result);
 
-        if (!result.success) {
-            setIsLoading(false);
-        } else {
-            navigate('/dashboard');
-        }
+                if (!result.success) {
+                    console.error('LOGIN FAILED:', result.error);
+                    // AuthContext already shows the toast, no need to duplicate
+                    setIsLoading(false);
+                } else {
+                    console.log('LOGIN SUCCESS - Navigating to dashboard');
+                    navigate('/dashboard');
+                }
+            })
+            .catch(err => {
+                console.error('========== LOGIN ERROR (CATCH) ==========', err);
+                // This shouldn't happen as AuthContext handles all errors
+                setIsLoading(false);
+            });
+
+        console.log('Returning false to prevent default');
+        return false;
     };
 
 
@@ -121,7 +144,7 @@ const OtpLogin = () => {
                                 </p>
                             </div>
 
-                            <form onSubmit={handleLogin} className="space-y-5">
+                            <form onSubmit={handleLogin} className="space-y-5" noValidate>
                                 {/* Username Field */}
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-2">

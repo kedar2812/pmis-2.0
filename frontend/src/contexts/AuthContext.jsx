@@ -77,9 +77,25 @@ export const AuthProvider = ({ children }) => {
 
     } catch (error) {
       console.error('Login error:', error);
-      const msg = error.response?.data?.detail || 'Invalid credentials';
-      toast.error(msg);
-      return { success: false, error: msg };
+
+      // Extract error message from various possible locations
+      let errorMessage = 'Invalid credentials';
+
+      if (error.response?.data) {
+        // Backend returns { detail: "message", code: "code" }
+        if (error.response.data.detail) {
+          errorMessage = error.response.data.detail;
+        } else if (error.response.data.non_field_errors) {
+          errorMessage = error.response.data.non_field_errors[0];
+        } else if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 

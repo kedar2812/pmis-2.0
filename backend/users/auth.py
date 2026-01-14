@@ -41,21 +41,25 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 })
                 
         except User.DoesNotExist:
-            # User doesn't exist - let parent validation handle it with clear error
+            # User doesn't exist - will be caught by parent validation
             pass
         
-        #  Call parent validation (handles password check)
-        # This will raise ValidationError with 'No active account found' if credentials are wrong
+        # Call parent validation (handles password check)
         try:
-            return super().validate(attrs)
-        except serializers.ValidationError as e:
-            # Rephrase the default error to be clearer for users
-            error_detail = e.detail if hasattr(e, 'detail') else str(e)
-            if 'No active account' in str(error_detail) or 'Unable to log in' in str(error_detail):
+            data = super().validate(attrs)
+            return data
+        except Exception as e:
+            # Catch ANY authentication error and provide clear message
+            error_message = str(e)
+            
+            # Replace default error messages with user-friendly ones
+            if 'No active account' in error_message or 'Unable to log in' in error_message or 'given credentials' in error_message:
                 raise serializers.ValidationError({
                     'detail': 'Invalid credentials. Please check your username and password.',
                     'code': 'invalid_credentials'
                 })
+            
+            # Re-raise other errors as-is
             raise
 
 
