@@ -167,8 +167,12 @@ class RiskViewSet(viewsets.ModelViewSet):
         # Average days open (for non-closed risks)
         open_risks = queryset.exclude(status=Risk.Status.CLOSED)
         if open_risks.exists():
-            total_days = sum(r.days_open for r in open_risks)
-            stats['avg_days_open'] = round(total_days / open_risks.count(), 1)
+            try:
+                total_days = sum(r.days_open for r in open_risks)
+                stats['avg_days_open'] = round(total_days / open_risks.count(), 1)
+            except Exception as e:
+                logger.warning(f"Failed to calculate average days open: {e}")
+                stats['avg_days_open'] = 0
         
         # Total impacts
         aggregates = queryset.aggregate(

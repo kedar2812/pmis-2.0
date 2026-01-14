@@ -39,28 +39,34 @@ Desktop/
 *.log
 *.manifest
 
-
 # Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
+backend/__pycache__/
+backend/*.py[cod]
+backend/*$py.class
+backend/*.so
+backend/.Python
+backend/db.sqlite3
+backend/media/
+backend/staticfiles/
+backend/venv/
+backend/.env
 
-# Django
-*.sqlite3
-db.sqlite3
-media/
-staticfiles/
-
-# Temporary data directories
-temp_*/
-data/
-downloads/
+# React/Vite
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.production
 
 # IDE
 .vscode/
 .idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Testing
+coverage/

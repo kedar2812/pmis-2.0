@@ -65,6 +65,7 @@ This platform integrates various project management domains into a seamless inte
 
 2.  **Frontend Setup**
     ```bash
+    cd frontend
     npm install
     npm run dev
     ```
@@ -77,25 +78,34 @@ This platform integrates various project management domains into a seamless inte
     python manage.py runserver
     ```
 
-##  Project Structure
+## Project Structure
 
 ```
 pmis-zia/
-├── backend/                # Django Backend
-│   ├── masters/            # Master Data App
-│   ├── users/              # User Management App
+├── frontend/               # React Frontend
+│   ├── src/               # Source Code
+│   │   ├── api/           # API Services & Client
+│   │   ├── components/    # Reusable UI Components
+│   │   │   ├── ui/        # Generic UI (Buttons, StatusBadge, etc.)
+│   │   │   └── ...
+│   │   ├── pages/         # Application Pages
+│   │   └── ...
+│   ├── public/            # Static Assets
+│   ├── package.json
+│   └── vite.config.js
+│
+├── backend/               # Django Backend
+│   ├── masters/           # Master Data App
+│   ├── users/             # User Management App
+│   ├── projects/          # Project Management App
+│   ├── finance/           # Finance & Billing App
 │   └── ...
-├── src/                    # React Frontend
-│   ├── api/                # API Services & Client
-│   ├── components/         # Reusable UI Components
-│       ├── ui/             # Generic UI (Buttons, StatusBadge, etc.)
-│       └── ...
-│   ├── pages/              # Application Pages
-│   └── ...
+│
+├── README.md
 └── ...
 ```
 
-##  Roles & Permissions
+## Roles & Permissions
 
 - **SPV Official**: Full generic administrative access.
 - **PMNC Team**: Project manager access with configuration rights.

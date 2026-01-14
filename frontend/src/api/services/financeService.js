@@ -21,42 +21,48 @@ const financeService = {
      * @param {number} params.labour_cost - Optional labour cost
      * @returns {Promise} Complete bill summary with all calculated charges
      */
-    calculateETP: (params) => client.post('/finance/ra-bills/calculate_etp/', params),
+    calculateETP: (params) => client.post('/finance/bills/calculate_etp/', params),
 
     // ========== RA Bills ==========
-    getRABills: (params = {}) => client.get('/finance/ra-bills/', { params }),
-    getRABill: (id) => client.get(`/finance/ra-bills/${id}/`),
-    createRABill: (data) => client.post('/finance/ra-bills/', data),
-    updateRABill: (id, data) => client.put(`/finance/ra-bills/${id}/`, data),
-    deleteRABill: (id) => client.delete(`/finance/ra-bills/${id}/`),
-    verifyRABill: (id) => client.post(`/finance/ra-bills/${id}/verify/`),
-    payRABill: (id) => client.post(`/finance/ra-bills/${id}/pay/`),
+    getRABills: (params = {}) => client.get('/finance/bills/', { params }),
+    getRABill: (id) => client.get(`/finance/bills/${id}/`),
+    createBill: (data) => client.post('/finance/bills/', data),
+    updateBill: (id, data) => client.put(`/finance/bills/${id}/`, data),
+    deleteBill: (id) => client.delete(`/finance/bills/${id}/`),
+    verifyBill: (id) => client.post(`/finance/bills/${id}/verify/`),
+    payBill: (id) => client.post(`/finance/bills/${id}/pay/`),
 
     // ========== BOQ Items ==========
-    getBOQItems: (params = {}) => client.get('/finance/boq-items/', { params }),
-    getBOQItem: (id) => client.get(`/finance/boq-items/${id}/`),
-    createBOQItem: (data) => client.post('/finance/boq-items/', data),
-    updateBOQItem: (id, data) => client.put(`/finance/boq-items/${id}/`, data),
-    deleteBOQItem: (id) => client.delete(`/finance/boq-items/${id}/`),
-    analyzeFile: (formData) => client.post('/finance/boq-items/analyze_file/', formData, {
+    getBOQItems: (params = {}) => client.get('/finance/boq/', { params }),
+    getBOQItem: (id) => client.get(`/finance/boq/${id}/`),
+    createBOQItem: (data) => client.post('/finance/boq/', data),
+    updateBOQItem: (id, data) => client.put(`/finance/boq/${id}/`, data),
+    deleteBOQItem: (id) => client.delete(`/finance/boq/${id}/`),
+    analyzeFile: (formData) => client.post('/finance/boq/analyze_file/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
     }),
-    importFile: (formData) => client.post('/finance/boq-items/import_file/', formData, {
+    importFile: (formData) => client.post('/finance/boq/import_file/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
     }),
-    requestFreeze: (data) => client.post('/finance/boq-items/request_freeze/', data),
-    requestUnfreeze: (data) => client.post('/finance/boq-items/request_unfreeze/', data),
+    requestFreeze: (data) => client.post('/finance/boq/request_freeze/', data),
+    requestUnfreeze: (data) => client.post('/finance/boq/request_unfreeze/', data),
 
     // ========== Fund Heads ==========
-    getFundHeads: () => client.get('/finance/fund-heads/'),
-    getFundHead: (id) => client.get(`/finance/fund-heads/${id}/`),
-    createFundHead: (data) => client.post('/finance/fund-heads/', data),
-    updateFundHead: (id, data) => client.put(`/finance/fund-heads/${id}/`, data),
+    getFundHeads: () => client.get('/finance/funds/'),
+    getFundHead: (id) => client.get(`/finance/funds/${id}/`),
+    createFundHead: (data) => client.post('/finance/funds/', data),
+    updateFundHead: (id, data) => client.put(`/finance/funds/${id}/`, data),
 
     // ========== Budget Line Items ==========
-    getBudgetItems: (params = {}) => client.get('/finance/budget-items/', { params }),
-    createBudgetItem: (data) => client.post('/finance/budget-items/', data),
-    updateBudgetItem: (id, data) => client.put(`/finance/budget-items/${id}/`, data),
+    getBudgetItems: (params = {}) => client.get('/finance/budgets/', { params }),
+    createBudgetItem: (data) => client.post('/finance/budgets/', data),
+    updateBudgetItem: (id, data) => client.put(`/finance/budgets/${id}/`, data),
+
+    // ========== Schedule Tasks (for milestone linking) ==========
+    getScheduleTasks: (projectId) => client.get(`/scheduling/tasks/`, { params: { project: projectId } }),
+
+    // ========== Active ETP Charges ==========
+    getActiveEtpCharges: () => client.get('/masters/etp-charges/'),
 
     // ========== Approval Requests ==========
     getApprovalRequests: (params = {}) => client.get('/finance/approval-requests/', { params }),

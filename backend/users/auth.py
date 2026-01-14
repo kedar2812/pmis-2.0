@@ -8,7 +8,8 @@ User = get_user_model()
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """
-    Custom JWT serializer that provides clear error messages for inactive users.
+    Custom JWT serializer that provides clear error messages for inactive users
+    and invalid credentials.
     """
     
     def validate(self, attrs):
@@ -40,11 +41,22 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 })
                 
         except User.DoesNotExist:
-            # Let the parent class handle the invalid credentials error
+            # User doesn't exist - let parent validation handle it with clear error
             pass
         
-        # Call parent validation (handles password check)
-        return super().validate(attrs)
+        #  Call parent validation (handles password check)
+        # This will raise ValidationError with 'No active account found' if credentials are wrong
+        try:
+            return super().validate(attrs)
+        except serializers.ValidationError as e:
+            # Rephrase the default error to be clearer for users
+            error_detail = e.detail if hasattr(e, 'detail') else str(e)
+            if 'No active account' in str(error_detail) or 'Unable to log in' in str(error_detail):
+                raise serializers.ValidationError({
+                    'detail': 'Invalid credentials. Please check your username and password.',
+                    'code': 'invalid_credentials'
+                })
+            raise
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):

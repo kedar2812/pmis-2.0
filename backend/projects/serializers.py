@@ -38,21 +38,23 @@ class ProjectSerializer(serializers.ModelSerializer):
     
     For reading: Returns nested objects with id, code, name for display.
     For writing: Accepts just the ID for each foreign key field.
+    
+    Most fields are optional to allow flexible project creation.
     """
     location = serializers.SerializerMethodField()
     work_packages = WorkPackageSerializer(many=True, read_only=True)
     
     # Read-only nested representations for display
-    zone_name = serializers.CharField(source='zone.name', read_only=True, default='')
-    circle_name = serializers.CharField(source='circle.name', read_only=True, default='')
-    division_name = serializers.CharField(source='division.name', read_only=True, default='')
-    sub_division_name = serializers.CharField(source='sub_division.name', read_only=True, default='')
-    district_name = serializers.CharField(source='district.name', read_only=True, default='')
-    town_name = serializers.CharField(source='town.name', read_only=True, default='')
-    scheme_type_name = serializers.CharField(source='scheme_type.name', read_only=True, default='')
-    scheme_name = serializers.CharField(source='scheme.name', read_only=True, default='')
-    work_type_name = serializers.CharField(source='work_type.name', read_only=True, default='')
-    project_category_name = serializers.CharField(source='project_category.name', read_only=True, default='')
+    zone_name = serializers.CharField(source='zone.name', read_only=True, default='', allow_null=True)
+    circle_name = serializers.CharField(source='circle.name', read_only=True, default='', allow_null=True)
+    division_name = serializers.CharField(source='division.name', read_only=True, default='', allow_null=True)
+    sub_division_name = serializers.CharField(source='sub_division.name', read_only=True, default='', allow_null=True)
+    district_name = serializers.CharField(source='district.name', read_only=True, default='', allow_null=True)
+    town_name = serializers.CharField(source='town.name', read_only=True, default='', allow_null=True)
+    scheme_type_name = serializers.CharField(source='scheme_type.name', read_only=True, default='', allow_null=True)
+    scheme_name = serializers.CharField(source='scheme.name', read_only=True, default='', allow_null=True)
+    work_type_name = serializers.CharField(source='work_type.name', read_only=True, default='', allow_null=True)
+    project_category_name = serializers.CharField(source='project_category.name', read_only=True, default='', allow_null=True)
     
     # Manager relationship
     manager_name = serializers.SerializerMethodField()
@@ -130,6 +132,23 @@ class ProjectSerializer(serializers.ModelSerializer):
             'progress_state',
             'schedule_variance',
         ]
+        # Make most FK fields optional
+        extra_kwargs = {
+            'zone': {'required': False, 'allow_null': True},
+            'circle': {'required': False, 'allow_null': True},
+            'division': {'required': False, 'allow_null': True},
+            'sub_division': {'required': False, 'allow_null': True},
+            'district': {'required': False, 'allow_null': True},
+            'town': {'required': False, 'allow_null': True},
+            'scheme_type': {'required': False, 'allow_null': True},
+            'scheme': {'required': False, 'allow_null': True},
+            'work_type': {'required': False, 'allow_null': True},
+            'project_category': {'required': False, 'allow_null': True},
+            'manager': {'required': False, 'allow_null': True},
+            'description': {'required': False, 'allow_blank': True},
+            'start_date': {'required': False, 'allow_null': True},
+            'end_date': {'required': False, 'allow_null': True},
+        }
 
     def get_location(self, obj):
         """Returns location data for map display."""
