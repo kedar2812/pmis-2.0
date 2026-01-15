@@ -208,7 +208,7 @@ const NewThreadModal = ({ onClose, onCreated, preselectedContext = null }) => {
                         <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
                             {/* Context Type Selection */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-2">
                                     What is this conversation about?
                                 </label>
                                 <div className="grid grid-cols-2 gap-3">
@@ -225,12 +225,12 @@ const NewThreadModal = ({ onClose, onCreated, preselectedContext = null }) => {
                                                     setContextName('');
                                                 }}
                                                 className={`p-4 rounded-xl border-2 text-left transition-all ${isSelected
-                                                    ? 'border-primary-500 bg-primary-50 shadow-md'
-                                                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                                                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 shadow-md'
+                                                    : 'border-slate-200 dark:border-neutral-700 hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-neutral-800'
                                                     }`}
                                             >
                                                 <Icon size={24} className={isSelected ? 'text-primary-600' : 'text-slate-400'} />
-                                                <span className={`block mt-2 font-semibold ${isSelected ? 'text-primary-700' : 'text-slate-700'}`}>
+                                                <span className={`block mt-2 font-semibold ${isSelected ? 'text-primary-700 dark:text-primary-400' : 'text-slate-700 dark:text-neutral-300'}`}>
                                                     {opt.label}
                                                 </span>
                                             </button>
@@ -242,7 +242,7 @@ const NewThreadModal = ({ onClose, onCreated, preselectedContext = null }) => {
                             {/* Context Item Selection */}
                             {contextType && !preselectedContext && (
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-2">
                                         Select {contextOptions.find(c => c.value === contextType)?.label}
                                     </label>
 
@@ -254,19 +254,19 @@ const NewThreadModal = ({ onClose, onCreated, preselectedContext = null }) => {
                                             placeholder="Search..."
                                             value={contextSearch}
                                             onChange={(e) => setContextSearch(e.target.value)}
-                                            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                            className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                                         />
                                     </div>
 
                                     {/* Items List */}
-                                    <div className="border border-slate-200 rounded-lg max-h-48 overflow-y-auto">
+                                    <div className="border border-slate-200 dark:border-neutral-700 rounded-lg max-h-48 overflow-y-auto bg-white dark:bg-neutral-800">
                                         {isLoadingContextItems ? (
-                                            <div className="p-4 text-center text-slate-400">
+                                            <div className="p-4 text-center text-slate-400 dark:text-neutral-500">
                                                 <Loader2 size={20} className="animate-spin mx-auto" />
                                                 <p className="text-sm mt-2">Loading...</p>
                                             </div>
                                         ) : filteredContextItems.length === 0 ? (
-                                            <div className="p-4 text-center text-slate-400 text-sm">
+                                            <div className="p-4 text-center text-slate-400 dark:text-neutral-500 text-sm">
                                                 No items found
                                             </div>
                                         ) : (
@@ -275,13 +275,13 @@ const NewThreadModal = ({ onClose, onCreated, preselectedContext = null }) => {
                                                     key={item.id}
                                                     type="button"
                                                     onClick={() => handleContextSelect(item)}
-                                                    className={`w-full text-left p-3 border-b border-slate-100 last:border-b-0 hover:bg-slate-50 transition-colors flex items-center justify-between ${contextId === item.id ? 'bg-primary-50' : ''
+                                                    className={`w-full text-left p-3 border-b border-slate-100 dark:border-neutral-700 last:border-b-0 hover:bg-slate-50 dark:hover:bg-neutral-700 transition-colors flex items-center justify-between ${contextId === item.id ? 'bg-primary-50 dark:bg-primary-900/30' : ''
                                                         }`}
                                                 >
                                                     <div>
-                                                        <p className="font-medium text-sm text-slate-800">{item.name}</p>
+                                                        <p className="font-medium text-sm text-slate-800 dark:text-white">{item.name}</p>
                                                         {item.subtitle && (
-                                                            <p className="text-xs text-slate-500">{item.subtitle}</p>
+                                                            <p className="text-xs text-slate-500 dark:text-neutral-400">{item.subtitle}</p>
                                                         )}
                                                     </div>
                                                     {contextId === item.id && (
@@ -296,8 +296,8 @@ const NewThreadModal = ({ onClose, onCreated, preselectedContext = null }) => {
 
                             {/* Preselected Context Display */}
                             {preselectedContext && (
-                                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                                    <p className="text-sm text-green-800">
+                                <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                                    <p className="text-sm text-green-800 dark:text-green-300">
                                         <strong>Linked to:</strong> {preselectedContext.name || `${contextType.split('.')[1]} (${contextId.substring(0, 8)}...)`}
                                     </p>
                                 </div>
@@ -319,7 +319,7 @@ const NewThreadModal = ({ onClose, onCreated, preselectedContext = null }) => {
                         <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
                             {/* Recipient Type */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-2">
                                     Who do you want to start this conversation with?
                                 </label>
                                 <div className="grid grid-cols-2 gap-3">
@@ -327,29 +327,29 @@ const NewThreadModal = ({ onClose, onCreated, preselectedContext = null }) => {
                                         type="button"
                                         onClick={() => setRecipientType('individual')}
                                         className={`p-4 rounded-xl border-2 text-left transition-all ${recipientType === 'individual'
-                                            ? 'border-primary-500 bg-primary-50 shadow-md'
-                                            : 'border-slate-200 hover:border-slate-300'
+                                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 shadow-md'
+                                            : 'border-slate-200 dark:border-neutral-700 hover:border-slate-300 dark:hover:bg-neutral-800'
                                             }`}
                                     >
                                         <User size={24} className={recipientType === 'individual' ? 'text-primary-600' : 'text-slate-400'} />
-                                        <span className={`block mt-2 font-semibold ${recipientType === 'individual' ? 'text-primary-700' : 'text-slate-700'}`}>
+                                        <span className={`block mt-2 font-semibold ${recipientType === 'individual' ? 'text-primary-700 dark:text-primary-400' : 'text-slate-700 dark:text-neutral-300'}`}>
                                             Individual(s)
                                         </span>
-                                        <p className="text-xs text-slate-500 mt-1">Select specific people</p>
+                                        <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">Select specific people</p>
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setRecipientType('group')}
                                         className={`p-4 rounded-xl border-2 text-left transition-all ${recipientType === 'group'
-                                            ? 'border-primary-500 bg-primary-50 shadow-md'
-                                            : 'border-slate-200 hover:border-slate-300'
+                                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 shadow-md'
+                                            : 'border-slate-200 dark:border-neutral-700 hover:border-slate-300 dark:hover:bg-neutral-800'
                                             }`}
                                     >
                                         <Users size={24} className={recipientType === 'group' ? 'text-primary-600' : 'text-slate-400'} />
-                                        <span className={`block mt-2 font-semibold ${recipientType === 'group' ? 'text-primary-700' : 'text-slate-700'}`}>
+                                        <span className={`block mt-2 font-semibold ${recipientType === 'group' ? 'text-primary-700 dark:text-primary-400' : 'text-slate-700 dark:text-neutral-300'}`}>
                                             Group/Role
                                         </span>
-                                        <p className="text-xs text-slate-500 mt-1">Notify entire team</p>
+                                        <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">Notify entire team</p>
                                     </button>
                                 </div>
                             </div>
@@ -362,7 +362,7 @@ const NewThreadModal = ({ onClose, onCreated, preselectedContext = null }) => {
                                     placeholder="Search users by name or email..."
                                     value={userSearch}
                                     onChange={(e) => setUserSearch(e.target.value)}
-                                    className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 />
                             </div>
 
@@ -388,13 +388,13 @@ const NewThreadModal = ({ onClose, onCreated, preselectedContext = null }) => {
                             )}
 
                             {/* Users List */}
-                            <div className="border border-slate-200 rounded-lg max-h-48 overflow-y-auto">
+                            <div className="border border-slate-200 dark:border-neutral-700 rounded-lg max-h-48 overflow-y-auto bg-white dark:bg-neutral-800">
                                 {isLoadingUsers ? (
-                                    <div className="p-4 text-center text-slate-400">
+                                    <div className="p-4 text-center text-slate-400 dark:text-neutral-500">
                                         <Loader2 size={20} className="animate-spin mx-auto" />
                                     </div>
                                 ) : filteredUsers.length === 0 ? (
-                                    <div className="p-4 text-center text-slate-400 text-sm">
+                                    <div className="p-4 text-center text-slate-400 dark:text-neutral-500 text-sm">
                                         No users found
                                     </div>
                                 ) : (
@@ -405,17 +405,17 @@ const NewThreadModal = ({ onClose, onCreated, preselectedContext = null }) => {
                                                 key={u.id}
                                                 type="button"
                                                 onClick={() => toggleRecipient(u)}
-                                                className={`w-full text-left p-3 border-b border-slate-100 last:border-b-0 hover:bg-slate-50 transition-colors flex items-center gap-3 ${isSelected ? 'bg-primary-50' : ''
+                                                className={`w-full text-left p-3 border-b border-slate-100 dark:border-neutral-700 last:border-b-0 hover:bg-slate-50 dark:hover:bg-neutral-700 transition-colors flex items-center gap-3 ${isSelected ? 'bg-primary-50 dark:bg-primary-900/30' : ''
                                                     }`}
                                             >
                                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold">
                                                     {(u.first_name?.[0] || u.username?.[0] || '?').toUpperCase()}
                                                 </div>
                                                 <div className="flex-1">
-                                                    <p className="font-medium text-sm text-slate-800">
+                                                    <p className="font-medium text-sm text-slate-800 dark:text-white">
                                                         {u.first_name && u.last_name ? `${u.first_name} ${u.last_name}` : u.username}
                                                     </p>
-                                                    <p className="text-xs text-slate-500">{getRoleLabel(u.role)}</p>
+                                                    <p className="text-xs text-slate-500 dark:text-neutral-400">{getRoleLabel(u.role)}</p>
                                                 </div>
                                                 {isSelected && (
                                                     <Check size={18} className="text-primary-600" />
@@ -442,7 +442,7 @@ const NewThreadModal = ({ onClose, onCreated, preselectedContext = null }) => {
                         <form onSubmit={handleSubmit} className="p-4 space-y-4">
                             {/* Thread Type */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-2">
                                     Conversation Type
                                 </label>
                                 <div className="flex flex-wrap gap-2">

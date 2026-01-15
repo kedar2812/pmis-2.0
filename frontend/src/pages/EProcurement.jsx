@@ -106,8 +106,8 @@ const EProcurement = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-heading font-bold text-slate-900">e-Procurement</h1>
-                    <p className="text-slate-500 mt-1">Tendering, Bid Evaluation, Contract Lifecycle & Variation Management</p>
+                    <h1 className="text-3xl font-heading font-bold text-slate-900 dark:text-white">e-Procurement</h1>
+                    <p className="text-slate-500 dark:text-neutral-400 mt-1">Tendering, Bid Evaluation, Contract Lifecycle & Variation Management</p>
                 </div>
                 <Button className="flex items-center gap-2 bg-primary-950 text-white hover:bg-primary-900">
                     <Plus size={18} />
@@ -130,8 +130,8 @@ const EProcurement = () => {
                                     <stat.icon className={stat.color} size={20} />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-slate-500">{stat.label}</p>
-                                    <p className="text-xl font-bold text-slate-900">{stat.value}</p>
+                                    <p className="text-sm text-slate-500 dark:text-neutral-400">{stat.label}</p>
+                                    <p className="text-xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
                                 </div>
                             </div>
                         </Card>
@@ -140,20 +140,20 @@ const EProcurement = () => {
             </div>
 
             {/* Tabs */}
-            <div className="border-b border-slate-200">
+            <div className="border-b border-slate-200 dark:border-neutral-700">
                 <div className="flex gap-6">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center gap-2 py-3 px-1 border-b-2 transition-colors ${activeTab === tab.id
-                                    ? 'border-primary-600 text-primary-600'
-                                    : 'border-transparent text-slate-500 hover:text-slate-700'
+                                ? 'border-primary-600 text-primary-600'
+                                : 'border-transparent text-slate-500 hover:text-slate-700'
                                 }`}
                         >
                             <tab.icon size={18} />
-                            <span className="font-medium">{tab.label}</span>
-                            <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-600'
+                            <span className="font-medium dark:text-white">{tab.label}</span>
+                            <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 dark:bg-neutral-700 text-slate-600 dark:text-neutral-300'
                                 }`}>
                                 {tab.count}
                             </span>
@@ -171,7 +171,7 @@ const EProcurement = () => {
                         placeholder={`Search ${activeTab}...`}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
                 </div>
             </Card>
@@ -198,19 +198,19 @@ const EProcurement = () => {
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-3 mb-2">
-                                                    <span className="text-sm font-mono text-slate-500">{tender.tender_no}</span>
+                                                    <span className="text-sm font-mono text-slate-500 dark:text-neutral-400">{tender.tender_no}</span>
                                                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(tender.status)}`}>
                                                         {tender.status_display}
                                                     </span>
                                                 </div>
-                                                <h3 className="text-lg font-semibold text-slate-900 group-hover:text-primary-600 transition-colors">
+                                                <h3 className="text-lg font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 transition-colors">
                                                     {tender.title}
                                                 </h3>
-                                                <p className="text-sm text-slate-500 mt-1">{tender.project_name}</p>
+                                                <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">{tender.project_name}</p>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-lg font-bold text-slate-900">{formatCurrency(tender.estimated_value)}</p>
-                                                <p className="text-sm text-slate-500 mt-1">
+                                                <p className="text-lg font-bold text-slate-900 dark:text-white">{formatCurrency(tender.estimated_value)}</p>
+                                                <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">
                                                     {tender.bids_count || 0} bids
                                                 </p>
                                                 {tender.submission_deadline && (
@@ -256,25 +256,25 @@ const EProcurement = () => {
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-3 mb-2">
-                                                    <span className="text-sm font-mono text-slate-500">{contract.contract_no}</span>
+                                                    <span className="text-sm font-mono text-slate-500 dark:text-neutral-400">{contract.contract_no}</span>
                                                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(contract.status)}`}>
                                                         {contract.status_display}
                                                     </span>
                                                 </div>
-                                                <h3 className="text-lg font-semibold text-slate-900 group-hover:text-primary-600 transition-colors flex items-center gap-2">
+                                                <h3 className="text-lg font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 transition-colors flex items-center gap-2">
                                                     <Building2 size={18} className="text-slate-400" />
                                                     {contract.contractor_name}
                                                 </h3>
-                                                <p className="text-sm text-slate-500 mt-1">{contract.project_name}</p>
+                                                <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">{contract.project_name}</p>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-lg font-bold text-slate-900">{formatCurrency(contract.contract_value)}</p>
+                                                <p className="text-lg font-bold text-slate-900 dark:text-white">{formatCurrency(contract.contract_value)}</p>
                                                 {contract.variations_count > 0 && (
                                                     <p className="text-sm text-amber-600 mt-1">
                                                         {contract.variations_count} variations
                                                     </p>
                                                 )}
-                                                <p className="text-xs text-slate-400 mt-2">
+                                                <p className="text-xs text-slate-400 dark:text-neutral-500 mt-2">
                                                     {contract.start_date} → {contract.end_date}
                                                 </p>
                                             </div>

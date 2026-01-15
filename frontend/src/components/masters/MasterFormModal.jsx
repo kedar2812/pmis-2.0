@@ -88,9 +88,9 @@ const MasterFormModal = ({
     };
 
     const renderField = (field) => {
-        const commonClasses = `w-full px-4 py-2.5 rounded-lg border ${errors[field.name]
+        const commonClasses = `w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-neutral-800 dark:text-white ${errors[field.name]
             ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
-            : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
+            : 'border-slate-200 dark:border-neutral-700 focus:border-primary-500 focus:ring-primary-100'
             } focus:ring-2 outline-none transition-all text-sm`;
 
         switch (field.type) {
@@ -157,7 +157,7 @@ const MasterFormModal = ({
                             onChange={(val) => handleChange(field.name, val)}
                             size="sm"
                         />
-                        <span className="text-sm font-medium text-slate-700">
+                        <span className="text-sm font-medium text-slate-700 dark:text-neutral-300">
                             {field.checkboxLabel || field.label}
                         </span>
                     </div>
@@ -249,7 +249,7 @@ const MasterFormModal = ({
                                     {fields.map(field => (
                                         <div key={field.name}>
                                             {field.type !== 'checkbox' && (
-                                                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1.5">
                                                     {field.label}
                                                     {field.required && <span className="text-red-500 ml-1">*</span>}
                                                 </label>
@@ -259,14 +259,14 @@ const MasterFormModal = ({
                                                 <p className="mt-1 text-xs text-red-500">{errors[field.name]}</p>
                                             )}
                                             {field.helpText && (
-                                                <p className="mt-1 text-xs text-slate-400">{field.helpText}</p>
+                                                <p className="mt-1 text-xs text-slate-400 dark:text-neutral-500">{field.helpText}</p>
                                             )}
                                         </div>
                                     ))}
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
+                                <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100 dark:border-neutral-700">
                                     <Button
                                         type="button"
                                         variant="outline"

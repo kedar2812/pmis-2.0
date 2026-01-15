@@ -68,8 +68,8 @@ const NICDCDashboard = ({ projects }) => {
                     <MotionCardContent className="p-6 flex items-center gap-4">
                         <div className="p-3 bg-blue-50 rounded-full"><MapPin className="text-blue-600" /></div>
                         <div>
-                            <p className="text-2xl font-bold">{projects.length}</p>
-                            <p className="text-sm text-slate-500">Integrated Nodes</p>
+                            <p className="text-2xl font-bold dark:text-white">{projects.length}</p>
+                            <p className="text-sm text-slate-500 dark:text-neutral-400">Integrated Nodes</p>
                         </div>
                     </MotionCardContent>
                 </MotionCard>
@@ -80,8 +80,8 @@ const NICDCDashboard = ({ projects }) => {
                     <MotionCardContent className="p-6 flex items-center gap-4">
                         <div className="p-3 bg-emerald-50 rounded-full"><BarChart3 className="text-emerald-600" /></div>
                         <div>
-                            <p className="text-2xl font-bold text-slate-800">{formatBudget(totalInvestment)}</p>
-                            <p className="text-sm text-slate-500">Total Investment</p>
+                            <p className="text-2xl font-bold text-slate-800 dark:text-white">{formatBudget(totalInvestment)}</p>
+                            <p className="text-sm text-slate-500 dark:text-neutral-400">Total Investment</p>
                             <p className="text-xs text-emerald-600 flex items-center mt-1">
                                 <TrendingUp size={12} className="mr-1" /> Approved
                             </p>
@@ -92,8 +92,8 @@ const NICDCDashboard = ({ projects }) => {
                     <MotionCardContent className="p-6 flex items-center gap-4">
                         <div className="p-3 bg-purple-50 rounded-full"><Network className="text-purple-600" /></div>
                         <div>
-                            <p className="text-2xl font-bold">{overallCompletion.toFixed(1)}%</p>
-                            <p className="text-sm text-slate-500">Overall Completion</p>
+                            <p className="text-2xl font-bold dark:text-white">{overallCompletion.toFixed(1)}%</p>
+                            <p className="text-sm text-slate-500 dark:text-neutral-400">Overall Completion</p>
                         </div>
                     </MotionCardContent>
                 </MotionCard>

@@ -129,37 +129,26 @@ export function ThemeProvider({ children }) {
         applyThemeToDOM(effectiveTheme);
     }, [effectiveTheme]);
 
-    // Listen for OS theme changes - INSTANT DOM MANIPULATION
+    // ALWAYS Listen for OS theme changes to keep internal state synced
+    // Re-attach listener when 'theme' changes so closure captures current theme
     useEffect(() => {
-        // Only listen when user has selected "System" mode
-        if (theme !== 'system') return;
         if (typeof window === 'undefined') return;
 
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-        /**
-         * Handler for OS theme change - DIRECTLY manipulates DOM for instant update
-         * @param {MediaQueryListEvent} e 
-         */
         const handleChange = (e) => {
-            const newEffectiveTheme = e.matches ? 'dark' : 'light';
+            const newSystemDark = e.matches;
+            setIsSystemDarkMode(newSystemDark);
 
-            // Update state for React components
-            setIsSystemDarkMode(e.matches);
-
-            // CRITICAL: Directly toggle .dark class on <html> for INSTANT visual update
-            // No waiting for React re-render - CSS engine handles it immediately!
-            if (newEffectiveTheme === 'dark') {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
+            // Force immediate DOM update if in system mode
+            if (theme === 'system') {
+                const newEffective = newSystemDark ? 'dark' : 'light';
+                applyThemeToDOM(newEffective);
             }
         };
 
-        // Also set initial state when switching to system mode
-        const currentlyDark = mediaQuery.matches;
-        setIsSystemDarkMode(currentlyDark);
-        applyThemeToDOM(currentlyDark ? 'dark' : 'light');
+        // Initialize state
+        setIsSystemDarkMode(mediaQuery.matches);
 
         // Modern browsers
         if (mediaQuery.addEventListener) {
@@ -171,7 +160,7 @@ export function ThemeProvider({ children }) {
             mediaQuery.addListener(handleChange);
             return () => mediaQuery.removeListener(handleChange);
         }
-    }, [theme]); // Re-run when theme mode changes
+    }, [theme]); // Run when theme changes to update closure
 
     const value = {
         theme,

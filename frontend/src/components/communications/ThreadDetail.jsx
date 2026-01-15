@@ -209,14 +209,14 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
     if (!thread) return null;
 
     return (
-        <div className="flex flex-col h-full bg-white">
+        <div className="flex flex-col h-full bg-white dark:bg-neutral-900">
             {/* Header */}
-            <div className="p-3 sm:p-4 border-b border-slate-200 bg-slate-50">
+            <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800">
                 {/* Top Row: Title and Close button */}
                 <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="min-w-0 flex-1">
-                        <h2 className="text-base sm:text-lg font-bold text-slate-800 truncate">{thread.subject}</h2>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs sm:text-sm text-slate-500">
+                        <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white truncate">{thread.subject}</h2>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs sm:text-sm text-slate-500 dark:text-neutral-400">
                             <span className="flex items-center gap-1">
                                 <User size={14} />
                                 {thread.participant_count}
@@ -237,7 +237,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                     {/* Close Panel Button - always visible */}
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-slate-200 rounded-lg flex-shrink-0 min-w-[36px] min-h-[36px] flex items-center justify-center"
+                        className="p-2 hover:bg-slate-200 dark:hover:bg-neutral-700 rounded-lg flex-shrink-0 min-w-[36px] min-h-[36px] flex items-center justify-center text-slate-600 dark:text-neutral-300"
                         aria-label="Close"
                     >
                         <X size={20} />
@@ -249,7 +249,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                     {/* Participants Button */}
                     <button
                         onClick={() => setShowParticipants(true)}
-                        className="p-2 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center flex-shrink-0"
+                        className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-neutral-700 text-slate-600 dark:text-neutral-300 transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center flex-shrink-0"
                         title="View Participants"
                     >
                         <Users size={18} />
@@ -258,7 +258,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                     {/* Pin Button */}
                     <button
                         onClick={handlePin}
-                        className={`p-2 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center flex-shrink-0 ${isPinned ? 'bg-blue-100 text-blue-700' : 'hover:bg-slate-100 text-slate-600'
+                        className={`p-2 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center flex-shrink-0 ${isPinned ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'hover:bg-slate-100 dark:hover:bg-neutral-700 text-slate-600 dark:text-neutral-300'
                             }`}
                         title={isPinned ? 'Unpin thread' : 'Pin thread'}
                     >
@@ -268,7 +268,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                     {/* Mute Button */}
                     <button
                         onClick={() => handleMute()}
-                        className={`p-2 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center flex-shrink-0 ${isMuted ? 'bg-amber-100 text-amber-700' : 'hover:bg-slate-100 text-slate-600'
+                        className={`p-2 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center flex-shrink-0 ${isMuted ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' : 'hover:bg-slate-100 dark:hover:bg-neutral-700 text-slate-600 dark:text-neutral-300'
                             }`}
                         title={isMuted ? 'Unmute thread' : 'Mute thread'}
                     >
@@ -280,7 +280,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                         <div className="relative">
                             <button
                                 onClick={() => setShowActionsMenu(!showActionsMenu)}
-                                className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-600 min-w-[36px] min-h-[36px] flex items-center justify-center"
+                                className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-700 rounded-lg transition-colors text-slate-600 dark:text-neutral-300 min-w-[36px] min-h-[36px] flex items-center justify-center"
                             >
                                 <MoreVertical size={18} />
                             </button>
@@ -291,14 +291,14 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.95 }}
-                                        className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10"
+                                        className="absolute right-0 mt-2 w-48 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 rounded-lg shadow-lg py-1 z-10"
                                     >
                                         <button
                                             onClick={() => {
                                                 setShowActionsMenu(false);
                                                 setShowAddParticipants(true);
                                             }}
-                                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-neutral-300 hover:bg-slate-50 dark:hover:bg-neutral-700"
                                         >
                                             <UserPlus size={16} />
                                             Add Participants
@@ -374,7 +374,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                         );
                     })
                 ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-slate-400">
+                    <div className="flex flex-col items-center justify-center h-full text-slate-400 dark:text-neutral-500">
                         <MessageSquare size={48} className="mb-2 opacity-20" />
                         <p>No messages yet. Start the conversation!</p>
                     </div>
@@ -384,14 +384,14 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
 
             {/* Composer */}
             {thread.status !== 'CLOSED' && canSendMessage && (
-                <div className="border-t border-slate-200 bg-white">
+                <div className="border-t border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900">
                     {/* File Preview */}
                     {attachedFile && (
                         <div className="px-4 pt-3 pb-2">
-                            <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-2">
-                                <Paperclip size={16} className="text-slate-500" />
-                                <span className="text-sm text-slate-700 flex-1 truncate">{attachedFile.name}</span>
-                                <span className="text-xs text-slate-500">{(attachedFile.size / 1024).toFixed(1)} KB</span>
+                            <div className="flex items-center gap-2 bg-slate-100 dark:bg-neutral-800 rounded-lg p-2">
+                                <Paperclip size={16} className="text-slate-500 dark:text-neutral-400" />
+                                <span className="text-sm text-slate-700 dark:text-neutral-300 flex-1 truncate">{attachedFile.name}</span>
+                                <span className="text-xs text-slate-500 dark:text-neutral-400">{(attachedFile.size / 1024).toFixed(1)} KB</span>
                                 <button
                                     onClick={handleRemoveFile}
                                     className="p-1 hover:bg-slate-200 rounded-full"
@@ -408,7 +408,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                             {/* File Attachment Button */}
                             <button
                                 onClick={() => fileInputRef.current?.click()}
-                                className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors flex-shrink-0 min-w-[40px] min-h-[40px] flex items-center justify-center"
+                                className="p-2 text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full transition-colors flex-shrink-0 min-w-[40px] min-h-[40px] flex items-center justify-center"
                                 title="Attach file"
                             >
                                 <Paperclip size={20} />
@@ -433,7 +433,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                                     }
                                 }}
                                 placeholder="Type a message"
-                                className="flex-1 min-w-0 px-3 sm:px-4 py-2 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                className="flex-1 min-w-0 px-3 sm:px-4 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
                             />
 
                             {/* Send Button */}
@@ -455,7 +455,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
 
             {/* Closed Thread Notice */}
             {thread.status === 'CLOSED' && (
-                <div className="p-4 bg-slate-100 border-t border-slate-200 text-center text-sm text-slate-500">
+                <div className="p-4 bg-slate-100 dark:bg-neutral-800 border-t border-slate-200 dark:border-neutral-700 text-center text-sm text-slate-500 dark:text-neutral-400">
                     <CheckCircle className="inline-block mr-2 text-green-500" size={16} />
                     This thread was closed on {formatTimestamp(thread.closed_at)}
                 </div>
@@ -487,29 +487,29 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white rounded-xl shadow-xl w-full max-w-sm max-h-[70vh] flex flex-col overflow-hidden"
+                            className="bg-white dark:bg-neutral-900 rounded-xl shadow-xl w-full max-w-sm max-h-[70vh] flex flex-col overflow-hidden border dark:border-neutral-700"
                         >
-                            <div className="flex items-center justify-between p-4 border-b">
-                                <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                            <div className="flex items-center justify-between p-4 border-b dark:border-neutral-700">
+                                <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
                                     <Users size={18} className="text-primary-600" />
                                     Participants ({thread.participants?.length || 0})
                                 </h3>
                                 <button
                                     onClick={() => setShowParticipants(false)}
-                                    className="p-1 hover:bg-slate-100 rounded-full transition-colors"
+                                    className="p-1 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full transition-colors text-slate-600 dark:text-neutral-300"
                                 >
                                     <X size={18} />
                                 </button>
                             </div>
                             <div className="overflow-y-auto p-4 space-y-3">
                                 {thread.participants?.map((p) => (
-                                    <div key={p.id} className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg">
-                                        <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600">
+                                    <div key={p.id} className="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-neutral-800 rounded-lg">
+                                        <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-neutral-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-neutral-300">
                                             {p.username.charAt(0).toUpperCase()}
                                         </div>
                                         <div>
-                                            <div className="text-sm font-medium text-slate-900">{p.full_name}</div>
-                                            <div className="text-xs text-slate-500 capitalize">{p.role?.replace(/_/g, ' ')}</div>
+                                            <div className="text-sm font-medium text-slate-900 dark:text-white">{p.full_name}</div>
+                                            <div className="text-xs text-slate-500 dark:text-neutral-400 capitalize">{p.role?.replace(/_/g, ' ')}</div>
                                         </div>
                                     </div>
                                 ))}
@@ -519,7 +519,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                 )}
             </AnimatePresence>
 
-        </div>
+        </div >
     );
 };
 

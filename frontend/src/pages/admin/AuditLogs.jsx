@@ -85,13 +85,13 @@ const AuditLogs = () => {
 
     const getActionColor = (action) => {
         const actionUpper = (action || '').toUpperCase();
-        if (actionUpper.includes('CREATE') || actionUpper.includes('UPLOAD')) return 'bg-green-100 text-green-700';
-        if (actionUpper.includes('DELETE') || actionUpper.includes('REJECT') || actionUpper.includes('ARCHIVE')) return 'bg-red-100 text-red-700';
-        if (actionUpper.includes('UPDATE') || actionUpper.includes('VERSION') || actionUpper.includes('MOVE')) return 'bg-blue-100 text-blue-700';
-        if (actionUpper.includes('APPROVE') || actionUpper.includes('VALIDATE')) return 'bg-emerald-100 text-emerald-700';
-        if (actionUpper.includes('VIEW') || actionUpper.includes('DOWNLOAD')) return 'bg-purple-100 text-purple-700';
-        if (actionUpper.includes('SUBMIT') || actionUpper.includes('REVISION')) return 'bg-amber-100 text-amber-700';
-        return 'bg-slate-100 text-slate-700';
+        if (actionUpper.includes('CREATE') || actionUpper.includes('UPLOAD')) return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300';
+        if (actionUpper.includes('DELETE') || actionUpper.includes('REJECT') || actionUpper.includes('ARCHIVE')) return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300';
+        if (actionUpper.includes('UPDATE') || actionUpper.includes('VERSION') || actionUpper.includes('MOVE')) return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300';
+        if (actionUpper.includes('APPROVE') || actionUpper.includes('VALIDATE')) return 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300';
+        if (actionUpper.includes('VIEW') || actionUpper.includes('DOWNLOAD')) return 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300';
+        if (actionUpper.includes('SUBMIT') || actionUpper.includes('REVISION')) return 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300';
+        return 'bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300';
     };
 
     // Export current visible logs as CSV
@@ -127,10 +127,10 @@ const AuditLogs = () => {
         <div className="p-6 space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-heading font-bold text-slate-900 flex items-center gap-2">
+                    <h1 className="text-3xl font-heading font-bold text-slate-900 dark:text-white flex items-center gap-2">
                         <Shield className="text-primary-600" /> System Audit Logs
                     </h1>
-                    <p className="text-slate-500 mt-1">Immutable record of all system activities and security events</p>
+                    <p className="text-slate-500 dark:text-neutral-400 mt-1">Immutable record of all system activities and security events</p>
                 </div>
                 <div className="flex items-center gap-3">
                     {activeTab === 'backend' && (
@@ -159,7 +159,7 @@ const AuditLogs = () => {
                     onClick={() => setActiveTab('backend')}
                     className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${activeTab === 'backend'
                         ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                        : 'bg-white dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 border border-slate-200 dark:border-neutral-700 hover:bg-slate-50 dark:hover:bg-neutral-700'
                         }`}
                 >
                     <Database size={20} />
@@ -173,7 +173,7 @@ const AuditLogs = () => {
                     onClick={() => setActiveTab('frontend')}
                     className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${activeTab === 'frontend'
                         ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
-                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                        : 'bg-white dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 border border-slate-200 dark:border-neutral-700 hover:bg-slate-50 dark:hover:bg-neutral-700'
                         }`}
                 >
                     <HardDrive size={20} />
@@ -187,23 +187,23 @@ const AuditLogs = () => {
 
             {/* Info Banner */}
             <div className={`p-4 rounded-xl flex items-center gap-3 ${activeTab === 'backend'
-                ? 'bg-primary-50 border border-primary-200'
-                : 'bg-amber-50 border border-amber-200'
+                ? 'bg-primary-50 dark:bg-primary-900/10 border border-primary-200 dark:border-primary-800'
+                : 'bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800'
                 }`}>
                 {activeTab === 'backend' ? (
                     <>
-                        <Database className="text-primary-600" size={24} />
+                        <Database className="text-primary-600 dark:text-primary-400" size={24} />
                         <div>
-                            <p className="font-medium text-primary-900">Backend Audit Logs (All System Modules)</p>
-                            <p className="text-sm text-primary-700">Permanent, immutable records of all system activities (EDMS, Users, Projects, Communications) stored in the database.</p>
+                            <p className="font-medium text-primary-900 dark:text-primary-100">Backend Audit Logs (All System Modules)</p>
+                            <p className="text-sm text-primary-700 dark:text-primary-300">Permanent, immutable records of all system activities (EDMS, Users, Projects, Communications) stored in the database.</p>
                         </div>
                     </>
                 ) : (
                     <>
-                        <HardDrive className="text-amber-600" size={24} />
+                        <HardDrive className="text-amber-600 dark:text-amber-400" size={24} />
                         <div>
-                            <p className="font-medium text-amber-900">Frontend Audit Logs (Browser Storage)</p>
-                            <p className="text-sm text-amber-700">Local logs stored in browser's localStorage. These are cleared when browser data is cleared.</p>
+                            <p className="font-medium text-amber-900 dark:text-amber-100">Frontend Audit Logs (Browser Storage)</p>
+                            <p className="text-sm text-amber-700 dark:text-amber-300">Local logs stored in browser's localStorage. These are cleared when browser data is cleared.</p>
                         </div>
                     </>
                 )}
@@ -217,7 +217,7 @@ const AuditLogs = () => {
                         <input
                             type="text"
                             placeholder="Search by user, action, or details..."
-                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -225,7 +225,7 @@ const AuditLogs = () => {
                     <div className="flex items-center gap-2">
                         <Filter size={18} className="text-slate-400" />
                         <select
-                            className="p-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className="p-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                             value={roleFilter}
                             onChange={(e) => setRoleFilter(e.target.value)}
                         >
@@ -238,11 +238,11 @@ const AuditLogs = () => {
             </Card>
 
             {/* Logs Table */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-slate-200 dark:border-neutral-700 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-semibold">
+                            <tr className="bg-slate-50 dark:bg-neutral-800 border-b border-slate-200 dark:border-neutral-700 text-xs uppercase text-slate-500 dark:text-neutral-400 font-semibold">
                                 <th className="p-4 w-48">Timestamp</th>
                                 <th className="p-4 w-48">User Identity</th>
                                 <th className="p-4 w-40">Action</th>
@@ -252,18 +252,18 @@ const AuditLogs = () => {
                                 {activeTab === 'backend' && <th className="p-4 w-32">IP Address</th>}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
                             {(activeTab === 'backend' && isLoadingBackend) ? (
                                 <tr>
-                                    <td colSpan={7} className="p-8 text-center text-slate-500">
+                                    <td colSpan={7} className="p-8 text-center text-slate-500 dark:text-neutral-400">
                                         <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />
                                         Loading backend logs...
                                     </td>
                                 </tr>
                             ) : filteredLogs.length > 0 ? (
                                 filteredLogs.map((log) => (
-                                    <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
-                                        <td className="p-4 text-sm text-slate-500 font-mono">
+                                    <tr key={log.id} className="hover:bg-slate-50/50 dark:hover:bg-neutral-800/50 transition-colors">
+                                        <td className="p-4 text-sm text-slate-500 dark:text-neutral-400 font-mono">
                                             <div className="flex items-center gap-2">
                                                 <Clock size={14} />
                                                 {new Date(log.timestamp).toLocaleString()}
@@ -271,10 +271,10 @@ const AuditLogs = () => {
                                         </td>
                                         <td className="p-4">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-medium text-slate-900 flex items-center gap-1">
+                                                <span className="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-1">
                                                     <User size={14} className="text-slate-400" /> {log.userName}
                                                 </span>
-                                                <span className="text-xs text-slate-500">{log.userRole}</span>
+                                                <span className="text-xs text-slate-500 dark:text-neutral-400">{log.userRole}</span>
                                             </div>
                                         </td>
                                         <td className="p-4">
@@ -282,7 +282,7 @@ const AuditLogs = () => {
                                                 <Activity size={12} /> {log.action}
                                             </span>
                                         </td>
-                                        <td className="p-4 text-sm text-slate-700 font-medium">
+                                        <td className="p-4 text-sm text-slate-700 dark:text-neutral-300 font-medium">
                                             {log.resource}
                                         </td>
                                         <td className="p-4">
@@ -292,14 +292,14 @@ const AuditLogs = () => {
                                                 </span>
                                             )}
                                         </td>
-                                        <td className="p-4 text-sm text-slate-600">
+                                        <td className="p-4 text-sm text-slate-600 dark:text-neutral-400">
                                             <div className="flex items-center gap-2 max-w-md truncate" title={log.details}>
                                                 <FileText size={14} className="text-slate-400 flex-shrink-0" />
                                                 <span className="truncate">{log.details}</span>
                                             </div>
                                         </td>
                                         {activeTab === 'backend' && (
-                                            <td className="p-4 text-sm text-slate-500 font-mono">
+                                            <td className="p-4 text-sm text-slate-500 dark:text-neutral-400 font-mono">
                                                 {log.ipAddress || '-'}
                                             </td>
                                         )}
@@ -307,7 +307,7 @@ const AuditLogs = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="p-8 text-center text-slate-500">
+                                    <td colSpan={7} className="p-8 text-center text-slate-500 dark:text-neutral-400">
                                         No audit logs found matching your criteria.
                                     </td>
                                 </tr>

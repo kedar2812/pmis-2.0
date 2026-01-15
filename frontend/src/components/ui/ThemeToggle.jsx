@@ -47,7 +47,7 @@ export default function ThemeToggle() {
     return (
         <motion.button
             onClick={handleToggle}
-            className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-theme-bg-surface border border-theme-border-default hover:bg-theme-bg-hover hover:border-theme-border-focus transition-all duration-200 group"
+            className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 transition-all duration-200 group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             aria-label={`Switch to ${config.next} mode`}
@@ -66,15 +66,15 @@ export default function ThemeToggle() {
                     <Icon
                         size={18}
                         className={`transition-colors duration-200 ${effectiveTheme === 'dark'
-                                ? 'text-theme-text-primary'
-                                : 'text-theme-text-secondary group-hover:text-theme-text-primary'
+                            ? 'text-white'
+                            : 'text-slate-600 group-hover:text-slate-800'
                             }`}
                     />
                 </motion.div>
             </AnimatePresence>
 
             {/* Subtle glow effect on hover */}
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-tr from-theme-accent-primary/0 to-theme-accent-primary/0 group-hover:from-theme-accent-primary/10 group-hover:to-theme-accent-primary/5 transition-all duration-300 pointer-events-none" />
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-tr from-blue-600/0 to-blue-600/0 group-hover:from-blue-600/10 group-hover:to-blue-600/5 transition-all duration-300 pointer-events-none" />
         </motion.button>
     );
 }
@@ -86,12 +86,12 @@ export function ThemeToggleWithLabel() {
     const { theme, setTheme } = useTheme();
 
     return (
-        <div className="flex items-center justify-between p-4 rounded-xl bg-theme-bg-surface border border-theme-border-default">
+        <div className="flex items-center justify-between p-4 rounded-xl bg-slate-100 dark:bg-neutral-800">
             <div>
-                <h3 className="text-sm font-semibold text-theme-text-primary mb-1">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">
                     Theme
                 </h3>
-                <p className="text-xs text-theme-text-muted">
+                <p className="text-xs text-slate-500 dark:text-neutral-400">
                     Choose your preferred color scheme
                 </p>
             </div>
@@ -109,8 +109,8 @@ export function ThemeToggleWithLabel() {
                 relative flex items-center justify-center w-10 h-10 rounded-lg
                 transition-all duration-200
                 ${isActive
-                                    ? 'bg-theme-accent-primary text-white shadow-lg'
-                                    : 'bg-theme-bg-card border border-theme-border-default text-theme-text-secondary hover:bg-theme-bg-hover hover:text-theme-text-primary'
+                                    ? 'bg-blue-600 text-white shadow-lg'
+                                    : 'bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-700 text-slate-500 dark:text-neutral-400 hover:bg-slate-50 dark:hover:bg-neutral-800 hover:text-slate-800 dark:hover:text-white'
                                 }
               `}
                             whileHover={{ scale: 1.05 }}

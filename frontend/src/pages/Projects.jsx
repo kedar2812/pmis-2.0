@@ -211,7 +211,7 @@ const Projects = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">{t('projects.totalBudget')}</p>
+                    <p className="text-sm text-gray-600 dark:text-neutral-400">{t('projects.totalBudget')}</p>
                     <p className="text-lg font-bold mt-1">
                       {formatCurrency(projects.filter(p => p.status === 'In Progress' || p.status === 'Completed').reduce((sum, p) => sum + Number(p.budget || 0), 0))}
                     </p>
@@ -295,7 +295,7 @@ const Projects = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <CardTitle className="text-lg mb-2">{project.name}</CardTitle>
-                      <p className="text-sm text-gray-600 line-clamp-2">{project.description}</p>
+                      <p className="text-sm text-gray-600 dark:text-neutral-400 line-clamp-2">{project.description}</p>
                     </div>
                     <span
                       className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadgeColor(project.status)}`}

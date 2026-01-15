@@ -502,9 +502,9 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
               {currentStep === 2 && (
                 <div className="space-y-6">
                   {Object.keys(errors).length > 0 && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                      <p className="text-sm font-medium text-red-800">Please fill in the required fields:</p>
-                      <ul className="mt-1 text-sm text-red-600 list-disc list-inside">
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                      <p className="text-sm font-medium text-red-800 dark:text-red-300">Please fill in the required fields:</p>
+                      <ul className="mt-1 text-sm text-red-600 dark:text-red-400 list-disc list-inside">
                         {errors.zone && <li>Zone is required</li>}
                         {errors.division && <li>Division is required</li>}
                         {errors.district && <li>District is required</li>}
@@ -512,7 +512,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                     </div>
                   )}
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                       <span className="w-6 h-6 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-xs">1</span>
                       Administrative Hierarchy <span className="text-red-500">*</span>
                     </h3>
@@ -520,10 +520,10 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                       value={formData.hierarchy}
                       onChange={(val) => setFormData({ ...formData, hierarchy: val })}
                     />
-                    <p className="text-xs text-slate-400 mt-2">Zone and Division are required</p>
+                    <p className="text-xs text-slate-400 dark:text-neutral-500 mt-2">Zone and Division are required</p>
                   </div>
-                  <div className="border-t border-slate-100 pt-6">
-                    <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                  <div className="border-t border-slate-100 dark:border-neutral-700 pt-6">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                       <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs">2</span>
                       Geographic Location <span className="text-red-500">*</span>
                     </h3>
@@ -531,7 +531,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                       value={formData.geography}
                       onChange={(val) => setFormData({ ...formData, geography: val })}
                     />
-                    <p className="text-xs text-slate-400 mt-2">District is required</p>
+                    <p className="text-xs text-slate-400 dark:text-neutral-500 mt-2">District is required</p>
                   </div>
                 </div>
               )}
@@ -540,9 +540,9 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
               {currentStep === 3 && (
                 <div>
                   {Object.keys(errors).length > 0 && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-                      <p className="text-sm font-medium text-red-800">Please fill in all classification fields:</p>
-                      <ul className="mt-1 text-sm text-red-600 list-disc list-inside">
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4">
+                      <p className="text-sm font-medium text-red-800 dark:text-red-300">Please fill in all classification fields:</p>
+                      <ul className="mt-1 text-sm text-red-600 dark:text-red-400 list-disc list-inside">
                         {errors.schemeType && <li>Scheme Type is required</li>}
                         {errors.scheme && <li>Scheme is required</li>}
                         {errors.workType && <li>Work Type is required</li>}
@@ -550,7 +550,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                       </ul>
                     </div>
                   )}
-                  <p className="text-sm text-slate-500 mb-4">
+                  <p className="text-sm text-slate-500 dark:text-neutral-400 mb-4">
                     Select the scheme, work type, and category for this project. <span className="text-red-500">All fields are required.</span>
                   </p>
                   <ClassificationSelector
@@ -564,10 +564,10 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
               {currentStep === 4 && (
                 <div className="space-y-4">
                   {/* Budget Display */}
-                  <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                  <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg p-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-primary-800">Project Budget:</span>
-                      <span className="text-lg font-bold text-primary-900">
+                      <span className="text-sm font-medium text-primary-800 dark:text-primary-300">Project Budget:</span>
+                      <span className="text-lg font-bold text-primary-900 dark:text-primary-200">
                         ₹{projectBudget.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </span>
                     </div>
@@ -575,16 +575,16 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
 
                   {/* Funding Mismatch Error */}
                   {errors.fundingMismatch && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 flex items-start gap-2">
                       <AlertCircle size={18} className="text-red-500 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-red-700">{errors.fundingMismatch}</p>
+                      <p className="text-sm text-red-700 dark:text-red-300">{errors.fundingMismatch}</p>
                     </div>
                   )}
 
-                  <h3 className="font-medium text-slate-900">Add Funding Pattern</h3>
-                  <div className="border border-slate-200 rounded-lg overflow-hidden">
+                  <h3 className="font-medium text-slate-900 dark:text-white">Add Funding Pattern</h3>
+                  <div className="border border-slate-200 dark:border-neutral-700 rounded-lg overflow-hidden">
                     <table className="w-full text-sm text-left">
-                      <thead className="bg-slate-50 text-slate-700">
+                      <thead className="bg-slate-50 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300">
                         <tr>
                           <th className="p-3 font-medium">Source</th>
                           <th className="p-3 font-medium">Amount (₹)</th>
@@ -592,7 +592,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                           <th className="p-3 w-12"></th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100">
+                      <tbody className="divide-y divide-slate-100 dark:divide-neutral-700">
                         {formData.fundingPattern.map((item, idx) => (
                           <tr key={item.id}>
                             <td className="p-3">
@@ -605,7 +605,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                                   placeholder="Enter source name"
                                 />
                               ) : (
-                                <span className="text-slate-600">{item.source}</span>
+                                <span className="text-slate-600 dark:text-neutral-300">{item.source}</span>
                               )}
                             </td>
                             <td className="p-3">
@@ -641,15 +641,15 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                                   type="button"
                                   onClick={() => document.getElementById(`funding-doc-${idx}`).click()}
                                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${item.document
-                                    ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50'
+                                    : 'bg-slate-100 dark:bg-neutral-700 text-slate-600 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-neutral-600'
                                     }`}
                                 >
                                   <Paperclip size={14} />
                                   {item.document ? 'Attached ✓' : 'Attach'}
                                 </button>
                                 {item.document && (
-                                  <span className="text-xs text-slate-500 truncate max-w-[100px]">
+                                  <span className="text-xs text-slate-500 dark:text-neutral-400 truncate max-w-[100px]">
                                     {item.document.name}
                                   </span>
                                 )}
@@ -687,7 +687,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                     </button>
 
                     <div className="text-right">
-                      <p className="text-sm text-slate-500">Total Allocated:</p>
+                      <p className="text-sm text-slate-500 dark:text-neutral-400">Total Allocated:</p>
                       <p className={`text-lg font-bold ${fundingMismatch ? 'text-red-600' : 'text-green-600'}`}>
                         ₹{fundingTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                         {!fundingMismatch && projectBudget > 0 && (
@@ -782,7 +782,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 sm:p-6 border-t border-slate-100 bg-slate-50 flex flex-col sm:flex-row justify-between gap-3">
+        <div className="p-4 sm:p-6 border-t border-slate-100 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800 flex flex-col sm:flex-row justify-between gap-3">
           <Button
             variant="outline"
             onClick={currentStep === 1 ? onClose : handleBack}

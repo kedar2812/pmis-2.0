@@ -15,20 +15,17 @@ export const ToastProvider = () => {
       richColors
       closeButton
       duration={4000}
+      theme="system"
       toastOptions={{
-        style: {
-          background: '#fff',
-          color: '#1f2937',
-          border: '1px solid #e5e7eb',
-          borderRadius: '12px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-          padding: '16px',
-        },
         classNames: {
+          toast: 'dark:bg-neutral-900 dark:border-neutral-700 dark:text-white',
+          title: 'dark:text-white',
+          description: 'dark:text-neutral-400',
           success: 'border-l-4 border-l-green-500',
           error: 'border-l-4 border-l-red-500',
           warning: 'border-l-4 border-l-amber-500',
           info: 'border-l-4 border-l-blue-500',
+          closeButton: 'dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-neutral-400',
         },
       }}
     />

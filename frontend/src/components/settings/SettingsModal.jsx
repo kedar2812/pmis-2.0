@@ -799,7 +799,7 @@ const MasterDataSection = ({ navigate, onClose }) => {
                     <div>
                         <div className="flex items-center gap-2 mb-3">
                             <Users size={16} className="text-amber-600" />
-                            <span className="font-semibold text-slate-700">Contractors</span>
+                            <span className="font-semibold text-slate-700 dark:text-neutral-200">Contractors</span>
                         </div>
                         <div className="flex gap-4 flex-wrap">
                             <MasterColumn title="Contractors" items={data.contractors} type="contractors" icon={Users} colorClass={TAB_COLORS.entities.header} />
@@ -812,7 +812,7 @@ const MasterDataSection = ({ navigate, onClose }) => {
                     <div>
                         <div className="flex items-center gap-2 mb-3">
                             <Calculator size={16} className="text-rose-600" />
-                            <span className="font-semibold text-slate-700">ETP Charges</span>
+                            <span className="font-semibold text-slate-700 dark:text-neutral-200">ETP Charges</span>
                         </div>
                         <div className="flex gap-4 flex-wrap">
                             <MasterColumn title="ETP Charges" items={data.etpCharges} type="etpCharges" icon={Calculator} colorClass={TAB_COLORS.etp.header} />
@@ -850,7 +850,7 @@ const MasterDataSection = ({ navigate, onClose }) => {
                             }}
                             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === tab.id && !isSearchMode
                                 ? `${colors.bg} text-white shadow-lg`
-                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                : 'bg-slate-100 dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-neutral-700'
                                 }`}
                         >
                             <tab.icon size={14} /> {tab.label}
@@ -867,7 +867,7 @@ const MasterDataSection = ({ navigate, onClose }) => {
                     placeholder="Search across all master data..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
                 {searchQuery && (
                     <button
@@ -880,7 +880,7 @@ const MasterDataSection = ({ navigate, onClose }) => {
             </div>
 
             {/* Tab Content with Animation */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-4">
+            <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-700 p-4">
                 {loading ? <LoadingSpinner /> : (
                     <AnimatePresence mode="wait">
                         {isSearchMode ? (
@@ -1041,9 +1041,9 @@ const WorkflowConfigSection = () => {
                     <div className="space-y-2">
                         {workflows.map(wf => (
                             <button key={wf.id} onClick={() => setSelectedWf(wf)}
-                                className={`w-full text-left p-3 rounded-lg border ${selectedWf?.id === wf.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200'}`}>
-                                <p className="font-semibold text-sm">{wf.name}</p>
-                                <p className="text-xs text-slate-500">{wf.type} • {wf.steps.length} steps</p>
+                                className={`w-full text-left p-3 rounded-lg border ${selectedWf?.id === wf.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-neutral-700 hover:bg-slate-50 dark:hover:bg-neutral-800'}`}>
+                                <p className="font-semibold text-sm dark:text-white">{wf.name}</p>
+                                <p className="text-xs text-slate-500 dark:text-neutral-400">{wf.type} • {wf.steps.length} steps</p>
                             </button>
                         ))}
                     </div>
@@ -1053,21 +1053,21 @@ const WorkflowConfigSection = () => {
                         {selectedWf ? (
                             <>
                                 <div className="flex items-center justify-between mb-4">
-                                    <h4 className="font-semibold">{selectedWf.name}</h4>
+                                    <h4 className="font-semibold dark:text-white">{selectedWf.name}</h4>
                                     <div className="flex gap-2">
-                                        <button onClick={handleAddStep} className="px-3 py-1.5 text-sm bg-slate-100 rounded-lg hover:bg-slate-200 flex items-center gap-1"><Plus size={14} /> Add Step</button>
+                                        <button onClick={handleAddStep} className="px-3 py-1.5 text-sm bg-slate-100 dark:bg-neutral-800 dark:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-neutral-700 flex items-center gap-1"><Plus size={14} /> Add Step</button>
                                         <button onClick={handleSave} className="px-3 py-1.5 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-1"><Save size={14} /> Save</button>
                                     </div>
                                 </div>
                                 <div className="space-y-3">
                                     {selectedWf.steps.map((step, idx) => (
-                                        <div key={idx} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border">
+                                        <div key={idx} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-neutral-800 rounded-lg border dark:border-neutral-700">
                                             <GripVertical size={16} className="text-slate-400" />
                                             <span className="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-bold">{step.step}</span>
-                                            <select value={step.role} onChange={(e) => handleUpdateStep(idx, 'role', e.target.value)} className="px-3 py-1.5 border rounded-lg text-sm">
+                                            <select value={step.role} onChange={(e) => handleUpdateStep(idx, 'role', e.target.value)} className="px-3 py-1.5 border dark:border-neutral-600 dark:bg-neutral-900 dark:text-white rounded-lg text-sm">
                                                 {USER_ROLES.map(r => <option key={r} value={r}>{r.replace(/_/g, ' ')}</option>)}
                                             </select>
-                                            <select value={step.action} onChange={(e) => handleUpdateStep(idx, 'action', e.target.value)} className="px-3 py-1.5 border rounded-lg text-sm">
+                                            <select value={step.action} onChange={(e) => handleUpdateStep(idx, 'action', e.target.value)} className="px-3 py-1.5 border dark:border-neutral-600 dark:bg-neutral-900 dark:text-white rounded-lg text-sm">
                                                 {WORKFLOW_ACTIONS.map(a => <option key={a} value={a}>{a}</option>)}
                                             </select>
                                             <button onClick={() => handleDeleteStep(idx)} className="p-1.5 text-red-500 hover:bg-red-50 rounded"><Trash2 size={14} /></button>
@@ -1101,12 +1101,12 @@ const IntegrationsSection = ({ settings, updateSetting }) => {
             <SettingsCard className="mt-4">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                        <h4 className="font-semibold">External Systems</h4>
+                        <h4 className="font-semibold dark:text-white">External Systems</h4>
                         <div className="relative">
                             <button
                                 onMouseEnter={() => setShowTooltip(true)}
                                 onMouseLeave={() => setShowTooltip(false)}
-                                className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                                className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-neutral-300 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
                             >
                                 <Info size={16} />
                             </button>
@@ -1119,22 +1119,22 @@ const IntegrationsSection = ({ settings, updateSetting }) => {
                             )}
                         </div>
                     </div>
-                    <span className="text-xs text-slate-500">Requires API keys</span>
+                    <span className="text-xs text-slate-500 dark:text-neutral-400">Requires API keys</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-white rounded-xl shadow-sm">
-                        <p className="font-medium text-slate-800">NICDC Dashboard</p>
-                        <p className="text-xs text-slate-500 mt-1">Sends project progress data</p>
+                    <div className="p-4 bg-white dark:bg-neutral-800 rounded-xl shadow-sm">
+                        <p className="font-medium text-slate-800 dark:text-white">NICDC Dashboard</p>
+                        <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">Sends project progress data</p>
                         <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">○ Pending Setup</span>
                     </div>
-                    <div className="p-4 bg-white rounded-xl shadow-sm">
-                        <p className="font-medium text-slate-800">GIS Service</p>
-                        <p className="text-xs text-slate-500 mt-1">Spatial data & mapping</p>
+                    <div className="p-4 bg-white dark:bg-neutral-800 rounded-xl shadow-sm">
+                        <p className="font-medium text-slate-800 dark:text-white">GIS Service</p>
+                        <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">Spatial data & mapping</p>
                         <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">○ Pending Setup</span>
                     </div>
-                    <div className="p-4 bg-white rounded-xl shadow-sm">
-                        <p className="font-medium text-slate-800">Finance MIS</p>
-                        <p className="text-xs text-slate-500 mt-1">Fund flow & billing sync</p>
+                    <div className="p-4 bg-white dark:bg-neutral-800 rounded-xl shadow-sm">
+                        <p className="font-medium text-slate-800 dark:text-white">Finance MIS</p>
+                        <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">Fund flow & billing sync</p>
                         <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">○ Pending Setup</span>
                     </div>
                 </div>
@@ -1167,7 +1167,7 @@ const SystemSection = ({ settings, updateSetting }) => (
         <SectionHeader title="System Settings" description="Configure system preferences" />
         <SettingsCard>
             <SettingsRow icon={Globe} title="Language" description="Default language">
-                <select value={settings.language || 'en'} onChange={(e) => updateSetting('language', e.target.value)} className="px-3 py-2 border rounded-lg text-sm">
+                <select value={settings.language || 'en'} onChange={(e) => updateSetting('language', e.target.value)} className="px-3 py-2 border dark:border-neutral-600 bg-white dark:bg-neutral-900 dark:text-white rounded-lg text-sm">
                     <option value="en">English</option><option value="hi">Hindi</option><option value="te">Telugu</option>
                 </select>
             </SettingsRow>
@@ -1176,12 +1176,12 @@ const SystemSection = ({ settings, updateSetting }) => (
             </SettingsRow>
         </SettingsCard>
         <SettingsCard className="mt-4">
-            <h4 className="font-semibold mb-4">System Information</h4>
+            <h4 className="font-semibold mb-4 dark:text-white">System Information</h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
-                <div><span className="text-slate-500">Version</span><p className="font-medium">2.0.1</p></div>
-                <div><span className="text-slate-500">Environment</span><p className="font-medium">Production</p></div>
-                <div><span className="text-slate-500">Database</span><p className="font-medium text-emerald-600">Connected</p></div>
-                <div><span className="text-slate-500">Last Backup</span><p className="font-medium">{new Date().toLocaleDateString()}</p></div>
+                <div><span className="text-slate-500 dark:text-neutral-400">Version</span><p className="font-medium dark:text-white">2.0.1</p></div>
+                <div><span className="text-slate-500 dark:text-neutral-400">Environment</span><p className="font-medium dark:text-white">Production</p></div>
+                <div><span className="text-slate-500 dark:text-neutral-400">Database</span><p className="font-medium text-emerald-600">Connected</p></div>
+                <div><span className="text-slate-500 dark:text-neutral-400">Last Backup</span><p className="font-medium dark:text-white">{new Date().toLocaleDateString()}</p></div>
             </div>
         </SettingsCard>
     </div>
@@ -1196,7 +1196,7 @@ const SecuritySection = ({ settings, updateSetting }) => (
                 <Toggle checked={settings.twoFactorAuth || false} onChange={(c) => updateSetting('twoFactorAuth', c)} />
             </SettingsRow>
             <SettingsRow icon={Clock} title="Session Timeout" description="Minutes before auto logout">
-                <input type="number" value={settings.sessionTimeout || 30} onChange={(e) => updateSetting('sessionTimeout', parseInt(e.target.value))} className="px-3 py-2 border rounded-lg text-sm w-20" min="5" max="120" />
+                <input type="number" value={settings.sessionTimeout || 30} onChange={(e) => updateSetting('sessionTimeout', parseInt(e.target.value))} className="px-3 py-2 border dark:border-neutral-600 bg-white dark:bg-neutral-900 dark:text-white rounded-lg text-sm w-20" min="5" max="120" />
             </SettingsRow>
         </SettingsCard>
     </div>
@@ -1239,9 +1239,9 @@ const AuditLogsSection = () => {
                             <thead><tr className="border-b"><th className="text-left py-2 px-3">Time</th><th className="text-left py-2 px-3">User</th><th className="text-left py-2 px-3">Action</th><th className="text-left py-2 px-3">Resource</th></tr></thead>
                             <tbody>
                                 {logs.map(l => (
-                                    <tr key={l.id} className="border-b border-slate-100 hover:bg-slate-50">
-                                        <td className="py-2 px-3 text-slate-500">{new Date(l.timestamp).toLocaleString()}</td>
-                                        <td className="py-2 px-3 font-medium">{l.user}</td>
+                                    <tr key={l.id} className="border-b border-slate-100 dark:border-neutral-700 hover:bg-slate-50 dark:hover:bg-neutral-800">
+                                        <td className="py-2 px-3 text-slate-500 dark:text-neutral-400">{new Date(l.timestamp).toLocaleString()}</td>
+                                        <td className="py-2 px-3 font-medium dark:text-white">{l.user}</td>
                                         <td className="py-2 px-3"><span className={`px-2 py-0.5 rounded text-xs font-medium ${getActionColor(l.action)}`}>{l.action}</span></td>
                                         <td className="py-2 px-3">{l.resource}</td>
                                     </tr>

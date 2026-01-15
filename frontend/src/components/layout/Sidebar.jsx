@@ -399,7 +399,7 @@ const Sidebar = () => {
                     onClick={handleLinkClick}
                     className={cn(
                       'flex items-center gap-3 rounded-xl transition-all duration-200 overflow-hidden',
-                      'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+                      'focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-900',
                       isActive
                         ? 'bg-blue-50 dark:bg-neutral-800 text-blue-700 dark:text-blue-400 font-semibold shadow-sm pl-3 py-3 pr-4'
                         : 'text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-neutral-800 hover:text-blue-600 dark:hover:text-blue-400 px-4 py-3'

@@ -345,39 +345,39 @@ export const GenerateBillModal = ({
                         </div>
 
                         {/* Content Grid - Uses min-h-0 to allow nested scrolling */}
-                        <div className="flex-1 min-h-0 flex flex-col lg:flex-row print:hidden bg-slate-50">
+                        <div className="flex-1 min-h-0 flex flex-col lg:flex-row print:hidden bg-slate-50 dark:bg-neutral-800">
 
                             {/* EDIT MODE */}
                             {viewMode === 'edit' && (
                                 <>
                                     {/* Left: Form - Independent Scroll */}
-                                    <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-200 border-r border-slate-200 bg-white min-h-0">
+                                    <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-neutral-700 border-r border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 min-h-0">
                                         <form id="ra-bill-form" className="space-y-6">
                                             {/* Section 1: Basic Info */}
                                             <div className="space-y-4">
-                                                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 flex items-center gap-2"><FileText size={16} /> Project & Vendor</h3>
+                                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-neutral-700 pb-2 flex items-center gap-2"><FileText size={16} /> Project & Vendor</h3>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div>
-                                                        <label className="block text-xs font-medium text-slate-700 mb-1">Project</label>
-                                                        <select name="projectId" value={formData.projectId} onChange={handleProjectChange} className="w-full px-3 py-2 border rounded-md text-sm">
+                                                        <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">Project</label>
+                                                        <select name="projectId" value={formData.projectId} onChange={handleProjectChange} className="w-full px-3 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-md text-sm">
                                                             <option value="">Select Project...</option>
                                                             {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                                                         </select>
                                                     </div>
                                                     <div>
-                                                        <label className="block text-xs font-medium text-slate-700 mb-1">Contractor</label>
-                                                        <select name="contractorId" value={formData.contractorId} onChange={handleChange} className="w-full px-3 py-2 border rounded-md text-sm">
+                                                        <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">Contractor</label>
+                                                        <select name="contractorId" value={formData.contractorId} onChange={handleChange} className="w-full px-3 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-md text-sm">
                                                             <option value="">Select Contractor...</option>
                                                             {contractors.map(c => <option key={c.id} value={c.id}>{c.contractorName}</option>)}
                                                         </select>
                                                     </div>
                                                     <div>
-                                                        <label className="block text-xs font-medium text-slate-700 mb-1">Linked Milestone (Schedule)</label>
+                                                        <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">Linked Milestone (Schedule)</label>
                                                         <select
                                                             name="milestoneId"
                                                             value={formData.milestoneId}
                                                             onChange={handleChange}
-                                                            className={`w-full px-3 py-2 border rounded-md text-sm ${budgetWarning ? (budgetWarning.severity === 'warning' ? 'border-red-300 bg-red-50' : 'border-amber-300 bg-amber-50') : ''}`}
+                                                            className={`w-full px-3 py-2 border rounded-md text-sm bg-white dark:bg-neutral-900 text-slate-900 dark:text-white ${budgetWarning ? (budgetWarning.severity === 'warning' ? 'border-red-300 bg-red-50 dark:bg-red-900/10' : 'border-amber-300 bg-amber-50 dark:bg-amber-900/10') : 'border-slate-200 dark:border-neutral-700'}`}
                                                         >
                                                             <option value="">-- General / No Milestone --</option>
                                                             {milestones.filter(m => m.hasBudget).map(m => (
@@ -415,7 +415,7 @@ export const GenerateBillModal = ({
 
                                             {/* Section 2: Bill Amount */}
                                             <div className="space-y-4">
-                                                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 flex items-center gap-2"><IndianRupee size={16} /> Bill Amount</h3>
+                                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-neutral-700 pb-2 flex items-center gap-2"><IndianRupee size={16} /> Bill Amount</h3>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <Input label="Gross Bill Amount" name="grossAmount" type="number" value={formData.grossAmount} onChange={handleChange} required />
                                                     <Input label="GST Rate (%)" name="gstRate" type="number" value={formData.gstRate} onChange={handleChange} />
@@ -424,15 +424,15 @@ export const GenerateBillModal = ({
 
                                             {/* Section 3: Deductions */}
                                             <div className="space-y-4">
-                                                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 flex items-center gap-2"><AlertCircle size={16} /> Deductions & Recoveries</h3>
+                                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-neutral-700 pb-2 flex items-center gap-2"><AlertCircle size={16} /> Deductions & Recoveries</h3>
 
                                                 {/* Statutory Deductions Info */}
-                                                <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                                                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-3 rounded-lg">
                                                     <div className="flex items-start gap-2">
-                                                        <Calculator size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                                                        <Calculator size={16} className="text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                                                         <div>
-                                                            <p className="text-xs font-semibold text-blue-800">Statutory Deductions (Auto-Calculated)</p>
-                                                            <p className="text-xs text-blue-600 mt-1">
+                                                            <p className="text-xs font-semibold text-blue-800 dark:text-blue-300">Statutory Deductions (Auto-Calculated)</p>
+                                                            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                                                                 TDS, Labour Cess, and other statutory charges are automatically calculated based on
                                                                 <span className="font-semibold"> ETP Master</span> rates configured in Admin → Master Data.
                                                             </p>
@@ -451,7 +451,7 @@ export const GenerateBillModal = ({
                                                     <Input label="Material Advance Recovery" name="materialRecovery" type="number" value={formData.materialRecovery} onChange={handleChange} />
                                                 </div>
 
-                                                <div className="grid grid-cols-2 gap-4 bg-red-50/50 p-2 rounded">
+                                                <div className="grid grid-cols-2 gap-4 bg-red-50/50 dark:bg-red-900/10 p-2 rounded">
                                                     <Input label="Penalty / Damages" name="penaltyAmount" type="number" value={formData.penaltyAmount} onChange={handleChange} />
                                                     <Input label="Price Adjustment" name="priceAdjustment" type="number" value={formData.priceAdjustment} onChange={handleChange} />
                                                     <Input label="Insurance Recovery" name="insuranceRecovery" type="number" value={formData.insuranceRecovery} onChange={handleChange} />
@@ -462,11 +462,11 @@ export const GenerateBillModal = ({
                                     </div>
 
                                     {/* Right: Summary - Independent Scroll */}
-                                    <div className="w-full lg:w-[400px] bg-slate-50 flex flex-col min-h-0 border-l border-slate-200">
-                                        <div className="flex-none p-4 bg-white border-b border-slate-200">
-                                            <h3 className="font-bold text-slate-800">Calculation Summary</h3>
+                                    <div className="w-full lg:w-[400px] bg-slate-50 dark:bg-neutral-800/50 flex flex-col min-h-0 border-l border-slate-200 dark:border-neutral-700">
+                                        <div className="flex-none p-4 bg-white dark:bg-neutral-900 border-b border-slate-200 dark:border-neutral-700">
+                                            <h3 className="font-bold text-slate-800 dark:text-white">Calculation Summary</h3>
                                         </div>
-                                        <div className="flex-1 overflow-y-scroll p-6 pb-24 space-y-4 scrollbar-thin scrollbar-thumb-slate-400 scrollbar-track-slate-100">
+                                        <div className="flex-1 overflow-y-scroll p-6 pb-24 space-y-4 scrollbar-thin scrollbar-thumb-slate-400 dark:scrollbar-thumb-neutral-600 scrollbar-track-slate-100 dark:scrollbar-track-neutral-800">
                                             <SummaryRow label="Gross Amount" value={formData.grossAmount} />
                                             <SummaryRow label="GST Amount" value={calculations.gstAmount} subtext={`@ ${formData.gstRate}%`} />
                                             <div className="h-px bg-slate-300 my-2" />
@@ -541,11 +541,11 @@ export const GenerateBillModal = ({
 
                             {/* SUCCESS STATE */}
                             {viewMode === 'success' && (
-                                <div className="flex-1 flex flex-col items-center justify-center bg-white p-8 animate-in fade-in zoom-in duration-300">
-                                    <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
-                                        <CheckCircle size={40} className="text-emerald-600" />
+                                <div className="flex-1 flex flex-col items-center justify-center bg-white dark:bg-neutral-900 p-8 animate-in fade-in zoom-in duration-300">
+                                    <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mb-6">
+                                        <CheckCircle size={40} className="text-emerald-600 dark:text-emerald-400" />
                                     </div>
-                                    <h3 className="text-2xl font-bold text-slate-900 mb-2">Invoice Generated Successfully!</h3>
+                                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Invoice Generated Successfully!</h3>
                                     <p className="text-slate-500 mb-8 text-center max-w-md">
                                         RA Bill <span className="font-mono font-bold text-slate-700">{formData.billNo}</span> has been saved to the register. What would you like to do next?
                                     </p>
@@ -603,21 +603,21 @@ export const GenerateBillModal = ({
 // Sub-components
 const Input = ({ label, className = "", ...props }) => (
     <div className={className}>
-        <label className="block text-xs font-medium text-slate-700 mb-1">{label}</label>
+        <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">{label}</label>
         <input
-            className="w-full px-3 py-2 border border-slate-200 rounded-md text-sm outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+            className="w-full px-3 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-md text-sm outline-none focus:ring-2 focus:ring-primary-500 transition-all"
             {...props}
         />
     </div>
 );
 
 const SummaryRow = ({ label, value, subtext, bold, isDeduction }) => (
-    <div className={`flex justify-between items-start ${bold ? 'font-bold text-slate-900' : 'text-slate-600'}`}>
+    <div className={`flex justify-between items-start ${bold ? 'font-bold text-slate-900 dark:text-white' : 'text-slate-600 dark:text-neutral-400'}`}>
         <div>
             <span>{label}</span>
-            {subtext && <p className="text-[10px] text-slate-400 font-normal">{subtext}</p>}
+            {subtext && <p className="text-[10px] text-slate-400 dark:text-neutral-500 font-normal">{subtext}</p>}
         </div>
-        <span className={isDeduction ? 'text-red-600' : ''}>
+        <span className={isDeduction ? 'text-red-600 dark:text-red-400' : ''}>
             {isDeduction ? '-' : ''} {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value)}
         </span>
     </div>

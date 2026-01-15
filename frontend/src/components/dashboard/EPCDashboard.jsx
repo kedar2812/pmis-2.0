@@ -75,8 +75,8 @@ const EPCDashboard = ({ projects, tasks }) => {
             <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
                 <motion.div variants={itemVariants} className="flex justify-between items-center">
                     <div>
-                        <h2 className="text-2xl font-bold text-slate-800">{t('role.EPC_Contractor')} Operations</h2>
-                        <p className="text-slate-500">Site Work, Progress Reporting & Compliance</p>
+                        <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('role.EPC_Contractor')} Operations</h2>
+                        <p className="text-slate-500 dark:text-neutral-400">Site Work, Progress Reporting & Compliance</p>
                     </div>
                     <Button>
                         <Upload size={16} /> {t('common.upload')} Report
@@ -93,8 +93,8 @@ const EPCDashboard = ({ projects, tasks }) => {
                             <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
                                 <Calendar className="text-orange-600" size={24} />
                             </div>
-                            <h3 className="text-3xl font-bold text-slate-800">{activeSiteTasks}</h3>
-                            <p className="text-slate-500">Active Site Tasks</p>
+                            <h3 className="text-3xl font-bold text-slate-800 dark:text-white">{activeSiteTasks}</h3>
+                            <p className="text-slate-500 dark:text-neutral-400">Active Site Tasks</p>
                         </MotionCardContent>
                     </MotionCard>
 
@@ -107,8 +107,8 @@ const EPCDashboard = ({ projects, tasks }) => {
                             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
                                 <FileText className="text-blue-600" size={24} />
                             </div>
-                            <h3 className="text-3xl font-bold text-slate-800">{pendingInvoicesCount}</h3>
-                            <p className="text-slate-500">Pending Invoices</p>
+                            <h3 className="text-3xl font-bold text-slate-800 dark:text-white">{pendingInvoicesCount}</h3>
+                            <p className="text-slate-500 dark:text-neutral-400">Pending Invoices</p>
                         </MotionCardContent>
                     </MotionCard>
 
@@ -121,8 +121,8 @@ const EPCDashboard = ({ projects, tasks }) => {
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${safetyScore > 90 ? 'bg-green-100' : 'bg-red-100'}`}>
                                 <CheckCircle className={`${safetyScore > 90 ? 'text-green-600' : 'text-red-600'}`} size={24} />
                             </div>
-                            <h3 className="text-3xl font-bold text-slate-800">{safetyScore}%</h3>
-                            <p className="text-slate-500">Safety Compliance</p>
+                            <h3 className="text-3xl font-bold text-slate-800 dark:text-white">{safetyScore}%</h3>
+                            <p className="text-slate-500 dark:text-neutral-400">Safety Compliance</p>
                         </MotionCardContent>
                     </MotionCard>
                 </div>
@@ -134,12 +134,12 @@ const EPCDashboard = ({ projects, tasks }) => {
                     <MotionCardContent>
                         <div className="space-y-3">
                             {myTasks.slice(0, 5).map(task => (
-                                <div key={task.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl transition-colors">
+                                <div key={task.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-neutral-800 rounded-xl transition-colors">
                                     <div className="flex items-center gap-3">
                                         <div className={`w-2 h-2 rounded-full ${task.priority === 'High' ? 'bg-red-500' : 'bg-blue-500'} `} />
-                                        <span className="font-medium text-slate-800">{task.name}</span>
+                                        <span className="font-medium text-slate-800 dark:text-white">{task.name}</span>
                                     </div>
-                                    <span className="text-sm text-slate-500">Due: {task.endDate}</span>
+                                    <span className="text-sm text-slate-500 dark:text-neutral-400">Due: {task.endDate}</span>
                                 </div>
                             ))}
                         </div>

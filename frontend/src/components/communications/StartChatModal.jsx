@@ -139,7 +139,7 @@ const StartChatModal = ({ onClose, onCreated }) => {
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex border-b">
+                    <div className="flex border-b dark:border-neutral-700">
                         <button
                             onClick={() => {
                                 setActiveTab('dm');
@@ -148,7 +148,7 @@ const StartChatModal = ({ onClose, onCreated }) => {
                             }}
                             className={`flex-1 py-3 px-4 font-semibold flex items-center justify-center gap-2 transition-colors ${activeTab === 'dm'
                                 ? 'border-b-2 border-primary-600 text-primary-600'
-                                : 'text-slate-500 hover:bg-slate-50'
+                                : 'text-slate-500 dark:text-neutral-400 hover:bg-slate-50 dark:hover:bg-neutral-800'
                                 }`}
                         >
                             <MessageCircle size={18} />
@@ -161,7 +161,7 @@ const StartChatModal = ({ onClose, onCreated }) => {
                             }}
                             className={`flex-1 py-3 px-4 font-semibold flex items-center justify-center gap-2 transition-colors ${activeTab === 'group'
                                 ? 'border-b-2 border-primary-600 text-primary-600'
-                                : 'text-slate-500 hover:bg-slate-50'
+                                : 'text-slate-500 dark:text-neutral-400 hover:bg-slate-50 dark:hover:bg-neutral-800'
                                 }`}
                         >
                             <Users size={18} />
@@ -177,7 +177,7 @@ const StartChatModal = ({ onClose, onCreated }) => {
                             <input
                                 type="text"
                                 placeholder="Search users..."
-                                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -186,13 +186,13 @@ const StartChatModal = ({ onClose, onCreated }) => {
                         {/* Group Name Input (for group chats) */}
                         {activeTab === 'group' && (
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-2">
                                     Group Name (Optional)
                                 </label>
                                 <input
                                     type="text"
                                     placeholder="Enter group name..."
-                                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    className="w-full px-4 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                                     value={groupName}
                                     onChange={(e) => setGroupName(e.target.value)}
                                 />
@@ -201,15 +201,15 @@ const StartChatModal = ({ onClose, onCreated }) => {
 
                         {/* Selected Users Badge */}
                         {selectedUsers.length > 0 && (
-                            <div className="mb-4 p-3 bg-primary-50 border border-primary-200 rounded-lg">
-                                <div className="text-sm font-medium text-primary-900 mb-2">
+                            <div className="mb-4 p-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg">
+                                <div className="text-sm font-medium text-primary-900 dark:text-primary-300 mb-2">
                                     {activeTab === 'dm' ? 'Selected User:' : `Selected (${selectedUsers.length}):`}
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                     {selectedUsers.map(user => (
                                         <span
                                             key={user.id}
-                                            className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-primary-300 rounded-full text-sm"
+                                            className="inline-flex items-center gap-2 px-3 py-1 bg-white dark:bg-neutral-900 border border-primary-300 dark:border-primary-700 rounded-full text-sm dark:text-white"
                                         >
                                             {user.username}
                                             <button
@@ -229,11 +229,11 @@ const StartChatModal = ({ onClose, onCreated }) => {
 
                         {/* User List */}
                         {isLoadingUsers ? (
-                            <div className="text-center py-8 text-slate-500">
+                            <div className="text-center py-8 text-slate-500 dark:text-neutral-400">
                                 Loading users...
                             </div>
                         ) : filteredUsers.length === 0 ? (
-                            <div className="text-center py-8 text-slate-500">
+                            <div className="text-center py-8 text-slate-500 dark:text-neutral-400">
                                 No users found
                             </div>
                         ) : (
@@ -245,8 +245,8 @@ const StartChatModal = ({ onClose, onCreated }) => {
                                             key={user.id}
                                             onClick={() => toggleUserSelection(user)}
                                             className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all ${isSelected
-                                                ? 'border-primary-500 bg-primary-50'
-                                                : 'border-slate-200 hover:border-primary-300 hover:bg-slate-50'
+                                                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                                                : 'border-slate-200 dark:border-neutral-700 hover:border-primary-300 hover:bg-slate-50 dark:hover:bg-neutral-800'
                                                 }`}
                                         >
                                             <div className="flex items-center gap-3">
@@ -255,8 +255,8 @@ const StartChatModal = ({ onClose, onCreated }) => {
                                                     {user.username?.charAt(0).toUpperCase()}
                                                 </div>
                                                 <div className="text-left">
-                                                    <div className="font-medium text-slate-900">{user.username}</div>
-                                                    <div className="text-xs text-slate-500">{user.email}</div>
+                                                    <div className="font-medium text-slate-900 dark:text-white">{user.username}</div>
+                                                    <div className="text-xs text-slate-500 dark:text-neutral-400">{user.email}</div>
                                                 </div>
                                             </div>
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}>
@@ -270,8 +270,8 @@ const StartChatModal = ({ onClose, onCreated }) => {
                     </div>
 
                     {/* Footer */}
-                    <div className="flex items-center justify-between p-6 border-t bg-slate-50">
-                        <div className="text-sm text-slate-600">
+                    <div className="flex items-center justify-between p-6 border-t dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800">
+                        <div className="text-sm text-slate-600 dark:text-neutral-400">
                             {activeTab === 'dm' ? (
                                 <span>Select a user to start a direct message</span>
                             ) : (

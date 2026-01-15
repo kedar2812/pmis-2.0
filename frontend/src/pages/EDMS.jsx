@@ -261,13 +261,12 @@ const EDMS = () => {
                             {/* Optional: Status badge or similar could go here */}
                         </div>
                         <div className="w-20 h-20 rounded-2xl bg-white dark:bg-neutral-800 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <FolderOpen size={40} className="text-blue-600 dark:text-indigo-400" />
+                            <FolderOpen size={40} className="text-blue-600 dark:text-blue-400" />
                         </div>
                     </div>
 
-                    {/* Card Body */}
                     <div className="p-5">
-                        <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-1 line-clamp-1 group-hover:text-blue-700 dark:group-hover:text-indigo-400 transition-colors">
+                        <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-1 line-clamp-1 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
                             {project.name}
                         </h3>
                         <p className="text-sm text-slate-500 dark:text-neutral-400 mb-4 line-clamp-1">
@@ -410,7 +409,7 @@ const EDMS = () => {
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setShowCreateFolderModal(true)}
-                                    className="bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-700 hover:border-blue-200 dark:hover:border-indigo-600 hover:bg-blue-50 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-300"
+                                    className="bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-700 hover:border-blue-200 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-300"
                                 >
                                     <Plus size={16} className="mr-1" />
                                     New Folder
@@ -447,7 +446,7 @@ const EDMS = () => {
                             <button
                                 onClick={() => navigateToBreadcrumb(-1)}
                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border ${breadcrumbs.length === 0
-                                    ? 'bg-slate-800 dark:bg-indigo-600 text-white border-slate-800 dark:border-indigo-600 shadow-sm'
+                                    ? 'bg-slate-800 dark:bg-blue-600 text-white border-slate-800 dark:border-blue-600 shadow-sm'
                                     : 'bg-white dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 border-slate-200 dark:border-neutral-700 hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-neutral-700'
                                     }`}
                             >
@@ -463,7 +462,7 @@ const EDMS = () => {
                                         <button
                                             onClick={() => navigateToBreadcrumb(index)}
                                             className={`px-3 py-1.5 rounded-full transition-all border whitespace-nowrap max-w-[150px] truncate ${isLast
-                                                ? 'bg-slate-800 dark:bg-indigo-600 text-white border-slate-800 dark:border-indigo-600 shadow-sm'
+                                                ? 'bg-slate-800 dark:bg-blue-600 text-white border-slate-800 dark:border-blue-600 shadow-sm'
                                                 : 'bg-white dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 border-slate-200 dark:border-neutral-700 hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-neutral-700'
                                                 }`}
                                         >
@@ -478,19 +477,19 @@ const EDMS = () => {
                         {currentProject && (
                             <div className="flex items-center gap-2 flex-wrap">
                                 <div className="relative group">
-                                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 group-hover:text-blue-500 dark:group-hover:text-indigo-400 transition-colors" />
+                                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors" />
                                     <input
                                         type="text"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         placeholder="Search..."
-                                        className="pl-9 pr-3 py-1.5 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-indigo-500 w-40 focus:w-60 transition-all shadow-sm"
+                                        className="pl-9 pr-3 py-1.5 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 w-40 focus:w-60 transition-all shadow-sm"
                                     />
                                 </div>
                                 <select
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="px-3 py-1.5 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-indigo-500 shadow-sm"
+                                    className="px-3 py-1.5 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 shadow-sm"
                                 >
                                     {documentStatuses.map(s => (
                                         <option key={s.value} value={s.value}>{s.label}</option>
@@ -507,7 +506,7 @@ const EDMS = () => {
                 <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-neutral-700/60 min-h-full">
                     {loading && (currentView === 'projects' || folders.length === 0) ? (
                         <div className="flex flex-col items-center justify-center py-20 opacity-60">
-                            <Loader2 size={40} className="animate-spin text-blue-500 dark:text-indigo-400 mb-4" />
+                            <Loader2 size={40} className="animate-spin text-blue-500 dark:text-blue-400 mb-4" />
                             <p className="text-slate-500 dark:text-neutral-400 font-medium">Loading contents...</p>
                         </div>
                     ) : currentView === 'projects' ? (
@@ -542,7 +541,7 @@ const EDMS = () => {
                                 value={newFolderName}
                                 onChange={(e) => setNewFolderName(e.target.value)}
                                 placeholder="Enter folder name..."
-                                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-neutral-800 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-indigo-500 transition-all"
+                                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-neutral-800 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 transition-all"
                                 autoFocus
                                 onKeyDown={(e) => e.key === 'Enter' && handleCreateFolder()}
                             />

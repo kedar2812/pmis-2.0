@@ -83,9 +83,9 @@ const SearchableSelect = ({
                     className={`w-full px-4 py-2.5 pr-10 text-left rounded-xl border transition-all outline-none focus:ring-2 ${error
                         ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
                         : isOpen
-                            ? 'border-primary-500 ring-2 ring-primary-100'
-                            : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
-                        } ${disabled ? 'bg-slate-50 cursor-not-allowed' : 'bg-white'}`}
+                            ? 'border-primary-500 ring-2 ring-primary-100 dark:ring-primary-900/30'
+                            : 'border-slate-200 dark:border-neutral-700 focus:border-primary-500 focus:ring-primary-100 dark:focus:ring-primary-900/30'
+                        } ${disabled ? 'bg-slate-50 dark:bg-neutral-800 cursor-not-allowed' : 'bg-white dark:bg-neutral-900'}`}
                 >
                     <span className={value ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-neutral-500'}>
                         {value || placeholder}
@@ -123,10 +123,10 @@ const SearchableSelect = ({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden"
+                        className="absolute z-50 w-full mt-2 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-700 rounded-xl shadow-lg overflow-hidden"
                     >
                         {/* Search Input */}
-                        <div className="p-3 border-b border-slate-100">
+                        <div className="p-3 border-b border-slate-100 dark:border-neutral-800">
                             <div className="relative">
                                 <Search
                                     size={18}
@@ -138,7 +138,7 @@ const SearchableSelect = ({
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder="Type to search..."
-                                    className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all"
+                                    className="w-full pl-10 pr-3 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/30 transition-all"
                                 />
                             </div>
                         </div>
@@ -151,7 +151,7 @@ const SearchableSelect = ({
                                         key={index}
                                         type="button"
                                         onClick={() => handleSelect(option)}
-                                        className={`w-full px-4 py-2.5 text-left hover:bg-primary-50 transition-colors ${value === option ? 'bg-primary-50 text-primary-700 font-medium' : 'text-slate-700'
+                                        className={`w-full px-4 py-2.5 text-left hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors ${value === option ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 font-medium' : 'text-slate-700 dark:text-neutral-300'
                                             }`}
                                     >
                                         {option}

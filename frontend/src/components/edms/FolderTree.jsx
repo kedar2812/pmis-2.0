@@ -88,8 +88,8 @@ const FolderTree = ({
             <div key={folder.id}>
                 <div
                     className={`flex items-center gap-1 px-2 py-1.5 rounded-lg cursor-pointer group transition-all ${isSelected
-                            ? 'bg-primary-100 text-primary-700'
-                            : 'hover:bg-slate-100 text-slate-700'
+                        ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400'
+                        : 'hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-300'
                         }`}
                     style={{ paddingLeft: `${depth * 16 + 8}px` }}
                     onClick={() => onFolderSelect(folder.id)}
@@ -100,7 +100,7 @@ const FolderTree = ({
                             e.stopPropagation();
                             toggleExpand(folder.id);
                         }}
-                        className={`p-0.5 rounded hover:bg-slate-200 ${!hasChildren ? 'invisible' : ''}`}
+                        className={`p-0.5 rounded hover:bg-slate-200 dark:hover:bg-neutral-700 ${!hasChildren ? 'invisible' : ''}`}
                     >
                         {isExpanded ? (
                             <ChevronDown size={14} />
@@ -123,7 +123,7 @@ const FolderTree = ({
 
                     {/* Document Count */}
                     {folder.document_count > 0 && (
-                        <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                        <span className="text-xs text-slate-400 dark:text-neutral-500 bg-slate-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded">
                             {folder.document_count}
                         </span>
                     )}
@@ -135,7 +135,7 @@ const FolderTree = ({
                                 e.stopPropagation();
                                 openCreateModal(folder.id);
                             }}
-                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-200 rounded transition-opacity"
+                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-200 dark:hover:bg-neutral-700 rounded transition-opacity"
                         >
                             <Plus size={14} />
                         </button>
@@ -172,8 +172,8 @@ const FolderTree = ({
             {/* Root (All Documents) */}
             <div
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-all ${selectedFolderId === null
-                        ? 'bg-primary-100 text-primary-700'
-                        : 'hover:bg-slate-100 text-slate-700'
+                    ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400'
+                    : 'hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-300'
                     }`}
                 onClick={() => onFolderSelect(null)}
             >
@@ -190,7 +190,7 @@ const FolderTree = ({
             {canCreateFolder && (
                 <button
                     onClick={() => openCreateModal(null)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg w-full transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg w-full transition-colors"
                 >
                     <Plus size={16} />
                     <span>New Folder</span>
@@ -203,9 +203,9 @@ const FolderTree = ({
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white rounded-xl p-4 w-full max-w-sm shadow-xl"
+                        className="bg-white dark:bg-neutral-900 rounded-xl p-4 w-full max-w-sm shadow-xl border dark:border-neutral-700"
                     >
-                        <h3 className="text-lg font-semibold text-slate-800 mb-3">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-3">
                             Create Folder
                         </h3>
                         <input
@@ -213,7 +213,7 @@ const FolderTree = ({
                             value={newFolderName}
                             onChange={(e) => setNewFolderName(e.target.value)}
                             placeholder="Folder name"
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className="w-full px-3 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                             autoFocus
                             onKeyDown={(e) => e.key === 'Enter' && handleCreateFolder()}
                         />
@@ -223,7 +223,7 @@ const FolderTree = ({
                                     setShowCreateModal(false);
                                     setNewFolderName('');
                                 }}
-                                className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg"
+                                className="px-4 py-2 text-sm text-slate-600 dark:text-neutral-400 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg"
                             >
                                 Cancel
                             </button>

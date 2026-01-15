@@ -169,7 +169,7 @@ const RiskManagement = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
-        <span className="ml-2 text-gray-600">Loading risk data...</span>
+        <span className="ml-2 text-gray-600 dark:text-neutral-400">Loading risk data...</span>
       </div>
     );
   }
@@ -179,11 +179,11 @@ const RiskManagement = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <Shield className="text-orange-600" />
             {t('common.risk') || 'Risk Management'}
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 dark:text-neutral-400 mt-1">
             {t('risk.subtitle') || 'Identify, assess, and mitigate project risks'}
           </p>
         </div>
@@ -292,7 +292,7 @@ const RiskManagement = () => {
                 name="Risks"
               />
             ) : (
-              <div className="h-64 flex items-center justify-center text-gray-500">
+              <div className="h-64 flex items-center justify-center text-gray-500 dark:text-neutral-400">
                 No data available
               </div>
             )}

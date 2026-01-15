@@ -269,16 +269,16 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                     <div
                         {...getRootProps()}
                         className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${isDragActive
-                            ? 'border-primary-500 bg-primary-50'
-                            : 'border-slate-300 hover:border-slate-400'
+                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                            : 'border-slate-300 dark:border-neutral-600 hover:border-slate-400 dark:hover:border-neutral-500 bg-white dark:bg-neutral-800'
                             }`}
                     >
                         <input {...getInputProps()} />
                         <Upload size={32} className={`mx-auto ${isDragActive ? 'text-primary-600' : 'text-slate-400'}`} />
-                        <p className="text-sm text-slate-600 mt-2">
+                        <p className="text-sm text-slate-600 dark:text-neutral-300 mt-2">
                             {isDragActive ? 'Drop files here' : 'Drag & drop files, or click to browse'}
                         </p>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-slate-400 dark:text-neutral-500 mt-1">
                             PDF, Word, Excel, Images, Media, CAD
                         </p>
                     </div>
@@ -289,26 +289,26 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                             {files.map((fObj) => {
                                 const Icon = getFileIcon(fObj.file.name);
                                 return (
-                                    <div key={fObj.id} className="flex items-center gap-3 p-2 bg-slate-50 rounded-lg border border-slate-100">
-                                        <div className="w-8 h-8 rounded bg-white flex items-center justify-center border border-slate-200">
-                                            <Icon size={16} className="text-slate-500" />
+                                    <div key={fObj.id} className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-neutral-800 rounded-lg border border-slate-100 dark:border-neutral-700">
+                                        <div className="w-8 h-8 rounded bg-white dark:bg-neutral-900 flex items-center justify-center border border-slate-200 dark:border-neutral-700">
+                                            <Icon size={16} className="text-slate-500 dark:text-neutral-400" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-slate-700 truncate">{fObj.file.name}</p>
-                                            <div className="flex items-center gap-2 text-xs text-slate-400">
+                                            <p className="text-sm font-medium text-slate-700 dark:text-neutral-200 truncate">{fObj.file.name}</p>
+                                            <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-neutral-500">
                                                 <span>{formatFileSize(fObj.file.size)}</span>
                                                 {fObj.status === 'uploading' && <span className="text-primary-600">Uploading {fObj.progress}%</span>}
                                                 {fObj.status === 'success' && <span className="text-green-600">Done</span>}
                                                 {fObj.status === 'error' && <span className="text-red-500">Failed</span>}
                                             </div>
                                             {fObj.status === 'uploading' && (
-                                                <div className="h-1 bg-slate-200 rounded-full mt-1 overflow-hidden">
+                                                <div className="h-1 bg-slate-200 dark:bg-neutral-700 rounded-full mt-1 overflow-hidden">
                                                     <div className="h-full bg-primary-500 transition-all duration-300" style={{ width: `${fObj.progress}%` }} />
                                                 </div>
                                             )}
                                         </div>
                                         {!isUploading && fObj.status !== 'success' && (
-                                            <button type="button" onClick={() => removeFile(fObj.id)} className="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-red-500">
+                                            <button type="button" onClick={() => removeFile(fObj.id)} className="p-1 hover:bg-slate-200 dark:hover:bg-neutral-700 rounded text-slate-400 hover:text-red-500">
                                                 <X size={14} />
                                             </button>
                                         )}
@@ -320,19 +320,19 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                     )}
 
                     {/* Common Metadata */}
-                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/60 space-y-3">
-                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Common Settings</p>
+                    <div className="p-3 bg-slate-50 dark:bg-neutral-800 rounded-xl border border-slate-200/60 dark:border-neutral-700 space-y-3">
+                        <p className="text-xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider">Common Settings</p>
 
                         {/* Folder Selection */}
                         <div>
-                            <label className="block text-xs font-medium text-slate-700 mb-1">Folder</label>
+                            <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">Folder</label>
                             <div className="flex gap-2">
                                 <div className="relative flex-1">
                                     <select
                                         value={selectedFolderId || ''}
                                         onChange={(e) => setSelectedFolderId(e.target.value || null)}
                                         disabled={loadingFolders}
-                                        className="w-full pl-2 pr-8 py-1.5 bg-white border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        className="w-full pl-2 pr-8 py-1.5 bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                                     >
                                         <option value="">Root (No folder)</option>
                                         {folders.map(folder => (
@@ -359,7 +359,7 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                                         value={newFolderName}
                                         onChange={(e) => setNewFolderName(e.target.value)}
                                         placeholder="Folder name"
-                                        className="flex-1 px-3 py-1.5 border border-slate-200 rounded text-sm"
+                                        className="flex-1 px-3 py-1.5 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 dark:text-white rounded text-sm"
                                     />
                                     <Button type="button" size="sm" onClick={handleCreateFolder}>Create</Button>
                                 </div>
@@ -368,11 +368,11 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
 
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className="block text-xs font-medium text-slate-700 mb-1">Type</label>
+                                <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">Type</label>
                                 <select
                                     value={documentType}
                                     onChange={(e) => setDocumentType(e.target.value)}
-                                    className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    className="w-full px-2 py-1.5 bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 >
                                     {documentTypes.map(t => (
                                         <option key={t.value} value={t.value}>{t.label}</option>
@@ -386,7 +386,7 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                                         onChange={(val) => setIsConfidential(val)}
                                         size="sm"
                                     />
-                                    <span className="text-sm text-slate-700 font-medium">Confidential</span>
+                                    <span className="text-sm text-slate-700 dark:text-neutral-300 font-medium">Confidential</span>
                                 </div>
                             </div>
                         </div>
@@ -394,17 +394,17 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                         {/* Title Input - Only show if single file */}
                         {files.length <= 1 && (
                             <div>
-                                <label className="block text-xs font-medium text-slate-700 mb-1">
-                                    Title <span className="text-slate-400">(optional)</span>
+                                <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">
+                                    Title <span className="text-slate-400 dark:text-neutral-500">(optional)</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     placeholder="Leave blank to use filename"
-                                    className="w-full px-3 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    className="w-full px-3 py-1.5 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 dark:text-white rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 />
-                                <p className="text-xs text-slate-500 mt-1">
+                                <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">
                                     💡 If a document with this name exists, a new version will be created
                                 </p>
                             </div>
@@ -413,12 +413,12 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                         {/* Document Number Input Removed */}
 
                         <div>
-                            <label className="block text-xs font-medium text-slate-700 mb-1">Description</label>
+                            <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">Description</label>
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 placeholder="Description (applied to all files)"
-                                className="w-full px-3 py-1.5 border border-slate-200 rounded text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                className="w-full px-3 py-1.5 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 dark:text-white rounded text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 rows={2}
                             />
                         </div>

@@ -138,16 +138,16 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <div className="sticky top-0 z-10 bg-white dark:bg-neutral-900 border-b border-gray-200 dark:border-neutral-700 px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className={`p-3 rounded-full ${statusColors.bg}`}>
                 <FolderOpen className={statusColors.text} size={28} />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-primary-950">{project.name}</h2>
+                <h2 className="text-2xl font-bold text-primary-950 dark:text-white">{project.name}</h2>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-sm text-gray-600">{project.category}</span>
-                  <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                  <span className="text-sm text-gray-600 dark:text-neutral-400">{project.category}</span>
+                  <span className="w-1 h-1 bg-gray-300 dark:bg-neutral-600 rounded-full"></span>
                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors.bg} ${statusColors.text}`}>
                     {project.status}
                   </span>
@@ -156,15 +156,15 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
               aria-label="Close modal"
             >
-              <X size={24} />
+              <X size={24} className="text-slate-700 dark:text-neutral-300" />
             </button>
           </div>
 
           {/* Tab Navigation */}
-          <div className="px-6 border-b border-slate-200 bg-white sticky top-[88px] z-10">
+          <div className="px-6 border-b border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 sticky top-[88px] z-10">
             <div className="flex gap-6">
               {['Overview', 'Packages', 'Procurements', 'Budget', 'Risks'].map((tab) => (
                 <button
@@ -172,7 +172,7 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                   onClick={() => setActiveTab(tab.toLowerCase())}
                   className={`py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.toLowerCase()
                     ? 'border-primary-600 text-primary-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
+                    : 'border-transparent text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200'
                     }`}
                 >
                   {tab}
@@ -193,12 +193,12 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-gray-600 mb-1">Project Progress</p>
-                          <p className="text-2xl font-bold text-primary-950">{project.progress}%</p>
+                          <p className="text-sm text-gray-600 dark:text-neutral-400 mb-1">Project Progress</p>
+                          <p className="text-2xl font-bold text-primary-950 dark:text-white">{project.progress}%</p>
                         </div>
                         <Target className="text-primary-600" size={32} />
                       </div>
-                      <div className="mt-3 w-full h-2 bg-gray-200 rounded-full">
+                      <div className="mt-3 w-full h-2 bg-gray-200 dark:bg-neutral-700 rounded-full">
                         <div
                           className={`h-2 rounded-full ${project.progress === 100
                             ? 'bg-success-600'
@@ -216,12 +216,12 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-gray-600 mb-1">Budget Utilization</p>
-                          <p className="text-2xl font-bold text-primary-950">{budgetUtilization.toFixed(1)}%</p>
+                          <p className="text-sm text-gray-600 dark:text-neutral-400 mb-1">Budget Utilization</p>
+                          <p className="text-2xl font-bold text-primary-950 dark:text-white">{budgetUtilization.toFixed(1)}%</p>
                         </div>
                         <DollarSign className="text-primary-600" size={32} />
                       </div>
-                      <div className="mt-3 w-full h-2 bg-gray-200 rounded-full">
+                      <div className="mt-3 w-full h-2 bg-gray-200 dark:bg-neutral-700 rounded-full">
                         <div
                           className={`h-2 rounded-full ${budgetUtilization > 90
                             ? 'bg-error-600'
@@ -239,14 +239,14 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-gray-600 mb-1">Days Remaining</p>
-                          <p className={`text-2xl font-bold ${isOverdue ? 'text-error-600' : 'text-primary-950'}`}>
+                          <p className="text-sm text-gray-600 dark:text-neutral-400 mb-1">Days Remaining</p>
+                          <p className={`text-2xl font-bold ${isOverdue ? 'text-error-600' : 'text-primary-950 dark:text-white'}`}>
                             {Math.abs(daysRemaining)}
                           </p>
                         </div>
-                        <Clock className="text-gray-600" size={32} />
+                        <Clock className="text-gray-600 dark:text-neutral-400" size={32} />
                       </div>
-                      <p className={`text-xs mt-2 ${isOverdue ? 'text-error-600' : 'text-gray-600'}`}>
+                      <p className={`text-xs mt-2 ${isOverdue ? 'text-error-600' : 'text-gray-600 dark:text-neutral-400'}`}>
                         {isOverdue ? 'Overdue' : 'On Schedule'}
                       </p>
                     </CardContent>
@@ -256,7 +256,7 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-gray-600 mb-1">Cost Variation</p>
+                          <p className="text-sm text-gray-600 dark:text-neutral-400 mb-1">Cost Variation</p>
                           <p
                             className={`text-2xl font-bold ${costVariancePercentage > 0 ? 'text-error-600' : 'text-success-600'
                               }`}
@@ -284,13 +284,13 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-gray-700 leading-relaxed">{project.description}</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+                    <p className="text-gray-700 dark:text-neutral-300 leading-relaxed">{project.description}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-neutral-700">
                       <div className="flex items-start gap-3">
                         <Calendar className="text-gray-400 mt-1" size={18} />
                         <div>
-                          <p className="text-sm font-medium text-gray-700">Project Timeline</p>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm font-medium text-gray-700 dark:text-neutral-300">Project Timeline</p>
+                          <p className="text-sm text-gray-600 dark:text-neutral-400">
                             {project.startDate || project.start_date
                               ? new Date(project.startDate || project.start_date).toLocaleDateString('en-US', {
                                 year: 'numeric',
@@ -312,22 +312,22 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                       <div className="flex items-start gap-3">
                         <User className="text-gray-400 mt-1" size={18} />
                         <div>
-                          <p className="text-sm font-medium text-gray-700">Project Manager</p>
-                          <p className="text-sm text-gray-600">{project.manager}</p>
+                          <p className="text-sm font-medium text-gray-700 dark:text-neutral-300">Project Manager</p>
+                          <p className="text-sm text-gray-600 dark:text-neutral-400">{project.manager}</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <MapPin className="text-gray-400 mt-1" size={18} />
                         <div>
-                          <p className="text-sm font-medium text-gray-700">Location</p>
-                          <p className="text-sm text-gray-600">{project.location?.address || 'N/A'}</p>
+                          <p className="text-sm font-medium text-gray-700 dark:text-neutral-300">Location</p>
+                          <p className="text-sm text-gray-600 dark:text-neutral-400">{project.location?.address || 'N/A'}</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <Users className="text-gray-400 mt-1" size={18} />
                         <div>
-                          <p className="text-sm font-medium text-gray-700">Stakeholders</p>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm font-medium text-gray-700 dark:text-neutral-300">Stakeholders</p>
+                          <p className="text-sm text-gray-600 dark:text-neutral-400">
                             {project.stakeholders?.length > 0
                               ? project.stakeholders.join(', ')
                               : 'No stakeholders assigned'}
@@ -343,8 +343,8 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
             {activeTab === 'procurements' && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-bold text-slate-900">Contractors & Procurements</h3>
-                  <Button onClick={() => setIsAddContractorModalOpen(true)} className="bg-primary-950 hover:bg-primary-900 text-white">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Contractors & Procurements</h3>
+                  <Button onClick={() => setIsAddContractorModalOpen(true)} className="bg-primary-950 dark:bg-white hover:bg-primary-900 dark:hover:bg-gray-100 text-white dark:text-primary-950">
                     + Add Contractor
                   </Button>
                 </div>
@@ -361,19 +361,19 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                                 <MapPin size={12} /> {contractor.city}, {contractor.state}
                               </div>
                             </div>
-                            <span className="p-1.5 bg-slate-100 rounded-lg text-slate-500">
+                            <span className="p-1.5 bg-slate-100 dark:bg-neutral-800 rounded-lg text-slate-500 dark:text-neutral-400">
                               <Briefcase size={16} />
                             </span>
                           </div>
 
                           <div className="space-y-2 mt-4 text-sm">
-                            <div className="flex justify-between p-2 bg-slate-50 rounded">
-                              <span className="text-slate-500 text-xs uppercase font-medium">PAN</span>
-                              <span className="text-slate-700 font-mono tracking-wide">{contractor.panNo}</span>
+                            <div className="flex justify-between p-2 bg-slate-50 dark:bg-neutral-800 rounded">
+                              <span className="text-slate-500 dark:text-neutral-400 text-xs uppercase font-medium">PAN</span>
+                              <span className="text-slate-700 dark:text-neutral-300 font-mono tracking-wide">{contractor.panNo}</span>
                             </div>
-                            <div className="flex justify-between p-2 bg-slate-50 rounded">
-                              <span className="text-slate-500 text-xs uppercase font-medium">GSTIN</span>
-                              <span className="text-slate-700 font-mono tracking-wide">{contractor.gstinNo}</span>
+                            <div className="flex justify-between p-2 bg-slate-50 dark:bg-neutral-800 rounded">
+                              <span className="text-slate-500 dark:text-neutral-400 text-xs uppercase font-medium">GSTIN</span>
+                              <span className="text-slate-700 dark:text-neutral-300 font-mono tracking-wide">{contractor.gstinNo}</span>
                             </div>
                             <div className="pt-2 flex flex-col gap-1">
                               <span className="flex items-center gap-2 text-slate-600">
@@ -389,12 +389,12 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                     ))}
                   </div>
                 ) : (
-                  <div className="border border-dashed border-slate-300 rounded-xl p-12 text-center bg-slate-50">
-                    <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                  <div className="border border-dashed border-slate-300 dark:border-neutral-700 rounded-xl p-12 text-center bg-slate-50 dark:bg-neutral-800">
+                    <div className="w-16 h-16 bg-slate-100 dark:bg-neutral-700 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
                       <Briefcase size={32} />
                     </div>
-                    <h4 className="text-slate-900 font-medium mb-1">No Contractors Added</h4>
-                    <p className="text-slate-500 text-sm mb-4">Add contractors to manage procurements for this project.</p>
+                    <h4 className="text-slate-900 dark:text-white font-medium mb-1">No Contractors Added</h4>
+                    <p className="text-slate-500 dark:text-neutral-400 text-sm mb-4">Add contractors to manage procurements for this project.</p>
                     <Button onClick={() => setIsAddContractorModalOpen(true)} variant="outline">
                       Add Your First Contractor
                     </Button>
@@ -425,36 +425,36 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-4 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-4 text-sm text-slate-600 dark:text-neutral-400 bg-slate-50 dark:bg-neutral-800 p-3 rounded-lg">
                             <div className="flex flex-col">
-                              <span className="text-xs text-slate-400 uppercase font-medium">Contractor</span>
-                              <span className="flex items-center gap-1 font-medium text-slate-700">
+                              <span className="text-xs text-slate-400 dark:text-neutral-500 uppercase font-medium">Contractor</span>
+                              <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-neutral-300">
                                 <User size={14} className="text-slate-400" /> {pkg.contractor}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-slate-400 uppercase font-medium">Responsible Staff</span>
-                              <span className="font-medium text-slate-700">{pkg.responsibleStaff || '-'}</span>
+                              <span className="text-xs text-slate-400 dark:text-neutral-500 uppercase font-medium">Responsible Staff</span>
+                              <span className="font-medium text-slate-700 dark:text-neutral-300">{pkg.responsibleStaff || '-'}</span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-slate-400 uppercase font-medium">Contract Value</span>
-                              <span className="flex items-center gap-1 font-medium text-slate-700">
+                              <span className="text-xs text-slate-400 dark:text-neutral-500 uppercase font-medium">Contract Value</span>
+                              <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-neutral-300">
                                 <DollarSign size={14} className="text-slate-400" /> {formatCurrency(pkg.contractValue || pkg.budget)}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-slate-400 uppercase font-medium">Agreement No.</span>
-                              <span className="font-medium text-slate-700">{pkg.agreementNo || '-'}</span>
+                              <span className="text-xs text-slate-400 dark:text-neutral-500 uppercase font-medium">Agreement No.</span>
+                              <span className="font-medium text-slate-700 dark:text-neutral-300">{pkg.agreementNo || '-'}</span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-slate-400 uppercase font-medium">Agreement Date</span>
-                              <span className="flex items-center gap-1 font-medium text-slate-700">
+                              <span className="text-xs text-slate-400 dark:text-neutral-500 uppercase font-medium">Agreement Date</span>
+                              <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-neutral-300">
                                 <Calendar size={14} className="text-slate-400" /> {pkg.agreementDate ? new Date(pkg.agreementDate).toLocaleDateString() : '-'}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-slate-400 uppercase font-medium">Due Date</span>
-                              <span className="flex items-center gap-1 font-medium text-slate-700">
+                              <span className="text-xs text-slate-400 dark:text-neutral-500 uppercase font-medium">Due Date</span>
+                              <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-neutral-300">
                                 <Calendar size={14} className="text-slate-400" /> {pkg.endDate ? new Date(pkg.endDate).toLocaleDateString() : '-'}
                               </span>
                             </div>
@@ -464,12 +464,12 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                     ))}
                   </div>
                 ) : (
-                  <div className="border border-dashed border-slate-300 rounded-xl p-12 text-center bg-slate-50">
-                    <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                  <div className="border border-dashed border-slate-300 dark:border-neutral-700 rounded-xl p-12 text-center bg-slate-50 dark:bg-neutral-800">
+                    <div className="w-16 h-16 bg-slate-100 dark:bg-neutral-700 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
                       <FolderOpen size={32} />
                     </div>
-                    <h4 className="text-slate-900 font-medium mb-1">No Packages Created Yet</h4>
-                    <p className="text-slate-500 text-sm mb-4">Create packages from the Projects page to assign work.</p>
+                    <h4 className="text-slate-900 dark:text-white font-medium mb-1">No Packages Created Yet</h4>
+                    <p className="text-slate-500 dark:text-neutral-400 text-sm mb-4">Create packages from the Projects page to assign work.</p>
                   </div>
                 )}
               </motion.div>
@@ -487,21 +487,21 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                      <div className="p-4 bg-primary-50 rounded-lg">
-                        <p className="text-sm text-gray-600 mb-1">Total Budget</p>
-                        <p className="text-xl font-bold text-primary-950">{formatCurrency(project.budget)}</p>
+                      <div className="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+                        <p className="text-sm text-gray-600 dark:text-neutral-400 mb-1">Total Budget</p>
+                        <p className="text-xl font-bold text-primary-950 dark:text-white">{formatCurrency(project.budget)}</p>
                       </div>
-                      <div className="p-4 bg-warning-50 rounded-lg">
-                        <p className="text-sm text-gray-600 mb-1">Amount Spent</p>
-                        <p className="text-xl font-bold text-warning-700">{formatCurrency(project.spent)}</p>
+                      <div className="p-4 bg-warning-50 dark:bg-warning-900/20 rounded-lg">
+                        <p className="text-sm text-gray-600 dark:text-neutral-400 mb-1">Amount Spent</p>
+                        <p className="text-xl font-bold text-warning-700 dark:text-warning-500">{formatCurrency(project.spent)}</p>
                       </div>
-                      <div className="p-4 bg-success-50 rounded-lg">
-                        <p className="text-sm text-gray-600 mb-1">Remaining Budget</p>
-                        <p className="text-xl font-bold text-success-700">{formatCurrency(budgetRemaining)}</p>
+                      <div className="p-4 bg-success-50 dark:bg-success-900/20 rounded-lg">
+                        <p className="text-sm text-gray-600 dark:text-neutral-400 mb-1">Remaining Budget</p>
+                        <p className="text-xl font-bold text-success-700 dark:text-success-500">{formatCurrency(budgetRemaining)}</p>
                       </div>
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <p className="text-sm text-gray-600 mb-1">Utilization Rate</p>
-                        <p className="text-xl font-bold text-gray-700">{budgetUtilization.toFixed(1)}%</p>
+                      <div className="p-4 bg-gray-50 dark:bg-neutral-800 rounded-lg">
+                        <p className="text-sm text-gray-600 dark:text-neutral-400 mb-1">Utilization Rate</p>
+                        <p className="text-xl font-bold text-gray-700 dark:text-neutral-300">{budgetUtilization.toFixed(1)}%</p>
                       </div>
                     </div>
                     <DynamicChart

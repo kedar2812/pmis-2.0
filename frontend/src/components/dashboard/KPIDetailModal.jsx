@@ -223,15 +223,15 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                     </p>
                   </div>
                   <div className="text-center md:text-left">
-                    <p className="text-sm text-gray-600 mb-1">Target Value</p>
-                    <p className="text-3xl font-bold text-gray-700">
+                    <p className="text-sm text-gray-600 dark:text-neutral-400 mb-1">Target Value</p>
+                    <p className="text-3xl font-bold text-gray-700 dark:text-neutral-300">
                       {kpi.target} {kpi.unit}
                     </p>
                   </div>
                   <div className="text-center md:text-left">
-                    <p className="text-sm text-gray-600 mb-1">Variance</p>
+                    <p className="text-sm text-gray-600 dark:text-neutral-400 mb-1">Variance</p>
                     <p
-                      className={`text-3xl font-bold ${variance < 0 ? 'text-error-600' : variance > 0 ? 'text-success-600' : 'text-gray-700'
+                      className={`text-3xl font-bold ${variance < 0 ? 'text-error-600' : variance > 0 ? 'text-success-600' : 'text-gray-700 dark:text-neutral-300'
                         }`}
                     >
                       {variance > 0 ? '+' : ''}
@@ -239,7 +239,7 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                     </p>
                   </div>
                   <div className="text-center md:text-left">
-                    <p className="text-sm text-gray-600 mb-1">Status</p>
+                    <p className="text-sm text-gray-600 dark:text-neutral-400 mb-1">Status</p>
                     <p
                       className={`text-lg font-semibold ${isPositive ? 'text-success-600' : 'text-error-600'
                         }`}

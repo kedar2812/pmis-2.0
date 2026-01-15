@@ -241,7 +241,7 @@ const Communications = () => {
                         )}
                         <div className="min-w-0 flex-1">
                             <h1 className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2 sm:gap-3">
-                                <MessageSquare className="text-primary-600 dark:text-indigo-400 hidden sm:block flex-shrink-0" size={28} />
+                                <MessageSquare className="text-primary-600 dark:text-blue-400 hidden sm:block flex-shrink-0" size={28} />
                                 <span className="truncate">
                                     {showThreadDetailOnMobile && selectedThread
                                         ? selectedThread.subject || 'Conversation'
@@ -314,14 +314,14 @@ const Communications = () => {
                                 <input
                                     type="text"
                                     placeholder="Search threads..."
-                                    className="w-full pl-10 pr-4 py-2 min-h-[44px] border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-indigo-500"
+                                    className="w-full pl-10 pr-4 py-2 min-h-[44px] border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-blue-500"
                                     value={filters.search}
                                     onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                                 />
                             </div>
                             <div className="flex gap-2 sm:gap-4">
                                 <select
-                                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2 min-h-[44px] border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-indigo-500"
+                                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2 min-h-[44px] border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-blue-500"
                                     value={filters.status}
                                     onChange={(e) => setFilters({ ...filters, status: e.target.value })}
                                 >
@@ -332,7 +332,7 @@ const Communications = () => {
                                     <option value="CLOSED">Closed</option>
                                 </select>
                                 <select
-                                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2 min-h-[44px] border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-indigo-500"
+                                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2 min-h-[44px] border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-blue-500"
                                     value={filters.type}
                                     onChange={(e) => setFilters({ ...filters, type: e.target.value })}
                                 >

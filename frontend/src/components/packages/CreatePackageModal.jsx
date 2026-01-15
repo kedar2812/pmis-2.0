@@ -131,14 +131,14 @@ export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelec
 
                         {/* Project Selection */}
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Select Project *</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Select Project *</label>
                             <div className="relative">
                                 <select
                                     value={formData.projectId}
                                     onChange={(e) => setFormData({ ...formData, projectId: e.target.value })}
                                     disabled={!!preSelectedProjectId}
-                                    className={`w-full p-2 pl-10 border rounded-lg appearance-none bg-white ${errors.projectId ? 'border-red-500' : 'border-slate-200'
-                                        } ${!!preSelectedProjectId ? 'bg-slate-50' : ''}`}
+                                    className={`w-full p-2 pl-10 border rounded-lg appearance-none bg-white dark:bg-neutral-900 dark:text-white ${errors.projectId ? 'border-red-500' : 'border-slate-200 dark:border-neutral-700'
+                                        } ${!!preSelectedProjectId ? 'bg-slate-50 dark:bg-neutral-800' : ''}`}
                                 >
                                     <option value="">-- Select Project --</option>
                                     {projects.map((p) => (
@@ -152,23 +152,23 @@ export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelec
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Package Name *</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Package Name *</label>
                                 <input
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className={`w-full p-2 border rounded-lg ${errors.name ? 'border-red-500' : 'border-slate-200'}`}
+                                    className={`w-full p-2 border rounded-lg bg-white dark:bg-neutral-900 dark:text-white ${errors.name ? 'border-red-500' : 'border-slate-200 dark:border-neutral-700'}`}
                                     placeholder="E.g. Civil Works - Phase 1"
                                 />
                                 {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Contractor (Name/ID) *</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Contractor (Name/ID) *</label>
                                 <div className="relative">
                                     <input
                                         value={formData.contractor}
                                         onChange={(e) => setFormData({ ...formData, contractor: e.target.value })}
-                                        className={`w-full p-2 pl-10 border rounded-lg ${errors.contractor ? 'border-red-500' : 'border-slate-200'}`}
+                                        className={`w-full p-2 pl-10 border rounded-lg bg-white dark:bg-neutral-900 dark:text-white ${errors.contractor ? 'border-red-500' : 'border-slate-200 dark:border-neutral-700'}`}
                                         placeholder="Contractor Name or ID"
                                     />
                                     <User className="absolute left-3 top-2.5 text-slate-400" size={18} />
@@ -177,12 +177,12 @@ export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelec
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Staff (Responsible Person) *</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Staff (Responsible Person) *</label>
                                 <div className="relative">
                                     <input
                                         value={formData.responsibleStaff}
                                         onChange={(e) => setFormData({ ...formData, responsibleStaff: e.target.value })}
-                                        className={`w-full p-2 pl-10 border rounded-lg ${errors.responsibleStaff ? 'border-red-500' : 'border-slate-200'}`}
+                                        className={`w-full p-2 pl-10 border rounded-lg bg-white dark:bg-neutral-900 dark:text-white ${errors.responsibleStaff ? 'border-red-500' : 'border-slate-200 dark:border-neutral-700'}`}
                                         placeholder="Responsible Staff Name"
                                     />
                                     <User className="absolute left-3 top-2.5 text-slate-400" size={18} />
@@ -191,24 +191,24 @@ export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelec
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Agreement No. *</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Agreement No. *</label>
                                 <input
                                     value={formData.agreementNo}
                                     onChange={(e) => setFormData({ ...formData, agreementNo: e.target.value })}
-                                    className={`w-full p-2 border rounded-lg ${errors.agreementNo ? 'border-red-500' : 'border-slate-200'}`}
+                                    className={`w-full p-2 border rounded-lg bg-white dark:bg-neutral-900 dark:text-white ${errors.agreementNo ? 'border-red-500' : 'border-slate-200 dark:border-neutral-700'}`}
                                     placeholder="Agreement Number"
                                 />
                                 {errors.agreementNo && <p className="text-xs text-red-500 mt-1">{errors.agreementNo}</p>}
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Agreement Date *</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Agreement Date *</label>
                                 <div className="relative">
                                     <input
                                         type="date"
                                         value={formData.agreementDate}
                                         onChange={(e) => setFormData({ ...formData, agreementDate: e.target.value })}
-                                        className={`w-full p-2 pl-10 border rounded-lg ${errors.agreementDate ? 'border-red-500' : 'border-slate-200'}`}
+                                        className={`w-full p-2 pl-10 border rounded-lg bg-white dark:bg-neutral-900 dark:text-white ${errors.agreementDate ? 'border-red-500' : 'border-slate-200 dark:border-neutral-700'}`}
                                     />
                                     <Calendar className="absolute left-3 top-2.5 text-slate-400" size={18} />
                                 </div>
@@ -216,13 +216,13 @@ export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelec
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Contractor Value (₹) *</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Contractor Value (₹) *</label>
                                 <div className="relative">
                                     <input
                                         type="number"
                                         value={formData.contractValue}
                                         onChange={(e) => setFormData({ ...formData, contractValue: e.target.value })}
-                                        className={`w-full p-2 pl-10 border rounded-lg ${errors.contractValue ? 'border-red-500' : 'border-slate-200'}`}
+                                        className={`w-full p-2 pl-10 border rounded-lg bg-white dark:bg-neutral-900 dark:text-white ${errors.contractValue ? 'border-red-500' : 'border-slate-200 dark:border-neutral-700'}`}
                                         placeholder="0.00"
                                     />
                                     <DollarSign className="absolute left-3 top-2.5 text-slate-400" size={18} />
@@ -231,13 +231,13 @@ export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelec
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Due Date of Completion *</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Due Date of Completion *</label>
                                 <div className="relative">
                                     <input
                                         type="date"
                                         value={formData.endDate}
                                         onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                                        className={`w-full p-2 pl-10 border rounded-lg ${errors.endDate ? 'border-red-500' : 'border-slate-200'}`}
+                                        className={`w-full p-2 pl-10 border rounded-lg bg-white dark:bg-neutral-900 dark:text-white ${errors.endDate ? 'border-red-500' : 'border-slate-200 dark:border-neutral-700'}`}
                                     />
                                     <Calendar className="absolute left-3 top-2.5 text-slate-400" size={18} />
                                 </div>
@@ -245,13 +245,13 @@ export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelec
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Start Date (Optional)</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Start Date (Optional)</label>
                                 <div className="relative">
                                     <input
                                         type="date"
                                         value={formData.startDate}
                                         onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                                        className={`w-full p-2 pl-10 border rounded-lg border-slate-200`}
+                                        className={`w-full p-2 pl-10 border rounded-lg bg-white dark:bg-neutral-900 dark:text-white border-slate-200 dark:border-neutral-700`}
                                     />
                                     <Calendar className="absolute left-3 top-2.5 text-slate-400" size={18} />
                                 </div>
@@ -271,7 +271,7 @@ export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelec
                     </div>
 
                     {/* Footer */}
-                    <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+                    <div className="p-6 border-t border-slate-100 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800 flex justify-end gap-3">
                         <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
                             Cancel
                         </Button>

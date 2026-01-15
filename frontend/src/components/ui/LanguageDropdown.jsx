@@ -149,7 +149,7 @@ const LanguageDropdown = () => {
         w-full flex items-center gap-3 px-4 py-2.5 text-left
         transition-all duration-150 rounded-lg mx-1
         ${isActive
-                    ? 'bg-blue-100 dark:bg-indigo-900/30 text-blue-700 dark:text-indigo-300'
+                    ? 'bg-blue-100 dark:bg-primary-900/30 text-blue-700 dark:text-primary-300'
                     : 'hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200'}
       `}
             whileHover={{ x: 2 }}
@@ -175,7 +175,7 @@ const LanguageDropdown = () => {
           flex items-center gap-2 px-3 py-2 
           rounded-xl border transition-all duration-200
           ${isOpen
-                        ? 'bg-blue-50 dark:bg-indigo-900/20 border-blue-200 dark:border-indigo-700 text-blue-700 dark:text-indigo-300'
+                        ? 'bg-blue-50 dark:bg-primary-900/20 border-blue-200 dark:border-primary-700 text-blue-700 dark:text-primary-300'
                         : 'bg-white/90 dark:bg-neutral-900/90 border-slate-200 dark:border-neutral-700 text-slate-700 dark:text-neutral-200 hover:bg-slate-50 dark:hover:bg-neutral-800 hover:border-slate-300 dark:hover:border-neutral-600'}
         `}
                 whileTap={{ scale: 0.98 }}
@@ -243,7 +243,7 @@ const LanguageDropdown = () => {
 
                             {/* Divider */}
                             {filteredPopular.length > 0 && filteredAll.length > 0 && (
-                                <div className="mx-4 my-2 border-t border-slate-100" />
+                                <div className="mx-4 my-2 border-t border-slate-100 dark:border-neutral-800" />
                             )}
 
                             {/* All Languages Section */}
@@ -277,8 +277,8 @@ const LanguageDropdown = () => {
                         </div>
 
                         {/* Footer */}
-                        <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50">
-                            <p className="text-xs text-slate-400 text-center">
+                        <div className="px-4 py-2.5 border-t border-slate-100 dark:border-neutral-800 bg-slate-50/50 dark:bg-neutral-800/50">
+                            <p className="text-xs text-slate-400 dark:text-neutral-500 text-center">
                                 Powered by Google Translate
                             </p>
                         </div>

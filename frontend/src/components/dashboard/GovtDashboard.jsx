@@ -12,10 +12,10 @@ const GovtDashboard = ({ projects, kpis }) => {
 
     return (
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-8">
-            <div className="text-center border-b border-slate-200 pb-6">
+            <div className="text-center border-b border-slate-200 dark:border-neutral-700 pb-6">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Govt Emblem" className="h-16 mx-auto mb-4 opacity-80" />
-                <h2 className="text-2xl font-serif font-bold text-slate-900">{t('role.Govt_Department')}</h2>
-                <p className="text-slate-600">Executive Status Report</p>
+                <h2 className="text-2xl font-serif font-bold text-slate-900 dark:text-white">{t('role.Govt_Department')}</h2>
+                <p className="text-slate-600 dark:text-neutral-400">Executive Status Report</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -30,11 +30,11 @@ const GovtDashboard = ({ projects, kpis }) => {
                                     <span>{t('common.progress')}</span>
                                     <span className="font-bold">{project.progress}%</span>
                                 </div>
-                                <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                                    <div className="bg-slate-800 h-full" style={{ width: `${project.progress}%` }}></div>
+                                <div className="w-full bg-slate-200 dark:bg-neutral-700 h-2 rounded-full overflow-hidden">
+                                    <div className="bg-slate-800 dark:bg-slate-400 h-full" style={{ width: `${project.progress}%` }}></div>
                                 </div>
                             </div>
-                            <div className="flex justify-between text-sm text-slate-600 border-t pt-2">
+                            <div className="flex justify-between text-sm text-slate-600 dark:text-neutral-400 border-t dark:border-neutral-700 pt-2">
                                 <span>{t('common.status')}</span>
                                 <span className="font-semibold uppercase tracking-wide">{project.status}</span>
                             </div>
@@ -47,7 +47,7 @@ const GovtDashboard = ({ projects, kpis }) => {
                 <MotionCardHeader><MotionCardTitle>Key Performance Indicators Summary</MotionCardTitle></MotionCardHeader>
                 <MotionCardContent>
                     <table className="w-full text-sm text-left">
-                        <thead className="bg-slate-50 text-slate-600 uppercase">
+                        <thead className="bg-slate-50 dark:bg-neutral-800 text-slate-600 dark:text-neutral-400 uppercase">
                             <tr>
                                 <th className="px-4 py-3">Metric</th>
                                 <th className="px-4 py-3">{t('common.target')}</th>
@@ -57,8 +57,8 @@ const GovtDashboard = ({ projects, kpis }) => {
                         </thead>
                         <tbody>
                             {(kpis || []).slice(0, 5).map(kpi => (
-                                <tr key={kpi.id} className="border-b">
-                                    <td className="px-4 py-3 font-medium">{kpi.name}</td>
+                                <tr key={kpi.id} className="border-b dark:border-neutral-700">
+                                    <td className="px-4 py-3 font-medium dark:text-white">{kpi.name}</td>
                                     <td className="px-4 py-3">{kpi.target} {kpi.unit}</td>
                                     <td className="px-4 py-3">{kpi.value} {kpi.unit}</td>
                                     <td className="px-4 py-3">

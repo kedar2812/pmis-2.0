@@ -78,7 +78,7 @@ const ThreadList = ({ threads, selectedThread, onSelect, isLoading }) => {
             <div className="p-4 space-y-3">
                 {[1, 2, 3, 4, 5].map(i => (
                     <div key={i} className="animate-pulse">
-                        <div className="h-20 bg-slate-200 rounded-lg"></div>
+                        <div className="h-20 bg-slate-200 dark:bg-neutral-700 rounded-lg"></div>
                     </div>
                 ))}
             </div>
@@ -87,7 +87,7 @@ const ThreadList = ({ threads, selectedThread, onSelect, isLoading }) => {
 
     if (threads.length === 0) {
         return (
-            <div className="p-8 text-center text-slate-400">
+            <div className="p-8 text-center text-slate-400 dark:text-neutral-500">
                 <MessageSquare size={48} className="mx-auto mb-4 opacity-30" />
                 <p className="text-lg font-medium">No threads found</p>
                 <p className="text-sm mt-1">Create a new thread to start communicating</p>
@@ -96,7 +96,7 @@ const ThreadList = ({ threads, selectedThread, onSelect, isLoading }) => {
     }
 
     return (
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-slate-100 dark:divide-neutral-800">
             {threads.map((thread, index) => (
                 <motion.div
                     key={thread.id}
@@ -106,8 +106,8 @@ const ThreadList = ({ threads, selectedThread, onSelect, isLoading }) => {
                     onClick={() => onSelect(thread)}
                     className={`
                         p-4 cursor-pointer transition-all duration-200
-                        hover:bg-slate-50
-                        ${selectedThread?.id === thread.id ? 'bg-blue-50/50' : 'bg-white'}
+                        hover:bg-slate-50 dark:hover:bg-neutral-800
+                        ${selectedThread?.id === thread.id ? 'bg-blue-50/50 dark:bg-blue-900/20' : 'bg-white dark:bg-neutral-900'}
                         border-l-4 ${getTypeStyles(thread.thread_type).split(' ')[0]}
                     `}
                 >
@@ -127,11 +127,11 @@ const ThreadList = ({ threads, selectedThread, onSelect, isLoading }) => {
                         <div className="flex-1 min-w-0">
                             {/* Top Row: Title + Date */}
                             <div className="flex justify-between items-start mb-0.5">
-                                <h3 className={`font-semibold truncate text-sm pr-2 ${selectedThread?.id === thread.id ? 'text-primary-700' : 'text-slate-800'
+                                <h3 className={`font-semibold truncate text-sm pr-2 ${selectedThread?.id === thread.id ? 'text-primary-700 dark:text-primary-400' : 'text-slate-800 dark:text-white'
                                     }`}>
                                     {thread.subject}
                                 </h3>
-                                <span className="text-[10px] text-slate-400 whitespace-nowrap flex-shrink-0 mt-0.5">
+                                <span className="text-[10px] text-slate-400 dark:text-neutral-500 whitespace-nowrap flex-shrink-0 mt-0.5">
                                     {formatDate(thread.updated_at)}
                                 </span>
                             </div>

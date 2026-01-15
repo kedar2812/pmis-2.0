@@ -59,11 +59,11 @@ const DocumentList = ({
     if (!documents || documents.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                    <FileText size={32} className="text-slate-400" />
+                <div className="w-16 h-16 bg-slate-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-4">
+                    <FileText size={32} className="text-slate-400 dark:text-neutral-500" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-700">No Documents</h3>
-                <p className="text-sm text-slate-500 mt-1">
+                <h3 className="text-lg font-semibold text-slate-700 dark:text-white">No Documents</h3>
+                <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">
                     Upload your first document to get started
                 </p>
             </div>
@@ -76,23 +76,23 @@ const DocumentList = ({
             <div className="overflow-x-auto">
                 <table className="w-full">
                     <thead>
-                        <tr className="border-b border-slate-200">
-                            <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        <tr className="border-b border-slate-200 dark:border-neutral-700">
+                            <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider">
                                 Document
                             </th>
-                            <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                            <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider">
                                 Type
                             </th>
-                            <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                            <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider">
                                 Status
                             </th>
-                            <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                            <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider">
                                 Version
                             </th>
-                            <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                            <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider">
                                 Uploaded
                             </th>
-                            <th className="text-right py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                            <th className="text-right py-3 px-4 text-xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider">
                                 Actions
                             </th>
                         </tr>
@@ -110,17 +110,17 @@ const DocumentList = ({
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.03 }}
-                                    className={`border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors ${isSelected ? 'bg-primary-50' : ''
+                                    className={`border-b border-slate-100 dark:border-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-800 cursor-pointer transition-colors ${isSelected ? 'bg-primary-50 dark:bg-primary-900/20' : ''
                                         }`}
                                     onClick={() => onView(doc)}
                                 >
                                     <td className="py-3 px-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
-                                                <TypeIcon size={20} className="text-slate-500" />
+                                            <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-neutral-800 flex items-center justify-center">
+                                                <TypeIcon size={20} className="text-slate-500 dark:text-neutral-400" />
                                             </div>
                                             <div>
-                                                <p className="font-medium text-slate-800 text-sm line-clamp-1">
+                                                <p className="font-medium text-slate-800 dark:text-white text-sm line-clamp-1">
                                                     {doc.title}
                                                 </p>
                                                 {doc.document_number && (
@@ -130,7 +130,7 @@ const DocumentList = ({
                                         </div>
                                     </td>
                                     <td className="py-3 px-4">
-                                        <span className="text-sm text-slate-600">
+                                        <span className="text-sm text-slate-600 dark:text-neutral-400">
                                             {doc.document_type.replace('_', ' ')}
                                         </span>
                                     </td>
@@ -141,14 +141,14 @@ const DocumentList = ({
                                         </span>
                                     </td>
                                     <td className="py-3 px-4">
-                                        <span className="text-sm text-slate-600">
+                                        <span className="text-sm text-slate-600 dark:text-neutral-400">
                                             v{doc.current_version_number || 1}
                                         </span>
                                     </td>
                                     <td className="py-3 px-4">
                                         <div>
-                                            <p className="text-sm text-slate-600">{doc.uploaded_by_name}</p>
-                                            <p className="text-xs text-slate-400">
+                                            <p className="text-sm text-slate-600 dark:text-neutral-400">{doc.uploaded_by_name}</p>
+                                            <p className="text-xs text-slate-400 dark:text-neutral-500">
                                                 {formatDistanceToNow(new Date(doc.created_at), { addSuffix: true })}
                                             </p>
                                         </div>
@@ -172,7 +172,7 @@ const DocumentList = ({
                                                     e.stopPropagation();
                                                     onView(doc);
                                                 }}
-                                                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                                                className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-700 rounded-lg transition-colors"
                                                 title="Quick View"
                                             >
                                                 <Eye size={16} className="text-slate-500" />

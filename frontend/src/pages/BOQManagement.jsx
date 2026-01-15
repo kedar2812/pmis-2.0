@@ -459,9 +459,9 @@ const BOQManagement = () => {
         }
 
         return (
-            <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-t border-slate-200">
+            <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-neutral-800 border-t border-slate-200 dark:border-neutral-700">
                 <div className="flex items-center gap-4">
-                    <span className="text-sm text-slate-600">
+                    <span className="text-sm text-slate-600 dark:text-neutral-400">
                         Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredAndSortedItems.length)} of {filteredAndSortedItems.length}
                     </span>
                     <select
@@ -470,7 +470,7 @@ const BOQManagement = () => {
                             setItemsPerPage(Number(e.target.value));
                             setCurrentPage(1);
                         }}
-                        className="px-2 py-1 text-sm border border-slate-200 rounded bg-white"
+                        className="px-2 py-1 text-sm border border-slate-200 dark:border-neutral-700 rounded bg-white dark:bg-neutral-900 dark:text-white"
                     >
                         <option value={10}>10 per page</option>
                         <option value={25}>25 per page</option>
@@ -483,7 +483,7 @@ const BOQManagement = () => {
                     <button
                         onClick={() => setCurrentPage(1)}
                         disabled={currentPage === 1}
-                        className="p-1.5 rounded hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed dark:text-neutral-300"
                     >
                         <ChevronLeft className="w-4 h-4" />
                         <ChevronLeft className="w-4 h-4 -ml-2" />
@@ -491,7 +491,7 @@ const BOQManagement = () => {
                     <button
                         onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                         disabled={currentPage === 1}
-                        className="p-1.5 rounded hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed dark:text-neutral-300"
                     >
                         <ChevronLeft className="w-4 h-4" />
                     </button>
@@ -500,7 +500,7 @@ const BOQManagement = () => {
                         <>
                             <button
                                 onClick={() => setCurrentPage(1)}
-                                className="px-3 py-1 text-sm rounded hover:bg-slate-200"
+                                className="px-3 py-1 text-sm rounded hover:bg-slate-200 dark:hover:bg-neutral-700 dark:text-neutral-300"
                             >
                                 1
                             </button>
@@ -514,7 +514,7 @@ const BOQManagement = () => {
                             onClick={() => setCurrentPage(num)}
                             className={`px-3 py-1 text-sm rounded transition-colors ${currentPage === num
                                 ? 'bg-primary-600 text-white'
-                                : 'hover:bg-slate-200'
+                                : 'hover:bg-slate-200 dark:hover:bg-neutral-700 dark:text-neutral-300'
                                 }`}
                         >
                             {num}
@@ -526,7 +526,7 @@ const BOQManagement = () => {
                             {endPage < totalPages - 1 && <MoreHorizontal className="w-4 h-4 text-slate-400" />}
                             <button
                                 onClick={() => setCurrentPage(totalPages)}
-                                className="px-3 py-1 text-sm rounded hover:bg-slate-200"
+                                className="px-3 py-1 text-sm rounded hover:bg-slate-200 dark:hover:bg-neutral-700 dark:text-neutral-300"
                             >
                                 {totalPages}
                             </button>
@@ -536,14 +536,14 @@ const BOQManagement = () => {
                     <button
                         onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                         disabled={currentPage === totalPages}
-                        className="p-1.5 rounded hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed dark:text-neutral-300"
                     >
                         <ChevronRight className="w-4 h-4" />
                     </button>
                     <button
                         onClick={() => setCurrentPage(totalPages)}
                         disabled={currentPage === totalPages}
-                        className="p-1.5 rounded hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed dark:text-neutral-300"
                     >
                         <ChevronRight className="w-4 h-4" />
                         <ChevronRight className="w-4 h-4 -ml-2" />
@@ -644,9 +644,9 @@ const BOQManagement = () => {
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.3 }}
                     >
-                        <Card className="border-primary-100 shadow-xl overflow-hidden">
+                        <Card className="border-primary-100 dark:border-neutral-700 shadow-xl overflow-hidden bg-white dark:bg-neutral-900">
                             {/* Progress Bar */}
-                            <div className="h-1 bg-slate-100">
+                            <div className="h-1 bg-slate-100 dark:bg-neutral-800">
                                 <motion.div
                                     className="h-full bg-gradient-to-r from-primary-500 to-primary-600"
                                     initial={{ width: '33%' }}
@@ -655,14 +655,14 @@ const BOQManagement = () => {
                                 />
                             </div>
 
-                            <CardHeader className="bg-gradient-to-r from-primary-50 to-blue-50 border-b border-primary-100">
-                                <CardTitle className="text-primary-900 flex items-center gap-3">
-                                    <div className="p-2 bg-primary-100 rounded-lg">
-                                        <FileSpreadsheet className="w-5 h-5 text-primary-600" />
+                            <CardHeader className="bg-gradient-to-r from-primary-50 to-blue-50 dark:from-neutral-800 dark:to-neutral-900 border-b border-primary-100 dark:border-neutral-700">
+                                <CardTitle className="text-primary-900 dark:text-white flex items-center gap-3">
+                                    <div className="p-2 bg-primary-100 dark:bg-primary-900/20 rounded-lg">
+                                        <FileSpreadsheet className="w-5 h-5 text-primary-600 dark:text-primary-400" />
                                     </div>
                                     <div>
                                         <span className="block">Import Wizard</span>
-                                        <span className="text-sm font-normal text-primary-600">
+                                        <span className="text-sm font-normal text-primary-600 dark:text-neutral-400">
                                             Step {impStep} of 3: {impStep === 1 ? 'Upload File' : impStep === 2 ? 'Map Columns' : 'Complete'}
                                         </span>
                                     </div>
@@ -677,11 +677,11 @@ const BOQManagement = () => {
                                         onDragLeave={handleDragLeave}
                                         onDrop={handleDrop}
                                         className={`flex flex-col items-center justify-center py-12 px-6 border-2 border-dashed rounded-xl transition-all duration-200 ${isDragging
-                                            ? 'border-primary-500 bg-primary-50'
-                                            : 'border-primary-200 bg-gradient-to-br from-primary-50/50 to-blue-50/50'
+                                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                                            : 'border-primary-200 dark:border-neutral-700 bg-gradient-to-br from-primary-50/50 to-blue-50/50 dark:from-neutral-800/50 dark:to-neutral-900/50'
                                             }`}
                                     >
-                                        <div className="p-4 bg-primary-100 rounded-full mb-6">
+                                        <div className="p-4 bg-primary-100 dark:bg-primary-900/20 rounded-full mb-6">
                                             <FileSpreadsheet className="w-12 h-12 text-primary-600" />
                                         </div>
                                         <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Upload Excel File</h3>
@@ -727,11 +727,11 @@ const BOQManagement = () => {
                                 {/* Step 2: Map Columns */}
                                 {impStep === 2 && (
                                     <div className="space-y-6">
-                                        <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 flex items-start gap-3">
+                                        <div className="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-xl border border-amber-200 dark:border-amber-800 flex items-start gap-3">
                                             <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
                                             <div>
-                                                <h4 className="font-semibold text-amber-800">Verify Column Mapping</h4>
-                                                <p className="text-sm text-amber-700">
+                                                <h4 className="font-semibold text-amber-800 dark:text-amber-200">Verify Column Mapping</h4>
+                                                <p className="text-sm text-amber-700 dark:text-amber-300">
                                                     We auto-detected columns. Please verify and correct if needed.
                                                 </p>
                                             </div>
@@ -740,13 +740,13 @@ const BOQManagement = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             {dbFields.map(field => (
                                                 <div key={field.key} className="space-y-2">
-                                                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                                                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-neutral-300">
                                                         {field.label}
                                                         {field.required && <span className="text-red-500">*</span>}
                                                         {mapping[field.key] && <Check className="w-4 h-4 text-green-500" />}
                                                     </label>
                                                     <select
-                                                        className={`w-full px-3 py-2.5 border rounded-lg bg-white transition-all focus:ring-2 focus:ring-primary-500 ${mapping[field.key] ? 'border-green-300 bg-green-50/50' : field.required ? 'border-amber-300' : 'border-slate-200'
+                                                        className={`w-full px-3 py-2.5 border rounded-lg bg-white dark:bg-neutral-800 dark:text-white transition-all focus:ring-2 focus:ring-primary-500 ${mapping[field.key] ? 'border-green-300 dark:border-green-600 bg-green-50/50 dark:bg-green-900/20' : field.required ? 'border-amber-300 dark:border-amber-600' : 'border-slate-200 dark:border-neutral-700'
                                                             }`}
                                                         value={mapping[field.key]}
                                                         onChange={(e) => setMapping({ ...mapping, [field.key]: e.target.value })}
@@ -778,7 +778,7 @@ const BOQManagement = () => {
                                 {/* Step 3: Success */}
                                 {impStep === 3 && importResult && (
                                     <div className="text-center py-8">
-                                        <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                                        <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-6">
                                             <Check className="w-8 h-8 text-green-600" />
                                         </div>
                                         <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Import Complete!</h3>
@@ -786,9 +786,9 @@ const BOQManagement = () => {
                                             Successfully imported <span className="font-bold text-primary-600">{importResult.imported}</span> BOQ items.
                                         </p>
                                         {importResult.errors?.length > 0 && (
-                                            <div className="mb-6 p-4 bg-amber-50 rounded-lg text-left">
-                                                <p className="text-sm font-medium text-amber-800 mb-2">Some rows had issues:</p>
-                                                <ul className="text-xs text-amber-700 space-y-1">
+                                            <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-lg text-left">
+                                                <p className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">Some rows had issues:</p>
+                                                <ul className="text-xs text-amber-700 dark:text-amber-300 space-y-1">
                                                     {importResult.errors.map((e, i) => <li key={i}>â€¢ {e}</li>)}
                                                 </ul>
                                             </div>
@@ -819,12 +819,12 @@ const BOQManagement = () => {
                                     <table className="w-full text-sm">
                                         <thead>
                                             {/* Column Headers */}
-                                            <tr className="bg-slate-50 border-b border-slate-200">
+                                            <tr className="bg-slate-50 dark:bg-neutral-800 border-b border-slate-200 dark:border-neutral-700">
                                                 {columns.map(col => (
                                                     <th
                                                         key={col.key}
-                                                        className={`px-4 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
-                                                            } ${col.sortable ? 'cursor-pointer hover:bg-slate-100 select-none transition-colors' : ''}`}
+                                                        className={`px-4 py-3 font-semibold text-slate-600 dark:text-neutral-300 text-xs uppercase tracking-wider ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
+                                                            } ${col.sortable ? 'cursor-pointer hover:bg-slate-100 dark:hover:bg-neutral-700 select-none transition-colors' : ''}`}
                                                         onClick={() => col.sortable && handleSort(col.key)}
                                                     >
                                                         <div className={`flex items-center gap-1.5 ${col.align === 'right' ? 'justify-end' : col.align === 'center' ? 'justify-center' : ''}`}>
@@ -842,7 +842,7 @@ const BOQManagement = () => {
                                                         initial={{ opacity: 0, height: 0 }}
                                                         animate={{ opacity: 1, height: 'auto' }}
                                                         exit={{ opacity: 0, height: 0 }}
-                                                        className="bg-slate-50/50 border-b border-slate-200"
+                                                        className="bg-slate-50/50 dark:bg-neutral-800/50 border-b border-slate-200 dark:border-neutral-700"
                                                     >
                                                         <td className="px-3 py-2">
                                                             <div className="relative">
@@ -852,7 +852,7 @@ const BOQManagement = () => {
                                                                     placeholder="Search..."
                                                                     value={filters.item_code}
                                                                     onChange={(e) => handleFilterChange('item_code', e.target.value)}
-                                                                    className="w-full pl-7 pr-2 py-1.5 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-primary-500"
+                                                                    className="w-full pl-7 pr-2 py-1.5 text-xs border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded focus:ring-1 focus:ring-primary-500"
                                                                 />
                                                             </div>
                                                         </td>
@@ -864,7 +864,7 @@ const BOQManagement = () => {
                                                                     placeholder="Search..."
                                                                     value={filters.description}
                                                                     onChange={(e) => handleFilterChange('description', e.target.value)}
-                                                                    className="w-full pl-7 pr-2 py-1.5 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-primary-500"
+                                                                    className="w-full pl-7 pr-2 py-1.5 text-xs border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded focus:ring-1 focus:ring-primary-500"
                                                                 />
                                                             </div>
                                                         </td>
@@ -872,7 +872,7 @@ const BOQManagement = () => {
                                                             <select
                                                                 value={filters.uom}
                                                                 onChange={(e) => handleFilterChange('uom', e.target.value)}
-                                                                className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-primary-500 bg-white"
+                                                                className="w-full px-2 py-1.5 text-xs border border-slate-200 dark:border-neutral-700 rounded focus:ring-1 focus:ring-primary-500 bg-white dark:bg-neutral-800 dark:text-white"
                                                             >
                                                                 <option value="">All</option>
                                                                 {uniqueUOMs.map(u => <option key={u} value={u}>{u}</option>)}
@@ -885,7 +885,7 @@ const BOQManagement = () => {
                                                             <select
                                                                 value={filters.status}
                                                                 onChange={(e) => handleFilterChange('status', e.target.value)}
-                                                                className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-primary-500 bg-white"
+                                                                className="w-full px-2 py-1.5 text-xs border border-slate-200 dark:border-neutral-700 rounded focus:ring-1 focus:ring-primary-500 bg-white dark:bg-neutral-800 dark:text-white"
                                                             >
                                                                 <option value="">All</option>
                                                                 {uniqueStatuses.map(s => <option key={s} value={s}>{s}</option>)}
@@ -895,16 +895,16 @@ const BOQManagement = () => {
                                                 )}
                                             </AnimatePresence>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-100">
+                                        <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
                                             {paginatedItems.length === 0 ? (
                                                 <tr>
                                                     <td colSpan="7" className="px-6 py-16 text-center">
                                                         <div className="flex flex-col items-center">
                                                             <FileSpreadsheet className="w-12 h-12 text-slate-300 mb-4" />
-                                                            <p className="text-slate-500 font-medium">
+                                                            <p className="text-slate-500 dark:text-neutral-400 font-medium">
                                                                 {hasActiveFilters ? 'No items match your filters' : 'No BOQ Items Found'}
                                                             </p>
-                                                            <p className="text-slate-400 text-sm">
+                                                            <p className="text-slate-400 dark:text-neutral-500 text-sm">
                                                                 {hasActiveFilters ? (
                                                                     <button onClick={clearFilters} className="text-primary-600 hover:underline">
                                                                         Clear all filters
@@ -918,20 +918,20 @@ const BOQManagement = () => {
                                                 paginatedItems.map((item) => (
                                                     <tr
                                                         key={item.id}
-                                                        className="hover:bg-slate-50/50 transition-colors"
+                                                        className="hover:bg-slate-50/50 dark:hover:bg-neutral-800/50 transition-colors"
                                                     >
-                                                        <td className="px-4 py-3 font-medium text-primary-700">{item.item_code}</td>
-                                                        <td className="px-4 py-3 text-slate-600 max-w-md">
+                                                        <td className="px-4 py-3 font-medium text-primary-700 dark:text-primary-400">{item.item_code}</td>
+                                                        <td className="px-4 py-3 text-slate-600 dark:text-neutral-300 max-w-md">
                                                             <span className="line-clamp-2" title={item.description}>{item.description}</span>
                                                         </td>
-                                                        <td className="px-4 py-3 text-slate-500">{item.uom}</td>
-                                                        <td className="px-4 py-3 text-right font-mono text-slate-700">
+                                                        <td className="px-4 py-3 text-slate-500 dark:text-neutral-400">{item.uom}</td>
+                                                        <td className="px-4 py-3 text-right font-mono text-slate-700 dark:text-neutral-300">
                                                             {parseFloat(item.quantity).toLocaleString('en-IN')}
                                                         </td>
-                                                        <td className="px-4 py-3 text-right font-mono text-slate-700">
+                                                        <td className="px-4 py-3 text-right font-mono text-slate-700 dark:text-neutral-300">
                                                             {formatCurrency(item.rate)}
                                                         </td>
-                                                        <td className="px-4 py-3 text-right font-mono font-bold text-slate-900">
+                                                        <td className="px-4 py-3 text-right font-mono font-bold text-slate-900 dark:text-white">
                                                             {formatCurrency(item.amount)}
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
@@ -971,9 +971,9 @@ const BOQManagement = () => {
                                             )}
                                         </tbody>
                                         {paginatedItems.length > 0 && (
-                                            <tfoot className="bg-slate-50 border-t-2 border-slate-200">
+                                            <tfoot className="bg-slate-50 dark:bg-neutral-800 border-t-2 border-slate-200 dark:border-neutral-700">
                                                 <tr>
-                                                    <td colSpan="5" className="px-4 py-4 text-right font-bold text-slate-700">
+                                                    <td colSpan="5" className="px-4 py-4 text-right font-bold text-slate-700 dark:text-neutral-300">
                                                         {hasActiveFilters && (
                                                             <span className="text-sm font-normal text-slate-500 mr-2">
                                                                 (Filtered: {filteredAndSortedItems.length} of {boqItems.length})

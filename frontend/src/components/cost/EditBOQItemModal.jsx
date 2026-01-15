@@ -75,7 +75,7 @@ const EditBOQItemModal = ({ isOpen, onClose, item, onSave }) => {
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <div>
-                        <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                        <label className="block text-xs font-semibold uppercase text-slate-500 dark:text-neutral-400 mb-1">
                             Item Code
                         </label>
                         <div className="relative">
@@ -85,14 +85,14 @@ const EditBOQItemModal = ({ isOpen, onClose, item, onSave }) => {
                                 name="item_code"
                                 value={formData.item_code}
                                 onChange={handleChange}
-                                className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm font-mono"
+                                className="w-full pl-9 pr-3 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 text-sm font-mono"
                                 placeholder="e.g. 1.1.2"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                        <label className="block text-xs font-semibold uppercase text-slate-500 dark:text-neutral-400 mb-1">
                             Description
                         </label>
                         <div className="relative">
@@ -103,7 +103,7 @@ const EditBOQItemModal = ({ isOpen, onClose, item, onSave }) => {
                                 value={formData.description}
                                 onChange={handleChange}
                                 rows={3}
-                                className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                                className="w-full pl-9 pr-3 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
                                 placeholder="Enter item description..."
                             />
                         </div>
@@ -111,7 +111,7 @@ const EditBOQItemModal = ({ isOpen, onClose, item, onSave }) => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                            <label className="block text-xs font-semibold uppercase text-slate-500 dark:text-neutral-400 mb-1">
                                 UOM
                             </label>
                             <div className="relative">
@@ -121,13 +121,13 @@ const EditBOQItemModal = ({ isOpen, onClose, item, onSave }) => {
                                     name="uom"
                                     value={formData.uom}
                                     onChange={handleChange}
-                                    className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                                    className="w-full pl-9 pr-3 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
                                     placeholder="e.g. Cum"
                                 />
                             </div>
                         </div>
                         <div>
-                            <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                            <label className="block text-xs font-semibold uppercase text-slate-500 dark:text-neutral-400 mb-1">
                                 Quantity
                             </label>
                             <div className="relative">
@@ -138,7 +138,7 @@ const EditBOQItemModal = ({ isOpen, onClose, item, onSave }) => {
                                     name="quantity"
                                     value={formData.quantity}
                                     onChange={handleChange}
-                                    className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                                    className="w-full pl-9 pr-3 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
                                     placeholder="0.00"
                                 />
                             </div>
@@ -146,7 +146,7 @@ const EditBOQItemModal = ({ isOpen, onClose, item, onSave }) => {
                     </div>
 
                     <div>
-                        <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                        <label className="block text-xs font-semibold uppercase text-slate-500 dark:text-neutral-400 mb-1">
                             Rate
                         </label>
                         <div className="relative">
@@ -157,7 +157,7 @@ const EditBOQItemModal = ({ isOpen, onClose, item, onSave }) => {
                                 name="rate"
                                 value={formData.rate}
                                 onChange={handleChange}
-                                className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                                className="w-full pl-9 pr-3 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
                                 placeholder="0.00"
                             />
                         </div>

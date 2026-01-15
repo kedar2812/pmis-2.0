@@ -190,14 +190,14 @@ const Budgeting = () => {
                                 transition={{ duration: 0.2 }}
                                 className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none"
                             >
-                                <div className="bg-white rounded-xl shadow-2xl p-6 w-96 pointer-events-auto">
+                                <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl dark:shadow-slate-900/50 border border-slate-200 dark:border-neutral-700 p-6 w-96 pointer-events-auto">
                                     <div className="flex justify-between items-center mb-4">
-                                        <h2 className="text-lg font-bold">Allocate Budget</h2>
+                                        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Allocate Budget</h2>
                                         <button
                                             onClick={() => setIsModalOpen(false)}
-                                            className="p-1 hover:bg-slate-100 rounded-full transition-colors"
+                                            className="p-1 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
                                         >
-                                            <X size={18} className="text-slate-500" />
+                                            <X size={18} className="text-slate-500 dark:text-neutral-400" />
                                         </button>
                                     </div>
                                     <form onSubmit={handleSave} className="space-y-4">

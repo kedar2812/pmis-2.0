@@ -10,14 +10,14 @@ const GIS = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('common.gis')}</h1>
-        <p className="text-gray-600 mt-1">{t('gis.subtitle')}</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('common.gis')}</h1>
+        <p className="text-gray-600 dark:text-neutral-400 mt-1">{t('gis.subtitle')}</p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>{t('gis.projectLocationsMap')}</CardTitle>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-gray-600 dark:text-neutral-400 mt-1">
             {t('gis.mapDescription')}
           </p>
         </CardHeader>
@@ -36,19 +36,19 @@ const GIS = () => {
             {gisFeatures.map((feature) => (
               <div
                 key={feature.id}
-                className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                className="p-4 bg-gray-50 dark:bg-neutral-800 rounded-lg border border-gray-200 dark:border-neutral-700"
               >
                 <div className="flex items-center gap-2 mb-2">
                   <MapPin className="text-primary-600" size={20} />
-                  <h3 className="font-medium">{feature.properties.name}</h3>
+                  <h3 className="font-medium dark:text-white">{feature.properties.name}</h3>
                 </div>
-                <p className="text-sm text-gray-600 mb-2">{feature.properties.description}</p>
+                <p className="text-sm text-gray-600 dark:text-neutral-400 mb-2">{feature.properties.description}</p>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-1 bg-primary-100 text-primary-800 rounded text-xs">
                     {feature.type}
                   </span>
                   {feature.properties.projectId && (
-                    <span className="px-2 py-1 bg-gray-200 rounded text-xs">
+                    <span className="px-2 py-1 bg-gray-200 dark:bg-neutral-700 dark:text-neutral-300 rounded text-xs">
                       {t('common.project')}: {feature.properties.projectId}
                     </span>
                   )}

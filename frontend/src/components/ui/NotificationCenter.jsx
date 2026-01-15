@@ -100,14 +100,14 @@ const NotificationCenter = ({ isOpen, onClose, notifications = [] }) => {
                                 <>
                                     <button
                                         onClick={markAllAsRead}
-                                        className="text-xs text-slate-500 hover:text-primary-600 flex items-center gap-1"
+                                        className="text-xs text-slate-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 flex items-center gap-1"
                                         title="Mark all as read"
                                     >
                                         <CheckCheck size={14} />
                                     </button>
                                     <button
                                         onClick={clearAll}
-                                        className="text-xs text-slate-500 hover:text-red-600 flex items-center gap-1"
+                                        className="text-xs text-slate-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-400 flex items-center gap-1"
                                         title="Clear all"
                                     >
                                         <Trash2 size={14} />
@@ -116,7 +116,7 @@ const NotificationCenter = ({ isOpen, onClose, notifications = [] }) => {
                             )}
                             <button
                                 onClick={onClose}
-                                className="text-slate-400 hover:text-slate-600"
+                                className="text-slate-400 dark:text-neutral-500 hover:text-slate-600 dark:hover:text-neutral-300"
                             >
                                 <X size={16} />
                             </button>
@@ -133,7 +133,7 @@ const NotificationCenter = ({ isOpen, onClose, notifications = [] }) => {
                             <p className="text-slate-400 dark:text-neutral-500 text-xs">You're all caught up!</p>
                         </div>
                     ) : (
-                        <div className="divide-y divide-slate-100">
+                        <div className="divide-y divide-slate-100 dark:divide-neutral-800">
                             {localNotifications.map((notification, index) => {
                                 const Icon = getIcon(notification.type);
                                 const iconColor = getIconColor(notification.type, notification.priority);
@@ -162,17 +162,17 @@ const NotificationCenter = ({ isOpen, onClose, notifications = [] }) => {
                                                     )}
                                                 </div>
                                                 {notification.message && (
-                                                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">
+                                                    <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5 line-clamp-2">
                                                         {notification.message}
                                                     </p>
                                                 )}
-                                                <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                                                <p className="text-xs text-slate-400 dark:text-neutral-500 mt-1 flex items-center gap-1">
                                                     <Clock size={10} />
                                                     {formatDistanceToNow(new Date(notification.timestamp), { addSuffix: true })}
                                                 </p>
                                             </div>
                                             {notification.link && (
-                                                <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                                                <ChevronRight className="w-4 h-4 text-slate-400 dark:text-neutral-500 flex-shrink-0" />
                                             )}
                                         </div>
                                     </motion.div>

@@ -37,8 +37,8 @@ const CostManagement = () => {
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Cost Management Workspace</h1>
-        <p className="text-slate-500 mt-2 text-lg">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Cost Management Workspace</h1>
+        <p className="text-slate-500 dark:text-neutral-400 mt-2 text-lg">
           Follow the 3-step Government workflow to ensure financial discipline.
         </p>
       </div>
@@ -54,8 +54,8 @@ const CostManagement = () => {
               <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${mod.color}`}>
                 <mod.icon size={28} />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">{mod.title}</h3>
-              <p className="text-slate-600 leading-relaxed flex-1">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{mod.title}</h3>
+              <p className="text-slate-600 dark:text-neutral-400 leading-relaxed flex-1">
                 {mod.description}
               </p>
               <div className="mt-6 flex items-center text-primary-600 font-semibold group">
@@ -66,10 +66,10 @@ const CostManagement = () => {
         ))}
       </div>
 
-      <div className="p-6 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+      <div className="p-6 bg-slate-50 dark:bg-neutral-800 rounded-xl border border-slate-200 dark:border-neutral-700 flex items-center justify-between">
         <div>
-          <h4 className="font-bold text-slate-800">Need to update the Schedule?</h4>
-          <p className="text-sm text-slate-500">Milestones must be created before budgeting.</p>
+          <h4 className="font-bold text-slate-800 dark:text-white">Need to update the Schedule?</h4>
+          <p className="text-sm text-slate-500 dark:text-neutral-400">Milestones must be created before budgeting.</p>
         </div>
         <Button variant="outline" onClick={() => navigate('/scheduling')}>
           Go to Scheduling

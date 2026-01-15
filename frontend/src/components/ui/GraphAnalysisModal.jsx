@@ -171,15 +171,15 @@ const GraphAnalysisModal = ({ isOpen, onClose, projects, initialMetric = 'budget
                         <div className="p-6 space-y-8">
 
                             {/* Generator Controls */}
-                            <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                            <div className="bg-slate-50 dark:bg-neutral-800 p-5 rounded-xl border border-slate-200 dark:border-neutral-700 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
 
                                 {/* Group By (X-Axis) */}
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Group By (X-Axis)</label>
+                                    <label className="block text-xs font-bold text-slate-500 dark:text-neutral-400 uppercase mb-2">Group By (X-Axis)</label>
                                     <select
                                         value={groupBy}
                                         onChange={(e) => { setGroupBy(e.target.value); handleGenerate(); }}
-                                        className="w-full p-2.5 rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-slate-700"
+                                        className="w-full p-2.5 rounded-lg border border-slate-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-slate-700"
                                     >
                                         <option value="project">Individual Projects</option>
                                         <option value="status">Project Status</option>
@@ -190,11 +190,11 @@ const GraphAnalysisModal = ({ isOpen, onClose, projects, initialMetric = 'budget
 
                                 {/* Metric (Y-Axis) */}
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Metric (Y-Axis)</label>
+                                    <label className="block text-xs font-bold text-slate-500 dark:text-neutral-400 uppercase mb-2">Metric (Y-Axis)</label>
                                     <select
                                         value={metric}
                                         onChange={(e) => { setMetric(e.target.value); handleGenerate(); }}
-                                        className="w-full p-2.5 rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-slate-700"
+                                        className="w-full p-2.5 rounded-lg border border-slate-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-slate-700"
                                     >
                                         <option value="budget">Total Budget</option>
                                         <option value="spent">Total Spent</option>
@@ -215,10 +215,10 @@ const GraphAnalysisModal = ({ isOpen, onClose, projects, initialMetric = 'budget
                             </div>
 
                             {/* Chart Visualization Area */}
-                            <div className="min-h-[450px] bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+                            <div className="min-h-[450px] bg-white dark:bg-neutral-800 rounded-xl border border-slate-100 dark:border-neutral-700 shadow-sm p-4">
                                 <div className="flex justify-between items-center mb-6 pl-2">
-                                    <h4 className="text-lg font-bold text-slate-800">Analysis Results</h4>
-                                    <div className="text-sm text-slate-500">
+                                    <h4 className="text-lg font-bold text-slate-800 dark:text-white">Analysis Results</h4>
+                                    <div className="text-sm text-slate-500 dark:text-neutral-400">
                                         {metricLabels[metric]} vs {groupBy === 'project' ? 'Projects' : groupBy}
                                     </div>
                                 </div>
@@ -235,21 +235,21 @@ const GraphAnalysisModal = ({ isOpen, onClose, projects, initialMetric = 'budget
                             </div>
 
                             {/* Data Summary Table (Optional logic enhancement) */}
-                            <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-                                <h4 className="text-sm font-bold text-slate-700 mb-4 uppercase">Data Summary</h4>
+                            <div className="bg-slate-50 dark:bg-neutral-800 rounded-xl p-6 border border-slate-200 dark:border-neutral-700">
+                                <h4 className="text-sm font-bold text-slate-700 dark:text-neutral-300 mb-4 uppercase">Data Summary</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div className="p-4 bg-white rounded-lg border border-slate-200 shadow-sm">
-                                        <p className="text-xs text-slate-500 mb-1">Total Datapoints</p>
-                                        <p className="text-2xl font-bold text-slate-800">{chartData.length}</p>
+                                    <div className="p-4 bg-white dark:bg-neutral-900 rounded-lg border border-slate-200 dark:border-neutral-700 shadow-sm">
+                                        <p className="text-xs text-slate-500 dark:text-neutral-400 mb-1">Total Datapoints</p>
+                                        <p className="text-2xl font-bold text-slate-800 dark:text-white">{chartData.length}</p>
                                     </div>
-                                    <div className="p-4 bg-white rounded-lg border border-slate-200 shadow-sm">
-                                        <p className="text-xs text-slate-500 mb-1">Highest Value</p>
+                                    <div className="p-4 bg-white dark:bg-neutral-900 rounded-lg border border-slate-200 dark:border-neutral-700 shadow-sm">
+                                        <p className="text-xs text-slate-500 dark:text-neutral-400 mb-1">Highest Value</p>
                                         <p className="text-2xl font-bold text-emerald-600">
                                             {Math.max(...chartData.map(d => d.value)).toFixed(2)}
                                         </p>
                                     </div>
-                                    <div className="p-4 bg-white rounded-lg border border-slate-200 shadow-sm">
-                                        <p className="text-xs text-slate-500 mb-1">Average Value</p>
+                                    <div className="p-4 bg-white dark:bg-neutral-900 rounded-lg border border-slate-200 dark:border-neutral-700 shadow-sm">
+                                        <p className="text-xs text-slate-500 dark:text-neutral-400 mb-1">Average Value</p>
                                         <p className="text-2xl font-bold text-blue-600">
                                             {(chartData.reduce((a, b) => a + b.value, 0) / chartData.length).toFixed(2)}
                                         </p>
@@ -261,9 +261,9 @@ const GraphAnalysisModal = ({ isOpen, onClose, projects, initialMetric = 'budget
                     </div>
 
                     {/* Footer */}
-                    <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center z-10 rounded-b-2xl">
-                        <p className="text-xs text-slate-500">
-                            Generated by <span className="font-semibold text-slate-700">PMIS Analytics Engine</span> • {new Date().toLocaleDateString()}
+                    <div className="p-4 bg-slate-50 dark:bg-neutral-800 border-t border-slate-200 dark:border-neutral-700 flex justify-between items-center z-10 rounded-b-2xl">
+                        <p className="text-xs text-slate-500 dark:text-neutral-400">
+                            Generated by <span className="font-semibold text-slate-700 dark:text-neutral-300">PMIS Analytics Engine</span> • {new Date().toLocaleDateString()}
                         </p>
                         <Button variant="outline" className="flex items-center gap-2 text-sm h-9" onClick={handleExport}>
                             <Download size={14} /> Export Report

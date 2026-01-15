@@ -250,7 +250,7 @@ export const AddContractorModal = ({
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-2 text-slate-400 dark:text-neutral-400 hover:text-slate-600 dark:hover:text-neutral-300 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
+                            className="p-2 text-slate-400 dark:text-neutral-500 hover:text-slate-600 dark:hover:text-neutral-300 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
                         >
                             <X size={20} />
                         </button>
@@ -261,7 +261,7 @@ export const AddContractorModal = ({
 
                             {/* Section 1: Identification */}
                             <div className="space-y-4">
-                                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-4 flex items-center gap-2">
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-neutral-700 pb-2 mb-4 flex items-center gap-2">
                                     <FileText size={16} /> Legal Identification
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -288,7 +288,7 @@ export const AddContractorModal = ({
 
                             {/* Section 2: Basic Info */}
                             <div className="space-y-4">
-                                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-4 flex items-center gap-2">
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-neutral-700 pb-2 mb-4 flex items-center gap-2">
                                     <Building2 size={16} /> Company Details
                                 </h3>
                                 <InputField
@@ -303,20 +303,20 @@ export const AddContractorModal = ({
                             </div>
 
                             {/* Section: Project & Package Assignment */}
-                            <div className="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                            <div className="space-y-4 bg-slate-50 dark:bg-neutral-800 p-4 rounded-xl border border-slate-200 dark:border-neutral-700">
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                                     <Briefcase size={16} /> Project & Package Assignment
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {/* Project Selector */}
                                     <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-slate-700">Assign to Project</label>
+                                        <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300">Assign to Project</label>
                                         <div className="flex gap-2">
                                             <select
                                                 name="projectId"
                                                 value={formData.projectId}
                                                 onChange={handleChange}
-                                                className="flex-1 w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
+                                                className="flex-1 w-full px-3 py-2 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-700 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
                                             >
                                                 <option value="">Select Project...</option>
                                                 {projects.map(p => (
@@ -337,14 +337,14 @@ export const AddContractorModal = ({
 
                                     {/* Package Selector (Disabled until Project selected) */}
                                     <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-slate-700">Assign to Package</label>
+                                        <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300">Assign to Package</label>
                                         <div className="flex gap-2">
                                             <select
                                                 name="packageId"
                                                 value={formData.packageId}
                                                 onChange={handleChange}
                                                 disabled={!formData.projectId}
-                                                className="flex-1 w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 disabled:bg-slate-100 disabled:text-slate-400"
+                                                className="flex-1 w-full px-3 py-2 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-700 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 disabled:bg-slate-100 dark:disabled:bg-neutral-800 disabled:text-slate-400 dark:disabled:text-neutral-500"
                                             >
                                                 <option value="">Select Package...</option>
                                                 {projectPackages.map(pkg => (
@@ -371,7 +371,7 @@ export const AddContractorModal = ({
 
                             {/* Section 3: Address */}
                             <div className="space-y-4">
-                                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-4 flex items-center gap-2">
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-neutral-700 pb-2 mb-4 flex items-center gap-2">
                                     <MapPin size={16} /> Address Details
                                 </h3>
 
@@ -436,7 +436,7 @@ export const AddContractorModal = ({
 
                             {/* Section 4: Contact */}
                             <div className="space-y-4">
-                                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-4 flex items-center gap-2">
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-neutral-700 pb-2 mb-4 flex items-center gap-2">
                                     <Phone size={16} /> Contact Information
                                 </h3>
 
@@ -466,7 +466,7 @@ export const AddContractorModal = ({
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
+                            <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-200 dark:border-neutral-700">
                                 <Button
                                     type="button"
                                     variant="outline"
@@ -477,7 +477,7 @@ export const AddContractorModal = ({
                                 </Button>
                                 <Button
                                     type="submit"
-                                    className="bg-primary-950 hover:bg-primary-900 text-white min-w-[120px]"
+                                    className="bg-primary-950 dark:bg-white hover:bg-primary-900 dark:hover:bg-gray-100 text-white dark:text-primary-950 min-w-[120px]"
                                     disabled={isSubmitting}
                                 >
                                     {isSubmitting ? (
@@ -520,15 +520,15 @@ export const AddContractorModal = ({
 
 const InputField = ({ label, name, error, required, icon: Icon, className = "", ...props }) => (
     <div className={className}>
-        <label className="block text-sm font-medium text-slate-700 mb-1.5">
+        <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1.5">
             {label} {required && <span className="text-red-500">*</span>}
         </label>
         <div className="relative">
             <input
                 name={name}
-                className={`w-full px-3 py-2 ${Icon ? 'pl-9' : ''} bg-white border rounded-lg text-sm transition-all outline-none focus:ring-2 disabled:bg-slate-50 disabled:text-slate-500 ${error
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
-                    : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
+                className={`w-full px-3 py-2 ${Icon ? 'pl-9' : ''} bg-white dark:bg-neutral-900 border rounded-lg text-sm text-slate-900 dark:text-white transition-all outline-none focus:ring-2 disabled:bg-slate-50 dark:disabled:bg-neutral-800 disabled:text-slate-500 dark:disabled:text-neutral-500 ${error
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-100 dark:border-red-500/50'
+                    : 'border-slate-200 dark:border-neutral-700 focus:border-primary-500 focus:ring-primary-100 dark:focus:ring-primary-900/30'
                     }`}
                 {...props}
             />

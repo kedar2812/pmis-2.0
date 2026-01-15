@@ -108,8 +108,8 @@ const RoleManager = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-primary-950">Role Manager</h1>
-          <p className="text-slate-500 mt-1">Create and manage user roles with custom permissions</p>
+          <h1 className="text-3xl font-heading font-bold text-primary-950 dark:text-white">Role Manager</h1>
+          <p className="text-slate-500 dark:text-neutral-400 mt-1">Create and manage user roles with custom permissions</p>
         </div>
         <div className="flex items-center gap-3">
           <input
@@ -117,7 +117,7 @@ const RoleManager = () => {
             value={newRoleName}
             onChange={(e) => setNewRoleName(e.target.value)}
             placeholder="New role name (e.g., Site Inspector)"
-            className="px-4 py-2 border border-slate-300 rounded-lg"
+            className="px-4 py-2 border border-slate-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg"
             onKeyPress={(e) => e.key === 'Enter' && handleCreateRole()}
           />
           <Button onClick={handleCreateRole}>
@@ -139,22 +139,22 @@ const RoleManager = () => {
                 <div
                   key={roleKey}
                   className={`p-3 rounded-lg border cursor-pointer transition-colors ${selectedRole === roleKey
-                    ? 'border-primary-600 bg-primary-50'
-                    : 'border-slate-200 hover:border-slate-300'
+                    ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/30'
+                    : 'border-slate-200 dark:border-neutral-700 hover:border-slate-300 dark:hover:border-neutral-600'
                     }`}
                   onClick={() => handleSelectRole(roleKey)}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold text-sm">{roleKey.replace(/_/g, ' ')}</p>
-                      <p className="text-xs text-slate-500 mt-1">{roleData.accessLevel}</p>
+                      <p className="font-semibold text-sm dark:text-white">{roleKey.replace(/_/g, ' ')}</p>
+                      <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">{roleData.accessLevel}</p>
                     </div>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDeleteRole(roleKey);
                       }}
-                      className="p-1 text-red-500 hover:bg-red-50 rounded"
+                      className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -181,7 +181,7 @@ const RoleManager = () => {
                     {allPermissions.map((permission) => (
                       <div
                         key={permission}
-                        className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50"
+                        className="flex items-center gap-2 p-3 border border-slate-200 dark:border-neutral-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-neutral-800"
                         onClick={() => handleTogglePermission(permission)}
                       >
                         <Toggle
@@ -189,11 +189,11 @@ const RoleManager = () => {
                           onChange={() => handleTogglePermission(permission)}
                           size="sm"
                         />
-                        <span className="text-sm">{permission}</span>
+                        <span className="text-sm dark:text-neutral-300">{permission}</span>
                       </div>
                     ))}
                   </div>
-                  <div className="flex justify-end pt-4 border-t">
+                  <div className="flex justify-end pt-4 border-t dark:border-neutral-700">
                     <Button onClick={handleSaveRole}>
                       <Save size={18} />
                       Save Permissions

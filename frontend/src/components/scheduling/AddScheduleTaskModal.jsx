@@ -199,8 +199,8 @@ const AddScheduleTaskModal = ({ isOpen, onClose, projectId, onTaskCreated, editT
                                 </div>
 
                                 {/* Progress Tracking Section */}
-                                <div className="border-t border-slate-100 pt-5">
-                                    <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <div className="border-t border-slate-100 dark:border-neutral-700 pt-5">
+                                    <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
                                         <Target size={16} className="text-primary-600" />
                                         Progress Tracking
                                     </h3>
@@ -221,17 +221,17 @@ const AddScheduleTaskModal = ({ isOpen, onClose, projectId, onTaskCreated, editT
                                             </select>
                                             <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                         </div>
-                                        <p className="text-xs text-slate-500 mt-1">
+                                        <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">
                                             {PROGRESS_METHODS.find(m => m.value === progressMethod)?.description}
                                         </p>
                                     </div>
 
                                     {/* Quantity Fields (shown for QUANTITY method) */}
                                     {progressMethod === 'QUANTITY' && (
-                                        <div className="bg-blue-50 rounded-lg p-4 border border-blue-100 space-y-3">
+                                        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-100 dark:border-blue-800 space-y-3">
                                             <div className="grid grid-cols-3 gap-3">
                                                 <div>
-                                                    <label className="block text-xs font-medium text-slate-600 mb-1">Planned Qty *</label>
+                                                    <label className="block text-xs font-medium text-slate-600 dark:text-neutral-400 mb-1">Planned Qty *</label>
                                                     <input
                                                         type="number"
                                                         value={plannedQuantity}
@@ -242,7 +242,7 @@ const AddScheduleTaskModal = ({ isOpen, onClose, projectId, onTaskCreated, editT
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs font-medium text-slate-600 mb-1">Executed Qty</label>
+                                                    <label className="block text-xs font-medium text-slate-600 dark:text-neutral-400 mb-1">Executed Qty</label>
                                                     <input
                                                         type="number"
                                                         value={executedQuantity}
@@ -253,7 +253,7 @@ const AddScheduleTaskModal = ({ isOpen, onClose, projectId, onTaskCreated, editT
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs font-medium text-slate-600 mb-1">Unit (UOM)</label>
+                                                    <label className="block text-xs font-medium text-slate-600 dark:text-neutral-400 mb-1">Unit (UOM)</label>
                                                     <input
                                                         type="text"
                                                         value={uom}
@@ -269,10 +269,10 @@ const AddScheduleTaskModal = ({ isOpen, onClose, projectId, onTaskCreated, editT
 
                                     {/* Cost Fields (shown for COST method) */}
                                     {progressMethod === 'COST' && (
-                                        <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-100 space-y-3">
+                                        <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4 border border-emerald-100 dark:border-emerald-800 space-y-3">
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div>
-                                                    <label className="block text-xs font-medium text-slate-600 mb-1 flex items-center gap-1">
+                                                    <label className="block text-xs font-medium text-slate-600 dark:text-neutral-400 mb-1 flex items-center gap-1">
                                                         <DollarSign size={12} /> Budgeted Cost (₹) *
                                                     </label>
                                                     <input
@@ -285,7 +285,7 @@ const AddScheduleTaskModal = ({ isOpen, onClose, projectId, onTaskCreated, editT
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs font-medium text-slate-600 mb-1">Actual Cost (₹)</label>
+                                                    <label className="block text-xs font-medium text-slate-600 dark:text-neutral-400 mb-1">Actual Cost (₹)</label>
                                                     <input
                                                         type="number"
                                                         value={actualCost}
@@ -315,25 +315,25 @@ const AddScheduleTaskModal = ({ isOpen, onClose, projectId, onTaskCreated, editT
                                             className={`${inputClasses} max-w-[150px]`}
                                             placeholder="Auto-calculated"
                                         />
-                                        <p className="text-xs text-slate-500 mt-1">
+                                        <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">
                                             Leave empty for automatic weight based on duration
                                         </p>
                                     </div>
 
                                     {/* Computed Progress Display */}
                                     {((progressMethod === 'QUANTITY' && plannedQuantity > 0) || (progressMethod === 'COST' && budgetedCost > 0)) ? (
-                                        <div className="mt-4 bg-slate-50 rounded-lg p-3 border border-slate-200">
+                                        <div className="mt-4 bg-slate-50 dark:bg-neutral-800 rounded-lg p-3 border border-slate-200 dark:border-neutral-700">
                                             <div className="flex items-center justify-between mb-2">
-                                                <span className="text-sm font-medium text-slate-700">Computed Progress</span>
+                                                <span className="text-sm font-medium text-slate-700 dark:text-neutral-300">Computed Progress</span>
                                                 <span className="text-sm font-bold text-primary-600">{computedProgress.toFixed(1)}%</span>
                                             </div>
-                                            <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                            <div className="h-2 bg-slate-200 dark:bg-neutral-700 rounded-full overflow-hidden">
                                                 <div
                                                     className="h-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-300"
                                                     style={{ width: `${computedProgress}%` }}
                                                 />
                                             </div>
-                                            <p className="text-xs text-slate-500 mt-1">
+                                            <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">
                                                 This value is computed automatically and cannot be manually overridden.
                                             </p>
                                         </div>
@@ -342,11 +342,11 @@ const AddScheduleTaskModal = ({ isOpen, onClose, projectId, onTaskCreated, editT
 
                                 {/* Milestone & Critical Path Toggles */}
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
+                                    <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3 border border-amber-100 dark:border-amber-800">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <Flag className="w-4 h-4 text-amber-600" />
-                                                <label className="text-sm font-medium text-slate-800 cursor-pointer">
+                                                <Flag className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                                                <label className="text-sm font-medium text-slate-800 dark:text-white cursor-pointer">
                                                     Milestone
                                                 </label>
                                             </div>
@@ -356,16 +356,16 @@ const AddScheduleTaskModal = ({ isOpen, onClose, projectId, onTaskCreated, editT
                                                 size="sm"
                                             />
                                         </div>
-                                        <p className="text-xs text-slate-500 mt-1">
+                                        <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">
                                             Required for budget allocation
                                         </p>
                                     </div>
 
-                                    <div className="bg-rose-50 rounded-lg p-3 border border-rose-100">
+                                    <div className="bg-rose-50 dark:bg-rose-900/20 rounded-lg p-3 border border-rose-100 dark:border-rose-800">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <AlertCircle className="w-4 h-4 text-rose-600" />
-                                                <label className="text-sm font-medium text-slate-800 cursor-pointer">
+                                                <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+                                                <label className="text-sm font-medium text-slate-800 dark:text-white cursor-pointer">
                                                     Critical Path
                                                 </label>
                                             </div>
@@ -375,7 +375,7 @@ const AddScheduleTaskModal = ({ isOpen, onClose, projectId, onTaskCreated, editT
                                                 size="sm"
                                             />
                                         </div>
-                                        <p className="text-xs text-slate-500 mt-1">
+                                        <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">
                                             Delays affect project timeline
                                         </p>
                                     </div>

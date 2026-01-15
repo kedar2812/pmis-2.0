@@ -155,11 +155,11 @@ const Approvals = () => {
         return (
             <div className="min-h-[60vh] flex items-center justify-center">
                 <div className="text-center">
-                    <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-slate-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
                         <AlertTriangle size={32} className="text-slate-400" />
                     </div>
-                    <h2 className="text-xl font-bold text-slate-800">No Approval Permissions</h2>
-                    <p className="text-slate-500 mt-2">
+                    <h2 className="text-xl font-bold text-slate-800 dark:text-white">No Approval Permissions</h2>
+                    <p className="text-slate-500 dark:text-neutral-400 mt-2">
                         Your role does not have approval permissions.
                     </p>
                 </div>
@@ -202,7 +202,7 @@ const Approvals = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-white rounded-xl p-4 border border-amber-200 shadow-sm"
+                    className="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-amber-200 dark:border-amber-900 shadow-sm"
                 >
                     <div className="flex items-center justify-between">
                         <div>
@@ -219,7 +219,7 @@ const Approvals = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="bg-white rounded-xl p-4 border border-blue-200 shadow-sm"
+                    className="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-blue-200 dark:border-blue-900 shadow-sm"
                 >
                     <div className="flex items-center justify-between">
                         <div>
@@ -258,12 +258,12 @@ const Approvals = () => {
                     <Loader2 size={32} className="animate-spin text-slate-400" />
                 </div>
             ) : totalPending === 0 ? (
-                <div className="bg-white rounded-xl p-8 text-center border border-slate-200">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="bg-white dark:bg-neutral-900 rounded-xl p-8 text-center border border-slate-200 dark:border-neutral-700">
+                    <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                         <CheckCircle size={32} className="text-green-600" />
                     </div>
-                    <h3 className="text-lg font-semibold text-slate-800">All Caught Up!</h3>
-                    <p className="text-slate-500 mt-1">
+                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white">All Caught Up!</h3>
+                    <p className="text-slate-500 dark:text-neutral-400 mt-1">
                         No items require your approval right now.
                     </p>
                 </div>
@@ -271,14 +271,14 @@ const Approvals = () => {
                 <div className="space-y-4">
                     {/* BOQ Requests Section */}
                     {filteredBoqRequests.length > 0 && (
-                        <div className="bg-white rounded-xl border border-blue-200 overflow-hidden">
-                            <div className="px-4 py-3 bg-blue-50 border-b border-blue-200">
-                                <h3 className="font-semibold text-blue-800 flex items-center gap-2">
+                        <div className="bg-white dark:bg-neutral-900 rounded-xl border border-blue-200 dark:border-blue-900 overflow-hidden">
+                            <div className="px-4 py-3 bg-blue-50 dark:bg-blue-900/30 border-b border-blue-200 dark:border-blue-800">
+                                <h3 className="font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-2">
                                     <FileSpreadsheet size={18} />
                                     BOQ Approval Requests
                                 </h3>
                             </div>
-                            <div className="divide-y divide-slate-100">
+                            <div className="divide-y divide-slate-100 dark:divide-neutral-700">
                                 {filteredBoqRequests.map((req, index) => {
                                     const config = getBoqRequestConfig(req.request_type);
                                     const RequestIcon = config.icon;
@@ -289,7 +289,7 @@ const Approvals = () => {
                                             initial={{ opacity: 0, x: -10 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: index * 0.05 }}
-                                            className="p-4 hover:bg-slate-50 transition-colors"
+                                            className="p-4 hover:bg-slate-50 dark:hover:bg-neutral-800 transition-colors"
                                         >
                                             <div className="flex items-center gap-4">
                                                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${config.color.split(' ')[0]}`}>
@@ -298,14 +298,14 @@ const Approvals = () => {
 
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2">
-                                                        <h3 className="font-semibold text-slate-800 truncate">
+                                                        <h3 className="font-semibold text-slate-800 dark:text-white truncate">
                                                             {req.title}
                                                         </h3>
                                                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${config.color}`}>
                                                             {config.label}
                                                         </span>
                                                     </div>
-                                                    <p className="text-sm text-slate-500 mt-0.5">
+                                                    <p className="text-sm text-slate-500 dark:text-neutral-400 mt-0.5">
                                                         {req.project_name} • Requested by {req.requested_by_name} {formatDistanceToNow(new Date(req.created_at), { addSuffix: true })}
                                                     </p>
                                                     <p className="text-xs text-blue-600 mt-1 font-medium">

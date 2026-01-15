@@ -111,7 +111,7 @@ const InviteUserModal = ({ isOpen, onClose, onSuccess }) => {
                         <select
                             value={formData.role}
                             onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                            className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                         >
                             <option value="SPV_Official">SPV Official</option>
                             <option value="PMNC_Team">PMNC Team</option>
@@ -128,7 +128,7 @@ const InviteUserModal = ({ isOpen, onClose, onSuccess }) => {
                                 type="text"
                                 value={formData.department}
                                 onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
-                                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                             />
                         </div>
                         <div>
@@ -137,7 +137,7 @@ const InviteUserModal = ({ isOpen, onClose, onSuccess }) => {
                                 type="text"
                                 value={formData.phone_number}
                                 onChange={(e) => setFormData(prev => ({ ...prev, phone_number: e.target.value }))}
-                                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                             />
                         </div>
                     </div>
@@ -164,17 +164,17 @@ const UserDetailModal = ({ isOpen, onClose, user, onApprove, onReject }) => {
     if (!isOpen || !user) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col overflow-hidden"
+                className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col overflow-hidden"
             >
                 {/* Fixed Header */}
-                <div className="p-6 border-b border-slate-200 flex justify-between items-start flex-shrink-0">
+                <div className="p-6 border-b border-slate-200 dark:border-neutral-700 flex justify-between items-start flex-shrink-0">
                     <div>
-                        <h2 className="text-xl font-bold text-slate-900">{user.first_name} {user.last_name}</h2>
-                        <p className="text-sm text-slate-500">{user.email}</p>
+                        <h2 className="text-xl font-bold text-slate-900 dark:text-white">{user.first_name} {user.last_name}</h2>
+                        <p className="text-sm text-slate-500 dark:text-neutral-400">{user.email}</p>
                     </div>
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
                         <XCircle size={24} />
@@ -185,11 +185,11 @@ const UserDetailModal = ({ isOpen, onClose, user, onApprove, onReject }) => {
                 <div className="p-6 space-y-6 overflow-y-auto flex-1">
                     {/* Status Banner */}
                     {user.account_status === 'PENDING_APPROVAL' && (
-                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
-                            <Clock className="text-amber-600" size={24} />
+                        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-center gap-3">
+                            <Clock className="text-amber-600 dark:text-amber-400" size={24} />
                             <div>
-                                <p className="font-semibold text-amber-900">Pending Approval</p>
-                                <p className="text-sm text-amber-700">This user is awaiting admin approval to access the system.</p>
+                                <p className="font-semibold text-amber-900 dark:text-amber-300">Pending Approval</p>
+                                <p className="text-sm text-amber-700 dark:text-amber-400">This user is awaiting admin approval to access the system.</p>
                             </div>
                         </div>
                     )}
@@ -244,7 +244,7 @@ const UserDetailModal = ({ isOpen, onClose, user, onApprove, onReject }) => {
 
                     {/* Approval Actions */}
                     {user.account_status === 'PENDING_APPROVAL' && (
-                        <div className="border-t border-slate-200 pt-4">
+                        <div className="border-t border-slate-200 dark:border-neutral-700 pt-4">
                             {!showRejectForm ? (
                                 <div className="flex gap-3">
                                     <Button onClick={() => onApprove(user.id)} className="flex-1 bg-green-600 hover:bg-green-700">
@@ -260,7 +260,7 @@ const UserDetailModal = ({ isOpen, onClose, user, onApprove, onReject }) => {
                                         value={rejectionReason}
                                         onChange={(e) => setRejectionReason(e.target.value)}
                                         placeholder="Enter reason for rejection..."
-                                        className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                        className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
                                         rows={3}
                                     />
                                     <div className="flex gap-3">
@@ -393,24 +393,24 @@ const UserManagement = () => {
 
     const getStatusBadge = (status) => {
         const styles = {
-            'ACTIVE': 'bg-green-100 text-green-700 border-green-200',
-            'PENDING_INVITE': 'bg-blue-100 text-blue-700 border-blue-200',
-            'PENDING_APPROVAL': 'bg-amber-100 text-amber-700 border-amber-200',
-            'DISABLED': 'bg-red-100 text-red-700 border-red-200',
+            'ACTIVE': 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800',
+            'PENDING_INVITE': 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+            'PENDING_APPROVAL': 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+            'DISABLED': 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800',
         };
-        return styles[status] || 'bg-slate-100 text-slate-700';
+        return styles[status] || 'bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300';
     };
 
     const getRoleBadge = (role) => {
         const styles = {
-            'SPV_Official': 'bg-purple-100 text-purple-700',
-            'PMNC_Team': 'bg-indigo-100 text-indigo-700',
-            'EPC_Contractor': 'bg-orange-100 text-orange-700',
-            'Consultant_Design': 'bg-cyan-100 text-cyan-700',
-            'Govt_Department': 'bg-emerald-100 text-emerald-700',
-            'NICDC_HQ': 'bg-pink-100 text-pink-700',
+            'SPV_Official': 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+            'PMNC_Team': 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300',
+            'EPC_Contractor': 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
+            'Consultant_Design': 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300',
+            'Govt_Department': 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
+            'NICDC_HQ': 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
         };
-        return styles[role] || 'bg-slate-100 text-slate-700';
+        return styles[role] || 'bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300';
     };
 
     const displayUsers = activeTab === 'pending' ? pendingUsers : users;
@@ -575,7 +575,7 @@ const UserManagement = () => {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-semibold">
+                                <tr className="bg-slate-50 dark:bg-neutral-800 border-b border-slate-200 dark:border-neutral-700 text-xs uppercase text-slate-500 dark:text-neutral-400 font-semibold">
                                     <th className="p-4">User</th>
                                     <th className="p-4">Role</th>
                                     <th className="p-4">Status</th>
@@ -584,10 +584,10 @@ const UserManagement = () => {
                                     <th className="p-4">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
                                 {filteredUsers.length > 0 ? (
                                     filteredUsers.map(u => (
-                                        <tr key={u.id} className="hover:bg-slate-50/50 transition-colors">
+                                        <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-neutral-800/50 transition-colors">
                                             <td className="p-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-bold">

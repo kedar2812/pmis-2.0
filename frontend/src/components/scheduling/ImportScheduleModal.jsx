@@ -199,12 +199,12 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
                 <div key={s} className="flex items-center">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${step >= s
                         ? 'bg-primary-600 text-white'
-                        : 'bg-slate-200 text-slate-500'
+                        : 'bg-slate-200 dark:bg-neutral-700 text-slate-500 dark:text-neutral-400'
                         }`}>
                         {step > s ? <CheckCircle2 size={16} /> : s}
                     </div>
                     {s < 3 && (
-                        <div className={`w-12 h-0.5 mx-1 ${step > s ? 'bg-primary-600' : 'bg-slate-200'
+                        <div className={`w-12 h-0.5 mx-1 ${step > s ? 'bg-primary-600' : 'bg-slate-200 dark:bg-neutral-700'
                             }`} />
                     )}
                 </div>
@@ -215,7 +215,7 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
     // Step 1: Upload
     const renderUploadStep = () => (
         <div className="space-y-4">
-            <p className="text-sm text-slate-600 text-center">
+            <p className="text-sm text-slate-600 dark:text-neutral-300 text-center">
                 Upload your project schedule file to import tasks
             </p>
 
@@ -223,19 +223,19 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
                 {...getRootProps()}
                 className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${isDragActive
                     ? 'border-primary-500 bg-primary-50'
-                    : 'border-slate-300 hover:border-slate-400 hover:bg-slate-50'
+                    : 'border-slate-300 dark:border-neutral-600 hover:border-slate-400 dark:hover:border-neutral-500 hover:bg-slate-50 dark:hover:bg-neutral-800'
                     }`}
             >
                 <input {...getInputProps()} />
                 {analyzing ? (
                     <>
                         <Loader2 size={40} className="mx-auto text-primary-600 animate-spin" />
-                        <p className="text-sm text-slate-600 mt-3">Analyzing file structure...</p>
+                        <p className="text-sm text-slate-600 dark:text-neutral-300 mt-3">Analyzing file structure...</p>
                     </>
                 ) : (
                     <>
                         <Upload size={40} className={`mx-auto ${isDragActive ? 'text-primary-600' : 'text-slate-400'}`} />
-                        <p className="text-sm text-slate-600 mt-3">
+                        <p className="text-sm text-slate-600 dark:text-neutral-300 mt-3">
                             {isDragActive ? 'Drop your file here' : 'Drag & drop, or click to browse'}
                         </p>
                         <div className="flex justify-center gap-3 mt-3">
@@ -248,7 +248,7 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
             </div>
 
             {importError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 text-sm">
+                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-2 text-red-700 dark:text-red-300 text-sm">
                     <AlertCircle size={16} />
                     {importError}
                 </div>
@@ -260,13 +260,13 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
     const renderMappingStep = () => (
         <div className="space-y-4">
             {/* File info */}
-            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+            <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-neutral-800 rounded-lg border border-slate-200 dark:border-neutral-700">
                 <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
                     <FileSpreadsheet size={20} className="text-primary-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-800 truncate">{file?.name}</p>
-                    <p className="text-xs text-slate-500">{formatSize(file?.size)} • {getFileTypeLabel(file?.name)}</p>
+                    <p className="text-sm font-medium text-slate-800 dark:text-white truncate">{file?.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-neutral-400">{formatSize(file?.size)} • {getFileTypeLabel(file?.name)}</p>
                 </div>
                 <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
                     {fileHeaders.length} columns
@@ -275,7 +275,7 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
 
             {/* Mapping UI */}
             <div className="space-y-3">
-                <p className="text-sm font-medium text-slate-700">Map file columns to task fields:</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-neutral-300">Map file columns to task fields:</p>
 
                 {DB_FIELDS.map((field) => {
                     const Icon = field.icon;
@@ -283,7 +283,7 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
                         <div key={field.key} className="flex items-center gap-3">
                             <div className={`w-40 flex items-center gap-2 ${field.required ? 'font-medium' : ''}`}>
                                 <Icon size={16} className="text-slate-500" />
-                                <span className="text-sm text-slate-700">
+                                <span className="text-sm text-slate-700 dark:text-neutral-300">
                                     {field.label}
                                     {field.required && <span className="text-red-500 ml-1">*</span>}
                                 </span>
@@ -293,8 +293,8 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
                                 value={mapping[field.key] || ''}
                                 onChange={(e) => handleMappingChange(field.key, e.target.value)}
                                 className={`flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${field.required && !mapping[field.key]
-                                    ? 'border-amber-300 bg-amber-50'
-                                    : 'border-slate-200 bg-white'
+                                    ? 'border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700'
+                                    : 'border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 dark:text-white'
                                     }`}
                             >
                                 <option value="">-- Select Column --</option>
@@ -314,7 +314,7 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
                         <span>Importing tasks...</span>
                         <span>{uploadProgress}%</span>
                     </div>
-                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div className="h-2 bg-slate-200 dark:bg-neutral-700 rounded-full overflow-hidden">
                         <motion.div
                             className="h-full bg-primary-600"
                             initial={{ width: 0 }}
@@ -325,7 +325,7 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
             )}
 
             {importError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 text-sm">
+                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-2 text-red-700 dark:text-red-300 text-sm">
                     <AlertCircle size={16} />
                     {importError}
                 </div>
@@ -340,8 +340,8 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
                 <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
                     <CheckCircle2 size={32} className="text-green-600" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-800">Import Successful!</h3>
-                <p className="text-sm text-slate-600 mt-1">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white">Import Successful!</h3>
+                <p className="text-sm text-slate-600 dark:text-neutral-400 mt-1">
                     Your schedule has been imported into the project
                 </p>
             </div>
@@ -415,7 +415,7 @@ const ImportScheduleModal = ({ onClose, projectId, onImported }) => {
                 </div>
 
                 {/* Footer */}
-                <div className="flex justify-between items-center p-4 border-t border-slate-200 bg-slate-50">
+                <div className="flex justify-between items-center p-4 border-t border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800">
                     {step === 1 && (
                         <>
                             <div />
