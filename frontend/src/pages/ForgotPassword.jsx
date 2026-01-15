@@ -49,16 +49,16 @@ const ForgotPassword = () => {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-white rounded-3xl shadow-xl p-8 max-w-md w-full text-center"
+                    className="bg-white dark:bg-neutral-900 rounded-3xl shadow-xl p-8 max-w-md w-full text-center"
                 >
-                    <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Mail className="w-10 h-10 text-amber-600" />
+                    <div className="w-20 h-20 bg-amber-100 dark:bg-amber-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Mail className="w-10 h-10 text-amber-600 dark:text-amber-400" />
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-900 mb-3">Check Your Email</h1>
-                    <p className="text-slate-600 mb-6">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Check Your Email</h1>
+                    <p className="text-slate-600 dark:text-neutral-400 mb-6">
                         If an account exists with <strong>{email}</strong>, you will receive a password reset link shortly.
                     </p>
-                    <p className="text-sm text-slate-500 mb-6">
+                    <p className="text-sm text-slate-500 dark:text-neutral-500 mb-6">
                         The link will expire in 1 hour. Check your spam folder if you don't see the email.
                     </p>
                     <Link
@@ -77,7 +77,7 @@ const ForgotPassword = () => {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden"
+                className="bg-white dark:bg-neutral-900 rounded-3xl shadow-xl w-full max-w-md overflow-hidden"
                 style={{ boxShadow: '0 0 60px rgba(251, 191, 36, 0.15)' }}
             >
                 {/* Header */}
@@ -91,12 +91,12 @@ const ForgotPassword = () => {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-5">
-                    <p className="text-slate-600 text-sm">
+                    <p className="text-slate-600 dark:text-neutral-400 text-sm">
                         Enter your email address and we'll send you a link to reset your password.
                     </p>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1.5">
                             Email Address <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
@@ -109,9 +109,9 @@ const ForgotPassword = () => {
                                     if (error) setError('');
                                 }}
                                 placeholder="Enter your registered email"
-                                className={`w-full px-4 py-2.5 pl-10 rounded-xl border transition-all outline-none focus:ring-2 ${error
-                                        ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
-                                        : 'border-slate-200 focus:border-amber-500 focus:ring-amber-100'
+                                className={`w-full px-4 py-2.5 pl-10 rounded-xl border transition-all outline-none focus:ring-2 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white ${error
+                                    ? 'border-red-300 dark:border-red-500/50 focus:border-red-500 focus:ring-red-100'
+                                    : 'border-slate-200 dark:border-neutral-700 focus:border-amber-500 focus:ring-amber-100 dark:focus:ring-amber-900/30'
                                     }`}
                             />
                         </div>

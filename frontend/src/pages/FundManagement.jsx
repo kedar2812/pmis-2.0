@@ -76,13 +76,13 @@ const FundManagement = () => {
 
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="p-6 flex items-center gap-4 bg-emerald-50 border-emerald-100">
-                    <div className="p-3 bg-emerald-100 rounded-lg text-emerald-600">
+                <Card className="p-6 flex items-center gap-4 bg-emerald-50 border-emerald-100 dark:bg-emerald-900/10 dark:border-emerald-800">
+                    <div className="p-3 bg-emerald-100 rounded-lg text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
                         <Wallet size={24} />
                     </div>
                     <div>
-                        <p className="text-sm font-medium text-emerald-800">Total Inflow</p>
-                        <p className="text-2xl font-bold text-emerald-900">
+                        <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">Total Inflow</p>
+                        <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
                             {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(totalInflow)}
                         </p>
                     </div>

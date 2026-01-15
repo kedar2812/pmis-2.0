@@ -65,12 +65,12 @@ export const LandStats = ({ project, className }) => {
     <div className={cn('space-y-3', className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Info size={16} className="text-gray-500" />
-          <span className="text-sm font-medium text-gray-700">Land Acquisition Status</span>
+          <Info size={16} className="text-gray-500 dark:text-gray-400" />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Land Acquisition Status</span>
         </div>
         <motion.button
           onClick={handleMapClick}
-          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600 hover:text-primary-600"
+          className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
           title="View on Map"
@@ -110,8 +110,8 @@ export const LandStats = ({ project, className }) => {
               onClick={() => handleSegmentClick(segment.id)}
             >
               <div className={cn('w-3 h-3 rounded flex-shrink-0', segment.color)} />
-              <span className="text-gray-600 truncate text-xs">{segment.label.split(' ')[0]}</span>
-              <span className="text-gray-900 font-semibold ml-auto text-xs">
+              <span className="text-gray-600 dark:text-gray-400 truncate text-xs">{segment.label.split(' ')[0]}</span>
+              <span className="text-gray-900 dark:text-white font-semibold ml-auto text-xs">
                 {percent.toFixed(1)}%
               </span>
 
@@ -134,12 +134,12 @@ export const LandStats = ({ project, className }) => {
       </div>
 
       {/* Summary Stats */}
-      <div className="flex items-center justify-between text-xs text-gray-500 pt-1 border-t border-gray-200">
+      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-1 border-t border-gray-200 dark:border-gray-700">
         <span>
-          Total: <span className="font-semibold text-gray-700">{total_required_acres.toLocaleString()} acres</span>
+          Total: <span className="font-semibold text-gray-700 dark:text-gray-300">{total_required_acres.toLocaleString()} acres</span>
         </span>
         <span>
-          Acquired: <span className="font-semibold text-emerald-600">{acquired_acres.toLocaleString()} acres</span>
+          Acquired: <span className="font-semibold text-emerald-600 dark:text-emerald-400">{acquired_acres.toLocaleString()} acres</span>
         </span>
       </div>
     </div>

@@ -25,7 +25,7 @@ const GlassCard = ({ children, className = '', onClick, hoverable = false }) => 
         className={`
             relative overflow-hidden rounded-2xl
             bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl
-            border border-slate-200 dark:border-neutral-700
+            border border-slate-200 dark:border-neutral-800
             shadow-sm dark:shadow-lg
             ${hoverable ? 'hover:shadow-lg dark:hover:shadow-xl hover:bg-white dark:hover:bg-neutral-800/90 cursor-pointer' : ''}
             transition-all duration-300
@@ -94,9 +94,9 @@ const MilestoneItem = ({ milestone, onClick }) => (
 // Alert Item
 const AlertItem = ({ alert, onClick }) => {
     const severityColors = {
-        critical: 'bg-rose-100 text-rose-700 border-rose-200',
-        warning: 'bg-amber-100 text-amber-700 border-amber-200',
-        info: 'bg-blue-100 text-blue-700 border-blue-200',
+        critical: 'bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-800',
+        warning: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800',
+        info: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800',
     };
 
     return (
@@ -132,11 +132,11 @@ const RiskBadge = ({ level, count }) => {
 // EVM Gauge
 const EVMGauge = ({ label, value, isGood }) => (
     <div className="text-center">
-        <div className={`text-3xl font-bold ${isGood ? 'text-emerald-600' : 'text-rose-600'}`}>
+        <div className={`text-3xl font-bold ${isGood ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
             {value.toFixed(2)}
         </div>
         <div className="text-xs text-slate-500 dark:text-neutral-400 mt-1">{label}</div>
-        <div className={`text-xs mt-1 ${isGood ? 'text-emerald-500' : 'text-rose-500'}`}>
+        <div className={`text-xs mt-1 ${isGood ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
             {isGood ? '✓ On Track' : '⚠ Attention'}
         </div>
     </div>
@@ -548,7 +548,7 @@ const UnifiedDashboard = () => {
                             changeRequests.slice(0, 3).map((cr, idx) => (
                                 <motion.div
                                     key={idx}
-                                    className="p-3 bg-violet-50 rounded-lg border border-violet-100 cursor-pointer hover:bg-violet-100 transition-colors"
+                                    className="p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-100 dark:border-violet-800 cursor-pointer hover:bg-violet-100 dark:hover:bg-violet-900/30 transition-colors"
                                     onClick={() => navigate('/e-procurement')}
                                     whileHover={{ scale: 1.01 }}
                                     whileTap={{ scale: 0.99 }}
@@ -558,7 +558,7 @@ const UnifiedDashboard = () => {
                                             <p className="text-sm font-medium text-slate-700 dark:text-neutral-300">{cr.title}</p>
                                             <p className="text-xs text-slate-400">{cr.contract}</p>
                                         </div>
-                                        <span className="text-xs px-2 py-1 bg-violet-200 text-violet-700 rounded">
+                                        <span className="text-xs px-2 py-1 bg-violet-200 text-violet-700 dark:bg-violet-800 dark:text-violet-200 rounded">
                                             {cr.status}
                                         </span>
                                     </div>
@@ -585,8 +585,8 @@ const UnifiedDashboard = () => {
                         <EVMGauge label="CPI (Cost Performance)" value={earnedValue.cpi || 1.0} isGood={(earnedValue.cpi || 1.0) >= 1.0} />
                         <EVMGauge label="SPI (Schedule Performance)" value={earnedValue.spi || 1.0} isGood={(earnedValue.spi || 1.0) >= 1.0} />
                     </div>
-                    <div className="mt-4 pt-4 border-t border-slate-100 text-center">
-                        <span className={`text-sm font-medium ${earnedValue.status === 'on_budget' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-neutral-800 text-center">
+                        <span className={`text-sm font-medium ${earnedValue.status === 'on_budget' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                             {earnedValue.status === 'on_budget' ? '✓ Project Portfolio On Budget' : '⚠ Budget Variance Detected'}
                         </span>
                     </div>
@@ -619,7 +619,7 @@ const UnifiedDashboard = () => {
 
             {/* Section 6: Projects Table */}
             <GlassCard className="overflow-hidden">
-                <div className="p-6 border-b border-slate-100">
+                <div className="p-6 border-b border-slate-100 dark:border-neutral-800">
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                             <FolderOpen size={20} className="text-primary-600" />
@@ -644,16 +644,16 @@ const UnifiedDashboard = () => {
                                 <th className="py-3 pr-6">Progress</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
                             {(topProjects.length > 0 ? topProjects : projects.slice(0, 5)).map((project, idx) => {
                                 const budget = Number(project.budget) || 0;
                                 const spent = Number(project.spent) || 0;
                                 const progress = Number(project.progress) || 0;
                                 const statusColors = {
-                                    'In Progress': 'bg-blue-100 text-blue-700',
-                                    'Planning': 'bg-amber-100 text-amber-700',
-                                    'Completed': 'bg-green-100 text-green-700',
-                                    'On Hold': 'bg-slate-100 text-slate-700',
+                                    'In Progress': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+                                    'Planning': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+                                    'Completed': 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+                                    'On Hold': 'bg-slate-100 text-slate-700 dark:bg-neutral-700 dark:text-slate-300',
                                 };
                                 return (
                                     <tr key={project.id || idx} className="hover:bg-slate-50/50 cursor-pointer" onClick={() => navigate(`/projects/${project.id}`)}>
@@ -661,7 +661,7 @@ const UnifiedDashboard = () => {
                                             <p className="font-medium text-slate-800 dark:text-white">{project.name}</p>
                                         </td>
                                         <td className="py-3">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[project.status] || 'bg-slate-100 text-slate-700'}`}>
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[project.status] || 'bg-slate-100 text-slate-700 dark:bg-neutral-700 dark:text-slate-300'}`}>
                                                 {project.status || 'Unknown'}
                                             </span>
                                         </td>

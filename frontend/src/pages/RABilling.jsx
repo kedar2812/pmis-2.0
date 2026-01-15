@@ -239,7 +239,7 @@ const RABilling = () => {
                                     >
                                         <td className="px-6 py-4 font-mono font-medium text-slate-600">{bill.billNo}</td>
                                         <td className="px-6 py-4 text-slate-600">{bill.submissionDate}</td>
-                                        <td className="px-6 py-4 font-medium text-slate-900">{bill.projectName}</td>
+                                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{bill.projectName}</td>
                                         <td className="px-6 py-4 text-slate-600">{bill.contractorName}</td>
                                         <td className="px-6 py-4 text-right text-slate-600">
                                             {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(bill.grossAmount)}
@@ -248,7 +248,7 @@ const RABilling = () => {
                                             {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(bill.netPayable)}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                                                 {bill.status}
                                             </span>
                                         </td>

@@ -117,7 +117,7 @@ const BIM = () => {
 
     return () => {
       threeState.isMounted = false;
-      
+
       if (threeState.handleResize) {
         window.removeEventListener('resize', threeState.handleResize);
       }
@@ -153,19 +153,19 @@ const BIM = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('common.bim')}</h1>
-        <p className="text-gray-600 mt-1">{t('bim.subtitle')}</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('common.bim')}</h1>
+        <p className="text-gray-600 dark:text-neutral-400 mt-1">{t('bim.subtitle')}</p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>{t('bim.modelViewer')}</CardTitle>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-gray-600 dark:text-neutral-400 mt-1">
             {t('bim.interactiveVisualization')}
           </p>
         </CardHeader>
         <CardContent>
-          <div ref={containerRef} className="h-[600px] w-full rounded-lg bg-gray-100 relative overflow-hidden">
+          <div ref={containerRef} className="h-[600px] w-full rounded-lg bg-gray-100 dark:bg-neutral-800 relative overflow-hidden">
             {/* Interactive Hotspots */}
             {hotspots.map((hotspot) => (
               <motion.button
@@ -180,7 +180,7 @@ const BIM = () => {
                 <Info size={16} className="text-white m-auto" />
               </motion.button>
             ))}
-            
+
             {/* Hotspot Info Popup */}
             <AnimatePresence>
               {activeHotspot && (
@@ -212,8 +212,8 @@ const BIM = () => {
             <div className="flex items-center gap-3">
               <Box className="text-primary-600" size={32} />
               <div>
-                <p className="font-medium">{t('bim.infrastructureModels')}</p>
-                <p className="text-sm text-gray-600">{t('bim.modelsDescription')}</p>
+                <p className="font-medium dark:text-white">{t('bim.infrastructureModels')}</p>
+                <p className="text-sm text-gray-600 dark:text-neutral-400">{t('bim.modelsDescription')}</p>
               </div>
             </div>
           </CardContent>
@@ -224,8 +224,8 @@ const BIM = () => {
             <div className="flex items-center gap-3">
               <RotateCw className="text-primary-600" size={32} />
               <div>
-                <p className="font-medium">{t('bim.interactiveView')}</p>
-                <p className="text-sm text-gray-600">{t('bim.rotateZoomExplore')}</p>
+                <p className="font-medium dark:text-white">{t('bim.interactiveView')}</p>
+                <p className="text-sm text-gray-600 dark:text-neutral-400">{t('bim.rotateZoomExplore')}</p>
               </div>
             </div>
           </CardContent>
@@ -236,8 +236,8 @@ const BIM = () => {
             <div className="flex items-center gap-3">
               <Box className="text-primary-600" size={32} />
               <div>
-                <p className="font-medium">{t('bim.bimIntegration')}</p>
-                <p className="text-sm text-gray-600">{t('bim.bimData')}</p>
+                <p className="font-medium dark:text-white">{t('bim.bimIntegration')}</p>
+                <p className="text-sm text-gray-600 dark:text-neutral-400">{t('bim.bimData')}</p>
               </div>
             </div>
           </CardContent>

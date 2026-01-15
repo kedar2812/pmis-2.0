@@ -149,7 +149,7 @@ const Budgeting = () => {
                                         {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">Active</span>
+                                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Active</span>
                                     </td>
                                 </tr>
                             ))}

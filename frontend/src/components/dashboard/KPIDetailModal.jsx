@@ -186,14 +186,14 @@ export const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
           <div className="sticky top-0 z-10 bg-white dark:bg-neutral-900 border-b border-slate-200 dark:border-neutral-700 px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div
-                className={`p-3 rounded-full ${isPositive ? 'bg-success-50' : 'bg-error-50'}`}
+                className={`p-3 rounded-full ${isPositive ? 'bg-success-50 dark:bg-success-900/20' : 'bg-error-50 dark:bg-error-900/20'}`}
               >
                 {isPositive ? (
-                  <TrendingUp className="text-success-600" size={28} />
+                  <TrendingUp className="text-success-600 dark:text-success-400" size={28} />
                 ) : kpi.trend === 'stable' ? (
                   <Minus className="text-slate-600 dark:text-neutral-400" size={28} />
                 ) : (
-                  <TrendingDown className="text-error-600" size={28} />
+                  <TrendingDown className="text-error-600 dark:text-error-400" size={28} />
                 )}
               </div>
               <div>

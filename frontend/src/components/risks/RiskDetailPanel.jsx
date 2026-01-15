@@ -94,13 +94,13 @@ const RiskDetailPanel = ({ isOpen, onClose, risk: initialRisk, onUpdate }) => {
                     animate={{ x: 0 }}
                     exit={{ x: '100%' }}
                     transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                    className="relative w-full max-w-2xl bg-white shadow-2xl flex flex-col h-full"
+                    className="relative w-full max-w-2xl bg-white dark:bg-neutral-900 shadow-2xl flex flex-col h-full"
                 >
                     {/* Header */}
                     <div className={`px-6 py-4 bg-gradient-to-r ${risk?.severity === 'CRITICAL' ? 'from-red-500 to-red-600' :
-                            risk?.severity === 'HIGH' ? 'from-orange-500 to-orange-600' :
-                                risk?.severity === 'MEDIUM' ? 'from-yellow-500 to-yellow-600' :
-                                    'from-green-500 to-green-600'
+                        risk?.severity === 'HIGH' ? 'from-orange-500 to-orange-600' :
+                            risk?.severity === 'MEDIUM' ? 'from-yellow-500 to-yellow-600' :
+                                'from-green-500 to-green-600'
                         } text-white`}>
                         <div className="flex items-start justify-between">
                             <div>
@@ -159,7 +159,7 @@ const RiskDetailPanel = ({ isOpen, onClose, risk: initialRisk, onUpdate }) => {
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex border-b border-gray-200">
+                    <div className="flex border-b border-gray-200 dark:border-neutral-700">
                         {[
                             { id: 'details', label: 'Details', icon: AlertTriangle },
                             { id: 'mitigations', label: 'Mitigations', icon: Shield, count: mitigationActions.length },
@@ -170,8 +170,8 @@ const RiskDetailPanel = ({ isOpen, onClose, risk: initialRisk, onUpdate }) => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex-1 py-3 px-4 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${activeTab === tab.id
-                                        ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50'
-                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                    ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50 dark:bg-primary-900/20'
+                                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
                                     }`}
                             >
                                 <tab.icon size={16} />
@@ -241,8 +241,8 @@ const DetailsTab = ({ risk, onUpdate, onRefresh }) => {
         <div className="space-y-6">
             {/* Description */}
             <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Description</h3>
-                <p className="text-gray-900">{risk?.description || 'No description provided'}</p>
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Description</h3>
+                <p className="text-gray-900 dark:text-white">{risk?.description || 'No description provided'}</p>
             </div>
 
             {/* Key Information */}
@@ -283,8 +283,8 @@ const DetailsTab = ({ risk, onUpdate, onRefresh }) => {
             {/* Response Strategy */}
             {risk?.response_strategy && (
                 <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">Response Strategy</h3>
-                    <span className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Response Strategy</h3>
+                    <span className="px-3 py-1 bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 rounded-full text-sm font-medium">
                         {riskService.RESPONSE_STRATEGIES.find(s => s.value === risk.response_strategy)?.label}
                     </span>
                 </div>
@@ -293,32 +293,32 @@ const DetailsTab = ({ risk, onUpdate, onRefresh }) => {
             {/* Mitigation Plan */}
             {risk?.mitigation_plan && (
                 <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">Mitigation Plan</h3>
-                    <p className="text-gray-900 bg-gray-50 p-3 rounded-lg">{risk.mitigation_plan}</p>
+                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Mitigation Plan</h3>
+                    <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-neutral-800 p-3 rounded-lg">{risk.mitigation_plan}</p>
                 </div>
             )}
 
             {/* Contingency Plan */}
             {risk?.contingency_plan && (
                 <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">Contingency Plan</h3>
-                    <p className="text-gray-900 bg-gray-50 p-3 rounded-lg">{risk.contingency_plan}</p>
+                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Contingency Plan</h3>
+                    <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-neutral-800 p-3 rounded-lg">{risk.contingency_plan}</p>
                 </div>
             )}
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 pt-4 border-t">
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-gray-900">{risk?.days_open || 0}</div>
-                    <div className="text-xs text-gray-500">Days Open</div>
+            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-neutral-700">
+                <div className="text-center p-3 bg-gray-50 dark:bg-neutral-800 rounded-lg">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{risk?.days_open || 0}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Days Open</div>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-gray-900">{risk?.mitigation_count || 0}</div>
-                    <div className="text-xs text-gray-500">Mitigations</div>
+                <div className="text-center p-3 bg-gray-50 dark:bg-neutral-800 rounded-lg">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{risk?.mitigation_count || 0}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Mitigations</div>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-gray-900">{risk?.risk_documents?.length || 0}</div>
-                    <div className="text-xs text-gray-500">Documents</div>
+                <div className="text-center p-3 bg-gray-50 dark:bg-neutral-800 rounded-lg">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{risk?.risk_documents?.length || 0}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Documents</div>
                 </div>
             </div>
         </div>
@@ -329,11 +329,11 @@ const DetailsTab = ({ risk, onUpdate, onRefresh }) => {
  * Info Item Component
  */
 const InfoItem = ({ icon: Icon, label, value, highlight = false }) => (
-    <div className={`flex items-start gap-3 p-3 rounded-lg ${highlight ? 'bg-red-50 border border-red-200' : 'bg-gray-50'}`}>
+    <div className={`flex items-start gap-3 p-3 rounded-lg ${highlight ? 'bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800' : 'bg-gray-50 dark:bg-neutral-800'}`}>
         <Icon size={18} className={highlight ? 'text-red-500' : 'text-gray-400'} />
         <div>
-            <div className="text-xs text-gray-500">{label}</div>
-            <div className={`text-sm font-medium ${highlight ? 'text-red-700' : 'text-gray-900'}`}>{value}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">{label}</div>
+            <div className={`text-sm font-medium ${highlight ? 'text-red-700 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{value}</div>
         </div>
     </div>
 );
@@ -406,7 +406,7 @@ const MitigationsTab = ({ risk, mitigationActions, onRefresh, showAddModal, setS
         <div className="space-y-4">
             {/* Add Button */}
             <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium text-gray-900">Mitigation Actions</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">Mitigation Actions</h3>
                 <button
                     onClick={() => setShowAddModal(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm"
@@ -439,7 +439,7 @@ const MitigationsTab = ({ risk, mitigationActions, onRefresh, showAddModal, setS
                         <div key={action.id} className="border rounded-lg overflow-hidden">
                             {/* Action Header */}
                             <div
-                                className="p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+                                className="p-4 bg-gray-50 dark:bg-neutral-800 cursor-pointer hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
                                 onClick={() => setExpandedAction(expandedAction === action.id ? null : action.id)}
                             >
                                 <div className="flex items-start justify-between">
@@ -459,8 +459,8 @@ const MitigationsTab = ({ risk, mitigationActions, onRefresh, showAddModal, setS
                                                     </span>
                                                 )}
                                             </div>
-                                            <h4 className="font-medium text-gray-900">{action.title}</h4>
-                                            <p className="text-sm text-gray-500 mt-1">
+                                            <h4 className="font-medium text-gray-900 dark:text-white">{action.title}</h4>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                                 {riskService.ACTION_TYPES.find(t => t.value === action.action_type)?.label}
                                             </p>
                                         </div>
@@ -478,10 +478,10 @@ const MitigationsTab = ({ risk, mitigationActions, onRefresh, showAddModal, setS
                                         initial={{ height: 0, opacity: 0 }}
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
-                                        className="border-t"
+                                        className="border-t border-gray-200 dark:border-neutral-700"
                                     >
                                         <div className="p-4 space-y-4">
-                                            <p className="text-gray-700">{action.description}</p>
+                                            <p className="text-gray-700 dark:text-gray-300">{action.description}</p>
 
                                             {/* Effectiveness */}
                                             {action.effectiveness_rating && (
@@ -501,7 +501,7 @@ const MitigationsTab = ({ risk, mitigationActions, onRefresh, showAddModal, setS
                                             {/* Proof Documents */}
                                             <div>
                                                 <div className="flex items-center justify-between mb-2">
-                                                    <h5 className="text-sm font-medium text-gray-700">
+                                                    <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                         Proof Documents {action.status === 'DRAFT' && <span className="text-red-500">*</span>}
                                                     </h5>
                                                     {action.status === 'DRAFT' && (
@@ -520,7 +520,7 @@ const MitigationsTab = ({ risk, mitigationActions, onRefresh, showAddModal, setS
 
                                                 {/* Upload Form */}
                                                 {showProofUpload === action.id && (
-                                                    <div className="p-3 bg-gray-50 rounded-lg mb-3 space-y-3">
+                                                    <div className="p-3 bg-gray-50 dark:bg-neutral-800 rounded-lg mb-3 space-y-3">
                                                         <input
                                                             type="file"
                                                             onChange={(e) => setProofFile(e.target.files[0])}
@@ -618,11 +618,11 @@ const MitigationsTab = ({ risk, mitigationActions, onRefresh, showAddModal, setS
 
                                             {/* Review Comments */}
                                             {action.review_comments && (
-                                                <div className="p-3 bg-gray-50 rounded-lg">
+                                                <div className="p-3 bg-gray-50 dark:bg-neutral-800 rounded-lg">
                                                     <div className="text-xs text-gray-500 mb-1">
                                                         Review by {action.reviewed_by_name} on {new Date(action.reviewed_at).toLocaleDateString()}
                                                     </div>
-                                                    <p className="text-sm text-gray-700">{action.review_comments}</p>
+                                                    <p className="text-sm text-gray-700 dark:text-gray-300">{action.review_comments}</p>
                                                 </div>
                                             )}
                                         </div>
@@ -716,8 +716,8 @@ const AddMitigationModal = ({ risk, onClose, onSuccess }) => {
             <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto m-4">
                 <div className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900">Add Mitigation Action</h3>
-                        <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Mitigation Action</h3>
+                        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                             <X size={20} />
                         </button>
                     </div>
@@ -730,7 +730,7 @@ const AddMitigationModal = ({ risk, onClose, onSuccess }) => {
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Action Type</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Action Type</label>
                             <select
                                 value={formData.action_type}
                                 onChange={(e) => setFormData({ ...formData, action_type: e.target.value })}
@@ -743,7 +743,7 @@ const AddMitigationModal = ({ risk, onClose, onSuccess }) => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Title *</label>
                             <input
                                 type="text"
                                 value={formData.title}
@@ -755,7 +755,7 @@ const AddMitigationModal = ({ risk, onClose, onSuccess }) => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Description *</label>
                             <textarea
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -768,7 +768,7 @@ const AddMitigationModal = ({ risk, onClose, onSuccess }) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Action Date</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Action Date</label>
                                 <input
                                     type="date"
                                     value={formData.action_date}
@@ -777,7 +777,7 @@ const AddMitigationModal = ({ risk, onClose, onSuccess }) => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Target Completion</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Target Completion</label>
                                 <input
                                     type="date"
                                     value={formData.target_completion}
@@ -788,7 +788,7 @@ const AddMitigationModal = ({ risk, onClose, onSuccess }) => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Cost Incurred (₹)</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Cost Incurred (₹)</label>
                             <input
                                 type="number"
                                 value={formData.cost_incurred}

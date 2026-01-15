@@ -184,17 +184,17 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
 
         switch (msg.message_type) {
             case 'RULING':
-                return `${baseStyles} bg-yellow-50 border-l-4 border-yellow-500`;
+                return `${baseStyles} bg-yellow-50 border-l-4 border-yellow-500 dark:bg-yellow-900/20 dark:border-yellow-600 dark:text-yellow-100`;
             case 'CLARIFICATION_REQUEST':
-                return `${baseStyles} bg-blue-50 border-l-4 border-blue-500`;
+                return `${baseStyles} bg-blue-50 border-l-4 border-blue-500 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-100`;
             case 'CLARIFICATION_RESPONSE':
-                return `${baseStyles} bg-green-50 border-l-4 border-green-500`;
+                return `${baseStyles} bg-green-50 border-l-4 border-green-500 dark:bg-green-900/20 dark:border-green-600 dark:text-green-100`;
             case 'INTERNAL_NOTE':
-                return `${baseStyles} bg-purple-50 border-l-4 border-purple-500`;
+                return `${baseStyles} bg-purple-50 border-l-4 border-purple-500 dark:bg-purple-900/20 dark:border-purple-600 dark:text-purple-100`;
             default:
                 return isOwn
-                    ? `${baseStyles} bg-blue-50 text-slate-900 border border-blue-100 ml-auto`
-                    : `${baseStyles} bg-slate-100 text-slate-900 border border-slate-200`;
+                    ? `${baseStyles} bg-blue-50 text-slate-900 border border-blue-100 ml-auto dark:bg-blue-900/30 dark:text-blue-100 dark:border-blue-800/50`
+                    : `${baseStyles} bg-slate-100 text-slate-900 border border-slate-200 dark:bg-neutral-800 dark:text-slate-200 dark:border-neutral-800`;
         }
     };
 
@@ -211,7 +211,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
     return (
         <div className="flex flex-col h-full bg-white dark:bg-neutral-900">
             {/* Header */}
-            <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800">
+            <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-neutral-800">
                 {/* Top Row: Title and Close button */}
                 <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="min-w-0 flex-1">
@@ -225,10 +225,10 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                                 <Clock size={14} />
                                 {formatTimestamp(thread.created_at)}
                             </span>
-                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${thread.status === 'OPEN' ? 'bg-green-100 text-green-700' :
-                                thread.status === 'PENDING_RESPONSE' ? 'bg-yellow-100 text-yellow-700' :
-                                    thread.status === 'ESCALATED' ? 'bg-red-100 text-red-700' :
-                                        'bg-gray-100 text-gray-700'
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${thread.status === 'OPEN' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
+                                thread.status === 'PENDING_RESPONSE' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                                    thread.status === 'ESCALATED' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                                        'bg-gray-100 text-gray-700 dark:bg-neutral-700 dark:text-gray-300'
                                 }`}>
                                 {thread.status}
                             </span>
@@ -347,9 +347,9 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                                 {/* Message Bubble */}
                                 <div className={getMessageStyles(msg)}>
                                     {/* Sender Info */}
-                                    <div className="flex items-center gap-2 mb-2 text-xs text-slate-500">
-                                        <span className="font-semibold text-slate-700">{msg.sender_name}</span>
-                                        <span className="px-1.5 py-0.5 bg-slate-200/80 rounded text-[10px] uppercase">
+                                    <div className="flex items-center gap-2 mb-2 text-xs text-slate-500 dark:text-slate-400">
+                                        <span className={`font-semibold ${isOwn ? 'text-blue-700 dark:text-blue-300' : 'text-slate-700 dark:text-slate-300'}`}>{msg.sender_name}</span>
+                                        <span className="px-1.5 py-0.5 bg-slate-200/80 dark:bg-white/10 rounded text-[10px] uppercase">
                                             {msg.sender_role?.replace('_', ' ')}
                                         </span>
                                     </div>
@@ -359,7 +359,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
 
                                     {/* Reference */}
                                     {msg.references_content && (
-                                        <div className="mt-2 pl-3 border-l-2 border-slate-300 text-sm text-slate-600">
+                                        <div className="mt-2 pl-3 border-l-2 border-slate-300 dark:border-slate-600 text-sm text-slate-600 dark:text-slate-300">
                                             <CornerDownRight size={14} className="inline mr-1" />
                                             {msg.references_content}
                                         </div>
@@ -384,7 +384,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
 
             {/* Composer */}
             {thread.status !== 'CLOSED' && canSendMessage && (
-                <div className="border-t border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900">
+                <div className="border-t border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
                     {/* File Preview */}
                     {attachedFile && (
                         <div className="px-4 pt-3 pb-2">

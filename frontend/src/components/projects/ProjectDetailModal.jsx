@@ -356,7 +356,7 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between mb-3">
                             <div>
-                              <h4 className="font-semibold text-slate-900">{contractor.contractorName}</h4>
+                              <h4 className="font-semibold text-slate-900 dark:text-white">{contractor.contractorName}</h4>
                               <div className="flex items-center gap-1 text-xs text-slate-500 mt-1">
                                 <MapPin size={12} /> {contractor.city}, {contractor.state}
                               </div>
@@ -417,7 +417,7 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                         <CardContent className="p-4">
                           <div className="flex justify-between items-start mb-2">
                             <div>
-                              <h4 className="font-semibold text-lg text-slate-900">{pkg.name}</h4>
+                              <h4 className="font-semibold text-lg text-slate-900 dark:text-white">{pkg.name}</h4>
                               {pkg.description && <p className="text-sm text-slate-500 mb-2">{pkg.description}</p>}
                             </div>
                             <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full shrink-0">

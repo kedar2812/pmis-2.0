@@ -453,8 +453,8 @@ const UserManagement = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <Card className="p-4">
                     <div className="flex items-center gap-3">
-                        <div className="p-3 rounded-xl bg-primary-100">
-                            <Users className="w-6 h-6 text-primary-600" />
+                        <div className="p-3 rounded-xl bg-primary-100 dark:bg-primary-900/20">
+                            <Users className="w-6 h-6 text-primary-600 dark:text-primary-400" />
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-slate-900 dark:text-white">{users.length}</p>
@@ -464,8 +464,8 @@ const UserManagement = () => {
                 </Card>
                 <Card className="p-4">
                     <div className="flex items-center gap-3">
-                        <div className="p-3 rounded-xl bg-green-100">
-                            <CheckCircle2 className="w-6 h-6 text-green-600" />
+                        <div className="p-3 rounded-xl bg-green-100 dark:bg-green-900/20">
+                            <CheckCircle2 className="w-6 h-6 text-green-600 dark:text-green-400" />
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-slate-900 dark:text-white">{users.filter(u => u.account_status === 'ACTIVE').length}</p>
@@ -473,10 +473,10 @@ const UserManagement = () => {
                         </div>
                     </div>
                 </Card>
-                <Card className="p-4 cursor-pointer hover:bg-amber-50 transition-colors" onClick={() => setActiveTab('pending')}>
+                <Card className="p-4 cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors" onClick={() => setActiveTab('pending')}>
                     <div className="flex items-center gap-3">
-                        <div className="p-3 rounded-xl bg-amber-100">
-                            <Clock className="w-6 h-6 text-amber-600" />
+                        <div className="p-3 rounded-xl bg-amber-100 dark:bg-amber-900/20">
+                            <Clock className="w-6 h-6 text-amber-600 dark:text-amber-400" />
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-slate-900 dark:text-white">{pendingUsers.length}</p>
@@ -486,8 +486,8 @@ const UserManagement = () => {
                 </Card>
                 <Card className="p-4">
                     <div className="flex items-center gap-3">
-                        <div className="p-3 rounded-xl bg-orange-100">
-                            <Building2 className="w-6 h-6 text-orange-600" />
+                        <div className="p-3 rounded-xl bg-orange-100 dark:bg-orange-900/20">
+                            <Building2 className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-slate-900 dark:text-white">{users.filter(u => u.role === 'EPC_Contractor').length}</p>
@@ -503,7 +503,7 @@ const UserManagement = () => {
                     onClick={() => setActiveTab('all')}
                     className={`px-4 py-2 rounded-lg font-medium transition-all ${activeTab === 'all'
                         ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/30'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700'
                         }`}
                 >
                     All Users
@@ -512,7 +512,7 @@ const UserManagement = () => {
                     onClick={() => setActiveTab('pending')}
                     className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${activeTab === 'pending'
                         ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700'
                         }`}
                 >
                     Pending Approval
@@ -532,13 +532,13 @@ const UserManagement = () => {
                         <input
                             type="text"
                             placeholder="Search by name, email, or company..."
-                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
                     <select
-                        className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className="px-4 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                         value={roleFilter}
                         onChange={(e) => setRoleFilter(e.target.value)}
                     >
@@ -551,7 +551,7 @@ const UserManagement = () => {
                         <option value="NICDC_HQ">NICDC HQ</option>
                     </select>
                     <select
-                        className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className="px-4 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                     >
@@ -590,11 +590,11 @@ const UserManagement = () => {
                                         <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-neutral-800/50 transition-colors">
                                             <td className="p-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-bold">
+                                                    <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold">
                                                         {(u.first_name?.[0] || u.username?.[0] || '?').toUpperCase()}
                                                     </div>
                                                     <div>
-                                                        <p className="font-medium text-slate-900">
+                                                        <p className="font-medium text-slate-900 dark:text-white">
                                                             {u.first_name} {u.last_name}
                                                         </p>
                                                         <p className="text-sm text-slate-500 dark:text-neutral-400">{u.username}</p>

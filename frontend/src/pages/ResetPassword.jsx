@@ -104,11 +104,11 @@ const ResetPassword = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     className="bg-white rounded-3xl shadow-xl p-8 max-w-md w-full text-center"
                 >
-                    <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <AlertCircle className="w-10 h-10 text-red-600" />
+                    <div className="w-20 h-20 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <AlertCircle className="w-10 h-10 text-red-600 dark:text-red-400" />
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-900 mb-3">Invalid Reset Link</h1>
-                    <p className="text-slate-600 mb-6">{error}</p>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Invalid Reset Link</h1>
+                    <p className="text-slate-600 dark:text-neutral-400 mb-6">{error}</p>
                     <div className="space-y-3">
                         <Link
                             to="/forgot-password"
@@ -137,11 +137,11 @@ const ResetPassword = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     className="bg-white rounded-3xl shadow-xl p-8 max-w-md w-full text-center"
                 >
-                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle2 className="w-10 h-10 text-green-600" />
+                    <div className="w-20 h-20 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-400" />
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-900 mb-3">Password Reset!</h1>
-                    <p className="text-slate-600 mb-6">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Password Reset!</h1>
+                    <p className="text-slate-600 dark:text-neutral-400 mb-6">
                         Your password has been successfully reset. You can now log in with your new password.
                     </p>
                     <Link
@@ -160,7 +160,7 @@ const ResetPassword = () => {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden"
+                className="bg-white dark:bg-neutral-900 rounded-3xl shadow-xl w-full max-w-md overflow-hidden"
                 style={{ boxShadow: '0 0 60px rgba(251, 191, 36, 0.15)' }}
             >
                 {/* Header */}
@@ -174,20 +174,20 @@ const ResetPassword = () => {
 
                 {/* User Info */}
                 {tokenInfo && (
-                    <div className="p-4 bg-amber-50 border-b border-amber-100 text-center">
-                        <p className="text-sm text-slate-600">Resetting password for</p>
-                        <p className="text-slate-900 font-semibold">{tokenInfo.email}</p>
+                    <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border-b border-amber-100 dark:border-amber-900/30 text-center">
+                        <p className="text-sm text-slate-600 dark:text-neutral-400">Resetting password for</p>
+                        <p className="text-slate-900 dark:text-white font-semibold">{tokenInfo.email}</p>
                     </div>
                 )}
 
                 {/* Password Form */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    <p className="text-slate-600 text-sm mb-4">
+                    <p className="text-slate-600 dark:text-neutral-400 text-sm mb-4">
                         Please enter your new password below.
                     </p>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1.5">
                             New Password <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
@@ -200,9 +200,9 @@ const ResetPassword = () => {
                                     if (errors.password) setErrors(prev => ({ ...prev, password: '' }));
                                 }}
                                 placeholder="Enter new password (min 8 characters)"
-                                className={`w-full px-4 py-2.5 pl-10 pr-10 rounded-xl border transition-all outline-none focus:ring-2 ${errors.password
-                                        ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
-                                        : 'border-slate-200 focus:border-amber-500 focus:ring-amber-100'
+                                className={`w-full px-4 py-2.5 pl-10 pr-10 rounded-xl border transition-all outline-none focus:ring-2 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white ${errors.password
+                                    ? 'border-red-300 dark:border-red-500/50 focus:border-red-500 focus:ring-red-100'
+                                    : 'border-slate-200 dark:border-neutral-700 focus:border-amber-500 focus:ring-amber-100 dark:focus:ring-amber-900/30'
                                     }`}
                             />
                             <button
@@ -221,7 +221,7 @@ const ResetPassword = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1.5">
                             Confirm Password <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
@@ -234,9 +234,9 @@ const ResetPassword = () => {
                                     if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: '' }));
                                 }}
                                 placeholder="Confirm new password"
-                                className={`w-full px-4 py-2.5 pl-10 pr-10 rounded-xl border transition-all outline-none focus:ring-2 ${errors.confirmPassword
-                                        ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
-                                        : 'border-slate-200 focus:border-amber-500 focus:ring-amber-100'
+                                className={`w-full px-4 py-2.5 pl-10 pr-10 rounded-xl border transition-all outline-none focus:ring-2 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white ${errors.confirmPassword
+                                    ? 'border-red-300 dark:border-red-500/50 focus:border-red-500 focus:ring-red-100'
+                                    : 'border-slate-200 dark:border-neutral-700 focus:border-amber-500 focus:ring-amber-100 dark:focus:ring-amber-900/30'
                                     }`}
                             />
                             <button

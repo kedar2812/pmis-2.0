@@ -47,15 +47,15 @@ const StatusBadge = ({
 
     // Default styles - Removed specific hover:bg colors to use generic brightness filter
     const styles = {
-        [activeValue]: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-        [inactiveValue]: 'bg-slate-100 text-slate-600 border-slate-200',
-        'PENDING': 'bg-amber-100 text-amber-700 border-amber-200',
+        [activeValue]: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800',
+        [inactiveValue]: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-neutral-800 dark:text-neutral-400 dark:border-neutral-700',
+        'PENDING': 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
         ...customStyles
     };
 
     // Get current display values
     const displayLabel = labels[status] || status;
-    const badgeStyle = styles[status] || styles[isActive ? activeValue : inactiveValue] || 'bg-gray-100 text-gray-700 border-gray-200';
+    const badgeStyle = styles[status] || styles[isActive ? activeValue : inactiveValue] || 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700';
 
     const handleConfirm = async () => {
         setIsUpdating(true);
@@ -114,7 +114,7 @@ const StatusBadge = ({
                         >
                             <div className="p-6">
                                 <div className="flex items-start gap-4">
-                                    <div className={`p-3 rounded-full flex-shrink-0 ${isActive ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                                    <div className={`p-3 rounded-full flex-shrink-0 ${isActive ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'}`}>
                                         <AlertCircle size={24} />
                                     </div>
                                     <div>

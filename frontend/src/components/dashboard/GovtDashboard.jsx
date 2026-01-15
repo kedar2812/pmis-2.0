@@ -62,7 +62,7 @@ const GovtDashboard = ({ projects, kpis }) => {
                                     <td className="px-4 py-3">{kpi.target} {kpi.unit}</td>
                                     <td className="px-4 py-3">{kpi.value} {kpi.unit}</td>
                                     <td className="px-4 py-3">
-                                        <span className={`px-2 py-1 text-xs rounded-full ${kpi.value >= kpi.target ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                        <span className={`px-2 py-1 text-xs rounded-full ${kpi.value >= kpi.target ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
                                             {kpi.value >= kpi.target ? t('common.onTrack') : t('common.delayed')}
                                         </span>
                                     </td>

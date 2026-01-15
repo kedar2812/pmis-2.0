@@ -384,7 +384,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
         </div>
 
         {/* Progress Bar */}
-        <div className="h-1 w-full bg-slate-100">
+        <div className="h-1 w-full bg-slate-100 dark:bg-neutral-800">
           <motion.div
             className="h-full bg-primary-600"
             initial={{ width: 0 }}
@@ -734,7 +734,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                     className={`p-8 border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center transition-colors cursor-pointer ${errors.adminApprovalDoc ? 'border-red-300 bg-red-50' :
                       isDragging ? 'border-primary-500 bg-primary-50' :
                         formData.adminApprovalDoc ? 'border-green-500 bg-green-50' :
-                          'border-slate-200 hover:bg-slate-50'
+                          'border-slate-200 dark:border-neutral-700 hover:bg-slate-50 dark:hover:bg-neutral-800'
                       }`}
                   >
                     <input

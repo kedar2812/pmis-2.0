@@ -68,8 +68,8 @@ const ContractorSelector = ({
     const getStatusStyle = (contractor) => {
         if (contractor.blacklisted) {
             return {
-                bg: 'bg-red-100',
-                text: 'text-red-700',
+                bg: 'bg-red-100 dark:bg-red-900/30',
+                text: 'text-red-700 dark:text-red-300',
                 icon: Ban,
                 label: 'Blacklisted',
                 blocked: true
@@ -77,16 +77,16 @@ const ContractorSelector = ({
         }
         if (contractor.is_valid === false) {
             return {
-                bg: 'bg-amber-100',
-                text: 'text-amber-700',
+                bg: 'bg-amber-100 dark:bg-amber-900/30',
+                text: 'text-amber-700 dark:text-amber-300',
                 icon: Clock,
                 label: 'Expired',
                 blocked: true
             };
         }
         return {
-            bg: 'bg-emerald-100',
-            text: 'text-emerald-700',
+            bg: 'bg-emerald-100 dark:bg-emerald-900/30',
+            text: 'text-emerald-700 dark:text-emerald-300',
             icon: CheckCircle2,
             label: 'Active',
             blocked: false
@@ -120,7 +120,7 @@ const ContractorSelector = ({
         <div className={`relative ${className}`}>
             {/* Label */}
             {label && (
-                <label className="block text-xs font-medium text-slate-700 mb-1">
+                <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">
                     {label} {required && <span className="text-red-500">*</span>}
                 </label>
             )}
@@ -129,11 +129,11 @@ const ContractorSelector = ({
             <div
                 onClick={() => !disabled && setIsOpen(!isOpen)}
                 className={`
-                    w-full px-3 py-2 border rounded-lg bg-white cursor-pointer
+                    w-full px-3 py-2 border rounded-lg bg-white dark:bg-neutral-900 cursor-pointer
                     flex items-center justify-between
-                    ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'hover:border-primary-400'}
-                    ${error ? 'border-red-300' : 'border-slate-300'}
-                    ${isOpen ? 'border-primary-500 ring-2 ring-primary-100' : ''}
+                    ${disabled ? 'bg-slate-100 dark:bg-neutral-800 cursor-not-allowed' : 'hover:border-primary-400 dark:hover:border-primary-500'}
+                    ${error ? 'border-red-300 dark:border-red-500/50' : 'border-slate-300 dark:border-neutral-700'}
+                    ${isOpen ? 'border-primary-500 ring-2 ring-primary-100 dark:ring-primary-900/30' : ''}
                 `}
             >
                 {selectedContractor ? (
@@ -153,7 +153,7 @@ const ContractorSelector = ({
                         })()}
                     </div>
                 ) : (
-                    <span className="text-slate-400 text-sm">Select contractor...</span>
+                    <span className="text-slate-400 dark:text-neutral-500 text-sm">Select contractor...</span>
                 )}
 
                 <div className="flex items-center gap-1">
@@ -174,9 +174,9 @@ const ContractorSelector = ({
 
             {/* Dropdown */}
             {isOpen && (
-                <div className="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg max-h-80 overflow-hidden">
+                <div className="absolute z-50 mt-1 w-full bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-700 rounded-lg shadow-lg max-h-80 overflow-hidden">
                     {/* Search */}
-                    <div className="p-2 border-b border-slate-100">
+                    <div className="p-2 border-b border-slate-100 dark:border-neutral-800">
                         <div className="relative">
                             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                             <input
@@ -184,7 +184,7 @@ const ContractorSelector = ({
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Search by name or code..."
-                                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
+                                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/30 focus:border-primary-500"
                                 autoFocus
                             />
                         </div>
@@ -208,17 +208,17 @@ const ContractorSelector = ({
                                         className={`
                                             px-3 py-2 flex items-center justify-between
                                             ${status.blocked
-                                                ? 'opacity-60 cursor-not-allowed bg-slate-50'
-                                                : 'cursor-pointer hover:bg-slate-50'
+                                                ? 'opacity-60 cursor-not-allowed bg-slate-50 dark:bg-neutral-800'
+                                                : 'cursor-pointer hover:bg-slate-50 dark:hover:bg-neutral-800'
                                             }
-                                            ${value === contractor.id ? 'bg-primary-50' : ''}
+                                            ${value === contractor.id ? 'bg-primary-50 dark:bg-primary-900/30' : ''}
                                         `}
                                     >
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-medium text-slate-900 truncate">
+                                            <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
                                                 {contractor.code} - {contractor.name}
                                             </p>
-                                            <p className="text-xs text-slate-500">
+                                            <p className="text-xs text-slate-500 dark:text-neutral-400">
                                                 {contractor.contractor_type} • {contractor.registration_class || 'Unclassified'}
                                             </p>
                                             {contractor.blacklisted && contractor.blacklist_reason && (
@@ -241,8 +241,8 @@ const ContractorSelector = ({
 
                     {/* Guardrail Notice */}
                     {!showOnlyActive && (
-                        <div className="p-2 bg-slate-50 border-t border-slate-100">
-                            <p className="text-xs text-slate-500 flex items-center gap-1">
+                        <div className="p-2 bg-slate-50 dark:bg-neutral-800 border-t border-slate-100 dark:border-neutral-700">
+                            <p className="text-xs text-slate-500 dark:text-neutral-400 flex items-center gap-1">
                                 <Ban size={10} className="text-red-400" />
                                 Blacklisted and expired contractors cannot be selected
                             </p>

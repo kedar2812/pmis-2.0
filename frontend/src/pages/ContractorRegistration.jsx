@@ -14,10 +14,9 @@ import IFSCInput from '@/components/contractor/IFSCInput';
 import LocationSelector from '@/components/masters/LocationSelector';
 import { fetchBankList } from '@/services/ifscService';
 
-// InputField moved OUTSIDE the main component to prevent re-creation on every render
 const InputField = ({ label, name, value, onChange, error, type = 'text', required = false, icon: Icon, placeholder, ...props }) => (
     <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1.5">
+        <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1.5">
             {label} {required && <span className="text-red-500">*</span>}
         </label>
         <div className="relative">
@@ -28,9 +27,9 @@ const InputField = ({ label, name, value, onChange, error, type = 'text', requir
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
-                className={`w-full px-4 py-2.5 ${Icon ? 'pl-10' : ''} rounded-xl border transition-all outline-none focus:ring-2 ${error
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
-                    : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
+                className={`w-full px-4 py-2.5 ${Icon ? 'pl-10' : ''} rounded-xl border transition-all outline-none focus:ring-2 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white disabled:bg-slate-100 dark:disabled:bg-neutral-800 disabled:text-slate-500 dark:disabled:text-neutral-500 ${error
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-100 dark:border-red-500/50'
+                    : 'border-slate-200 dark:border-neutral-700 focus:border-primary-500 focus:ring-primary-100 dark:focus:ring-primary-900/30'
                     }`}
                 {...props}
             />
@@ -256,13 +255,13 @@ const ContractorRegistration = () => {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-white rounded-3xl shadow-xl p-8 max-w-md w-full text-center"
+                    className="bg-white dark:bg-neutral-900 rounded-3xl shadow-xl p-8 max-w-md w-full text-center"
                 >
-                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle2 className="w-10 h-10 text-green-600" />
+                    <div className="w-20 h-20 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-400" />
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-900 mb-3">Registration Submitted!</h1>
-                    <p className="text-slate-600 mb-6">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Registration Submitted!</h1>
+                    <p className="text-slate-600 dark:text-neutral-400 mb-6">
                         Your registration is pending approval. You will receive an email once your account has been activated.
                     </p>
                     <Link
@@ -281,7 +280,7 @@ const ContractorRegistration = () => {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-3xl shadow-xl w-full max-w-2xl overflow-hidden"
+                className="bg-white dark:bg-neutral-900 rounded-3xl shadow-xl w-full max-w-2xl overflow-hidden"
                 style={{ boxShadow: '0 0 60px rgba(255, 255, 255, 0.15)' }}
             >
                 {/* Header */}
@@ -322,7 +321,7 @@ const ContractorRegistration = () => {
                     {/* Step 1: Account & Contact */}
                     {currentStep === 1 && (
                         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                            <h2 className="text-lg font-semibold text-slate-900 mb-4">Account & Contact Information</h2>
+                            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Account & Contact Information</h2>
 
                             <InputField label="Email" name="email" type="email" required icon={Mail} placeholder="company@example.com" value={formData.email} onChange={handleChange} error={errors.email} />
 
@@ -337,7 +336,7 @@ const ContractorRegistration = () => {
                                             name="password"
                                             value={formData.password}
                                             onChange={handleChange}
-                                            className={`w-full px-4 py-2.5 pr-10 rounded-xl border transition-all outline-none focus:ring-2 ${errors.password ? 'border-red-300' : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
+                                            className={`w-full px-4 py-2.5 pr-10 rounded-xl border transition-all outline-none focus:ring-2 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white ${errors.password ? 'border-red-300 dark:border-red-500/50' : 'border-slate-200 dark:border-neutral-700 focus:border-primary-500 focus:ring-primary-100 dark:focus:ring-primary-900/30'
                                                 }`}
                                         />
                                         <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
@@ -356,7 +355,7 @@ const ContractorRegistration = () => {
                                             name="confirm_password"
                                             value={formData.confirm_password}
                                             onChange={handleChange}
-                                            className={`w-full px-4 py-2.5 pr-10 rounded-xl border transition-all outline-none focus:ring-2 ${errors.confirm_password ? 'border-red-300' : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
+                                            className={`w-full px-4 py-2.5 pr-10 rounded-xl border transition-all outline-none focus:ring-2 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white ${errors.confirm_password ? 'border-red-300 dark:border-red-500/50' : 'border-slate-200 dark:border-neutral-700 focus:border-primary-500 focus:ring-primary-100 dark:focus:ring-primary-900/30'
                                                 }`}
                                         />
                                         <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
@@ -386,7 +385,7 @@ const ContractorRegistration = () => {
                     {/* Step 2: Company Details */}
                     {currentStep === 2 && (
                         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                            <h2 className="text-lg font-semibold text-slate-900 mb-4">Company & Legal Details</h2>
+                            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Company & Legal Details</h2>
 
                             <InputField label="Company Name" name="company_name" required icon={Building2} placeholder="ABC Infrastructure Pvt. Ltd." value={formData.company_name} onChange={handleChange} error={errors.company_name} />
 
@@ -402,7 +401,7 @@ const ContractorRegistration = () => {
                     {/* Step 3: Address */}
                     {currentStep === 3 && (
                         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                            <h2 className="text-lg font-semibold text-slate-900 mb-4">Registered Address</h2>
+                            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Registered Address</h2>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <InputField label="Building/Office No." name="building_number" placeholder="123-A" value={formData.building_number} onChange={handleChange} error={errors.building_number} />
@@ -432,8 +431,8 @@ const ContractorRegistration = () => {
                     {/* Step 4: Bank Details */}
                     {currentStep === 4 && (
                         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                            <h2 className="text-lg font-semibold text-slate-900 mb-4">Bank Account Details</h2>
-                            <p className="text-sm text-slate-500 mb-4">Required for bill payments and financial transactions.</p>
+                            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Bank Account Details</h2>
+                            <p className="text-sm text-slate-500 dark:text-neutral-400 mb-4">Required for bill payments and financial transactions.</p>
 
                             <SearchableSelect
                                 options={bankList}
@@ -486,14 +485,14 @@ const ContractorRegistration = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1.5">
                                     Account Type <span className="text-red-500">*</span>
                                 </label>
                                 <select
                                     name="account_type"
                                     value={formData.account_type}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none"
+                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/30 outline-none"
                                 >
                                     <option value="CURRENT">Current Account</option>
                                     <option value="SAVINGS">Savings Account</option>
