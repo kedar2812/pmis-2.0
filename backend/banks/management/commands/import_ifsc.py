@@ -162,9 +162,12 @@ class Command(BaseCommand):
             return
 
         finally:
-            # Cleanup temp file
-            if temp_file and os.path.exists(temp_file.name):
-                os.unlink(temp_file.name)
+            # Cleanup temp file (ignore errors on Windows due to file locking)
+            if temp_file:
+                try:
+                    os.unlink(temp_file.name)
+                except (PermissionError, OSError):
+                    pass  # File will be cleaned up by OS later
 
         # Summary
         db_count = BankBranch.objects.count()
