@@ -169,7 +169,7 @@ const RiskManagement = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
-        <span className="ml-2 text-gray-600 dark:text-neutral-400">Loading risk data...</span>
+        <span className="ml-2 text-app-muted">Loading risk data...</span>
       </div>
     );
   }
@@ -179,11 +179,11 @@ const RiskManagement = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-3xl font-bold text-app-heading flex items-center gap-2">
             <Shield className="text-orange-600" />
             {t('common.risk') || 'Risk Management'}
           </h1>
-          <p className="text-gray-600 dark:text-neutral-400 mt-1">
+          <p className="text-app-muted mt-1">
             {t('risk.subtitle') || 'Identify, assess, and mitigate project risks'}
           </p>
         </div>
@@ -292,7 +292,7 @@ const RiskManagement = () => {
                 name="Risks"
               />
             ) : (
-              <div className="h-64 flex items-center justify-center text-gray-500 dark:text-neutral-400">
+              <div className="h-64 flex items-center justify-center text-app-muted">
                 No data available
               </div>
             )}
@@ -313,7 +313,7 @@ const RiskManagement = () => {
                 colors={['#ef4444', '#f97316', '#eab308', '#22c55e']}
               />
             ) : (
-              <div className="h-64 flex items-center justify-center text-gray-500">
+              <div className="h-64 flex items-center justify-center text-app-muted">
                 No data available
               </div>
             )}
@@ -327,13 +327,13 @@ const RiskManagement = () => {
           <div className="flex flex-wrap gap-4">
             {/* Search */}
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted-light" size={18} />
               <input
                 type="text"
                 placeholder="Search risks..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full pl-10 pr-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
 
@@ -341,7 +341,7 @@ const RiskManagement = () => {
             <select
               value={selectedProject}
               onChange={(e) => setSelectedProject(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+              className="px-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500"
             >
               <option value="">All Projects</option>
               {projects.map(p => (
@@ -353,7 +353,7 @@ const RiskManagement = () => {
             <select
               value={selectedSeverity}
               onChange={(e) => setSelectedSeverity(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+              className="px-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500"
             >
               <option value="">All Severities</option>
               <option value="CRITICAL">Critical</option>
@@ -366,7 +366,7 @@ const RiskManagement = () => {
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+              className="px-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500"
             >
               <option value="">All Statuses</option>
               {riskService.STATUSES.map(s => (
@@ -378,7 +378,7 @@ const RiskManagement = () => {
             <button
               onClick={fetchData}
               disabled={loading}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
+              className="px-4 py-2 border border-app rounded-lg hover:bg-app-subtle flex items-center gap-2 text-app-text"
             >
               <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
               Refresh
@@ -392,9 +392,9 @@ const RiskManagement = () => {
         {Object.entries(risksByProject).length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
-              <Shield className="mx-auto text-gray-400 mb-4" size={48} />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Risks Found</h3>
-              <p className="text-gray-600 dark:text-neutral-400 mb-4">
+              <Shield className="mx-auto text-app-muted-light mb-4" size={48} />
+              <h3 className="text-lg font-medium text-app-heading mb-2">No Risks Found</h3>
+              <p className="text-app-muted mb-4">
                 {searchQuery || selectedProject || selectedSeverity || selectedStatus
                   ? 'No risks match your current filters. Try adjusting your search.'
                   : 'No risks have been registered yet. Click "Add New Risk" to get started.'}
@@ -412,19 +412,19 @@ const RiskManagement = () => {
           Object.entries(risksByProject).map(([projectId, { projectName, risks: projectRisks }]) => (
             <Card key={projectId}>
               <CardHeader
-                className="cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                className="cursor-pointer hover:bg-app-surface transition-colors"
                 onClick={() => toggleProjectExpand(projectId)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     {expandedProjects[projectId] ? (
-                      <ChevronDown className="text-gray-500" size={20} />
+                      <ChevronDown className="text-app-muted" size={20} />
                     ) : (
-                      <ChevronRight className="text-gray-500" size={20} />
+                      <ChevronRight className="text-app-muted" size={20} />
                     )}
                     <Building className="text-primary-600" size={20} />
                     <CardTitle className="text-lg">{projectName}</CardTitle>
-                    <span className="px-2 py-1 bg-gray-100 dark:bg-neutral-800 rounded-full text-sm text-gray-600 dark:text-gray-400">
+                    <span className="px-2 py-1 bg-app-surface rounded-full text-sm text-app-muted">
                       {projectRisks.length} {projectRisks.length === 1 ? 'risk' : 'risks'}
                     </span>
                   </div>
@@ -457,12 +457,12 @@ const RiskManagement = () => {
                           <div
                             key={risk.id}
                             onClick={() => handleRiskClick(risk)}
-                            className="p-4 bg-gray-50 dark:bg-neutral-800 rounded-lg border border-gray-200 dark:border-neutral-700 hover:border-primary-300 hover:shadow-sm cursor-pointer transition-all"
+                            className="p-4 bg-app-surface rounded-lg border border-app-subtle hover:border-primary-300 hover:shadow-sm cursor-pointer transition-all"
                           >
                             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
-                                  <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{risk.risk_code}</span>
+                                  <span className="text-xs text-app-muted font-mono">{risk.risk_code}</span>
                                   <SeverityBadge severity={risk.severity} />
                                   <StatusBadge status={risk.status} />
                                   {risk.is_overdue && (
@@ -471,8 +471,8 @@ const RiskManagement = () => {
                                     </span>
                                   )}
                                 </div>
-                                <h3 className="font-medium text-gray-900 dark:text-white mb-1">{risk.title}</h3>
-                                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                                <h3 className="font-medium text-app-heading mb-1">{risk.title}</h3>
+                                <div className="flex flex-wrap items-center gap-4 text-sm text-app-muted">
                                   {risk.category && (
                                     <span className="flex items-center gap-1">
                                       <Target size={14} />
@@ -495,17 +495,17 @@ const RiskManagement = () => {
                               </div>
                               <div className="flex items-center gap-4 text-sm">
                                 <div className="text-center">
-                                  <div className="text-2xl font-bold text-gray-900 dark:text-white">{risk.risk_score}</div>
-                                  <div className="text-xs text-gray-500 dark:text-gray-400">Score</div>
+                                  <div className="text-2xl font-bold text-app-heading">{risk.risk_score}</div>
+                                  <div className="text-xs text-app-muted">Score</div>
                                 </div>
                                 <div className="text-center">
-                                  <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">{risk.mitigation_count || 0}</div>
-                                  <div className="text-xs text-gray-500 dark:text-gray-400">Mitigations</div>
+                                  <div className="text-lg font-semibold text-app-text-medium">{risk.mitigation_count || 0}</div>
+                                  <div className="text-xs text-app-muted">Mitigations</div>
                                 </div>
                                 {risk.document_count > 0 && (
                                   <div className="text-center">
-                                    <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">{risk.document_count}</div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400">Docs</div>
+                                    <div className="text-lg font-semibold text-app-text-medium">{risk.document_count}</div>
+                                    <div className="text-xs text-app-muted">Docs</div>
                                   </div>
                                 )}
                               </div>

@@ -100,8 +100,8 @@ const Projects = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{t('projects.title')}</h1>
-          <p className="text-slate-600 dark:text-neutral-400 mt-1 text-sm sm:text-base">{t('projects.subtitle')}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-app-heading">{t('projects.title')}</h1>
+          <p className="text-app-muted mt-1 text-sm sm:text-base">{t('projects.subtitle')}</p>
         </div>
         {canCreateProject && (
           <div className="flex gap-2 sm:gap-3">
@@ -143,8 +143,8 @@ const Projects = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-neutral-300">{t('projects.totalProjects')}</p>
-                    <p className="text-2xl font-bold mt-1 dark:text-white">{projects.length}</p>
+                    <p className="text-sm text-app-muted">{t('projects.totalProjects')}</p>
+                    <p className="text-2xl font-bold mt-1 text-app-heading">{projects.length}</p>
                   </div>
                   <FolderOpen className="text-primary-600" size={32} />
                 </div>
@@ -164,8 +164,8 @@ const Projects = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-neutral-300">{t('common.inProgress')}</p>
-                    <p className="text-2xl font-bold mt-1 dark:text-white">
+                    <p className="text-sm text-app-muted">{t('common.inProgress')}</p>
+                    <p className="text-2xl font-bold mt-1 text-app-heading">
                       {projects.filter((p) => p.status === 'In Progress').length}
                     </p>
                   </div>
@@ -187,8 +187,8 @@ const Projects = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-neutral-300">{t('common.completed')}</p>
-                    <p className="text-2xl font-bold mt-1 dark:text-white">
+                    <p className="text-sm text-app-muted">{t('common.completed')}</p>
+                    <p className="text-2xl font-bold mt-1 text-app-heading">
                       {projects.filter((p) => p.status === 'Completed').length}
                     </p>
                   </div>
@@ -211,8 +211,8 @@ const Projects = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-neutral-300">{t('projects.totalBudget')}</p>
-                    <p className="text-lg font-bold mt-1 dark:text-white">
+                    <p className="text-sm text-app-muted">{t('projects.totalBudget')}</p>
+                    <p className="text-lg font-bold mt-1 text-app-heading">
                       {formatCurrency(projects.filter(p => p.status === 'In Progress' || p.status === 'Completed').reduce((sum, p) => sum + Number(p.budget || 0), 0))}
                     </p>
                   </div>
@@ -229,20 +229,20 @@ const Projects = () => {
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-neutral-400" size={18} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-app-muted" size={18} />
               <input
                 type="text"
                 placeholder={t('projects.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-app bg-app-card text-app-heading rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 aria-label="Search projects"
               />
             </div>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-slate-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-4 py-2 border border-app bg-app-card text-app-heading rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               aria-label="Filter by status"
             >
               <option value="all">{t('projects.allStatus')}</option>
@@ -294,8 +294,8 @@ const Projects = () => {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg mb-2 dark:text-white">{project.name}</CardTitle>
-                      <p className="text-sm text-gray-600 dark:text-neutral-300 line-clamp-2">{project.description}</p>
+                      <CardTitle className="text-lg mb-2 text-app-heading">{project.name}</CardTitle>
+                      <p className="text-sm text-app-muted line-clamp-2">{project.description}</p>
                     </div>
                     <span
                       className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadgeColor(project.status)}`}
@@ -309,10 +309,10 @@ const Projects = () => {
                     {/* Project Progress */}
                     <div>
                       <div className="flex items-center justify-between text-sm mb-2">
-                        <span className="text-slate-600 dark:text-neutral-300">{t('common.progress')}</span>
+                        <span className="text-app-muted">{t('common.progress')}</span>
                         <span className="font-semibold text-primary-600 dark:text-primary-400">{project.progress}%</span>
                       </div>
-                      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-app-secondary rounded-full overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${project.progress}%` }}
@@ -330,12 +330,12 @@ const Projects = () => {
                     {/* Budget Utilization */}
                     <div>
                       <div className="flex items-center justify-between text-sm mb-2">
-                        <span className="text-gray-600 dark:text-neutral-300">{t('projects.budgetUtilization')}</span>
+                        <span className="text-app-muted">{t('projects.budgetUtilization')}</span>
                         <span className="font-semibold text-primary-600 dark:text-primary-400">
                           {calculateBudgetUtilization(project.budget, project.spent).toFixed(1)}%
                         </span>
                       </div>
-                      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-app-secondary rounded-full overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${Math.min((project.spent / project.budget) * 100, 100)}%` }}
@@ -356,12 +356,12 @@ const Projects = () => {
                     ) : project.landAcquisitionStatus !== undefined ? (
                       <div>
                         <div className="flex items-center justify-between text-sm mb-2">
-                          <span className="text-slate-600 dark:text-neutral-300">Land Acquisition Status</span>
+                          <span className="text-app-muted">Land Acquisition Status</span>
                           <span className="font-semibold text-primary-600 dark:text-primary-400">
                             {project.landAcquisitionStatus}%
                           </span>
                         </div>
-                        <div className="w-full h-2 bg-slate-200 dark:bg-neutral-700 rounded-full overflow-hidden">
+                        <div className="w-full h-2 bg-app-secondary rounded-full overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${project.landAcquisitionStatus}%` }}

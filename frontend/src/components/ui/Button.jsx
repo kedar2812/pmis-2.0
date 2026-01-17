@@ -66,8 +66,8 @@ const Button = forwardRef(
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2',
           'disabled:pointer-events-none disabled:opacity-50',
           {
-            'border border-slate-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-slate-700 dark:text-neutral-200 hover:bg-slate-50 dark:hover:bg-neutral-800': variant === 'outline',
-            'text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-neutral-800': variant === 'ghost',
+            'border border-app-subtle bg-app-card text-app-heading hover:bg-app-hover': variant === 'outline',
+            'text-app-heading hover:bg-app-hover': variant === 'ghost',
             'bg-red-600 dark:bg-red-700 text-white hover:bg-red-700 dark:hover:bg-red-800': variant === 'destructive',
             'h-8 px-3 text-sm': size === 'sm',
             'h-10 px-4': size === 'md',

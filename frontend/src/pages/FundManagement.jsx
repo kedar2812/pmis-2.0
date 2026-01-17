@@ -66,8 +66,8 @@ const FundManagement = () => {
         <div className="p-6 space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Fund Management</h1>
-                    <p className="text-slate-500 dark:text-neutral-400 text-sm">Track Grants, Loans, and Budgetary Allocations</p>
+                    <h1 className="text-2xl font-bold text-app-heading">Fund Management</h1>
+                    <p className="text-app-muted text-sm">Track Grants, Loans, and Budgetary Allocations</p>
                 </div>
                 <Button onClick={() => setIsModalOpen(true)} className="bg-primary-600 text-white">
                     <Plus size={18} className="mr-2" /> Add Fund Source
@@ -90,9 +90,9 @@ const FundManagement = () => {
             </div>
 
             {/* List */}
-            <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-slate-200 dark:border-neutral-700 overflow-hidden">
+            <div className="bg-app-card rounded-xl shadow-sm border border-app-subtle overflow-hidden">
                 <table className="w-full text-sm text-left">
-                    <thead className="bg-slate-50 dark:bg-neutral-800 text-slate-500 dark:text-neutral-400 font-medium border-b border-slate-200 dark:border-neutral-700">
+                    <thead className="bg-app-surface text-app-muted font-medium border-b border-app-subtle">
                         <tr>
                             <th className="px-6 py-4">Fund Name</th>
                             <th className="px-6 py-4">Authority</th>
@@ -100,15 +100,15 @@ const FundManagement = () => {
                             <th className="px-6 py-4 text-right">Allocation Period</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
+                    <tbody className="divide-y divide-app-subtle">
                         {funds.map(fund => (
-                            <tr key={fund.id} className="hover:bg-slate-50 dark:hover:bg-neutral-800">
-                                <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{fund.name}</td>
-                                <td className="px-6 py-4 text-slate-600 dark:text-neutral-400">{fund.allocating_authority}</td>
-                                <td className="px-6 py-4 text-right font-mono font-medium dark:text-neutral-300">
+                            <tr key={fund.id} className="hover:bg-app-surface">
+                                <td className="px-6 py-4 font-medium text-app-heading">{fund.name}</td>
+                                <td className="px-6 py-4 text-app-muted">{fund.allocating_authority}</td>
+                                <td className="px-6 py-4 text-right font-mono font-medium text-app-text">
                                     {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(fund.total_amount)}
                                 </td>
-                                <td className="px-6 py-4 text-right text-slate-500 dark:text-neutral-400">
+                                <td className="px-6 py-4 text-right text-app-muted">
                                     {new Date(fund.start_date).getFullYear()} - {new Date(fund.end_date).getFullYear()}
                                 </td>
                             </tr>
@@ -116,7 +116,7 @@ const FundManagement = () => {
                     </tbody>
                 </table>
                 {funds.length === 0 && !loading && (
-                    <div className="p-8 text-center text-slate-400 dark:text-neutral-500">No funds allocated yet.</div>
+                    <div className="p-8 text-center text-app-muted">No funds allocated yet.</div>
                 )}
             </div>
 
@@ -141,37 +141,37 @@ const FundManagement = () => {
                                 transition={{ duration: 0.2 }}
                                 className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none"
                             >
-                                <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl p-6 w-96 pointer-events-auto border dark:border-neutral-700">
+                                <div className="bg-app-card rounded-xl shadow-2xl p-6 w-96 pointer-events-auto border border-app-subtle">
                                     <div className="flex justify-between items-center mb-4">
-                                        <h2 className="text-lg font-bold dark:text-white">Add Fund Source</h2>
+                                        <h2 className="text-lg font-bold text-app-heading">Add Fund Source</h2>
                                         <button
                                             onClick={() => setIsModalOpen(false)}
-                                            className="p-1 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+                                            className="p-1 hover:bg-app-surface rounded-full transition-colors"
                                         >
-                                            <X size={18} className="text-slate-500 dark:text-neutral-400" />
+                                            <X size={18} className="text-app-muted" />
                                         </button>
                                     </div>
                                     <form onSubmit={handleSave} className="space-y-4">
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-700 dark:text-neutral-300">Fund Name</label>
-                                            <input name="name" required className="w-full border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="e.g. World Bank Tranche 1" />
+                                            <label className="block text-xs font-bold text-app-muted">Fund Name</label>
+                                            <input name="name" required className="w-full border border-app bg-app-input text-app-text rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="e.g. World Bank Tranche 1" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-700 dark:text-neutral-300">Allocating Authority</label>
-                                            <input name="allocating_authority" required className="w-full border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="e.g. Dept of Finance" />
+                                            <label className="block text-xs font-bold text-app-muted">Allocating Authority</label>
+                                            <input name="allocating_authority" required className="w-full border border-app bg-app-input text-app-text rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="e.g. Dept of Finance" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-700 dark:text-neutral-300">Total Amount (INR)</label>
-                                            <input name="total_amount" type="number" required className="w-full border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+                                            <label className="block text-xs font-bold text-app-muted">Total Amount (INR)</label>
+                                            <input name="total_amount" type="number" required className="w-full border border-app bg-app-input text-app-text rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
                                         </div>
                                         <div className="grid grid-cols-2 gap-2">
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-700 dark:text-neutral-300">Start Date</label>
-                                                <input name="start_date" type="date" required className="w-full border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+                                                <label className="block text-xs font-bold text-app-muted">Start Date</label>
+                                                <input name="start_date" type="date" required className="w-full border border-app bg-app-input text-app-text rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-700 dark:text-neutral-300">Valid Till</label>
-                                                <input name="end_date" type="date" required className="w-full border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+                                                <label className="block text-xs font-bold text-app-muted">Valid Till</label>
+                                                <input name="end_date" type="date" required className="w-full border border-app bg-app-input text-app-text rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-2 pt-4">

@@ -354,8 +354,8 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
   if (!isOpen) return null;
 
   // Common input classes matching website UI
-  const inputClasses = "w-full px-3 py-2.5 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-950 text-slate-700 dark:text-white text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-indigo-500/30 outline-none transition-all";
-  const labelClasses = "block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1.5";
+  const inputClasses = "w-full px-3 py-2.5 rounded-lg border border-app bg-app-input text-app-text text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-indigo-500/30 outline-none transition-all";
+  const labelClasses = "block text-sm font-medium text-app-text mb-1.5";
   const errorClasses = "text-xs text-red-500 dark:text-red-400 mt-1";
 
   return createPortal(
@@ -363,28 +363,28 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-app-overlay backdrop-blur-sm p-4"
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="w-full max-w-4xl bg-white dark:bg-neutral-900 rounded-xl sm:rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]"
+        className="w-full max-w-4xl bg-app-card rounded-xl sm:rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 sm:p-6 border-b border-slate-100 dark:border-neutral-700 flex justify-between items-center bg-white dark:bg-neutral-900 z-10">
+        <div className="p-4 sm:p-6 border-b border-app-subtle flex justify-between items-center bg-app-card z-10">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Create New Project</h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-neutral-400">Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1].title}</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-app-heading">Create New Project</h2>
+            <p className="text-xs sm:text-sm text-app-muted">Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1].title}</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
-            <X size={24} className="text-slate-500 dark:text-neutral-400" />
+          <button onClick={onClose} className="p-2 hover:bg-app-surface rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
+            <X size={24} className="text-app-muted" />
           </button>
         </div>
 
         {/* Progress Bar */}
-        <div className="h-1 w-full bg-slate-100 dark:bg-neutral-800">
+        <div className="h-1 w-full bg-app-surface">
           <motion.div
             className="h-full bg-primary-600"
             initial={{ width: 0 }}
@@ -487,9 +487,9 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                       </select>
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                         {loadingManagers ? (
-                          <Loader2 size={16} className="animate-spin text-slate-400" />
+                          <Loader2 size={16} className="animate-spin text-app-muted" />
                         ) : (
-                          <ChevronRight size={16} className="text-slate-400 rotate-90" />
+                          <ChevronRight size={16} className="text-app-muted rotate-90" />
                         )}
                       </div>
                     </div>
@@ -512,7 +512,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                     </div>
                   )}
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-app-heading mb-3 flex items-center gap-2">
                       <span className="w-6 h-6 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-xs">1</span>
                       Administrative Hierarchy <span className="text-red-500">*</span>
                     </h3>
@@ -520,10 +520,10 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                       value={formData.hierarchy}
                       onChange={(val) => setFormData({ ...formData, hierarchy: val })}
                     />
-                    <p className="text-xs text-slate-400 dark:text-neutral-500 mt-2">Zone and Division are required</p>
+                    <p className="text-xs text-app-muted mt-2">Zone and Division are required</p>
                   </div>
-                  <div className="border-t border-slate-100 dark:border-neutral-700 pt-6">
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                  <div className="border-t border-app-subtle pt-6">
+                    <h3 className="text-sm font-semibold text-app-heading mb-3 flex items-center gap-2">
                       <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs">2</span>
                       Geographic Location <span className="text-red-500">*</span>
                     </h3>
@@ -531,7 +531,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                       value={formData.geography}
                       onChange={(val) => setFormData({ ...formData, geography: val })}
                     />
-                    <p className="text-xs text-slate-400 dark:text-neutral-500 mt-2">District is required</p>
+                    <p className="text-xs text-app-muted mt-2">District is required</p>
                   </div>
                 </div>
               )}
@@ -550,7 +550,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                       </ul>
                     </div>
                   )}
-                  <p className="text-sm text-slate-500 dark:text-neutral-400 mb-4">
+                  <p className="text-sm text-app-muted mb-4">
                     Select the scheme, work type, and category for this project. <span className="text-red-500">All fields are required.</span>
                   </p>
                   <ClassificationSelector
@@ -581,10 +581,10 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                     </div>
                   )}
 
-                  <h3 className="font-medium text-slate-900 dark:text-white">Add Funding Pattern</h3>
-                  <div className="border border-slate-200 dark:border-neutral-700 rounded-lg overflow-hidden">
+                  <h3 className="font-medium text-app-heading">Add Funding Pattern</h3>
+                  <div className="border border-app-subtle rounded-lg overflow-hidden">
                     <table className="w-full text-sm text-left">
-                      <thead className="bg-slate-50 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300">
+                      <thead className="bg-app-surface text-app-muted">
                         <tr>
                           <th className="p-3 font-medium">Source</th>
                           <th className="p-3 font-medium">Amount (₹)</th>
@@ -592,7 +592,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                           <th className="p-3 w-12"></th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-neutral-700">
+                      <tbody className="divide-y divide-app-subtle">
                         {formData.fundingPattern.map((item, idx) => (
                           <tr key={item.id}>
                             <td className="p-3">
@@ -605,7 +605,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                                   placeholder="Enter source name"
                                 />
                               ) : (
-                                <span className="text-slate-600 dark:text-neutral-300">{item.source}</span>
+                                <span className="text-app-text">{item.source}</span>
                               )}
                             </td>
                             <td className="p-3">
@@ -642,14 +642,14 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                                   onClick={() => document.getElementById(`funding-doc-${idx}`).click()}
                                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${item.document
                                     ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50'
-                                    : 'bg-slate-100 dark:bg-neutral-700 text-slate-600 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-neutral-600'
+                                    : 'bg-app-surface text-app-muted hover:bg-app-subtle'
                                     }`}
                                 >
                                   <Paperclip size={14} />
                                   {item.document ? 'Attached ✓' : 'Attach'}
                                 </button>
                                 {item.document && (
-                                  <span className="text-xs text-slate-500 dark:text-neutral-400 truncate max-w-[100px]">
+                                  <span className="text-xs text-app-muted truncate max-w-[100px]">
                                     {item.document.name}
                                   </span>
                                 )}
@@ -687,7 +687,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                     </button>
 
                     <div className="text-right">
-                      <p className="text-sm text-slate-500 dark:text-neutral-400">Total Allocated:</p>
+                      <p className="text-sm text-app-muted">Total Allocated:</p>
                       <p className={`text-lg font-bold ${fundingMismatch ? 'text-red-600' : 'text-green-600'}`}>
                         ₹{fundingTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                         {!fundingMismatch && projectBudget > 0 && (
@@ -734,7 +734,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                     className={`p-8 border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center transition-colors cursor-pointer ${errors.adminApprovalDoc ? 'border-red-300 bg-red-50' :
                       isDragging ? 'border-primary-500 bg-primary-50' :
                         formData.adminApprovalDoc ? 'border-green-500 bg-green-50' :
-                          'border-slate-200 dark:border-neutral-700 hover:bg-slate-50 dark:hover:bg-neutral-800'
+                          'border-app-subtle hover:bg-app-surface'
                       }`}
                   >
                     <input
@@ -764,11 +764,11 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                       </>
                     ) : (
                       <>
-                        <p className="font-medium text-slate-900">Upload Administrative Approval Document *</p>
-                        <p className="text-sm text-slate-500 mt-1">
+                        <p className="font-medium text-app-heading">Upload Administrative Approval Document *</p>
+                        <p className="text-sm text-app-muted mt-1">
                           {isDragging ? 'Drop file here' : 'Drag and drop or click to browse'}
                         </p>
-                        <p className="text-xs text-slate-400 mt-2">Supported formats: PDF, DOC, DOCX</p>
+                        <p className="text-xs text-app-muted mt-2">Supported formats: PDF, DOC, DOCX</p>
                       </>
                     )}
                   </div>
@@ -782,7 +782,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 sm:p-6 border-t border-slate-100 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800 flex flex-col sm:flex-row justify-between gap-3">
+        <div className="p-4 sm:p-6 border-t border-app-subtle bg-app-surface flex flex-col sm:flex-row justify-between gap-3">
           <Button
             variant="outline"
             onClick={currentStep === 1 ? onClose : handleBack}

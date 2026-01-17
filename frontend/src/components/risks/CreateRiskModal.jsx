@@ -157,22 +157,22 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
             }
             matrix.push(
                 <div key={p} className="flex gap-1 items-center">
-                    <span className="w-6 text-xs text-gray-500 dark:text-neutral-400 text-right">{p}</span>
+                    <span className="w-6 text-xs text-app-muted text-right">{p}</span>
                     {row}
                 </div>
             );
         }
         return (
-            <div className="p-4 bg-gray-50 dark:bg-neutral-800 rounded-lg">
+            <div className="p-4 bg-app-surface rounded-lg">
                 <div className="flex flex-col gap-1">
                     {matrix}
                     <div className="flex gap-1 mt-1 pl-7">
                         {[1, 2, 3, 4, 5].map(i => (
-                            <span key={i} className="w-10 text-center text-xs text-gray-500 dark:text-neutral-400">{i}</span>
+                            <span key={i} className="w-10 text-center text-xs text-app-muted">{i}</span>
                         ))}
                     </div>
                 </div>
-                <div className="flex justify-between mt-4 text-xs text-gray-500 dark:text-neutral-400">
+                <div className="flex justify-between mt-4 text-xs text-app-muted">
                     <span>Impact →</span>
                     <span>↑ Probability</span>
                 </div>
@@ -199,10 +199,10 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative bg-white dark:bg-neutral-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+                    className="relative bg-app-card rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
                 >
                     {/* Header */}
-                    <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-orange-500 to-red-500">
+                    <div className="px-6 py-4 border-b border-app-subtle bg-gradient-to-r from-orange-500 to-red-500">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <AlertTriangle className="text-white" size={24} />
@@ -256,13 +256,13 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                         {step === 1 && (
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
+                                    <label className="block text-sm font-medium text-app-text-medium mb-1">
                                         Project <span className="text-red-500">*</span>
                                     </label>
                                     <select
                                         value={formData.project}
                                         onChange={(e) => handleChange('project', e.target.value)}
-                                        className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        className="w-full px-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                     >
                                         <option value="">Select a project</option>
                                         {projects.map(p => (
@@ -272,7 +272,7 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
+                                    <label className="block text-sm font-medium text-app-text-medium mb-1">
                                         Risk Title <span className="text-red-500">*</span>
                                     </label>
                                     <input
@@ -280,12 +280,12 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                                         value={formData.title}
                                         onChange={(e) => handleChange('title', e.target.value)}
                                         placeholder="Brief risk title (e.g., 'Monsoon delay risk')"
-                                        className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        className="w-full px-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
+                                    <label className="block text-sm font-medium text-app-text-medium mb-1">
                                         Description <span className="text-red-500">*</span>
                                     </label>
                                     <textarea
@@ -293,19 +293,19 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                                         onChange={(e) => handleChange('description', e.target.value)}
                                         placeholder="Detailed description of the risk..."
                                         rows={4}
-                                        className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        className="w-full px-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                     />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
+                                        <label className="block text-sm font-medium text-app-text-medium mb-1">
                                             Category
                                         </label>
                                         <select
                                             value={formData.category}
                                             onChange={(e) => handleChange('category', e.target.value)}
-                                            className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                            className="w-full px-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                         >
                                             {riskService.CATEGORIES.map(c => (
                                                 <option key={c.value} value={c.value}>{c.label}</option>
@@ -314,13 +314,13 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
+                                        <label className="block text-sm font-medium text-app-text-medium mb-1">
                                             Risk Source
                                         </label>
                                         <select
                                             value={formData.risk_source}
                                             onChange={(e) => handleChange('risk_source', e.target.value)}
-                                            className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                            className="w-full px-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                         >
                                             <option value="INTERNAL">Internal</option>
                                             <option value="EXTERNAL">External</option>
@@ -334,24 +334,24 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                         {step === 2 && (
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-3">
+                                    <label className="block text-sm font-medium text-app-text-medium mb-3">
                                         Risk Assessment Matrix
                                     </label>
-                                    <p className="text-sm text-gray-500 dark:text-neutral-400 mb-4">
+                                    <p className="text-sm text-app-muted mb-4">
                                         Click on a cell to set probability (vertical) and impact (horizontal)
                                     </p>
                                     <RiskMatrix />
                                 </div>
 
-                                <div className="flex items-center justify-center gap-6 py-4 bg-gray-50 dark:bg-neutral-800 rounded-lg">
+                                <div className="flex items-center justify-center gap-6 py-4 bg-app-surface rounded-lg">
                                     <div className="text-center">
-                                        <div className="text-sm text-gray-500 dark:text-neutral-400 mb-1">Risk Score</div>
+                                        <div className="text-sm text-app-muted mb-1">Risk Score</div>
                                         <div className={`text-4xl font-bold ${severityColors.text}`}>
                                             {riskScore}
                                         </div>
                                     </div>
                                     <div className="text-center">
-                                        <div className="text-sm text-gray-500 dark:text-neutral-400 mb-1">Severity</div>
+                                        <div className="text-sm text-app-muted mb-1">Severity</div>
                                         <span className={`px-4 py-2 rounded-full text-lg font-medium ${severityColors.bg} ${severityColors.text}`}>
                                             {severity}
                                         </span>
@@ -360,13 +360,13 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
+                                        <label className="block text-sm font-medium text-app-text-medium mb-1">
                                             Status
                                         </label>
                                         <select
                                             value={formData.status}
                                             onChange={(e) => handleChange('status', e.target.value)}
-                                            className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                            className="w-full px-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                         >
                                             {riskService.STATUSES.map(s => (
                                                 <option key={s.value} value={s.value}>{s.label}</option>
@@ -375,14 +375,14 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
+                                        <label className="block text-sm font-medium text-app-text-medium mb-1">
                                             Target Resolution Date
                                         </label>
                                         <input
                                             type="date"
                                             value={formData.target_resolution}
                                             onChange={(e) => handleChange('target_resolution', e.target.value)}
-                                            className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                            className="w-full px-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                         />
                                     </div>
                                 </div>
@@ -393,7 +393,7 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                         {step === 3 && (
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
+                                    <label className="block text-sm font-medium text-app-text-medium mb-1">
                                         Response Strategy
                                     </label>
                                     <div className="grid grid-cols-5 gap-2">
@@ -406,7 +406,7 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                           px-3 py-2 text-sm rounded-lg border transition-all
                           ${formData.response_strategy === s.value
                                                         ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400'
-                                                        : 'border-gray-300 dark:border-neutral-600 dark:text-neutral-300 hover:border-gray-400'}
+                                                        : 'border-app bg-app-surface text-app-muted hover:border-app-muted'}
                         `}
                                             >
                                                 {s.label}
@@ -416,7 +416,7 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
+                                    <label className="block text-sm font-medium text-app-text-medium mb-1">
                                         Mitigation Plan
                                     </label>
                                     <textarea
@@ -424,12 +424,12 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                                         onChange={(e) => handleChange('mitigation_plan', e.target.value)}
                                         placeholder="Describe actions to reduce probability or impact..."
                                         rows={3}
-                                        className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        className="w-full px-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
+                                    <label className="block text-sm font-medium text-app-text-medium mb-1">
                                         Contingency Plan
                                     </label>
                                     <textarea
@@ -437,13 +437,13 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                                         onChange={(e) => handleChange('contingency_plan', e.target.value)}
                                         placeholder="Describe actions if risk materializes..."
                                         rows={3}
-                                        className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        className="w-full px-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                     />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
+                                        <label className="block text-sm font-medium text-app-text-medium mb-1">
                                             Cost Impact (₹)
                                         </label>
                                         <input
@@ -451,12 +451,12 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                                             value={formData.cost_impact}
                                             onChange={(e) => handleChange('cost_impact', e.target.value)}
                                             placeholder="Estimated financial impact"
-                                            className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                            className="w-full px-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
+                                        <label className="block text-sm font-medium text-app-text-medium mb-1">
                                             Schedule Impact (days)
                                         </label>
                                         <input
@@ -464,7 +464,7 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                                             value={formData.schedule_impact_days}
                                             onChange={(e) => handleChange('schedule_impact_days', e.target.value)}
                                             placeholder="Estimated delay in days"
-                                            className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                            className="w-full px-4 py-2 border border-app bg-app-input text-app-text rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                         />
                                     </div>
                                 </div>
@@ -473,13 +473,13 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                     </div>
 
                     {/* Footer */}
-                    <div className="px-6 py-4 border-t border-gray-200 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 flex items-center justify-between">
+                    <div className="px-6 py-4 border-t border-app-subtle bg-app-surface flex items-center justify-between">
                         <div>
                             {step > 1 && (
                                 <button
                                     type="button"
                                     onClick={prevStep}
-                                    className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 text-app-muted hover:text-app-text transition-colors"
                                 >
                                     <ChevronLeft size={18} />
                                     Previous
@@ -490,7 +490,7 @@ const CreateRiskModal = ({ isOpen, onClose, onSuccess, projects, editingRisk = n
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-4 py-2 text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                className="px-4 py-2 text-app-muted hover:text-app-text transition-colors"
                             >
                                 Cancel
                             </button>

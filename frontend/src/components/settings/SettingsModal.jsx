@@ -112,7 +112,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
                         className="fixed inset-4 md:inset-10 lg:inset-16 z-[101] flex"
                     >
-                        <div className="w-full h-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl rounded-3xl border border-white/30 dark:border-neutral-700/30 shadow-[0_32px_64px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col">
+                        <div className="w-full h-full bg-app-card/90 backdrop-blur-xl rounded-3xl border border-app-subtle shadow-[0_32px_64px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col">
                             {/* Header */}
                             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200/50 dark:border-neutral-700/50">
                                 <div className="flex items-center gap-3">
@@ -120,8 +120,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                         <Settings className="text-white" size={20} />
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-bold text-slate-800 dark:text-white">Settings</h2>
-                                        <p className="text-xs text-slate-400 dark:text-neutral-500">Manage your PMIS configuration</p>
+                                        <h2 className="text-xl font-bold text-app-heading">Settings</h2>
+                                        <p className="text-xs text-app-muted">Manage your PMIS configuration</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
@@ -139,7 +139,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                             {/* Content */}
                             <div className="flex-1 flex overflow-hidden">
                                 {/* Sidebar */}
-                                <div className="w-64 border-r border-slate-200/50 dark:border-neutral-700/50 flex flex-col bg-slate-50/50 dark:bg-neutral-800/50">
+                                <div className="w-64 border-r border-app-subtle flex flex-col bg-app-secondary">
                                     <div className="p-4">
                                         <div className="relative">
                                             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -217,13 +217,13 @@ const SettingsModal = ({ isOpen, onClose }) => {
 // Helper Components
 const SectionHeader = ({ title, description }) => (
     <div className="mb-6">
-        <h3 className="text-lg font-bold text-slate-800 dark:text-white">{title}</h3>
-        {description && <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">{description}</p>}
+        <h3 className="text-lg font-bold text-app-heading">{title}</h3>
+        {description && <p className="text-sm text-app-muted mt-1">{description}</p>}
     </div>
 );
 
 const SettingsCard = ({ children, className = '' }) => (
-    <div className={`bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-700 p-6 ${className}`}>{children}</div>
+    <div className={`bg-app-card rounded-2xl border border-app-subtle p-6 ${className}`}>{children}</div>
 );
 
 const SettingsRow = ({ icon: Icon, title, description, children }) => (
@@ -426,19 +426,19 @@ const RolesPermissionsSection = () => {
                 <SettingsCard>
                     <div className="flex items-center gap-2 mb-4">
                         <input type="text" value={newRoleName} onChange={(e) => setNewRoleName(e.target.value)} placeholder="New role name"
-                            className="flex-1 px-3 py-2 text-sm bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-600 rounded-lg" onKeyPress={(e) => e.key === 'Enter' && handleCreateRole()} />
+                            className="flex-1 px-3 py-2 text-sm bg-app-input text-app-text border border-app-border rounded-lg placeholder:text-app-muted" onKeyPress={(e) => e.key === 'Enter' && handleCreateRole()} />
                         <button onClick={handleCreateRole} className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"><Plus size={16} /></button>
                     </div>
                     <div className="space-y-2">
                         {Object.entries(roles).map(([key, data]) => (
                             <div key={key} onClick={() => handleSelectRole(key)}
-                                className={`p-3 rounded-lg border cursor-pointer ${selectedRole === key ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-neutral-700 hover:border-slate-300 dark:hover:border-neutral-600'}`}>
+                                className={`p-3 rounded-lg border cursor-pointer ${selectedRole === key ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-app-border hover:border-app-border-hover hover:bg-app-layer-2'}`}>
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="font-semibold text-sm dark:text-white">{key.replace(/_/g, ' ')}</p>
-                                        <p className="text-xs text-slate-500 dark:text-neutral-400">{data.accessLevel} • {data.permissions.length} permissions</p>
+                                        <p className="font-semibold text-sm text-app-heading">{key.replace(/_/g, ' ')}</p>
+                                        <p className="text-xs text-app-muted">{data.accessLevel} • {data.permissions.length} permissions</p>
                                     </div>
-                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteRole(key); }} className="p-1 text-red-500 hover:bg-red-50 rounded"><Trash2 size={14} /></button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteRole(key); }} className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"><Trash2 size={14} /></button>
                                 </div>
                             </div>
                         ))}
@@ -456,8 +456,8 @@ const RolesPermissionsSection = () => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     {ALL_PERMISSIONS.map((p) => (
-                                        <div key={p} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
-                                            <span className="text-sm font-medium text-slate-700">{p}</span>
+                                        <div key={p} className="flex items-center justify-between p-3 bg-app-subtle rounded-xl border border-app-border">
+                                            <span className="text-sm font-medium text-app-text">{p}</span>
                                             <Toggle
                                                 size="sm"
                                                 checked={selectedPermissions.includes(p)}
@@ -468,7 +468,7 @@ const RolesPermissionsSection = () => {
                                 </div>
                             </>
                         ) : (
-                            <div className="py-12 text-center text-slate-500 dark:text-neutral-400">Select a role to manage permissions</div>
+                            <div className="py-12 text-center text-app-muted">Select a role to manage permissions</div>
                         )}
                     </SettingsCard>
                 </div>

@@ -21,27 +21,27 @@ const SortableStep = ({ step, index, onDelete, onUpdate }) => {
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="flex items-center gap-3 p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-700 rounded-xl">
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-slate-400 dark:text-neutral-500 hover:text-slate-600 dark:hover:text-neutral-300">
+    <div ref={setNodeRef} style={style} className="flex items-center gap-3 p-4 bg-app-surface border border-app-subtle rounded-xl">
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-app-muted hover:text-app-text">
         <GripVertical size={20} />
       </div>
       <div className="flex-1 grid grid-cols-3 gap-4">
         <div>
-          <label className="text-xs font-medium text-slate-600 dark:text-neutral-300 mb-1 block">Step</label>
+          <label className="text-xs font-medium text-app-muted mb-1 block">Step</label>
           <input
             type="number"
             value={step.step}
             onChange={(e) => onUpdate(index, 'step', parseInt(e.target.value))}
-            className="w-full px-3 py-2 bg-white dark:bg-neutral-900 dark:text-white border border-slate-300 dark:border-neutral-600 rounded-lg text-sm"
+            className="w-full px-3 py-2 bg-app-input text-app-text border border-app rounded-lg text-sm"
             min={1}
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-slate-600 dark:text-neutral-300 mb-1 block">Role</label>
+          <label className="text-xs font-medium text-app-muted mb-1 block">Role</label>
           <select
             value={step.role}
             onChange={(e) => onUpdate(index, 'role', e.target.value)}
-            className="w-full px-3 py-2 bg-white dark:bg-neutral-900 dark:text-white border border-slate-300 dark:border-neutral-600 rounded-lg text-sm"
+            className="w-full px-3 py-2 bg-app-input text-app-text border border-app rounded-lg text-sm"
           >
             {userRoles.map((role) => (
               <option key={role} value={role}>
@@ -51,11 +51,11 @@ const SortableStep = ({ step, index, onDelete, onUpdate }) => {
           </select>
         </div>
         <div>
-          <label className="text-xs font-medium text-slate-600 dark:text-neutral-300 mb-1 block">Action</label>
+          <label className="text-xs font-medium text-app-muted mb-1 block">Action</label>
           <select
             value={step.action}
             onChange={(e) => onUpdate(index, 'action', e.target.value)}
-            className="w-full px-3 py-2 bg-white dark:bg-neutral-900 dark:text-white border border-slate-300 dark:border-neutral-600 rounded-lg text-sm"
+            className="w-full px-3 py-2 bg-app-input text-app-text border border-app rounded-lg text-sm"
           >
             {actions.map((action) => (
               <option key={action} value={action}>
@@ -191,8 +191,8 @@ const WorkflowConfig = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-primary-950 dark:text-white">Workflow Configuration</h1>
-          <p className="text-slate-500 dark:text-neutral-400 mt-1">Define approval flows dynamically</p>
+          <h1 className="text-3xl font-heading font-bold text-app-heading">Workflow Configuration</h1>
+          <p className="text-app-muted mt-1">Define approval flows dynamically</p>
         </div>
         <Button onClick={handleCreateNew}>
           <Plus size={18} />
@@ -217,12 +217,12 @@ const WorkflowConfig = () => {
                     setWorkflowType(workflow.type);
                   }}
                   className={`w-full text-left p-3 rounded-lg border transition-colors ${selectedWorkflow?.id === workflow.id
-                      ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/20'
-                      : 'border-slate-200 dark:border-neutral-700 hover:border-slate-300 dark:hover:border-neutral-600'
+                    ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/20'
+                    : 'border-app-subtle hover:border-app-subtle/80'
                     }`}
                 >
-                  <p className="font-semibold text-sm dark:text-white">{workflow.name || 'Unnamed Workflow'}</p>
-                  <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">{workflow.type} • {workflow.steps.length} steps</p>
+                  <p className="font-semibold text-sm text-app-heading">{workflow.name || 'Unnamed Workflow'}</p>
+                  <p className="text-xs text-app-muted mt-1">{workflow.type} • {workflow.steps.length} steps</p>
                 </button>
               ))}
             </div>
@@ -239,21 +239,21 @@ const WorkflowConfig = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-slate-700 dark:text-neutral-300 mb-2 block">Workflow Name</label>
+                    <label className="text-sm font-medium text-app-text mb-2 block">Workflow Name</label>
                     <input
                       type="text"
                       value={workflowName}
                       onChange={(e) => setWorkflowName(e.target.value)}
                       placeholder="e.g., RFQ Approval Flow"
-                      className="w-full px-4 py-2 bg-white dark:bg-neutral-900 dark:text-white border border-slate-300 dark:border-neutral-600 rounded-lg"
+                      className="w-full px-4 py-2 bg-app-input text-app-text border border-app rounded-lg"
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-slate-700 dark:text-neutral-300 mb-2 block">Workflow Type</label>
+                    <label className="text-sm font-medium text-app-text mb-2 block">Workflow Type</label>
                     <select
                       value={workflowType}
                       onChange={(e) => setWorkflowType(e.target.value)}
-                      className="w-full px-4 py-2 bg-white dark:bg-neutral-900 dark:text-white border border-slate-300 dark:border-neutral-600 rounded-lg"
+                      className="w-full px-4 py-2 bg-app-input text-app-text border border-app rounded-lg"
                     >
                       <option value="RFQ">RFQ</option>
                       <option value="Contract">Contract</option>
@@ -276,7 +276,7 @@ const WorkflowConfig = () => {
                 </CardHeader>
                 <CardContent>
                   {selectedWorkflow.steps.length === 0 ? (
-                    <div className="text-center py-8 text-slate-500 dark:text-neutral-400">
+                    <div className="text-center py-8 text-app-muted">
                       <p>No steps defined. Click "Add Step" to get started.</p>
                     </div>
                   ) : (
@@ -308,7 +308,7 @@ const WorkflowConfig = () => {
             </>
           ) : (
             <Card>
-              <CardContent className="py-12 text-center text-slate-500 dark:text-neutral-400">
+              <CardContent className="py-12 text-center text-app-muted">
                 <p>Select a workflow from the list or create a new one to get started.</p>
               </CardContent>
             </Card>

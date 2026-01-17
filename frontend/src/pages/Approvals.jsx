@@ -155,11 +155,11 @@ const Approvals = () => {
         return (
             <div className="min-h-[60vh] flex items-center justify-center">
                 <div className="text-center">
-                    <div className="w-16 h-16 bg-slate-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <AlertTriangle size={32} className="text-slate-400" />
+                    <div className="w-16 h-16 bg-app-surface rounded-full flex items-center justify-center mx-auto mb-4">
+                        <AlertTriangle size={32} className="text-app-muted" />
                     </div>
-                    <h2 className="text-xl font-bold text-slate-800 dark:text-white">No Approval Permissions</h2>
-                    <p className="text-slate-500 dark:text-neutral-400 mt-2">
+                    <h2 className="text-xl font-bold text-app-heading">No Approval Permissions</h2>
+                    <p className="text-app-muted mt-2">
                         Your role does not have approval permissions.
                     </p>
                 </div>
@@ -171,11 +171,11 @@ const Approvals = () => {
         <div className="p-6 max-w-6xl mx-auto">
             {/* Header */}
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-app-heading flex items-center gap-2">
                     <Clock className="text-amber-600" />
                     Pending Approvals
                 </h1>
-                <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">
+                <p className="text-sm text-app-muted mt-1">
                     Documents and BOQ requests requiring your action
                 </p>
             </div>
@@ -185,15 +185,15 @@ const Approvals = () => {
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-slate-200 dark:border-neutral-700 shadow-sm"
+                    className="bg-app-card rounded-xl p-4 border border-app-subtle shadow-sm"
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-slate-500 dark:text-neutral-400">Total Pending</p>
-                            <p className="text-3xl font-bold text-slate-800 dark:text-white">{totalPending}</p>
+                            <p className="text-sm text-app-muted">Total Pending</p>
+                            <p className="text-3xl font-bold text-app-heading">{totalPending}</p>
                         </div>
-                        <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-neutral-800 flex items-center justify-center">
-                            <FileText size={24} className="text-slate-500 dark:text-neutral-400" />
+                        <div className="w-12 h-12 rounded-xl bg-app-surface flex items-center justify-center">
+                            <FileText size={24} className="text-app-muted" />
                         </div>
                     </div>
                 </motion.div>
@@ -202,7 +202,7 @@ const Approvals = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-amber-200 dark:border-amber-900 shadow-sm"
+                    className="bg-app-card rounded-xl p-4 border border-amber-200 dark:border-amber-900 shadow-sm"
                 >
                     <div className="flex items-center justify-between">
                         <div>
@@ -219,7 +219,7 @@ const Approvals = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-blue-200 dark:border-blue-900 shadow-sm"
+                    className="bg-app-card rounded-xl p-4 border border-blue-200 dark:border-blue-900 shadow-sm"
                 >
                     <div className="flex items-center justify-between">
                         <div>
@@ -236,11 +236,11 @@ const Approvals = () => {
             {/* Filter & Actions */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                    <Filter size={16} className="text-slate-400" />
+                    <Filter size={16} className="text-app-muted" />
                     <select
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
-                        className="px-3 py-2 bg-slate-50 dark:bg-neutral-900 border border-slate-200 dark:border-neutral-700 text-slate-900 dark:text-white rounded-lg text-sm"
+                        className="px-3 py-2 bg-app-input border border-app text-app-text rounded-lg text-sm"
                     >
                         <option value="all">All Pending ({totalPending})</option>
                         <option value="documents">Documents Only ({documents.length})</option>
@@ -255,15 +255,15 @@ const Approvals = () => {
             {/* Content */}
             {loading ? (
                 <div className="flex items-center justify-center py-16">
-                    <Loader2 size={32} className="animate-spin text-slate-400" />
+                    <Loader2 size={32} className="animate-spin text-app-muted" />
                 </div>
             ) : totalPending === 0 ? (
-                <div className="bg-white dark:bg-neutral-900 rounded-xl p-8 text-center border border-slate-200 dark:border-neutral-700">
+                <div className="bg-app-card rounded-xl p-8 text-center border border-app-subtle">
                     <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                         <CheckCircle size={32} className="text-green-600" />
                     </div>
-                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white">All Caught Up!</h3>
-                    <p className="text-slate-500 dark:text-neutral-400 mt-1">
+                    <h3 className="text-lg font-semibold text-app-heading">All Caught Up!</h3>
+                    <p className="text-app-muted mt-1">
                         No items require your approval right now.
                     </p>
                 </div>
@@ -271,14 +271,14 @@ const Approvals = () => {
                 <div className="space-y-4">
                     {/* BOQ Requests Section */}
                     {filteredBoqRequests.length > 0 && (
-                        <div className="bg-white dark:bg-neutral-900 rounded-xl border border-blue-200 dark:border-blue-900 overflow-hidden">
+                        <div className="bg-app-card rounded-xl border border-blue-200 dark:border-blue-900 overflow-hidden">
                             <div className="px-4 py-3 bg-blue-50 dark:bg-blue-900/30 border-b border-blue-200 dark:border-blue-800">
                                 <h3 className="font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-2">
                                     <FileSpreadsheet size={18} />
                                     BOQ Approval Requests
                                 </h3>
                             </div>
-                            <div className="divide-y divide-slate-100 dark:divide-neutral-700">
+                            <div className="divide-y divide-app-subtle">
                                 {filteredBoqRequests.map((req, index) => {
                                     const config = getBoqRequestConfig(req.request_type);
                                     const RequestIcon = config.icon;
@@ -289,7 +289,7 @@ const Approvals = () => {
                                             initial={{ opacity: 0, x: -10 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: index * 0.05 }}
-                                            className="p-4 hover:bg-slate-50 dark:hover:bg-neutral-800 transition-colors"
+                                            className="p-4 hover:bg-app-surface transition-colors"
                                         >
                                             <div className="flex items-center gap-4">
                                                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${config.color.split(' ')[0]}`}>
@@ -298,14 +298,14 @@ const Approvals = () => {
 
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2">
-                                                        <h3 className="font-semibold text-slate-800 dark:text-white truncate">
+                                                        <h3 className="font-semibold text-app-heading truncate">
                                                             {req.title}
                                                         </h3>
                                                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${config.color}`}>
                                                             {config.label}
                                                         </span>
                                                     </div>
-                                                    <p className="text-sm text-slate-500 dark:text-neutral-400 mt-0.5">
+                                                    <p className="text-sm text-app-muted mt-0.5">
                                                         {req.project_name} • Requested by {req.requested_by_name} {formatDistanceToNow(new Date(req.created_at), { addSuffix: true })}
                                                     </p>
                                                     <p className="text-xs text-blue-600 mt-1 font-medium">
@@ -348,14 +348,14 @@ const Approvals = () => {
 
                     {/* Document Approvals Section */}
                     {filteredDocuments.length > 0 && (
-                        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                            <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
-                                <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+                        <div className="bg-app-card rounded-xl border border-app-subtle overflow-hidden">
+                            <div className="px-4 py-3 bg-app-surface border-b border-app-subtle">
+                                <h3 className="font-semibold text-app-heading flex items-center gap-2">
                                     <FileText size={18} />
                                     Document Approvals
                                 </h3>
                             </div>
-                            <div className="divide-y divide-slate-100">
+                            <div className="divide-y divide-app-subtle">
                                 {filteredDocuments.map((doc, index) => {
                                     const statusConfig = getStatusConfig(doc.status);
                                     const StatusIcon = statusConfig.icon;
@@ -366,7 +366,7 @@ const Approvals = () => {
                                             initial={{ opacity: 0, x: -10 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: index * 0.05 }}
-                                            className="p-4 hover:bg-slate-50 cursor-pointer transition-colors"
+                                            className="p-4 hover:bg-app-surface cursor-pointer transition-colors"
                                             onClick={() => setSelectedDocument(doc)}
                                         >
                                             <div className="flex items-center gap-4">
@@ -376,14 +376,14 @@ const Approvals = () => {
 
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2">
-                                                        <h3 className="font-semibold text-slate-800 truncate">
+                                                        <h3 className="font-semibold text-app-heading truncate">
                                                             {doc.title}
                                                         </h3>
                                                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusConfig.color}`}>
                                                             {statusConfig.label}
                                                         </span>
                                                     </div>
-                                                    <p className="text-sm text-slate-500 mt-0.5">
+                                                    <p className="text-sm text-app-muted mt-0.5">
                                                         {doc.document_type?.replace('_', ' ')} • v{doc.current_version_number || 1} •
                                                         Uploaded by {doc.uploaded_by_name} {formatDistanceToNow(new Date(doc.created_at), { addSuffix: true })}
                                                     </p>
@@ -404,7 +404,7 @@ const Approvals = () => {
                                                         <Eye size={14} className="mr-1" />
                                                         Review
                                                     </Button>
-                                                    <ChevronRight size={20} className="text-slate-400" />
+                                                    <ChevronRight size={20} className="text-app-muted-light" />
                                                 </div>
                                             </div>
                                         </motion.div>

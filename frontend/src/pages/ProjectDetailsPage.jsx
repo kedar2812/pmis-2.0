@@ -65,7 +65,7 @@ const ProjectDetailsPage = () => {
     if (!project) {
         return (
             <div className="flex flex-col items-center justify-center p-12">
-                <h2 className="text-2xl font-bold text-slate-800">Project Not Found</h2>
+                <h2 className="text-2xl font-bold text-app-heading">Project Not Found</h2>
                 <Button onClick={() => navigate('/projects')} className="mt-4">
                     Back to Projects
                 </Button>
@@ -78,7 +78,7 @@ const ProjectDetailsPage = () => {
             <Button variant="outline" onClick={() => navigate(-1)} className="mb-2">
                 <ChevronLeft size={16} className="mr-1" /> Back
             </Button>
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden min-h-[85vh]">
+            <div className="bg-app-card rounded-lg shadow-sm border border-app-subtle overflow-hidden min-h-[85vh]">
                 <ProjectDetailView
                     project={project}
                     packages={packages}

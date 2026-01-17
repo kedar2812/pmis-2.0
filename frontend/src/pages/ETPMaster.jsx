@@ -118,10 +118,10 @@ const ETPMaster = () => {
             default:
                 return {
                     icon: Calculator,
-                    bg: 'bg-slate-50 dark:bg-neutral-800',
-                    border: 'border-slate-200 dark:border-neutral-700',
-                    text: 'text-slate-700 dark:text-neutral-300',
-                    iconColor: 'text-slate-500 dark:text-neutral-400'
+                    bg: 'bg-app-surface',
+                    border: 'border-app-subtle',
+                    text: 'text-app-text',
+                    iconColor: 'text-app-muted'
                 };
         }
     };
@@ -131,18 +131,18 @@ const ETPMaster = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-app-heading flex items-center gap-2">
                         <Calculator className="text-primary-600" size={28} />
                         ETP Charges Reference
                     </h1>
-                    <p className="text-slate-500 dark:text-neutral-400 mt-1">
+                    <p className="text-app-muted mt-1">
                         Current statutory deductions, levies, and recoveries applicable to bills
                     </p>
                 </div>
                 <button
                     onClick={fetchCharges}
                     disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 dark:text-neutral-300 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 rounded-lg hover:bg-slate-50 dark:hover:bg-neutral-700 transition-colors disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-app-text bg-app-card border border-app rounded-lg hover:bg-app-surface transition-colors disabled:opacity-50"
                 >
                     <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
                     Refresh
@@ -184,7 +184,7 @@ const ETPMaster = () => {
                             <p className={`text-2xl font-bold ${style.text} mt-2`}>
                                 {items.length}
                             </p>
-                            <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">
+                            <p className="text-xs text-app-muted mt-1">
                                 {items.length === 1 ? 'charge' : 'charges'}
                             </p>
                         </motion.div>
@@ -202,7 +202,7 @@ const ETPMaster = () => {
                         placeholder="Search charges..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-app bg-app-input text-app-text focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all"
                     />
                 </div>
 
@@ -214,7 +214,7 @@ const ETPMaster = () => {
                             onClick={() => setFilterType(type)}
                             className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${filterType === type
                                 ? 'bg-primary-600 text-white shadow-sm'
-                                : 'bg-white dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 border border-slate-200 dark:border-neutral-700 hover:bg-slate-50 dark:hover:bg-neutral-700'
+                                : 'bg-app-card text-app-text border border-app hover:bg-app-surface'
                                 }`}
                         >
                             {type === 'all' ? 'All Types' : type}
@@ -224,33 +224,33 @@ const ETPMaster = () => {
             </div>
 
             {/* Charges Table */}
-            <div className="bg-white dark:bg-neutral-900 rounded-xl border border-slate-200 dark:border-neutral-700 overflow-hidden shadow-sm">
+            <div className="bg-app-card rounded-xl border border-app-subtle overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                        <thead className="bg-slate-50 dark:bg-neutral-800 border-b border-slate-200 dark:border-neutral-700">
+                        <thead className="bg-app-surface border-b border-app-subtle">
                             <tr>
-                                <th className="text-left px-4 py-3 font-semibold text-slate-700 dark:text-neutral-300">Code</th>
-                                <th className="text-left px-4 py-3 font-semibold text-slate-700 dark:text-neutral-300">Charge Name</th>
-                                <th className="text-left px-4 py-3 font-semibold text-slate-700 dark:text-neutral-300">Type</th>
-                                <th className="text-center px-4 py-3 font-semibold text-slate-700 dark:text-neutral-300">Rate</th>
-                                <th className="text-left px-4 py-3 font-semibold text-slate-700 dark:text-neutral-300">Applied On</th>
-                                <th className="text-left px-4 py-3 font-semibold text-slate-700 dark:text-neutral-300">Effective From</th>
-                                <th className="text-left px-4 py-3 font-semibold text-slate-700 dark:text-neutral-300">Reference</th>
+                                <th className="text-left px-4 py-3 font-semibold text-app-text">Code</th>
+                                <th className="text-left px-4 py-3 font-semibold text-app-text">Charge Name</th>
+                                <th className="text-left px-4 py-3 font-semibold text-app-text">Type</th>
+                                <th className="text-center px-4 py-3 font-semibold text-app-text">Rate</th>
+                                <th className="text-left px-4 py-3 font-semibold text-app-text">Applied On</th>
+                                <th className="text-left px-4 py-3 font-semibold text-app-text">Effective From</th>
+                                <th className="text-left px-4 py-3 font-semibold text-app-text">Reference</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
+                        <tbody className="divide-y divide-app-subtle">
                             {loading ? (
                                 <tr>
                                     <td colSpan={7} className="text-center py-12">
                                         <RefreshCw className="animate-spin mx-auto text-primary-500 mb-2" size={28} />
-                                        <p className="text-slate-500 dark:text-neutral-400">Loading charges...</p>
+                                        <p className="text-app-muted">Loading charges...</p>
                                     </td>
                                 </tr>
                             ) : filteredCharges.length === 0 ? (
                                 <tr>
                                     <td colSpan={7} className="text-center py-12">
-                                        <Calculator size={32} className="mx-auto text-slate-300 dark:text-neutral-600 mb-2" />
-                                        <p className="text-slate-500 dark:text-neutral-400">No charges found</p>
+                                        <Calculator size={32} className="mx-auto text-app-muted-light mb-2" />
+                                        <p className="text-app-muted">No charges found</p>
                                     </td>
                                 </tr>
                             ) : (
@@ -262,15 +262,15 @@ const ETPMaster = () => {
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             transition={{ delay: idx * 0.03 }}
-                                            className="hover:bg-slate-50 dark:hover:bg-neutral-800 transition-colors"
+                                            className="hover:bg-app-surface transition-colors"
                                         >
                                             <td className="px-4 py-3">
-                                                <span className="font-mono text-slate-800 dark:text-white font-medium">
+                                                <span className="font-mono text-app-heading font-medium">
                                                     {charge.code}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className="font-medium text-slate-800 dark:text-white">
+                                                <span className="font-medium text-app-heading">
                                                     {charge.name}
                                                 </span>
                                             </td>
@@ -280,20 +280,20 @@ const ETPMaster = () => {
                                                 </span>
                                             </td>
                                             <td className="px-4 py-3 text-center">
-                                                <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-1 bg-slate-100 dark:bg-neutral-700 rounded font-mono font-bold text-slate-800 dark:text-white">
+                                                <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-1 bg-app-surface rounded font-mono font-bold text-app-heading">
                                                     {charge.rate_percentage}%
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3 text-slate-600 dark:text-neutral-400">
+                                            <td className="px-4 py-3 text-app-muted">
                                                 {charge.basis_of_calculation}
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className="inline-flex items-center gap-1 text-slate-600 dark:text-neutral-400">
-                                                    <Calendar size={14} className="text-slate-400" />
+                                                <span className="inline-flex items-center gap-1 text-app-muted">
+                                                    <Calendar size={14} className="text-app-muted" />
                                                     {formatDate(charge.effective_date)}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3 text-slate-500 dark:text-neutral-500 text-xs">
+                                            <td className="px-4 py-3 text-app-muted text-xs">
                                                 {charge.govt_reference || '-'}
                                             </td>
                                         </motion.tr>
@@ -306,14 +306,14 @@ const ETPMaster = () => {
             </div>
 
             {/* Help Section */}
-            <div className="bg-slate-50 dark:bg-neutral-800 rounded-xl p-6 border border-slate-200 dark:border-neutral-700">
-                <h3 className="font-semibold text-slate-800 dark:text-white flex items-center gap-2 mb-4">
+            <div className="bg-app-surface rounded-xl p-6 border border-app-subtle">
+                <h3 className="font-semibold text-app-heading flex items-center gap-2 mb-4">
                     <HelpCircle size={18} className="text-primary-600" />
                     Understanding ETP Charges
                 </h3>
-                <div className="grid md:grid-cols-2 gap-4 text-sm text-slate-600 dark:text-neutral-400">
+                <div className="grid md:grid-cols-2 gap-4 text-sm text-app-muted">
                     <div>
-                        <h4 className="font-medium text-slate-700 dark:text-neutral-300 mb-2">Charge Types</h4>
+                        <h4 className="font-medium text-app-text mb-2">Charge Types</h4>
                         <ul className="space-y-1.5">
                             <li className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-red-500"></span>
@@ -334,7 +334,7 @@ const ETPMaster = () => {
                         </ul>
                     </div>
                     <div>
-                        <h4 className="font-medium text-slate-700 dark:text-neutral-300 mb-2">Calculation Basis</h4>
+                        <h4 className="font-medium text-app-text mb-2">Calculation Basis</h4>
                         <ul className="space-y-1.5">
                             <li><strong>Gross Bill Value:</strong> Percentage on total bill amount</li>
                             <li><strong>Works Component:</strong> Percentage on works portion only</li>

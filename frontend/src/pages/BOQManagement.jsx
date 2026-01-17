@@ -435,7 +435,7 @@ const BOQManagement = () => {
     // --- RENDER SORT ICON ---
     const SortIcon = ({ columnKey }) => {
         if (sortConfig.key !== columnKey) {
-            return <ChevronsUpDown className="w-3.5 h-3.5 text-slate-300" />;
+            return <ChevronsUpDown className="w-3.5 h-3.5 text-app-muted-light" />;
         }
         return sortConfig.direction === 'asc'
             ? <ChevronUp className="w-3.5 h-3.5 text-primary-600" />
@@ -459,9 +459,9 @@ const BOQManagement = () => {
         }
 
         return (
-            <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-neutral-800 border-t border-slate-200 dark:border-neutral-700">
+            <div className="flex items-center justify-between px-4 py-3 bg-app-surface border-t border-app-subtle">
                 <div className="flex items-center gap-4">
-                    <span className="text-sm text-slate-600 dark:text-neutral-400">
+                    <span className="text-sm text-app-muted">
                         Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredAndSortedItems.length)} of {filteredAndSortedItems.length}
                     </span>
                     <select
@@ -470,7 +470,7 @@ const BOQManagement = () => {
                             setItemsPerPage(Number(e.target.value));
                             setCurrentPage(1);
                         }}
-                        className="px-2 py-1 text-sm border border-slate-200 dark:border-neutral-700 rounded bg-white dark:bg-neutral-900 dark:text-white"
+                        className="px-2 py-1 text-sm border border-app rounded bg-app-input text-app-text"
                     >
                         <option value={10}>10 per page</option>
                         <option value={25}>25 per page</option>
@@ -483,7 +483,7 @@ const BOQManagement = () => {
                     <button
                         onClick={() => setCurrentPage(1)}
                         disabled={currentPage === 1}
-                        className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed dark:text-neutral-300"
+                        className="p-1.5 rounded hover:bg-app-subtle disabled:opacity-50 disabled:cursor-not-allowed text-app-text"
                     >
                         <ChevronLeft className="w-4 h-4" />
                         <ChevronLeft className="w-4 h-4 -ml-2" />
@@ -491,7 +491,7 @@ const BOQManagement = () => {
                     <button
                         onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                         disabled={currentPage === 1}
-                        className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed dark:text-neutral-300"
+                        className="p-1.5 rounded hover:bg-app-subtle disabled:opacity-50 disabled:cursor-not-allowed text-app-text"
                     >
                         <ChevronLeft className="w-4 h-4" />
                     </button>
@@ -500,11 +500,11 @@ const BOQManagement = () => {
                         <>
                             <button
                                 onClick={() => setCurrentPage(1)}
-                                className="px-3 py-1 text-sm rounded hover:bg-slate-200 dark:hover:bg-neutral-700 dark:text-neutral-300"
+                                className="px-3 py-1 text-sm rounded hover:bg-app-subtle text-app-text"
                             >
                                 1
                             </button>
-                            {startPage > 2 && <MoreHorizontal className="w-4 h-4 text-slate-400" />}
+                            {startPage > 2 && <MoreHorizontal className="w-4 h-4 text-app-muted" />}
                         </>
                     )}
 
@@ -514,7 +514,7 @@ const BOQManagement = () => {
                             onClick={() => setCurrentPage(num)}
                             className={`px-3 py-1 text-sm rounded transition-colors ${currentPage === num
                                 ? 'bg-primary-600 text-white'
-                                : 'hover:bg-slate-200 dark:hover:bg-neutral-700 dark:text-neutral-300'
+                                : 'hover:bg-app-subtle text-app-text'
                                 }`}
                         >
                             {num}
@@ -523,10 +523,10 @@ const BOQManagement = () => {
 
                     {endPage < totalPages && (
                         <>
-                            {endPage < totalPages - 1 && <MoreHorizontal className="w-4 h-4 text-slate-400" />}
+                            {endPage < totalPages - 1 && <MoreHorizontal className="w-4 h-4 text-app-muted" />}
                             <button
                                 onClick={() => setCurrentPage(totalPages)}
-                                className="px-3 py-1 text-sm rounded hover:bg-slate-200 dark:hover:bg-neutral-700 dark:text-neutral-300"
+                                className="px-3 py-1 text-sm rounded hover:bg-app-subtle text-app-text"
                             >
                                 {totalPages}
                             </button>
@@ -536,14 +536,14 @@ const BOQManagement = () => {
                     <button
                         onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                         disabled={currentPage === totalPages}
-                        className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed dark:text-neutral-300"
+                        className="p-1.5 rounded hover:bg-app-subtle disabled:opacity-50 disabled:cursor-not-allowed text-app-text"
                     >
                         <ChevronRight className="w-4 h-4" />
                     </button>
                     <button
                         onClick={() => setCurrentPage(totalPages)}
                         disabled={currentPage === totalPages}
-                        className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed dark:text-neutral-300"
+                        className="p-1.5 rounded hover:bg-app-subtle disabled:opacity-50 disabled:cursor-not-allowed text-app-text"
                     >
                         <ChevronRight className="w-4 h-4" />
                         <ChevronRight className="w-4 h-4 -ml-2" />
@@ -558,15 +558,15 @@ const BOQManagement = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-neutral-300 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold text-app-heading">
                         Bill of Quantities (BOQ)
                     </h1>
-                    <p className="text-slate-500 dark:text-neutral-400 mt-1">Manage Contract Baselines and Sanctioned Quantities</p>
+                    <p className="text-app-muted mt-1">Manage Contract Baselines and Sanctioned Quantities</p>
                 </div>
 
                 <div className="flex gap-2 items-center flex-nowrap shrink-0">
                     <select
-                        className="px-3 py-2 border border-slate-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-900 text-slate-900 dark:text-white shadow-sm focus:ring-2 focus:ring-primary-500 dark:focus:ring-indigo-500 focus:border-primary-500 transition-all text-sm"
+                        className="px-3 py-2 border border-app rounded-lg bg-app-input text-app-text shadow-sm focus:ring-2 focus:ring-primary-500 dark:focus:ring-indigo-500 focus:border-primary-500 transition-all text-sm"
                         value={selectedProject}
                         onChange={(e) => setSelectedProject(e.target.value)}
                     >
@@ -644,9 +644,9 @@ const BOQManagement = () => {
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.3 }}
                     >
-                        <Card className="border-primary-100 dark:border-neutral-700 shadow-xl overflow-hidden bg-white dark:bg-neutral-900">
+                        <Card className="border-app-subtle shadow-xl overflow-hidden bg-app-card">
                             {/* Progress Bar */}
-                            <div className="h-1 bg-slate-100 dark:bg-neutral-800">
+                            <div className="h-1 bg-app-subtle">
                                 <motion.div
                                     className="h-full bg-gradient-to-r from-primary-500 to-primary-600"
                                     initial={{ width: '33%' }}
@@ -655,14 +655,14 @@ const BOQManagement = () => {
                                 />
                             </div>
 
-                            <CardHeader className="bg-gradient-to-r from-primary-50 to-blue-50 dark:from-neutral-800 dark:to-neutral-900 border-b border-primary-100 dark:border-neutral-700">
-                                <CardTitle className="text-primary-900 dark:text-white flex items-center gap-3">
+                            <CardHeader className="bg-app-surface border-b border-app-subtle">
+                                <CardTitle className="text-app-heading flex items-center gap-3">
                                     <div className="p-2 bg-primary-100 dark:bg-primary-900/20 rounded-lg">
                                         <FileSpreadsheet className="w-5 h-5 text-primary-600 dark:text-primary-400" />
                                     </div>
                                     <div>
                                         <span className="block">Import Wizard</span>
-                                        <span className="text-sm font-normal text-primary-600 dark:text-neutral-400">
+                                        <span className="text-sm font-normal text-app-muted">
                                             Step {impStep} of 3: {impStep === 1 ? 'Upload File' : impStep === 2 ? 'Map Columns' : 'Complete'}
                                         </span>
                                     </div>
@@ -684,8 +684,8 @@ const BOQManagement = () => {
                                         <div className="p-4 bg-primary-100 dark:bg-primary-900/20 rounded-full mb-6">
                                             <FileSpreadsheet className="w-12 h-12 text-primary-600" />
                                         </div>
-                                        <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Upload Excel File</h3>
-                                        <p className="text-slate-500 dark:text-neutral-400 mb-6 text-center max-w-md">
+                                        <h3 className="text-xl font-semibold text-app-heading mb-2">Upload Excel File</h3>
+                                        <p className="text-app-muted mb-6 text-center max-w-md">
                                             Upload your BOQ Excel file (.xlsx). Ensure the first row contains column headers.
                                         </p>
 
@@ -716,7 +716,7 @@ const BOQManagement = () => {
                                         </Button>
 
                                         {impFile && (
-                                            <div className="mt-4 px-4 py-2 bg-white dark:bg-neutral-800 rounded-lg border border-primary-200 dark:border-indigo-600 text-sm text-slate-700 dark:text-neutral-200 flex items-center gap-2">
+                                            <div className="mt-4 px-4 py-2 bg-app-surface rounded-lg border border-primary-200 dark:border-indigo-600 text-sm text-app-text flex items-center gap-2">
                                                 <FileSpreadsheet className="w-4 h-4 text-primary-500" />
                                                 {impFile.name}
                                             </div>
@@ -740,13 +740,13 @@ const BOQManagement = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             {dbFields.map(field => (
                                                 <div key={field.key} className="space-y-2">
-                                                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-neutral-300">
+                                                    <label className="flex items-center gap-2 text-sm font-medium text-app-text">
                                                         {field.label}
                                                         {field.required && <span className="text-red-500">*</span>}
                                                         {mapping[field.key] && <Check className="w-4 h-4 text-green-500" />}
                                                     </label>
                                                     <select
-                                                        className={`w-full px-3 py-2.5 border rounded-lg bg-white dark:bg-neutral-800 dark:text-white transition-all focus:ring-2 focus:ring-primary-500 ${mapping[field.key] ? 'border-green-300 dark:border-green-600 bg-green-50/50 dark:bg-green-900/20' : field.required ? 'border-amber-300 dark:border-amber-600' : 'border-slate-200 dark:border-neutral-700'
+                                                        className={`w-full px-3 py-2.5 border rounded-lg bg-app-input text-app-text transition-all focus:ring-2 focus:ring-primary-500 ${mapping[field.key] ? 'border-green-300 dark:border-green-600 bg-green-50/50 dark:bg-green-900/20' : field.required ? 'border-amber-300 dark:border-amber-600' : 'border-app'
                                                             }`}
                                                         value={mapping[field.key]}
                                                         onChange={(e) => setMapping({ ...mapping, [field.key]: e.target.value })}
@@ -754,12 +754,12 @@ const BOQManagement = () => {
                                                         <option value="">-- Select Column --</option>
                                                         {fileHeaders.map(h => <option key={h} value={h}>{h}</option>)}
                                                     </select>
-                                                    <p className="text-xs text-slate-400">{field.hint}</p>
+                                                    <p className="text-xs text-app-muted">{field.hint}</p>
                                                 </div>
                                             ))}
                                         </div>
 
-                                        <div className="flex justify-between pt-6 border-t border-slate-100">
+                                        <div className="flex justify-between pt-6 border-t border-app-subtle">
                                             <Button variant="secondary" onClick={() => setImpStep(1)}>
                                                 <ArrowLeft className="w-4 h-4 mr-2" />
                                                 Back
@@ -781,8 +781,8 @@ const BOQManagement = () => {
                                         <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-6">
                                             <Check className="w-8 h-8 text-green-600" />
                                         </div>
-                                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Import Complete!</h3>
-                                        <p className="text-slate-500 dark:text-neutral-400 mb-6">
+                                        <h3 className="text-2xl font-bold text-app-heading mb-2">Import Complete!</h3>
+                                        <p className="text-app-muted mb-6">
                                             Successfully imported <span className="font-bold text-primary-600">{importResult.imported}</span> BOQ items.
                                         </p>
                                         {importResult.errors?.length > 0 && (
@@ -819,12 +819,12 @@ const BOQManagement = () => {
                                     <table className="w-full text-sm">
                                         <thead>
                                             {/* Column Headers */}
-                                            <tr className="bg-slate-50 dark:bg-neutral-800 border-b border-slate-200 dark:border-neutral-700">
+                                            <tr className="bg-app-surface border-b border-app-subtle">
                                                 {columns.map(col => (
                                                     <th
                                                         key={col.key}
-                                                        className={`px-4 py-3 font-semibold text-slate-600 dark:text-neutral-300 text-xs uppercase tracking-wider ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
-                                                            } ${col.sortable ? 'cursor-pointer hover:bg-slate-100 dark:hover:bg-neutral-700 select-none transition-colors' : ''}`}
+                                                        className={`px-4 py-3 font-semibold text-app-muted text-xs uppercase tracking-wider ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
+                                                            } ${col.sortable ? 'cursor-pointer hover:bg-app-subtle select-none transition-colors' : ''}`}
                                                         onClick={() => col.sortable && handleSort(col.key)}
                                                     >
                                                         <div className={`flex items-center gap-1.5 ${col.align === 'right' ? 'justify-end' : col.align === 'center' ? 'justify-center' : ''}`}>
@@ -842,29 +842,29 @@ const BOQManagement = () => {
                                                         initial={{ opacity: 0, height: 0 }}
                                                         animate={{ opacity: 1, height: 'auto' }}
                                                         exit={{ opacity: 0, height: 0 }}
-                                                        className="bg-slate-50/50 dark:bg-neutral-800/50 border-b border-slate-200 dark:border-neutral-700"
+                                                        className="bg-app-surface border-b border-app-subtle"
                                                     >
                                                         <td className="px-3 py-2">
                                                             <div className="relative">
-                                                                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                                                                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-app-muted" />
                                                                 <input
                                                                     type="text"
                                                                     placeholder="Search..."
                                                                     value={filters.item_code}
                                                                     onChange={(e) => handleFilterChange('item_code', e.target.value)}
-                                                                    className="w-full pl-7 pr-2 py-1.5 text-xs border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded focus:ring-1 focus:ring-primary-500"
+                                                                    className="w-full pl-7 pr-2 py-1.5 text-xs border border-app bg-app-input text-app-text rounded focus:ring-1 focus:ring-primary-500"
                                                                 />
                                                             </div>
                                                         </td>
                                                         <td className="px-3 py-2">
                                                             <div className="relative">
-                                                                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                                                                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-app-muted" />
                                                                 <input
                                                                     type="text"
                                                                     placeholder="Search..."
                                                                     value={filters.description}
                                                                     onChange={(e) => handleFilterChange('description', e.target.value)}
-                                                                    className="w-full pl-7 pr-2 py-1.5 text-xs border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded focus:ring-1 focus:ring-primary-500"
+                                                                    className="w-full pl-7 pr-2 py-1.5 text-xs border border-app bg-app-input text-app-text rounded focus:ring-1 focus:ring-primary-500"
                                                                 />
                                                             </div>
                                                         </td>
@@ -872,7 +872,7 @@ const BOQManagement = () => {
                                                             <select
                                                                 value={filters.uom}
                                                                 onChange={(e) => handleFilterChange('uom', e.target.value)}
-                                                                className="w-full px-2 py-1.5 text-xs border border-slate-200 dark:border-neutral-700 rounded focus:ring-1 focus:ring-primary-500 bg-white dark:bg-neutral-800 dark:text-white"
+                                                                className="w-full px-2 py-1.5 text-xs border border-app rounded focus:ring-1 focus:ring-primary-500 bg-app-input text-app-text"
                                                             >
                                                                 <option value="">All</option>
                                                                 {uniqueUOMs.map(u => <option key={u} value={u}>{u}</option>)}
@@ -885,7 +885,7 @@ const BOQManagement = () => {
                                                             <select
                                                                 value={filters.status}
                                                                 onChange={(e) => handleFilterChange('status', e.target.value)}
-                                                                className="w-full px-2 py-1.5 text-xs border border-slate-200 dark:border-neutral-700 rounded focus:ring-1 focus:ring-primary-500 bg-white dark:bg-neutral-800 dark:text-white"
+                                                                className="w-full px-2 py-1.5 text-xs border border-app rounded focus:ring-1 focus:ring-primary-500 bg-app-input text-app-text"
                                                             >
                                                                 <option value="">All</option>
                                                                 {uniqueStatuses.map(s => <option key={s} value={s}>{s}</option>)}
@@ -895,16 +895,16 @@ const BOQManagement = () => {
                                                 )}
                                             </AnimatePresence>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
+                                        <tbody className="divide-y divide-app-subtle">
                                             {paginatedItems.length === 0 ? (
                                                 <tr>
                                                     <td colSpan="7" className="px-6 py-16 text-center">
                                                         <div className="flex flex-col items-center">
-                                                            <FileSpreadsheet className="w-12 h-12 text-slate-300 mb-4" />
-                                                            <p className="text-slate-500 dark:text-neutral-400 font-medium">
+                                                            <FileSpreadsheet className="w-12 h-12 text-app-muted-light mb-4" />
+                                                            <p className="text-app-muted font-medium">
                                                                 {hasActiveFilters ? 'No items match your filters' : 'No BOQ Items Found'}
                                                             </p>
-                                                            <p className="text-slate-400 dark:text-neutral-500 text-sm">
+                                                            <p className="text-app-muted text-sm">
                                                                 {hasActiveFilters ? (
                                                                     <button onClick={clearFilters} className="text-primary-600 hover:underline">
                                                                         Clear all filters
@@ -918,24 +918,24 @@ const BOQManagement = () => {
                                                 paginatedItems.map((item) => (
                                                     <tr
                                                         key={item.id}
-                                                        className="hover:bg-slate-50/50 dark:hover:bg-neutral-800/50 transition-colors"
+                                                        className="hover:bg-app-subtle transition-colors"
                                                     >
                                                         <td className="px-4 py-3 font-medium text-primary-700 dark:text-primary-400">{item.item_code}</td>
-                                                        <td className="px-4 py-3 text-slate-600 dark:text-neutral-300 max-w-md">
+                                                        <td className="px-4 py-3 text-app-text max-w-md">
                                                             <span className="line-clamp-2" title={item.description}>{item.description}</span>
                                                         </td>
-                                                        <td className="px-4 py-3 text-slate-500 dark:text-neutral-400">{item.uom}</td>
-                                                        <td className="px-4 py-3 text-right font-mono text-slate-700 dark:text-neutral-300">
+                                                        <td className="px-4 py-3 text-app-muted">{item.uom}</td>
+                                                        <td className="px-4 py-3 text-right font-mono text-app-text">
                                                             {parseFloat(item.quantity).toLocaleString('en-IN')}
                                                         </td>
-                                                        <td className="px-4 py-3 text-right font-mono text-slate-700 dark:text-neutral-300">
+                                                        <td className="px-4 py-3 text-right font-mono text-app-text">
                                                             {formatCurrency(item.rate)}
                                                         </td>
-                                                        <td className="px-4 py-3 text-right font-mono font-bold text-slate-900 dark:text-white">
+                                                        <td className="px-4 py-3 text-right font-mono font-bold text-app-heading">
                                                             {formatCurrency(item.amount)}
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${item.status === 'FROZEN' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'
+                                                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${item.status === 'FROZEN' ? 'bg-blue-100 text-blue-700' : 'bg-app-surface text-app-muted'
                                                                 }`}>
                                                                 {item.status}
                                                             </span>
@@ -944,14 +944,14 @@ const BOQManagement = () => {
                                                             <div className="flex items-center justify-center gap-2">
                                                                 <button
                                                                     onClick={() => handleEditItem(item)}
-                                                                    className="p-1 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
+                                                                    className="p-1 text-app-muted hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
                                                                     title="Edit Item"
                                                                 >
                                                                     <Edit2 className="w-4 h-4" />
                                                                 </button>
                                                                 <button
                                                                     onClick={() => handleDeleteItem(item.id)}
-                                                                    className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                                    className="p-1 text-app-muted hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                                                                     title="Delete Item"
                                                                 >
                                                                     <Trash2 className="w-4 h-4" />
@@ -971,11 +971,11 @@ const BOQManagement = () => {
                                             )}
                                         </tbody>
                                         {paginatedItems.length > 0 && (
-                                            <tfoot className="bg-slate-50 dark:bg-neutral-800 border-t-2 border-slate-200 dark:border-neutral-700">
+                                            <tfoot className="bg-app-surface border-t-2 border-app-subtle">
                                                 <tr>
-                                                    <td colSpan="5" className="px-4 py-4 text-right font-bold text-slate-700 dark:text-neutral-300">
+                                                    <td colSpan="5" className="px-4 py-4 text-right font-bold text-app-text">
                                                         {hasActiveFilters && (
-                                                            <span className="text-sm font-normal text-slate-500 mr-2">
+                                                            <span className="text-sm font-normal text-app-muted mr-2">
                                                                 (Filtered: {filteredAndSortedItems.length} of {boqItems.length})
                                                             </span>
                                                         )}
@@ -1006,7 +1006,7 @@ const BOQManagement = () => {
                     animate={{ opacity: 1, y: 0 }}
                     className="flex items-center gap-2 flex-wrap"
                 >
-                    <span className="text-sm text-slate-500">Active filters:</span>
+                    <span className="text-sm text-app-muted">Active filters:</span>
                     {filters.item_code && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-xs">
                             Code: {filters.item_code}
@@ -1039,7 +1039,7 @@ const BOQManagement = () => {
                             </button>
                         </span>
                     )}
-                    <button onClick={clearFilters} className="text-xs text-slate-500 hover:text-primary-600 underline">
+                    <button onClick={clearFilters} className="text-xs text-app-muted hover:text-primary-600 underline">
                         Clear all
                     </button>
                 </motion.div>

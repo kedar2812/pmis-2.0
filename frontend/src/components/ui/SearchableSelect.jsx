@@ -69,7 +69,7 @@ const SearchableSelect = ({
     return (
         <div ref={containerRef} className="relative">
             {label && (
-                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1.5">
+                <label className="block text-sm font-medium text-app-heading mb-1.5">
                     {label}
                     {required && <span className="text-red-500 ml-1">*</span>}
                 </label>
@@ -81,13 +81,13 @@ const SearchableSelect = ({
                     onClick={() => !disabled && setIsOpen(!isOpen)}
                     disabled={disabled}
                     className={`w-full px-4 py-2.5 pr-10 text-left rounded-xl border transition-all outline-none focus:ring-2 ${error
-                        ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
+                        ? 'border-red-300 focus:border-red-500 focus:ring-red-100 dark:border-red-500/50'
                         : isOpen
-                            ? 'border-primary-500 ring-2 ring-primary-100 dark:ring-primary-900/30'
-                            : 'border-slate-200 dark:border-neutral-700 focus:border-primary-500 focus:ring-primary-100 dark:focus:ring-primary-900/30'
-                        } ${disabled ? 'bg-slate-50 dark:bg-neutral-800 cursor-not-allowed' : 'bg-white dark:bg-neutral-900'}`}
+                            ? 'border-app-focus ring-2 ring-primary-100 dark:ring-primary-900/30'
+                            : 'border-app focus:border-app-focus focus:ring-primary-100 dark:focus:ring-primary-900/30'
+                        } ${disabled ? 'bg-app-hover cursor-not-allowed' : 'bg-app-card'}`}
                 >
-                    <span className={value ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-neutral-500'}>
+                    <span className={value ? 'text-app-heading' : 'text-app-muted'}>
                         {value || placeholder}
                     </span>
                 </button>
@@ -100,14 +100,14 @@ const SearchableSelect = ({
                                 e.stopPropagation();
                                 handleClear();
                             }}
-                            className="p-1 hover:bg-slate-100 rounded transition-colors"
+                            className="p-1 hover:bg-app-hover rounded transition-colors"
                         >
-                            <X size={16} className="text-slate-400" />
+                            <X size={16} className="text-app-muted" />
                         </button>
                     )}
                     <ChevronDown
                         size={18}
-                        className={`text-slate-400 dark:text-neutral-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                        className={`text-app-muted transition-transform ${isOpen ? 'rotate-180' : ''}`}
                     />
                 </div>
             </div>
@@ -123,14 +123,14 @@ const SearchableSelect = ({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute z-50 w-full mt-2 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-700 rounded-xl shadow-lg overflow-hidden"
+                        className="absolute z-50 w-full mt-2 bg-app-card border border-app rounded-xl shadow-lg overflow-hidden"
                     >
                         {/* Search Input */}
-                        <div className="p-3 border-b border-slate-100 dark:border-neutral-800">
+                        <div className="p-3 border-b border-app-subtle">
                             <div className="relative">
                                 <Search
                                     size={18}
-                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted"
                                 />
                                 <input
                                     ref={searchInputRef}
@@ -138,7 +138,7 @@ const SearchableSelect = ({
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder="Type to search..."
-                                    className="w-full pl-10 pr-3 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/30 transition-all"
+                                    className="w-full pl-10 pr-3 py-2 border border-app bg-app-card text-app-heading rounded-lg outline-none focus:border-app-focus focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/30 transition-all"
                                 />
                             </div>
                         </div>
@@ -151,14 +151,14 @@ const SearchableSelect = ({
                                         key={index}
                                         type="button"
                                         onClick={() => handleSelect(option)}
-                                        className={`w-full px-4 py-2.5 text-left hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors ${value === option ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 font-medium' : 'text-slate-700 dark:text-neutral-300'
+                                        className={`w-full px-4 py-2.5 text-left hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors ${value === option ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 font-medium' : 'text-app-heading'
                                             }`}
                                     >
                                         {option}
                                     </button>
                                 ))
                             ) : (
-                                <div className="px-4 py-8 text-center text-slate-400 dark:text-neutral-500">
+                                <div className="px-4 py-8 text-center text-app-muted">
                                     <p>No results found</p>
                                     {searchTerm && (
                                         <p className="text-sm mt-1">Try a different search term</p>

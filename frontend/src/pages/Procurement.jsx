@@ -117,8 +117,8 @@ const Procurement = () => {
         <div className="p-6 space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-heading font-bold text-slate-900 dark:text-white">Procurement</h1>
-                    <p className="text-slate-500 dark:text-neutral-400 mt-1">Manage contractors, vendors, and suppliers</p>
+                    <h1 className="text-3xl font-heading font-bold text-app-heading">Procurement</h1>
+                    <p className="text-app-muted mt-1">Manage contractors, vendors, and suppliers</p>
                 </div>
                 <Button
                     onClick={() => setIsAddModalOpen(true)}
@@ -147,8 +147,8 @@ const Procurement = () => {
                                 <stat.icon className={stat.color} size={24} />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-slate-500 dark:text-neutral-400">{stat.label}</p>
-                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{stat.value}</h3>
+                                <p className="text-sm font-medium text-app-muted">{stat.label}</p>
+                                <h3 className="text-2xl font-bold text-app-heading">{stat.value}</h3>
                             </div>
                         </Card>
                     </motion.div>
@@ -159,11 +159,11 @@ const Procurement = () => {
             <Card className="p-4">
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted" size={20} />
                         <input
                             type="text"
                             placeholder="Search contractors by name, PAN, or GSTIN..."
-                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-app bg-app-input text-app-text focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -192,7 +192,7 @@ const Procurement = () => {
                             transition={{ delay: index * 0.05 }}
                         >
                             <div onClick={() => handleContractorClick(contractor)}>
-                                <Card className="h-full hover:shadow-xl transition-all duration-300 group cursor-pointer border-slate-200/60 relative">
+                                <Card className="h-full hover:shadow-xl transition-all duration-300 group cursor-pointer border-app-subtle relative bg-app-card">
                                     <div className="p-6 space-y-4">
                                         <div className="flex justify-between items-start relative">
                                             <div className="p-3 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 group-hover:bg-primary-600 group-hover:text-white transition-colors duration-300">
@@ -206,7 +206,7 @@ const Procurement = () => {
                                         </div>
 
                                         <div>
-                                            <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
+                                            <h3 className="text-lg font-bold text-app-heading group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
                                                 {contractor.name || contractor.contractor_name || 'Unnamed Contractor'}
                                             </h3>
                                             <div className="flex items-center gap-2 mt-1">
@@ -221,22 +221,22 @@ const Procurement = () => {
                                             </div>
                                         </div>
 
-                                        <div className="space-y-3 pt-4 border-t border-slate-100 dark:border-neutral-700">
+                                        <div className="space-y-3 pt-4 border-t border-app-subtle">
                                             {contractor.gstin && (
-                                                <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-neutral-400">
-                                                    <FileBadge size={16} className="text-slate-400 dark:text-neutral-500" />
+                                                <div className="flex items-center gap-3 text-sm text-app-muted">
+                                                    <FileBadge size={16} className="text-app-muted" />
                                                     <span className="font-mono">{contractor.gstin}</span>
                                                 </div>
                                             )}
                                             {(contractor.city || contractor.state) && (
-                                                <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-neutral-400">
-                                                    <MapPin size={16} className="text-slate-400 dark:text-neutral-500" />
+                                                <div className="flex items-center gap-3 text-sm text-app-muted">
+                                                    <MapPin size={16} className="text-app-muted" />
                                                     <span className="truncate">{[contractor.city, contractor.state].filter(Boolean).join(', ')}</span>
                                                 </div>
                                             )}
                                             {contractor.email && (
-                                                <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-neutral-400">
-                                                    <Mail size={16} className="text-slate-400 dark:text-neutral-500" />
+                                                <div className="flex items-center gap-3 text-sm text-app-muted">
+                                                    <Mail size={16} className="text-app-muted" />
                                                     <span className="truncate">{contractor.email}</span>
                                                 </div>
                                             )}

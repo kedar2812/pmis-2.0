@@ -6,7 +6,7 @@ const Card = forwardRef(
     return (
       <div
         ref={ref}
-        className={cn('rounded-2xl border border-slate-200 dark:border-neutral-800 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md shadow-sm dark:shadow-md', className)}
+        className={cn('rounded-2xl border border-app-subtle bg-app-card/90 backdrop-blur-md shadow-sm dark:shadow-md', className)}
         {...props}
       />
     );
@@ -34,7 +34,7 @@ const CardTitle = forwardRef(
     return (
       <h3
         ref={ref}
-        className={cn('text-lg font-semibold leading-none tracking-tight text-slate-900 dark:text-white', className)}
+        className={cn('text-lg font-semibold leading-none tracking-tight text-app-heading', className)}
         {...props}
       />
     );

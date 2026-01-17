@@ -151,8 +151,8 @@ const RABilling = () => {
         <div className="p-6 space-y-6 print:hidden">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-heading font-bold text-slate-900 dark:text-white">RA Billing Register</h1>
-                    <p className="text-slate-500 dark:text-neutral-400 mt-1">Manage Contractor Running Account Bills and Certifications</p>
+                    <h1 className="text-3xl font-heading font-bold text-app-heading">RA Billing Register</h1>
+                    <p className="text-app-muted mt-1">Manage Contractor Running Account Bills and Certifications</p>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={handleExportSummary} className="gap-2">
@@ -187,8 +187,8 @@ const RABilling = () => {
                                 <stat.icon className={stat.color} size={24} />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-slate-500 dark:text-neutral-400">{stat.label}</p>
-                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{stat.value}</h3>
+                                <p className="text-sm font-medium text-app-muted">{stat.label}</p>
+                                <h3 className="text-2xl font-bold text-app-heading">{stat.value}</h3>
                             </div>
                         </Card>
                     </motion.div>
@@ -199,11 +199,11 @@ const RABilling = () => {
             <Card className="p-4">
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500" size={20} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted" size={20} />
                         <input
                             type="text"
                             placeholder="Search by Bill No, Project, or Contractor..."
-                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-indigo-500 transition-all"
+                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-app bg-app-input text-app-text focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -213,35 +213,35 @@ const RABilling = () => {
 
             {/* List */}
             {filteredBills.length > 0 ? (
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-app-card rounded-xl shadow-sm border border-app-subtle overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
-                            <thead className="bg-slate-50 border-b border-slate-200">
+                            <thead className="bg-app-surface border-b border-app-subtle">
                                 <tr>
-                                    <th className="px-6 py-4 font-semibold text-slate-700">Bill No</th>
-                                    <th className="px-6 py-4 font-semibold text-slate-700">Date</th>
-                                    <th className="px-6 py-4 font-semibold text-slate-700">Project</th>
-                                    <th className="px-6 py-4 font-semibold text-slate-700">Contractor</th>
-                                    <th className="px-6 py-4 font-semibold text-slate-700 text-right">Gross Amount</th>
-                                    <th className="px-6 py-4 font-semibold text-slate-700 text-right">Net Payable</th>
-                                    <th className="px-6 py-4 font-semibold text-slate-700">Status</th>
-                                    <th className="px-6 py-4 font-semibold text-slate-700 text-right">Actions</th>
+                                    <th className="px-6 py-4 font-semibold text-app-muted">Bill No</th>
+                                    <th className="px-6 py-4 font-semibold text-app-muted">Date</th>
+                                    <th className="px-6 py-4 font-semibold text-app-muted">Project</th>
+                                    <th className="px-6 py-4 font-semibold text-app-muted">Contractor</th>
+                                    <th className="px-6 py-4 font-semibold text-app-muted text-right">Gross Amount</th>
+                                    <th className="px-6 py-4 font-semibold text-app-muted text-right">Net Payable</th>
+                                    <th className="px-6 py-4 font-semibold text-app-muted">Status</th>
+                                    <th className="px-6 py-4 font-semibold text-app-muted text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-app-subtle">
                                 {filteredBills.map((bill, index) => (
                                     <motion.tr
                                         key={bill.id}
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: index * 0.05 }}
-                                        className="hover:bg-slate-50/50 transition-colors"
+                                        className="hover:bg-app-surface/50 transition-colors"
                                     >
-                                        <td className="px-6 py-4 font-mono font-medium text-slate-600">{bill.billNo}</td>
-                                        <td className="px-6 py-4 text-slate-600">{bill.submissionDate}</td>
-                                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{bill.projectName}</td>
-                                        <td className="px-6 py-4 text-slate-600">{bill.contractorName}</td>
-                                        <td className="px-6 py-4 text-right text-slate-600">
+                                        <td className="px-6 py-4 font-mono font-medium text-app-muted">{bill.billNo}</td>
+                                        <td className="px-6 py-4 text-app-muted">{bill.submissionDate}</td>
+                                        <td className="px-6 py-4 font-medium text-app-heading">{bill.projectName}</td>
+                                        <td className="px-6 py-4 text-app-muted">{bill.contractorName}</td>
+                                        <td className="px-6 py-4 text-right text-app-muted">
                                             {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(bill.grossAmount)}
                                         </td>
                                         <td className="px-6 py-4 text-right font-bold text-emerald-600">
@@ -257,7 +257,7 @@ const RABilling = () => {
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => triggerPrint(bill)}
-                                                className="text-slate-400 hover:text-primary-600"
+                                                className="text-app-muted hover:text-primary-600"
                                                 title="Print Bill"
                                             >
                                                 <Printer size={18} />

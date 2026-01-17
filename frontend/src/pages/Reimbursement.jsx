@@ -73,8 +73,8 @@ const Reimbursement = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-heading font-bold text-primary-950">Staff Reimbursement</h1>
-        <p className="text-slate-500 mt-1">Submit reimbursement requests for project-related expenses</p>
+        <h1 className="text-3xl font-heading font-bold text-app-heading">Staff Reimbursement</h1>
+        <p className="text-app-muted mt-1">Submit reimbursement requests for project-related expenses</p>
       </div>
 
       <Card>
@@ -84,14 +84,14 @@ const Reimbursement = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">
+              <label className="text-sm font-medium text-app-text mb-2 block">
                 Expense Type <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.expenseType}
                 onChange={(e) => setFormData({ ...formData, expenseType: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+                className="w-full px-4 py-2 border border-app rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 bg-app-input text-app-text"
               >
                 <option value="">Select expense type</option>
                 {expenseTypes.map((type) => (
@@ -103,7 +103,7 @@ const Reimbursement = () => {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">
+              <label className="text-sm font-medium text-app-text mb-2 block">
                 Amount (₹) <span className="text-red-500">*</span>
               </label>
               <input
@@ -114,19 +114,19 @@ const Reimbursement = () => {
                 min="0"
                 step="0.01"
                 placeholder="0.00"
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+                className="w-full px-4 py-2 border border-app rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 bg-app-input text-app-text"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">
+              <label className="text-sm font-medium text-app-text mb-2 block">
                 Project Reference <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.projectReference}
                 onChange={(e) => setFormData({ ...formData, projectReference: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+                className="w-full px-4 py-2 border border-app rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 bg-app-input text-app-text"
               >
                 <option value="">Select project</option>
                 {projects.map((project) => (
@@ -138,21 +138,21 @@ const Reimbursement = () => {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">Description</label>
+              <label className="text-sm font-medium text-app-text mb-2 block">Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
                 placeholder="Describe the expense..."
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 resize-none"
+                className="w-full px-4 py-2 border border-app rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 resize-none bg-app-input text-app-text"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">
+              <label className="text-sm font-medium text-app-text mb-2 block">
                 Proof of Payment <span className="text-red-500">*</span>
               </label>
-              <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-primary-600 transition-colors">
+              <div className="border-2 border-dashed border-app-subtle rounded-lg p-6 text-center hover:border-primary-600 transition-colors">
                 <input
                   type="file"
                   id="proof-upload"
@@ -169,9 +169,9 @@ const Reimbursement = () => {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-2">
-                      <Upload size={32} className="text-slate-400" />
-                      <span className="text-sm text-slate-600">Click to upload or drag and drop</span>
-                      <span className="text-xs text-slate-500">PDF, JPG, PNG (max 10MB)</span>
+                      <Upload size={32} className="text-app-muted-light" />
+                      <span className="text-sm text-app-muted">Click to upload or drag and drop</span>
+                      <span className="text-xs text-app-muted">PDF, JPG, PNG (max 10MB)</span>
                     </div>
                   )}
                 </label>

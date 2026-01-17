@@ -88,9 +88,9 @@ const MasterFormModal = ({
     };
 
     const renderField = (field) => {
-        const commonClasses = `w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-neutral-800 dark:text-white ${errors[field.name]
-            ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
-            : 'border-slate-200 dark:border-neutral-700 focus:border-primary-500 focus:ring-primary-100'
+        const commonClasses = `w-full px-4 py-2.5 rounded-lg border bg-app-card text-app-heading ${errors[field.name]
+            ? 'border-red-300 focus:border-red-500 focus:ring-red-100 dark:border-red-500/50'
+            : 'border-app focus:border-app-focus focus:ring-primary-100'
             } focus:ring-2 outline-none transition-all text-sm`;
 
         switch (field.type) {
@@ -230,10 +230,10 @@ const MasterFormModal = ({
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
                     >
-                        <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden">
+                        <div className="bg-app-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden">
                             {/* Header */}
-                            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-neutral-700">
-                                <h2 className="text-lg font-semibold text-slate-800 dark:text-white">{title}</h2>
+                            <div className="flex items-center justify-between px-6 py-4 border-b border-app-subtle">
+                                <h2 className="text-lg font-semibold text-app-heading">{title}</h2>
                                 <button
                                     onClick={onClose}
                                     className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
@@ -266,7 +266,7 @@ const MasterFormModal = ({
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100 dark:border-neutral-700">
+                                <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-app-subtle">
                                     <Button
                                         type="button"
                                         variant="outline"

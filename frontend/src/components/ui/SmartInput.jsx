@@ -26,7 +26,7 @@ export const SmartInput = ({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-app-heading mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -38,7 +38,7 @@ export const SmartInput = ({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
-          className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600 ${error ? 'border-red-500' : 'border-gray-300'
+          className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary-600 focus:border-primary-600 bg-app-card text-app-heading disabled:bg-app-hover disabled:text-app-muted ${error ? 'border-red-500' : 'border-app'
             } ${className}`}
         />
       </div>

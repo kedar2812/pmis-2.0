@@ -24,10 +24,10 @@ const GlassCard = ({ children, className = '', onClick, hoverable = false }) => 
     <motion.div
         className={`
             relative overflow-hidden rounded-2xl
-            bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl
-            border border-slate-200 dark:border-neutral-800
+            bg-app-card/90 backdrop-blur-xl
+            border border-app-subtle
             shadow-sm dark:shadow-lg
-            ${hoverable ? 'hover:shadow-lg dark:hover:shadow-xl hover:bg-white dark:hover:bg-neutral-800/90 cursor-pointer' : ''}
+            ${hoverable ? 'hover:shadow-lg dark:hover:shadow-xl hover:bg-app-card dark:hover:bg-app-card/95 cursor-pointer' : ''}
             transition-all duration-300
             ${className}
         `}
@@ -63,9 +63,9 @@ const KPICard = ({ icon: Icon, label, value, subtext, color, trend, onClick }) =
                 )}
             </div>
             <div className="mt-4">
-                <p className="text-sm text-slate-500 dark:text-neutral-400 font-medium">{label}</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{value}</p>
-                {subtext && <p className="text-xs text-slate-400 dark:text-neutral-500 mt-1">{subtext}</p>}
+                <p className="text-sm text-app-muted font-medium">{label}</p>
+                <p className="text-2xl font-bold text-app-heading mt-1">{value}</p>
+                {subtext && <p className="text-xs text-app-muted mt-1">{subtext}</p>}
             </div>
         </GlassCard>
     );
@@ -74,17 +74,17 @@ const KPICard = ({ icon: Icon, label, value, subtext, color, trend, onClick }) =
 // Milestone Item
 const MilestoneItem = ({ milestone, onClick }) => (
     <motion.div
-        className="flex items-center gap-4 p-3 hover:bg-slate-50 dark:hover:bg-neutral-800 rounded-lg cursor-pointer"
+        className="flex items-center gap-4 p-3 hover:bg-app-hover rounded-lg cursor-pointer"
         onClick={onClick}
         whileHover={{ x: 4 }}
     >
         <div className="w-3 h-3 rounded-full bg-primary-500 ring-4 ring-primary-100" />
         <div className="flex-1">
-            <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">{milestone.name}</p>
-            <p className="text-xs text-slate-400 dark:text-neutral-500">{milestone.project}</p>
+            <p className="text-sm font-medium text-app-heading">{milestone.name}</p>
+            <p className="text-xs text-app-muted">{milestone.project}</p>
         </div>
         <div className="text-right">
-            <p className="text-xs font-medium text-slate-600 dark:text-neutral-400">
+            <p className="text-xs font-medium text-app-muted">
                 {milestone.date ? new Date(milestone.date).toLocaleDateString() : 'TBD'}
             </p>
         </div>
@@ -135,7 +135,7 @@ const EVMGauge = ({ label, value, isGood }) => (
         <div className={`text-3xl font-bold ${isGood ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
             {value.toFixed(2)}
         </div>
-        <div className="text-xs text-slate-500 dark:text-neutral-400 mt-1">{label}</div>
+        <div className="text-xs text-app-muted mt-1">{label}</div>
         <div className={`text-xs mt-1 ${isGood ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
             {isGood ? '✓ On Track' : '⚠ Attention'}
         </div>
@@ -283,10 +283,10 @@ const UnifiedDashboard = () => {
                 className="flex flex-col md:flex-row md:items-center justify-between gap-4"
             >
                 <div>
-                    <h1 className="text-3xl font-heading font-bold text-slate-900 dark:text-white">
+                    <h1 className="text-3xl font-heading font-bold text-app-heading">
                         {greeting()}, {user?.first_name || 'Admin'}
                     </h1>
-                    <p className="text-slate-500 dark:text-neutral-400 mt-1">
+                    <p className="text-app-muted mt-1">
                         PMIS Command Center • {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                 </div>
@@ -370,7 +370,7 @@ const UnifiedDashboard = () => {
                 {/* Budget vs Spent Chart */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-app-heading flex items-center gap-2">
                             <DollarSign size={20} className="text-emerald-600" />
                             Budget vs Spent
                         </h3>
@@ -396,7 +396,7 @@ const UnifiedDashboard = () => {
                 {/* Project Status Chart */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-app-heading flex items-center gap-2">
                             <Activity size={20} className="text-blue-600" />
                             Project Status Distribution
                         </h3>
@@ -428,7 +428,7 @@ const UnifiedDashboard = () => {
                 {/* Milestones */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-app-heading flex items-center gap-2">
                             <Flag size={20} className="text-primary-600" />
                             Upcoming Milestones
                         </h3>
@@ -442,7 +442,7 @@ const UnifiedDashboard = () => {
                                 <MilestoneItem key={m.id || idx} milestone={m} onClick={() => navigate('/scheduling')} />
                             ))
                         ) : (
-                            <p className="text-center py-8 text-slate-400 dark:text-neutral-500 text-sm">No upcoming milestones</p>
+                            <p className="text-center py-8 text-app-muted text-sm">No upcoming milestones</p>
                         )}
                     </div>
                 </GlassCard>
@@ -450,7 +450,7 @@ const UnifiedDashboard = () => {
                 {/* Alerts & Critical Path */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-app-heading flex items-center gap-2">
                             <AlertTriangle size={20} className="text-amber-500" />
                             Alerts & Critical Items
                         </h3>
@@ -463,14 +463,14 @@ const UnifiedDashboard = () => {
                         ) : (
                             <div className="text-center py-6">
                                 <CheckCircle size={32} className="mx-auto text-emerald-400 mb-2" />
-                                <p className="text-sm text-slate-500 dark:text-neutral-400">All systems operational</p>
+                                <p className="text-sm text-app-muted">All systems operational</p>
                             </div>
                         )}
                         {criticalPathTasks.length > 0 && (
-                            <div className="mt-4 pt-4 border-t border-slate-100">
-                                <p className="text-xs font-medium text-slate-400 uppercase mb-2">Critical Path Tasks</p>
+                            <div className="mt-4 pt-4 border-t border-app-subtle">
+                                <p className="text-xs font-medium text-app-muted uppercase mb-2">Critical Path Tasks</p>
                                 {criticalPathTasks.slice(0, 2).map((t, idx) => (
-                                    <div key={idx} className={`text-sm py-1 ${t.is_overdue ? 'text-rose-600' : 'text-slate-600 dark:text-neutral-400'}`}>
+                                    <div key={idx} className={`text-sm py-1 ${t.is_overdue ? 'text-rose-600' : 'text-app-text'}`}>
                                         • {t.name} ({t.project})
                                     </div>
                                 ))}
@@ -488,7 +488,7 @@ const UnifiedDashboard = () => {
                 {/* GIS Map Placeholder */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-app-heading flex items-center gap-2">
                             <Map size={20} className="text-blue-600" />
                             Project Locations (GIS)
                         </h3>
@@ -585,7 +585,7 @@ const UnifiedDashboard = () => {
                         <EVMGauge label="CPI (Cost Performance)" value={earnedValue.cpi || 1.0} isGood={(earnedValue.cpi || 1.0) >= 1.0} />
                         <EVMGauge label="SPI (Schedule Performance)" value={earnedValue.spi || 1.0} isGood={(earnedValue.spi || 1.0) >= 1.0} />
                     </div>
-                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-neutral-800 text-center">
+                    <div className="mt-4 pt-4 border-t border-app-subtle text-center">
                         <span className={`text-sm font-medium ${earnedValue.status === 'on_budget' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                             {earnedValue.status === 'on_budget' ? '✓ Project Portfolio On Budget' : '⚠ Budget Variance Detected'}
                         </span>
@@ -619,7 +619,7 @@ const UnifiedDashboard = () => {
 
             {/* Section 6: Projects Table */}
             <GlassCard className="overflow-hidden">
-                <div className="p-6 border-b border-slate-100 dark:border-neutral-800">
+                <div className="p-6 border-b border-app-subtle">
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                             <FolderOpen size={20} className="text-primary-600" />
@@ -635,8 +635,8 @@ const UnifiedDashboard = () => {
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full">
-                        <thead className="bg-slate-50 dark:bg-neutral-800/50">
-                            <tr className="text-xs font-medium text-slate-500 dark:text-neutral-400 uppercase tracking-wider">
+                        <thead className="bg-app-secondary">
+                            <tr className="text-xs font-medium text-app-muted uppercase tracking-wider">
                                 <th className="py-3 pl-6 text-left">Project</th>
                                 <th className="py-3 text-left">Status</th>
                                 <th className="py-3 text-right">Budget</th>
@@ -644,7 +644,7 @@ const UnifiedDashboard = () => {
                                 <th className="py-3 pr-6">Progress</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
+                        <tbody className="divide-y divide-app-subtle">
                             {(topProjects.length > 0 ? topProjects : projects.slice(0, 5)).map((project, idx) => {
                                 const budget = Number(project.budget) || 0;
                                 const spent = Number(project.spent) || 0;
@@ -656,30 +656,30 @@ const UnifiedDashboard = () => {
                                     'On Hold': 'bg-slate-100 text-slate-700 dark:bg-neutral-700 dark:text-slate-300',
                                 };
                                 return (
-                                    <tr key={project.id || idx} className="hover:bg-slate-50/50 cursor-pointer" onClick={() => navigate(`/projects/${project.id}`)}>
+                                    <tr key={project.id || idx} className="hover:bg-app-hover cursor-pointer" onClick={() => navigate(`/projects/${project.id}`)}>
                                         <td className="py-3 pl-6">
-                                            <p className="font-medium text-slate-800 dark:text-white">{project.name}</p>
+                                            <p className="font-medium text-app-heading">{project.name}</p>
                                         </td>
                                         <td className="py-3">
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[project.status] || 'bg-slate-100 text-slate-700 dark:bg-neutral-700 dark:text-slate-300'}`}>
                                                 {project.status || 'Unknown'}
                                             </span>
                                         </td>
-                                        <td className="py-3 text-right text-sm font-medium text-slate-700 dark:text-neutral-300">
+                                        <td className="py-3 text-right text-sm font-medium text-app-text">
                                             ₹{(budget / 10000000).toFixed(2)} Cr
                                         </td>
-                                        <td className="py-3 text-right text-sm text-slate-600 dark:text-neutral-400">
+                                        <td className="py-3 text-right text-sm text-app-muted">
                                             ₹{(spent / 10000000).toFixed(2)} Cr
                                         </td>
                                         <td className="py-3 pr-6">
                                             <div className="flex items-center gap-2">
-                                                <div className="flex-1 h-2 bg-slate-100 dark:bg-neutral-800 rounded-full overflow-hidden">
+                                                <div className="flex-1 h-2 bg-app-secondary rounded-full overflow-hidden">
                                                     <div
                                                         className="h-full bg-gradient-to-r from-primary-500 to-primary-600 rounded-full"
                                                         style={{ width: `${progress}%` }}
                                                     />
                                                 </div>
-                                                <span className="text-xs font-medium text-slate-500 dark:text-neutral-400 w-10 text-right">{progress}%</span>
+                                                <span className="text-xs font-medium text-app-muted w-10 text-right">{progress}%</span>
                                             </div>
                                         </td>
                                     </tr>

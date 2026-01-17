@@ -89,8 +89,8 @@ const AcceptInvite = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-primary-950 to-slate-900 flex items-center justify-center">
-                <div className="text-center text-white">
+            <div className="min-h-screen bg-app-base flex items-center justify-center">
+                <div className="text-center text-app-text">
                     <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" />
                     <p>Validating invite link...</p>
                 </div>
@@ -100,7 +100,7 @@ const AcceptInvite = () => {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-primary-950 to-slate-900 flex items-center justify-center p-4">
+            <div className="min-h-screen bg-app-base flex items-center justify-center p-4">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -124,7 +124,7 @@ const AcceptInvite = () => {
 
     if (isSuccess) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-primary-950 to-slate-900 flex items-center justify-center p-4">
+            <div className="min-h-screen bg-app-base flex items-center justify-center p-4">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -149,7 +149,7 @@ const AcceptInvite = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-primary-950 to-slate-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-app-base flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

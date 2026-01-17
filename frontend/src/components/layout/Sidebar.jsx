@@ -262,13 +262,13 @@ const Sidebar = () => {
       {/* Mobile menu hamburger button - only visible when sidebar is CLOSED */}
       {!isMobileMenuOpen && (
         <motion.button
-          className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md shadow-lg border border-slate-200 dark:border-neutral-700 min-w-[44px] min-h-[44px] flex items-center justify-center"
+          className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-app-card/90 backdrop-blur-md shadow-lg border border-app-border min-w-[44px] min-h-[44px] flex items-center justify-center"
           onClick={() => setIsMobileMenuOpen(true)}
           whileTap={{ scale: 0.95 }}
           whileHover={{ scale: 1.05 }}
           aria-label="Open menu"
         >
-          <Menu size={24} className="text-slate-800 dark:text-neutral-100" />
+          <Menu size={24} className="text-app-text" />
         </motion.button>
       )}
 
@@ -282,7 +282,7 @@ const Sidebar = () => {
         className={cn(
           // Base styles
           'fixed top-4 left-4 z-40 h-[calc(100vh-2rem)]',
-          'bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl border border-slate-200 dark:border-neutral-700',
+          'bg-app-card/90 backdrop-blur-xl border border-app-subtle',
           'rounded-2xl shadow-lg overflow-hidden',
           // Mobile: slide in/out with smooth transition
           'transition-transform duration-300 ease-out',
@@ -297,7 +297,7 @@ const Sidebar = () => {
           {/* Header with logo and collapse button */}
           <div
             className={cn(
-              'border-b border-slate-200 dark:border-neutral-700 flex items-center justify-between overflow-hidden flex-shrink-0',
+              'border-b border-app-subtle flex items-center justify-between overflow-hidden flex-shrink-0',
               shouldShowExpanded ? 'p-6' : 'p-3'
             )}
           >
@@ -322,7 +322,7 @@ const Sidebar = () => {
                     <h2 className="text-lg font-heading font-bold text-blue-600 truncate notranslate">
                       PMIS
                     </h2>
-                    <p className="text-xs text-slate-500 dark:text-neutral-400 truncate">
+                    <p className="text-xs text-app-muted truncate">
                       Zaheerabad Industrial Area
                     </p>
                   </div>
@@ -345,11 +345,11 @@ const Sidebar = () => {
             {isMobile && isMobileMenuOpen && (
               <motion.button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="lg:hidden p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className="lg:hidden p-2 hover:bg-app-layer-2 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 whileTap={{ scale: 0.9 }}
                 aria-label="Close menu"
               >
-                <X size={24} className="text-slate-600 dark:text-neutral-300" />
+                <X size={24} className="text-app-muted" />
               </motion.button>
             )}
 
@@ -358,7 +358,7 @@ const Sidebar = () => {
               layout
               onClick={() => setIsCollapsed(!isCollapsed)}
               className={cn(
-                'hidden lg:flex rounded-lg hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors flex-shrink-0',
+                'hidden lg:flex rounded-lg hover:bg-app-layer-2 transition-colors flex-shrink-0',
                 isCollapsed ? 'p-1.5' : 'p-2'
               )}
               whileHover={{ scale: 1.1 }}
@@ -366,9 +366,9 @@ const Sidebar = () => {
               aria-label={isCollapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
             >
               {isCollapsed ? (
-                <ChevronRight size={18} className="text-slate-600 dark:text-neutral-300" />
+                <ChevronRight size={18} className="text-app-muted" />
               ) : (
-                <ChevronLeft size={20} className="text-slate-600 dark:text-neutral-300" />
+                <ChevronLeft size={20} className="text-app-muted" />
               )}
             </motion.button>
           </div>
@@ -401,8 +401,8 @@ const Sidebar = () => {
                       'flex items-center gap-3 rounded-xl transition-all duration-200 overflow-hidden',
                       'focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-900',
                       isActive
-                        ? 'bg-blue-50 dark:bg-neutral-800 text-blue-700 dark:text-blue-400 font-semibold shadow-sm pl-3 py-3 pr-4'
-                        : 'text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-neutral-800 hover:text-blue-600 dark:hover:text-blue-400 px-4 py-3'
+                        ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 font-semibold shadow-sm pl-3 py-3 pr-4'
+                        : 'text-app-heading hover:bg-app-hover hover:text-primary-600 dark:hover:text-primary-400 px-4 py-3'
                     )}
                     title={!shouldShowExpanded ? item.label : undefined}
                     aria-label={item.label}

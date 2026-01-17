@@ -110,16 +110,16 @@ const ClassificationSelector = ({
     };
 
     const selectClasses = `
-    w-full px-3 py-2.5 rounded-lg border border-slate-200 
-    bg-white text-slate-700 text-sm
-    focus:border-primary-500 focus:ring-2 focus:ring-primary-100 
+    w-full px-3 py-2.5 rounded-lg border border-app
+    bg-app-input text-app-text text-sm
+    focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/30
     outline-none transition-all appearance-none cursor-pointer
-    disabled:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400
+    disabled:bg-app-surface disabled:cursor-not-allowed disabled:text-app-muted
   `;
 
     const renderSelect = (label, val, options, onChangeHandler, isLoading, placeholder, isDisabled = false) => (
         <div className="relative">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">{label}</label>
+            <label className="block text-sm font-medium text-app-text mb-1.5">{label}</label>
             <div className="relative">
                 <select
                     value={val || ''}
@@ -136,9 +136,9 @@ const ClassificationSelector = ({
                 </select>
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                     {isLoading ? (
-                        <Loader2 size={16} className="animate-spin text-slate-400" />
+                        <Loader2 size={16} className="animate-spin text-app-muted" />
                     ) : (
-                        <ChevronDown size={16} className="text-slate-400" />
+                        <ChevronDown size={16} className="text-app-muted" />
                     )}
                 </div>
             </div>

@@ -60,14 +60,14 @@ const Scheduling = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Project Schedule</h1>
-          <p className="text-slate-500 dark:text-neutral-400 text-sm">Manage timelines, WBS, and Critical Milestones</p>
+          <h1 className="text-2xl font-bold text-app-heading">Project Schedule</h1>
+          <p className="text-app-muted text-sm">Manage timelines, WBS, and Critical Milestones</p>
         </div>
         <div className="flex items-center gap-3">
           <select
             value={selectedProject || ''}
             onChange={handleProjectChange}
-            className="px-3 py-2 border border-slate-200 dark:border-neutral-700 rounded-lg text-sm bg-white dark:bg-neutral-900 text-slate-900 dark:text-white"
+            className="px-3 py-2 border border-app rounded-lg text-sm bg-app-input text-app-text"
           >
             {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
@@ -87,7 +87,7 @@ const Scheduling = () => {
       {/* Content */}
       <div className="flex-1 min-h-0">
         {loading ? (
-          <div className="h-full flex items-center justify-center text-slate-400 dark:text-neutral-500">Loading Schedule...</div>
+          <div className="h-full flex items-center justify-center text-app-muted">Loading Schedule...</div>
         ) : (
           <GanttChart
             tasks={tasks}

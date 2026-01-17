@@ -112,38 +112,38 @@
     --shadow-lg: 0 0 0 0;
   }
 
-  /* DARK MODE - Simple Background Inversion */
+  /* DARK MODE - True Neutral (No Blue Tint) */
   .dark {
     /* ===== Only Background & Text Inversion ===== */
     /* Background: White → Black */
     --bg-primary: 0 0 0;
     /* Black */
-    --bg-secondary: 17 24 39;
-    /* Very dark gray */
-    --bg-surface: 31 41 55;
-    /* Dark gray */
-    --bg-card: 17 24 39;
-    /* Very dark gray */
-    --bg-hover: 31 41 55;
-    /* Dark gray */
-    --bg-active: 55 65 81;
-    /* Medium gray */
+    --bg-secondary: 10 10 10;
+    /* Neutral-950 (Was 17 24 39) */
+    --bg-surface: 23 23 23;
+    /* Neutral-900 (Was 31 41 55) */
+    --bg-card: 23 23 23;
+    /* Neutral-900 (Was 17 24 39) */
+    --bg-hover: 38 38 38;
+    /* Neutral-800 (Was 31 41 55) */
+    --bg-active: 64 64 64;
+    /* Neutral-700 (Was 55 65 81) */
 
     /* Text: Black → White */
     --text-primary: 255 255 255;
     /* White */
-    --text-secondary: 209 213 219;
-    /* Light gray */
-    --text-muted: 156 163 175;
-    /* Medium gray */
+    --text-secondary: 212 212 212;
+    /* Neutral-300 (Was 209 213 219) */
+    --text-muted: 163 163 163;
+    /* Neutral-400 (Was 156 163 175) */
     --text-inverse: 0 0 0;
-    /* Black (for light backgrounds) */
+    /* Black */
 
     /* Borders: Adjusted for dark background */
-    --border-default: 55 65 81;
-    /* Visible on dark */
-    --border-muted: 31 41 55;
-    /* Subtle on dark */
+    --border-default: 38 38 38;
+    /* Neutral-800 (Was 55 65 81) */
+    --border-muted: 23 23 23;
+    /* Neutral-900 (Was 31 41 55) */
     --border-focus: 59 130 246;
     /* Keep blue for focus */
 

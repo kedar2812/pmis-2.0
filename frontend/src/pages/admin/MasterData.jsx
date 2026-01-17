@@ -354,11 +354,11 @@ const MasterData = () => {
         );
 
         return (
-            <div className="bg-white dark:bg-neutral-900 rounded-xl border border-slate-200 dark:border-neutral-700 overflow-hidden">
-                <div className="px-4 py-3 border-b border-slate-100 dark:border-neutral-800 flex items-center justify-between">
+            <div className="bg-app-card rounded-xl border border-app-subtle overflow-hidden">
+                <div className="px-4 py-3 border-b border-app-subtle flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-slate-700 dark:text-white">{title}</h3>
-                        <span className="text-xs text-slate-400 dark:text-neutral-500 bg-slate-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">
+                        <h3 className="font-semibold text-app-heading">{title}</h3>
+                        <span className="text-xs text-app-muted bg-app-surface px-2 py-0.5 rounded-full">
                             {filtered.length}
                         </span>
                     </div>
@@ -371,29 +371,29 @@ const MasterData = () => {
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                        <thead className="bg-slate-50 dark:bg-neutral-800">
+                        <thead className="bg-app-surface">
                             <tr>
                                 {columns.map(col => (
-                                    <th key={col.key} className="text-left px-4 py-3 font-medium text-slate-600 dark:text-neutral-300">
+                                    <th key={col.key} className="text-left px-4 py-3 font-medium text-app-muted">
                                         {col.label}
                                     </th>
                                 ))}
-                                {canEdit && <th className="text-right px-4 py-3 font-medium text-slate-600 dark:text-neutral-300 w-24">Actions</th>}
+                                {canEdit && <th className="text-right px-4 py-3 font-medium text-app-muted w-24">Actions</th>}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
+                        <tbody className="divide-y divide-app-subtle">
                             {filtered.length === 0 ? (
                                 <tr>
-                                    <td colSpan={columns.length + (canEdit ? 1 : 0)} className="text-center py-8 text-slate-400 dark:text-neutral-500">
+                                    <td colSpan={columns.length + (canEdit ? 1 : 0)} className="text-center py-8 text-app-muted">
                                         <Database size={32} className="mx-auto mb-2 opacity-30" />
                                         No records found
                                     </td>
                                 </tr>
                             ) : (
                                 filtered.map((item, idx) => (
-                                    <tr key={item.id || idx} className="hover:bg-slate-50 dark:hover:bg-neutral-800 transition-colors">
+                                    <tr key={item.id || idx} className="hover:bg-app-surface transition-colors">
                                         {columns.map(col => (
-                                            <td key={col.key} className="px-4 py-3 text-slate-700 dark:text-neutral-300">
+                                            <td key={col.key} className="px-4 py-3 text-app-text">
                                                 {col.render ? col.render(item[col.key], item) : item[col.key] || '-'}
                                             </td>
                                         ))}
@@ -401,13 +401,13 @@ const MasterData = () => {
                                             <td className="px-4 py-3 text-right">
                                                 <button
                                                     onClick={() => handleEdit(masterType, item)}
-                                                    className="p-1.5 text-slate-400 hover:text-primary-600 transition-colors"
+                                                    className="p-1.5 text-app-muted hover:text-primary-600 transition-colors"
                                                 >
                                                     <Edit2 size={16} />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(masterType, item)}
-                                                    className="p-1.5 text-slate-400 hover:text-red-600 transition-colors ml-1"
+                                                    className="p-1.5 text-app-muted hover:text-red-600 transition-colors ml-1"
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>
@@ -591,16 +591,16 @@ const MasterData = () => {
                 return (
                     <>
                         {/* Contractors Table - Sync button, Blacklist action */}
-                        <div className="bg-white dark:bg-neutral-900 rounded-xl border border-slate-200 dark:border-neutral-700 overflow-hidden">
-                            <div className="px-4 py-3 border-b border-slate-100 dark:border-neutral-800 flex items-center justify-between">
+                        <div className="bg-app-card rounded-xl border border-app-subtle overflow-hidden">
+                            <div className="px-4 py-3 border-b border-app-subtle flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <h3 className="font-semibold text-slate-700 dark:text-white">Contractors</h3>
-                                    <span className="text-xs text-slate-400 dark:text-neutral-500 bg-slate-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">
+                                    <h3 className="font-semibold text-app-heading">Contractors</h3>
+                                    <span className="text-xs text-app-muted bg-app-surface px-2 py-0.5 rounded-full">
                                         {data.contractors?.length || 0}
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                                    <div className="flex items-center gap-2 text-xs text-app-muted">
                                         <AlertCircle size={14} />
                                         Contractors self-register via public registration
                                     </div>
@@ -617,27 +617,27 @@ const MasterData = () => {
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
-                                    <thead className="bg-slate-50 dark:bg-neutral-800">
+                                    <thead className="bg-app-surface">
                                         <tr>
-                                            <th className="text-left px-4 py-3 font-medium text-slate-600 dark:text-neutral-300">Code</th>
-                                            <th className="text-left px-4 py-3 font-medium text-slate-600 dark:text-neutral-300">Contractor Name</th>
-                                            <th className="text-left px-4 py-3 font-medium text-slate-600 dark:text-neutral-300">Type</th>
-                                            <th className="text-left px-4 py-3 font-medium text-slate-600 dark:text-neutral-300">Class</th>
-                                            <th className="text-left px-4 py-3 font-medium text-slate-600 dark:text-neutral-300">Status</th>
-                                            {canEdit && <th className="text-center px-4 py-3 font-medium text-slate-600 dark:text-neutral-300 w-32">Actions</th>}
+                                            <th className="text-left px-4 py-3 font-medium text-app-muted">Code</th>
+                                            <th className="text-left px-4 py-3 font-medium text-app-muted">Contractor Name</th>
+                                            <th className="text-left px-4 py-3 font-medium text-app-muted">Type</th>
+                                            <th className="text-left px-4 py-3 font-medium text-app-muted">Class</th>
+                                            <th className="text-left px-4 py-3 font-medium text-app-muted">Status</th>
+                                            {canEdit && <th className="text-center px-4 py-3 font-medium text-app-muted w-32">Actions</th>}
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-100 dark:divide-neutral-800">
+                                    <tbody className="divide-y divide-app-subtle">
                                         {(data.contractors || []).filter(item =>
                                             Object.values(item).some(val =>
                                                 String(val).toLowerCase().includes(searchQuery.toLowerCase())
                                             )
                                         ).map((contractor, idx) => (
-                                            <tr key={contractor.id || idx} className="hover:bg-slate-50 dark:hover:bg-neutral-800 transition-colors">
-                                                <td className="px- py-3 font-mono text-slate-700 dark:text-neutral-300">{contractor.code}</td>
-                                                <td className="px-4 py-3 text-slate-800 dark:text-white font-medium">{contractor.name}</td>
-                                                <td className="px-4 py-3 text-slate-600 dark:text-neutral-400">{contractor.contractor_type}</td>
-                                                <td className="px-4 py-3 text-slate-600 dark:text-neutral-400">{contractor.registration_class}</td>
+                                            <tr key={contractor.id || idx} className="hover:bg-app-surface transition-colors">
+                                                <td className="px-4 py-3 font-mono text-app-text">{contractor.code}</td>
+                                                <td className="px-4 py-3 text-app-heading font-medium">{contractor.name}</td>
+                                                <td className="px-4 py-3 text-app-muted">{contractor.contractor_type}</td>
+                                                <td className="px-4 py-3 text-app-muted">{contractor.registration_class}</td>
                                                 <td className="px-4 py-3">
                                                     <StatusBadge
                                                         status={contractor.blacklisted ? 'BLACKLISTED' : 'ACTIVE'}
@@ -668,7 +668,7 @@ const MasterData = () => {
                                         ))}
                                         {(data.contractors || []).length === 0 && (
                                             <tr>
-                                                <td colSpan={canEdit ? 6 : 5} className="text-center py-8 text-slate-400">
+                                                <td colSpan={canEdit ? 6 : 5} className="text-center py-8 text-app-muted">
                                                     <Database size={32} className="mx-auto mb-2 opacity-30" />
                                                     No contractors registered yet
                                                 </td>
@@ -681,23 +681,23 @@ const MasterData = () => {
 
                         {/* Blacklist Reason Modal */}
                         {blacklistModal.open && (
-                            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+                            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm">
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4"
+                                    className="bg-app-card rounded-2xl shadow-xl w-full max-w-md mx-4"
                                 >
-                                    <div className="p-6 border-b border-slate-200">
-                                        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                    <div className="p-6 border-b border-app-subtle">
+                                        <h2 className="text-xl font-bold text-app-heading flex items-center gap-2">
                                             <Ban className="text-red-600" size={24} />
                                             Blacklist Contractor
                                         </h2>
-                                        <p className="text-sm text-slate-500 mt-1">
+                                        <p className="text-sm text-app-muted mt-1">
                                             {blacklistModal.contractor?.name}
                                         </p>
                                     </div>
                                     <div className="p-6">
-                                        <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-2">
+                                        <label className="block text-sm font-medium text-app-text-medium mb-2">
                                             Reason for Blacklisting <span className="text-red-500">*</span>
                                         </label>
                                         <textarea
@@ -705,7 +705,7 @@ const MasterData = () => {
                                             onChange={(e) => setBlacklistReason(e.target.value)}
                                             placeholder="Enter reason for blacklisting this contractor..."
                                             rows={3}
-                                            className="w-full px-4 py-2 bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                                            className="w-full px-4 py-2 bg-app-input text-app-text border border-app rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                                         />
                                         <div className="flex justify-end gap-3 mt-6">
                                             <Button
@@ -737,7 +737,7 @@ const MasterData = () => {
                     const effectiveDate = item.effective_date ? new Date(item.effective_date) : null;
 
                     if (!item.is_active) {
-                        return { label: 'Inactive', style: 'bg-slate-100 text-slate-600 border border-slate-300' };
+                        return { label: 'Inactive', style: 'bg-app-surface text-app-muted border border-app' };
                     }
                     if (effectiveDate && effectiveDate > today) {
                         return { label: 'Pending', style: 'bg-amber-50 text-amber-700 border border-amber-300' };
@@ -761,7 +761,7 @@ const MasterData = () => {
                     },
                     {
                         key: 'rate_percentage', label: 'Rate', render: (val) => (
-                            <span className="font-mono font-medium text-slate-700">{val}%</span>
+                            <span className="font-mono font-medium text-app-text">{val}%</span>
                         )
                     },
                     { key: 'basis_of_calculation', label: 'Basis' },
@@ -798,7 +798,7 @@ const MasterData = () => {
                                         'ACTIVE': (item.effective_date && new Date(item.effective_date) > new Date().setHours(0, 0, 0, 0))
                                             ? 'bg-amber-50 text-amber-700 border-amber-300'
                                             : 'bg-emerald-50 text-emerald-700 border-emerald-300',
-                                        'INACTIVE': 'bg-slate-100 text-slate-600 border-slate-300'
+                                        'INACTIVE': 'bg-app-surface text-app-muted border-app'
                                     }}
                                 />
                             );
@@ -816,8 +816,8 @@ const MasterData = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Master Data</h1>
-                    <p className="text-slate-500 dark:text-neutral-400 mt-1">Manage reference data for projects, billing, and administration</p>
+                    <h1 className="text-2xl font-bold text-app-heading">Master Data</h1>
+                    <p className="text-app-muted mt-1">Manage reference data for projects, billing, and administration</p>
                 </div>
                 <Button variant="outline" size="sm" onClick={() => fetchTabData(activeTab)}>
                     <RefreshCw size={16} className="mr-2" />
@@ -826,7 +826,7 @@ const MasterData = () => {
             </div>
 
             {/* Tabs */}
-            <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-4">
+            <div className="flex flex-wrap gap-2 border-b border-app-subtle pb-4">
                 {TABS.map(tab => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.id;
@@ -836,7 +836,7 @@ const MasterData = () => {
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${isActive
                                 ? `bg-${tab.color}-100 text-${tab.color}-700 shadow-sm`
-                                : 'text-slate-500 hover:bg-slate-100'
+                                : 'text-app-muted hover:bg-app-surface'
                                 }`}
                         >
                             <Icon size={18} />
@@ -848,13 +848,13 @@ const MasterData = () => {
 
             {/* Search */}
             <div className="relative max-w-md">
-                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted" />
                 <input
                     type="text"
                     placeholder="Search records..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-app bg-app-input text-app-text focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all"
                 />
             </div>
 

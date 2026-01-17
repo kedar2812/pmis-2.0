@@ -251,35 +251,35 @@ const EDMS = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-white dark:bg-neutral-900 rounded-xl overflow-hidden border border-slate-200 dark:border-neutral-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
+                    className="bg-app-card rounded-xl overflow-hidden border border-app-subtle shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
                     onDoubleClick={() => navigateToProject(project)}
                     onClick={() => navigateToProject(project)}
                 >
                     {/* Card Header / Icon Area */}
-                    <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:from-neutral-800 dark:to-neutral-800 p-6 flex justify-center items-center border-b border-slate-100 dark:border-neutral-700 relative">
+                    <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:from-neutral-800 dark:to-neutral-800 p-6 flex justify-center items-center border-b border-app-subtle relative">
                         <div className="absolute top-2 right-2 opacity-50">
                             {/* Optional: Status badge or similar could go here */}
                         </div>
-                        <div className="w-20 h-20 rounded-2xl bg-white dark:bg-neutral-800 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <div className="w-20 h-20 rounded-2xl bg-app-surface shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                             <FolderOpen size={40} className="text-blue-600 dark:text-blue-400" />
                         </div>
                     </div>
 
                     <div className="p-5">
-                        <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-1 line-clamp-1 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
+                        <h3 className="font-bold text-app-heading text-lg mb-1 line-clamp-1 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
                             {project.name}
                         </h3>
-                        <p className="text-sm text-slate-500 dark:text-neutral-400 mb-4 line-clamp-1">
+                        <p className="text-sm text-app-muted mb-4 line-clamp-1">
                             {project.node_name || 'Project Root'}
                         </p>
 
                         {/* Footer / Meta */}
-                        <div className="flex items-center justify-between text-xs text-slate-400 dark:text-neutral-500 mt-2 pt-3 border-t border-slate-100 dark:border-neutral-700">
+                        <div className="flex items-center justify-between text-xs text-app-muted mt-2 pt-3 border-t border-app-subtle">
                             <span className="flex items-center gap-1">
                                 <Folder size={12} />
                                 Project Folder
                             </span>
-                            <span className="flex items-center gap-1 bg-slate-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full text-slate-500 dark:text-neutral-400">
+                            <span className="flex items-center gap-1 bg-app-surface px-2 py-0.5 rounded-full text-app-muted">
                                 Open <ChevronRight size={10} />
                             </span>
                         </div>
@@ -295,7 +295,7 @@ const EDMS = () => {
             {/* Folders Section - Grid of Cards */}
             {folders.length > 0 && (
                 <div className="space-y-3">
-                    <h3 className="text-sm font-bold text-slate-800 dark:text-white tracking-wide flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-app-heading tracking-wide flex items-center gap-2">
                         <Folder size={16} className="text-amber-500" />
                         Folders
                     </h3>
@@ -306,7 +306,7 @@ const EDMS = () => {
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: index * 0.03 }}
-                                className="bg-white dark:bg-neutral-900 p-4 rounded-xl border border-slate-200 dark:border-neutral-700 shadow-sm hover:shadow-md hover:border-amber-300 cursor-pointer transition-all group flex flex-col justify-between h-32"
+                                className="bg-app-card p-4 rounded-xl border border-app-subtle shadow-sm hover:shadow-md hover:border-amber-300 cursor-pointer transition-all group flex flex-col justify-between h-32"
                                 onClick={() => navigateToFolder(folder)}
                             >
                                 <div className="flex justify-between items-start">
@@ -314,14 +314,14 @@ const EDMS = () => {
                                         <Folder size={20} fill="currentColor" className="text-amber-500" />
                                     </div>
                                     <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <ChevronRight size={16} className="text-slate-400 dark:text-neutral-500" />
+                                        <ChevronRight size={16} className="text-app-muted" />
                                     </div>
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-slate-700 dark:text-neutral-200 text-sm line-clamp-1 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
+                                    <p className="font-semibold text-app-text text-sm line-clamp-1 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
                                         {folder.name}
                                     </p>
-                                    <p className="text-xs text-slate-400 dark:text-neutral-500 mt-1">
+                                    <p className="text-xs text-app-muted mt-1">
                                         {folder.document_count > 0 ? `${folder.document_count} items` : 'Empty'}
                                     </p>
                                 </div>
@@ -335,14 +335,14 @@ const EDMS = () => {
             {(documents.length > 0 || folders.length === 0) && (
                 <div className="space-y-3">
                     {folders.length > 0 && documents.length > 0 && (
-                        <div className="flex items-center gap-2 pt-4 border-t border-slate-200/60">
+                        <div className="flex items-center gap-2 pt-4 border-t border-app-subtle">
                             <FileText size={16} className="text-primary-500" />
-                            <h3 className="text-sm font-bold text-slate-800 tracking-wide">
+                            <h3 className="text-sm font-bold text-app-heading tracking-wide">
                                 Documents
                             </h3>
                         </div>
                     )}
-                    <div className="bg-white dark:bg-neutral-900 rounded-xl border border-slate-200 dark:border-neutral-700 shadow-sm overflow-hidden">
+                    <div className="bg-app-card rounded-xl border border-app-subtle shadow-sm overflow-hidden">
                         <DocumentList
                             documents={documents}
                             loading={loading && folders.length === 0}
@@ -362,7 +362,7 @@ const EDMS = () => {
     return (
         <div className="h-full flex flex-col bg-slate-50/50 dark:bg-neutral-950">
             {/* Header Area with Subtle Gradient */}
-            <div className="bg-white dark:bg-neutral-900 border-b border-slate-200 dark:border-neutral-700 shadow-sm z-10">
+            <div className="bg-app-card border-b border-app-subtle shadow-sm z-10">
                 <div className="px-6 py-4 bg-gradient-to-r from-blue-50/50 to-indigo-50/30 dark:from-neutral-800/50 dark:to-neutral-800/30">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-4">
@@ -370,9 +370,9 @@ const EDMS = () => {
                             {currentView !== 'projects' && (
                                 <button
                                     onClick={navigateBack}
-                                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 rounded-full hover:bg-slate-50 dark:hover:bg-neutral-700 hover:border-slate-300 transition-all shadow-sm"
+                                    className="w-8 h-8 flex items-center justify-center bg-app-surface border border-app-subtle rounded-full hover:bg-app-subtle hover:border-app transition-all shadow-sm"
                                 >
-                                    <ArrowLeft size={16} className="text-slate-600 dark:text-neutral-300" />
+                                    <ArrowLeft size={16} className="text-app-muted" />
                                 </button>
                             )}
 
@@ -382,10 +382,10 @@ const EDMS = () => {
                                     <FileText size={20} />
                                 </div>
                                 <div>
-                                    <h1 className="text-3xl font-bold text-slate-800 dark:text-white leading-tight">
+                                    <h1 className="text-3xl font-bold text-app-heading leading-tight">
                                         Electronic Document Management System
                                     </h1>
-                                    <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">
+                                    <p className="text-sm text-app-muted mt-1">
                                         {currentProject ? 'Project Documents' : 'Select a Project to browse'}
                                     </p>
                                 </div>
@@ -399,7 +399,7 @@ const EDMS = () => {
                                 size="sm"
                                 onClick={() => currentProject ? fetchFoldersAndDocuments() : fetchProjects()}
                                 disabled={loading}
-                                className="text-slate-600 hover:text-primary-600 hover:bg-white"
+                                className="text-app-muted hover:text-primary-600 hover:bg-app-surface"
                             >
                                 <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
                             </Button>
@@ -409,7 +409,7 @@ const EDMS = () => {
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setShowCreateFolderModal(true)}
-                                    className="bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-700 hover:border-blue-200 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-300"
+                                    className="bg-app-card border-app hover:border-blue-200 dark:hover:border-blue-600 hover:bg-app-surface text-app-text"
                                 >
                                     <Plus size={16} className="mr-1" />
                                     New Folder
@@ -447,7 +447,7 @@ const EDMS = () => {
                                 onClick={() => navigateToBreadcrumb(-1)}
                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border ${breadcrumbs.length === 0
                                     ? 'bg-slate-800 dark:bg-blue-600 text-white border-slate-800 dark:border-blue-600 shadow-sm'
-                                    : 'bg-white dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 border-slate-200 dark:border-neutral-700 hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-neutral-700'
+                                    : 'bg-app-card text-app-muted border-app hover:border-app-subtle hover:bg-app-surface'
                                     }`}
                             >
                                 <Home size={14} />
@@ -458,12 +458,12 @@ const EDMS = () => {
                                 const isLast = index === breadcrumbs.length - 1;
                                 return (
                                     <div key={index} className="flex items-center gap-2 animate-fadeIn">
-                                        <ChevronRight size={14} className="text-slate-400 dark:text-neutral-500" />
+                                        <ChevronRight size={14} className="text-app-muted" />
                                         <button
                                             onClick={() => navigateToBreadcrumb(index)}
                                             className={`px-3 py-1.5 rounded-full transition-all border whitespace-nowrap max-w-[150px] truncate ${isLast
                                                 ? 'bg-slate-800 dark:bg-blue-600 text-white border-slate-800 dark:border-blue-600 shadow-sm'
-                                                : 'bg-white dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 border-slate-200 dark:border-neutral-700 hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-neutral-700'
+                                                : 'bg-app-card text-app-muted border-app hover:border-app-subtle hover:bg-app-surface'
                                                 }`}
                                         >
                                             {crumb.item.name}
@@ -477,19 +477,19 @@ const EDMS = () => {
                         {currentProject && (
                             <div className="flex items-center gap-2 flex-wrap">
                                 <div className="relative group">
-                                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors" />
+                                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors" />
                                     <input
                                         type="text"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         placeholder="Search..."
-                                        className="pl-9 pr-3 py-1.5 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 w-40 focus:w-60 transition-all shadow-sm"
+                                        className="pl-9 pr-3 py-1.5 bg-app-input text-app-text border border-app rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 w-40 focus:w-60 transition-all shadow-sm"
                                     />
                                 </div>
                                 <select
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="px-3 py-1.5 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 shadow-sm"
+                                    className="px-3 py-1.5 bg-app-input text-app-text border border-app rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 shadow-sm"
                                 >
                                     {documentStatuses.map(s => (
                                         <option key={s.value} value={s.value}>{s.label}</option>
@@ -503,11 +503,11 @@ const EDMS = () => {
 
             {/* Main Scrollable Content - Wrapped in white rounded container */}
             <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
-                <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-neutral-700/60 min-h-full">
+                <div className="bg-app-card rounded-2xl shadow-sm border border-app-subtle min-h-full">
                     {loading && (currentView === 'projects' || folders.length === 0) ? (
                         <div className="flex flex-col items-center justify-center py-20 opacity-60">
                             <Loader2 size={40} className="animate-spin text-blue-500 dark:text-blue-400 mb-4" />
-                            <p className="text-slate-500 dark:text-neutral-400 font-medium">Loading contents...</p>
+                            <p className="text-app-muted font-medium">Loading contents...</p>
                         </div>
                     ) : currentView === 'projects' ? (
                         renderProjectsView()
@@ -520,18 +520,18 @@ const EDMS = () => {
             {/* Create Folder Modal */}
             <AnimatePresence>
                 {showCreateFolderModal && (
-                    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95, y: 10 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            className="bg-white dark:bg-neutral-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-slate-200 dark:border-neutral-700"
+                            className="bg-app-card rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-app-subtle"
                         >
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="p-2 bg-amber-100 dark:bg-amber-900/20 rounded-lg text-amber-600">
                                     <Folder size={20} />
                                 </div>
-                                <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                                <h3 className="text-lg font-bold text-app-heading">
                                     New Folder
                                 </h3>
                             </div>
@@ -541,12 +541,12 @@ const EDMS = () => {
                                 value={newFolderName}
                                 onChange={(e) => setNewFolderName(e.target.value)}
                                 placeholder="Enter folder name..."
-                                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-neutral-800 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 transition-all"
+                                className="w-full px-4 py-2.5 bg-app-input text-app-text border border-app rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 transition-all"
                                 autoFocus
                                 onKeyDown={(e) => e.key === 'Enter' && handleCreateFolder()}
                             />
-                            <p className="text-xs text-slate-500 dark:text-neutral-400 mt-2 ml-1">
-                                Create in: <span className="font-medium text-slate-700 dark:text-neutral-200">{currentFolder?.name || currentProject?.name || 'Root'}</span>
+                            <p className="text-xs text-app-muted mt-2 ml-1">
+                                Create in: <span className="font-medium text-app-text">{currentFolder?.name || currentProject?.name || 'Root'}</span>
                             </p>
                             <div className="flex justify-end gap-2 mt-6">
                                 <Button

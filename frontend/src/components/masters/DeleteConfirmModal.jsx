@@ -48,14 +48,14 @@ const DeleteConfirmModal = ({
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
                     >
-                        <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+                        <div className="bg-app-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
                             {/* Header */}
-                            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-neutral-700">
+                            <div className="flex items-center justify-between px-6 py-4 border-b border-app-subtle">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
                                         <AlertTriangle size={20} className="text-red-600 dark:text-red-400" />
                                     </div>
-                                    <h2 className="text-lg font-semibold text-slate-800 dark:text-white">{title}</h2>
+                                    <h2 className="text-lg font-semibold text-app-heading">{title}</h2>
                                 </div>
                                 <button
                                     onClick={onClose}
@@ -68,16 +68,16 @@ const DeleteConfirmModal = ({
 
                             {/* Content */}
                             <div className="p-6">
-                                <p className="text-slate-600 dark:text-neutral-300">{message}</p>
+                                <p className="text-app-text">{message}</p>
                                 {itemName && (
-                                    <div className="mt-3 p-3 bg-slate-50 dark:bg-neutral-800 rounded-lg border border-slate-200 dark:border-neutral-700">
-                                        <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">{itemName}</p>
+                                    <div className="mt-3 p-3 bg-app-secondary rounded-lg border border-app-subtle">
+                                        <p className="text-sm font-medium text-app-heading">{itemName}</p>
                                     </div>
                                 )}
                             </div>
 
                             {/* Actions */}
-                            <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50">
+                            <div className="flex justify-end gap-3 px-6 py-4 border-t border-app-subtle bg-app-secondary">
                                 <Button
                                     variant="outline"
                                     onClick={onClose}

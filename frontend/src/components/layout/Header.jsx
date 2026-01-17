@@ -88,7 +88,7 @@ const Header = ({ isDesktop = true }) => {
         damping: 30,
         mass: 0.5,
       }}
-      className="absolute top-4 right-4 z-40 h-14 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl border border-slate-200 dark:border-neutral-700 rounded-2xl shadow-sm flex items-center justify-between px-3 sm:px-4"
+      className="absolute top-4 right-4 z-40 h-14 bg-app-card/90 backdrop-blur-xl border border-app-subtle rounded-2xl shadow-sm flex items-center justify-between px-3 sm:px-4"
     >
       {/* Global Search Bar - Full bar on desktop, icon on mobile */}
       <GlobalSearchBar isDesktop={isDesktop} />
@@ -108,10 +108,10 @@ const Header = ({ isDesktop = true }) => {
         {/* Settings Icon */}
         <button
           onClick={() => setShowSettings(true)}
-          className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-neutral-800 transition-all duration-200 hover:scale-105 group"
+          className="p-2 rounded-xl hover:bg-app-layer-2 transition-all duration-200 hover:scale-105 group"
           title="Settings"
         >
-          <Settings size={20} className="text-slate-600 dark:text-neutral-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:rotate-90 transition-all duration-300" />
+          <Settings size={20} className="text-app-muted group-hover:text-primary-600 transition-all duration-300" />
         </button>
 
         {/* Notifications - Using Communications NotificationDropdown */}
@@ -124,22 +124,22 @@ const Header = ({ isDesktop = true }) => {
               setShowProfile(!showProfile);
               setShowNotifications(false);
             }}
-            className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-neutral-800 transition-all duration-200 hover:scale-105"
+            className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-xl hover:bg-app-layer-2 transition-all duration-200 hover:scale-105"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 flex items-center justify-center text-white text-sm font-semibold shadow-lg ring-2 ring-blue-100 dark:ring-blue-500/30">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-600 to-primary-700 flex items-center justify-center text-white text-sm font-semibold shadow-lg ring-2 ring-primary-100 dark:ring-primary-500/30">
               {user?.name.charAt(0).toUpperCase()}
             </div>
-            <span className="hidden md:block text-sm font-semibold text-slate-800 dark:text-neutral-100">
+            <span className="hidden md:block text-sm font-semibold text-app-text">
               {user?.name}
             </span>
           </button>
 
           {showProfile && (
-            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-neutral-900 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200 dark:border-neutral-700 z-[60]">
-              <div className="p-4 border-b border-slate-200 dark:border-neutral-700">
-                <p className="font-semibold text-sm text-slate-900 dark:text-white">{user?.name}</p>
-                <p className="text-xs text-slate-600 dark:text-neutral-300">{user?.email}</p>
-                <p className="text-xs text-slate-400 dark:text-neutral-500 mt-1">{user?.role}</p>
+            <div className="absolute right-0 mt-2 w-56 bg-app-card backdrop-blur-xl rounded-2xl shadow-xl border border-app-subtle z-[60]">
+              <div className="p-4 border-b border-app-subtle">
+                <p className="font-semibold text-sm text-app-heading">{user?.name}</p>
+                <p className="text-xs text-app-muted">{user?.email}</p>
+                <p className="text-xs text-app-muted mt-1">{user?.role}</p>
               </div>
               <div className="p-2">
                 <Button

@@ -16,20 +16,20 @@ import { fetchBankList } from '@/services/ifscService';
 
 const InputField = ({ label, name, value, onChange, error, type = 'text', required = false, icon: Icon, placeholder, ...props }) => (
     <div>
-        <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1.5">
+        <label className="block text-sm font-medium text-app-heading mb-1.5">
             {label} {required && <span className="text-red-500">*</span>}
         </label>
         <div className="relative">
-            {Icon && <Icon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />}
+            {Icon && <Icon className="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted" size={18} />}
             <input
                 type={type}
                 name={name}
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
-                className={`w-full px-4 py-2.5 ${Icon ? 'pl-10' : ''} rounded-xl border transition-all outline-none focus:ring-2 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white disabled:bg-slate-100 dark:disabled:bg-neutral-800 disabled:text-slate-500 dark:disabled:text-neutral-500 ${error
+                className={`w-full px-4 py-2.5 ${Icon ? 'pl-10' : ''} rounded-xl border transition-all outline-none focus:ring-2 bg-app-card text-app-heading disabled:bg-app-hover disabled:text-app-muted ${error
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-100 dark:border-red-500/50'
-                    : 'border-slate-200 dark:border-neutral-700 focus:border-primary-500 focus:ring-primary-100 dark:focus:ring-primary-900/30'
+                    : 'border-app focus:border-app-focus focus:ring-primary-100 dark:focus:ring-primary-900/30'
                     }`}
                 {...props}
             />
@@ -46,204 +46,93 @@ const ContractorRegistration = () => {
     const navigate = useNavigate();
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
     const [bankList, setBankList] = useState([]);
-    const [loadingBanks, setLoadingBanks] = useState(false);
-
     const [formData, setFormData] = useState({
-        // Account
-        email: '',
-        password: '',
-        confirm_password: '',
-        // Contact Person
-        first_name: '',
-        last_name: '',
-        phone_number: '',
-        designation: '',
-        // Company
-        company_name: '',
-        pan_number: '',
-        gstin_number: '',
-        eproc_number: '',
-        // Address
-        building_number: '',
-        street: '',
-        area: '',
-        // Location (cascading dropdowns)
-        location: {
-            country: '',
-            state: '',
-            district: '',
-            city: ''
-        },
-        zip_code: '',
-        // Bank
-        bank_name: '',
-        bank_branch: '',
-        ifsc_code: '',
-        account_number: '',
-        account_type: 'CURRENT',
+        email: '', password: '', confirm_password: '',
+        first_name: '', last_name: '', phone_number: '',
+        company_name: '', pan_number: '', gstin_number: '', eproc_number: '',
+        building_number: '', street: '', area: '', zip_code: '', location: null,
+        bank_name: '', ifsc_code: '', bank_branch: '', account_number: '', account_type: 'CURRENT'
     });
-
     const [errors, setErrors] = useState({});
 
-    const steps = [
-        { id: 1, title: 'Account', icon: User },
-        { id: 2, title: 'Company', icon: Building2 },
-        { id: 3, title: 'Address', icon: MapPin },
-        { id: 4, title: 'Bank', icon: Landmark },
-    ];
-
-    // Load bank list on component mount
     useEffect(() => {
         const loadBanks = async () => {
-            setLoadingBanks(true);
             try {
                 const banks = await fetchBankList();
-                setBankList(banks);
-            } catch (error) {
-                console.error('Failed to load banks:', error);
-                toast.error('Failed to load bank list');
-            } finally {
-                setLoadingBanks(false);
-            }
+                // Ensure we extract just names if it returns objects, or use as is
+                setBankList(Array.isArray(banks) ? banks.map(b => typeof b === 'string' ? b : b.bank) : []);
+            } catch (e) { console.error(e); }
         };
         loadBanks();
     }, []);
 
+    const steps = [
+        { id: 1, title: 'Account' },
+        { id: 2, title: 'Company' },
+        { id: 3, title: 'Address' },
+        { id: 4, title: 'Bank' }
+    ];
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-        if (errors[name]) {
-            setErrors(prev => ({ ...prev, [name]: '' }));
-        }
+        if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
     };
 
-    const handleLocationChange = (locationValue) => {
-        setFormData(prev => ({ ...prev, location: locationValue }));
-        // Clear location-related errors
-        if (errors.location) {
-            setErrors(prev => ({ ...prev, location: '' }));
-        }
+    const handleLocationChange = (loc) => {
+        setFormData(prev => ({ ...prev, location: loc }));
+        if (errors.location) setErrors(prev => ({ ...prev, location: '' }));
     };
 
     const validateStep = (step) => {
         const newErrors = {};
-
         if (step === 1) {
-            if (!formData.email) newErrors.email = 'Email is required';
-            else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid email format';
-            if (!formData.password) newErrors.password = 'Password is required';
-            else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
+            if (!formData.email) newErrors.email = 'Required';
+            if (!formData.password) newErrors.password = 'Required';
             if (formData.password !== formData.confirm_password) newErrors.confirm_password = 'Passwords do not match';
-            if (!formData.first_name) newErrors.first_name = 'First name is required';
-            if (!formData.last_name) newErrors.last_name = 'Last name is required';
-            if (!formData.phone_number) newErrors.phone_number = 'Phone number is required';
+            if (!formData.first_name) newErrors.first_name = 'Required';
+            if (!formData.last_name) newErrors.last_name = 'Required';
+            if (!formData.phone_number) newErrors.phone_number = 'Required';
         }
-
         if (step === 2) {
-            if (!formData.company_name) newErrors.company_name = 'Company name is required';
-            if (!formData.pan_number) newErrors.pan_number = 'PAN is required';
-            else if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(formData.pan_number.toUpperCase())) {
-                newErrors.pan_number = 'Invalid PAN format (e.g., ABCDE1234F)';
-            }
-            if (!formData.gstin_number) newErrors.gstin_number = 'GSTIN is required';
-            else if (!/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]Z[0-9A-Z]$/.test(formData.gstin_number.toUpperCase())) {
-                newErrors.gstin_number = 'Invalid GSTIN format';
-            }
-            if (!formData.eproc_number) newErrors.eproc_number = 'e-Procurement Number is required';
+            if (!formData.company_name) newErrors.company_name = 'Required';
+            if (!formData.pan_number) newErrors.pan_number = 'Required';
+            if (!formData.gstin_number) newErrors.gstin_number = 'Required';
+            if (!formData.eproc_number) newErrors.eproc_number = 'Required';
         }
-
         if (step === 3) {
-            if (!formData.street) newErrors.street = 'Street is required';
-            if (!formData.location.country) newErrors.location = 'Please select a country';
-            else if (!formData.location.state) newErrors.location = 'Please select a state';
-            else if (!formData.location.district) newErrors.location = 'Please select a district';
-            else if (!formData.location.city) newErrors.location = 'Please select a city';
-            if (!formData.zip_code) newErrors.zip_code = 'PIN code is required';
+            if (!formData.street) newErrors.street = 'Required';
+            if (!formData.zip_code) newErrors.zip_code = 'Required';
+            if (!formData.location) newErrors.location = 'Required';
         }
-
         if (step === 4) {
-            if (!formData.bank_name) newErrors.bank_name = 'Bank name is required';
-            if (!formData.ifsc_code) newErrors.ifsc_code = 'IFSC code is required';
-            else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(formData.ifsc_code.toUpperCase())) {
-                newErrors.ifsc_code = 'Invalid IFSC format';
-            }
-            if (!formData.account_number) newErrors.account_number = 'Account number is required';
+            if (!formData.bank_name) newErrors.bank_name = 'Required';
+            if (!formData.ifsc_code) newErrors.ifsc_code = 'Required';
+            if (!formData.account_number) newErrors.account_number = 'Required';
         }
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const handleNext = () => {
-        if (validateStep(currentStep)) {
-            setErrors({}); // Clear errors before moving to next step
-            setCurrentStep(prev => prev + 1);
-        }
+        if (validateStep(currentStep)) setCurrentStep(prev => prev + 1);
     };
 
-    const handleBack = () => {
-        setErrors({}); // Clear errors when navigating back
-        setCurrentStep(prev => prev - 1);
-    };
+    const handleBack = () => setCurrentStep(prev => prev - 1);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validateStep(currentStep)) return;
-
+        if (!validateStep(4)) return;
         setIsSubmitting(true);
         try {
-            // Extract location names for backend (serializer expects string values, not IDs)
-            const { location, ...restFormData } = formData;
-
-            // Build submit data with location names as flat fields
-            const submitData = {
-                ...restFormData,
-                // Use name values from LocationSelector (fall back to empty string if not set)
-                city: location.cityName || '',
-                state: location.stateName || '',
-                country: location.countryName || 'India',
-                // Convert to uppercase for validation fields
-                pan_number: formData.pan_number.toUpperCase(),
-                gstin_number: formData.gstin_number.toUpperCase(),
-                ifsc_code: formData.ifsc_code.toUpperCase(),
-            };
-
-            await api.post('/users/register-contractor/', submitData);
+            await api.post('/users/register-contractor/', formData);
             setIsSuccess(true);
-            toast.success('Registration submitted successfully!');
-        } catch (error) {
-            console.error('Registration failed:', error);
-            if (error.response?.data) {
-                const serverErrors = error.response.data;
-                if (typeof serverErrors === 'object') {
-                    // Handle non_field_errors (like password validation)
-                    if (serverErrors.non_field_errors) {
-                        setErrors({ password: serverErrors.non_field_errors[0] });
-                        setCurrentStep(1);
-                        toast.error(serverErrors.non_field_errors[0]);
-                    } else {
-                        setErrors(serverErrors);
-                        // Go to the step with errors
-                        const errorFields = Object.keys(serverErrors);
-                        if (errorFields.some(f => ['email', 'password', 'first_name', 'last_name', 'phone_number', 'confirm_password'].includes(f))) {
-                            setCurrentStep(1);
-                        } else if (errorFields.some(f => ['company_name', 'pan_number', 'gstin_number', 'eproc_number'].includes(f))) {
-                            setCurrentStep(2);
-                        } else if (errorFields.some(f => ['street', 'city', 'state', 'zip_code'].includes(f))) {
-                            setCurrentStep(3);
-                        } else if (errorFields.some(f => ['bank_name', 'ifsc_code', 'account_number', 'account_type'].includes(f))) {
-                            setCurrentStep(4);
-                        }
-                        toast.error('Please fix the errors and try again.');
-                    }
-                }
-            } else {
-                toast.error('Registration failed. Please try again.');
-            }
+        } catch (e) {
+            toast.error(e.response?.data?.message || 'Registration failed');
         } finally {
             setIsSubmitting(false);
         }
@@ -251,17 +140,17 @@ const ContractorRegistration = () => {
 
     if (isSuccess) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-primary-950 to-slate-900 flex items-center justify-center p-4">
+            <div className="min-h-screen bg-app-secondary flex items-center justify-center p-4">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-white dark:bg-neutral-900 rounded-3xl shadow-xl p-8 max-w-md w-full text-center"
+                    className="bg-app-card rounded-3xl shadow-xl p-8 max-w-md w-full text-center border border-app-subtle"
                 >
                     <div className="w-20 h-20 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
                         <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-400" />
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Registration Submitted!</h1>
-                    <p className="text-slate-600 dark:text-neutral-400 mb-6">
+                    <h1 className="text-2xl font-bold text-app-heading mb-3">Registration Submitted!</h1>
+                    <p className="text-app mb-6">
                         Your registration is pending approval. You will receive an email once your account has been activated.
                     </p>
                     <Link
@@ -276,12 +165,12 @@ const ContractorRegistration = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-primary-950 to-slate-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-app-secondary flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white dark:bg-neutral-900 rounded-3xl shadow-xl w-full max-w-2xl overflow-hidden"
-                style={{ boxShadow: '0 0 60px rgba(255, 255, 255, 0.15)' }}
+                className="bg-app-card rounded-3xl shadow-xl w-full max-w-2xl overflow-hidden border border-app-subtle"
+                style={{ boxShadow: '0 0 60px rgba(0, 0, 0, 0.05)' }}
             >
                 {/* Header */}
                 <div className="bg-primary-600 p-6 text-white rounded-t-3xl">
@@ -321,13 +210,13 @@ const ContractorRegistration = () => {
                     {/* Step 1: Account & Contact */}
                     {currentStep === 1 && (
                         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Account & Contact Information</h2>
+                            <h2 className="text-lg font-semibold text-app-heading mb-4">Account & Contact Information</h2>
 
                             <InputField label="Email" name="email" type="email" required icon={Mail} placeholder="company@example.com" value={formData.email} onChange={handleChange} error={errors.email} />
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                                    <label className="block text-sm font-medium text-app-heading mb-1.5">
                                         Password <span className="text-red-500">*</span>
                                     </label>
                                     <div className="relative">
@@ -336,17 +225,17 @@ const ContractorRegistration = () => {
                                             name="password"
                                             value={formData.password}
                                             onChange={handleChange}
-                                            className={`w-full px-4 py-2.5 pr-10 rounded-xl border transition-all outline-none focus:ring-2 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white ${errors.password ? 'border-red-300 dark:border-red-500/50' : 'border-slate-200 dark:border-neutral-700 focus:border-primary-500 focus:ring-primary-100 dark:focus:ring-primary-900/30'
+                                            className={`w-full px-4 py-2.5 pr-10 rounded-xl border transition-all outline-none focus:ring-2 bg-app-card text-app-heading ${errors.password ? 'border-red-300 dark:border-red-500/50' : 'border-app focus:border-app-focus focus:ring-primary-100 dark:focus:ring-primary-900/30'
                                                 }`}
                                         />
-                                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-app-muted">
                                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                         </button>
                                     </div>
                                     {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password}</p>}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                                    <label className="block text-sm font-medium text-app-heading mb-1.5">
                                         Confirm Password <span className="text-red-500">*</span>
                                     </label>
                                     <div className="relative">
@@ -355,17 +244,17 @@ const ContractorRegistration = () => {
                                             name="confirm_password"
                                             value={formData.confirm_password}
                                             onChange={handleChange}
-                                            className={`w-full px-4 py-2.5 pr-10 rounded-xl border transition-all outline-none focus:ring-2 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white ${errors.confirm_password ? 'border-red-300 dark:border-red-500/50' : 'border-slate-200 dark:border-neutral-700 focus:border-primary-500 focus:ring-primary-100 dark:focus:ring-primary-900/30'
+                                            className={`w-full px-4 py-2.5 pr-10 rounded-xl border transition-all outline-none focus:ring-2 bg-app-card text-app-heading ${errors.confirm_password ? 'border-red-300 dark:border-red-500/50' : 'border-app focus:border-app-focus focus:ring-primary-100 dark:focus:ring-primary-900/30'
                                                 }`}
                                         />
-                                        <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                        <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-app-muted">
                                             {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                         </button>
                                     </div>
                                     {errors.confirm_password && <p className="mt-1 text-sm text-red-500">{errors.confirm_password}</p>}
                                 </div>
                             </div>
-
+                            {/* ... Rest of components use InputField which is updated ... */}
                             <div className="grid grid-cols-2 gap-4">
                                 <InputField label="First Name" name="first_name" required icon={User} placeholder="John" value={formData.first_name} onChange={handleChange} error={errors.first_name} />
                                 <InputField label="Last Name" name="last_name" required placeholder="Doe" value={formData.last_name} onChange={handleChange} error={errors.last_name} />
@@ -385,7 +274,7 @@ const ContractorRegistration = () => {
                     {/* Step 2: Company Details */}
                     {currentStep === 2 && (
                         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Company & Legal Details</h2>
+                            <h2 className="text-lg font-semibold text-app-heading mb-4">Company & Legal Details</h2>
 
                             <InputField label="Company Name" name="company_name" required icon={Building2} placeholder="ABC Infrastructure Pvt. Ltd." value={formData.company_name} onChange={handleChange} error={errors.company_name} />
 
@@ -401,7 +290,7 @@ const ContractorRegistration = () => {
                     {/* Step 3: Address */}
                     {currentStep === 3 && (
                         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Registered Address</h2>
+                            <h2 className="text-lg font-semibold text-app-heading mb-4">Registered Address</h2>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <InputField label="Building/Office No." name="building_number" placeholder="123-A" value={formData.building_number} onChange={handleChange} error={errors.building_number} />
@@ -413,7 +302,6 @@ const ContractorRegistration = () => {
                                 <InputField label="PIN Code" name="zip_code" required placeholder="500001" value={formData.zip_code} onChange={handleChange} error={errors.zip_code} />
                             </div>
 
-                            {/* Location Selector - Cascading Dropdowns */}
                             <LocationSelector
                                 value={formData.location}
                                 onChange={handleLocationChange}
@@ -431,8 +319,8 @@ const ContractorRegistration = () => {
                     {/* Step 4: Bank Details */}
                     {currentStep === 4 && (
                         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Bank Account Details</h2>
-                            <p className="text-sm text-slate-500 dark:text-neutral-400 mb-4">Required for bill payments and financial transactions.</p>
+                            <h2 className="text-lg font-semibold text-app-heading mb-4">Bank Account Details</h2>
+                            <p className="text-sm text-app-muted mb-4">Required for bill payments and financial transactions.</p>
 
                             <SearchableSelect
                                 options={bankList}
@@ -485,14 +373,14 @@ const ContractorRegistration = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1.5">
+                                <label className="block text-sm font-medium text-app-heading mb-1.5">
                                     Account Type <span className="text-red-500">*</span>
                                 </label>
                                 <select
                                     name="account_type"
                                     value={formData.account_type}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/30 outline-none"
+                                    className="w-full px-4 py-2.5 rounded-xl border border-app bg-app-card text-app-heading focus:border-app-focus focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/30 outline-none"
                                 >
                                     <option value="CURRENT">Current Account</option>
                                     <option value="SAVINGS">Savings Account</option>
@@ -503,7 +391,7 @@ const ContractorRegistration = () => {
                     )}
 
                     {/* Navigation Buttons */}
-                    <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-200">
+                    <div className="flex items-center justify-between mt-8 pt-6 border-t border-app-subtle">
                         <div>
                             {currentStep > 1 ? (
                                 <Button

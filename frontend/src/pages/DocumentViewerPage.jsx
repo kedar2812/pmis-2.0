@@ -139,15 +139,15 @@ const DocumentViewerPage = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-                <Loader2 size={48} className="animate-spin text-white" />
+            <div className="min-h-screen bg-app-base flex items-center justify-center">
+                <Loader2 size={48} className="animate-spin text-app-text" />
             </div>
         );
     }
 
     if (!document) {
         return (
-            <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white">
+            <div className="min-h-screen bg-app-base flex flex-col items-center justify-center text-app-text">
                 <AlertCircle size={48} className="mb-4" />
                 <h2 className="text-xl font-semibold">Document not found</h2>
                 <Button onClick={() => navigate(-1)} className="mt-4">
@@ -158,21 +158,21 @@ const DocumentViewerPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-slate-950 flex flex-col overflow-hidden">
+        <div className="min-h-screen bg-app-base flex flex-col overflow-hidden">
             {/* Header */}
             <header className="px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => navigate(-1)}
-                        className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors"
+                        className="p-2 hover:bg-app-layer-2 rounded-full text-app-muted hover:text-app-text transition-colors"
                     >
                         <ArrowLeft size={24} />
                     </button>
                     <div>
-                        <h1 className="text-white font-bold text-xl truncate max-w-md">
+                        <h1 className="text-app-text font-bold text-xl truncate max-w-md">
                             {document.title}
                         </h1>
-                        <p className="text-slate-400 text-sm">
+                        <p className="text-app-muted text-sm">
                             {document.document_number || 'No document number'} • v{document.current_version?.version_number || 1}
                         </p>
                     </div>
@@ -181,14 +181,14 @@ const DocumentViewerPage = () => {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={handleDownload}
-                        className="flex items-center gap-2 px-4 py-2 rounded-full border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 transition-all font-medium text-sm"
+                        className="flex items-center gap-2 px-4 py-2 rounded-full border border-app-border text-app-muted hover:text-app-text hover:bg-app-layer-2 transition-all font-medium text-sm"
                     >
                         <Download size={16} />
                         Download PDF
                     </button>
                     <button
                         onClick={handleExportNotingSheet}
-                        className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 transition-all font-medium text-sm"
+                        className="flex items-center gap-2 px-4 py-2 rounded-full bg-app-layer-2 border border-app-border text-app-muted hover:text-app-text hover:bg-app-layer-3 transition-all font-medium text-sm"
                     >
                         <Printer size={16} />
                         Export Notes
@@ -200,33 +200,33 @@ const DocumentViewerPage = () => {
             <div className="flex-1 flex overflow-hidden px-4 pb-4 gap-4">
                 {/* Left Pane - Document Viewer */}
                 <div
-                    className="flex flex-col bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl"
+                    className="flex flex-col bg-app-card rounded-2xl overflow-hidden border border-app-border shadow-2xl"
                     style={{ width: `${100 - panelWidth}%`, transition: 'width 0.3s ease' }}
                 >
                     {/* Viewer Toolbar */}
-                    <div className="flex items-center justify-between px-6 py-3 bg-slate-800/50 backdrop-blur border-b border-slate-800">
-                        <div className="flex items-center gap-2 bg-slate-900/50 rounded-lg p-1 border border-slate-800">
+                    <div className="flex items-center justify-between px-6 py-3 bg-app-layer-2/50 backdrop-blur border-b border-app-border">
+                        <div className="flex items-center gap-2 bg-app-base/50 rounded-lg p-1 border border-app-border">
                             <button
                                 onClick={() => setZoom(Math.max(25, zoom - 25))}
-                                className="p-1.5 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-colors"
+                                className="p-1.5 hover:bg-app-layer-2 rounded-md text-app-muted hover:text-app-text transition-colors"
                             >
                                 <ZoomOut size={16} />
                             </button>
-                            <span className="text-slate-300 text-xs font-mono w-12 text-center">{zoom}%</span>
+                            <span className="text-app-text text-xs font-mono w-12 text-center">{zoom}%</span>
                             <button
                                 onClick={() => setZoom(Math.min(300, zoom + 25))}
-                                className="p-1.5 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-colors"
+                                className="p-1.5 hover:bg-app-layer-2 rounded-md text-app-muted hover:text-app-text transition-colors"
                             >
                                 <ZoomIn size={16} />
                             </button>
                         </div>
 
                         {fileType === 'pdf' && (
-                            <div className="flex items-center gap-4 text-slate-400 text-sm">
-                                <div className="flex items-center gap-2 bg-slate-900/50 rounded-lg p-1 border border-slate-800">
+                            <div className="flex items-center gap-4 text-app-muted text-sm">
+                                <div className="flex items-center gap-2 bg-app-base/50 rounded-lg p-1 border border-app-border">
                                     <button
                                         onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                                        className="p-1 hover:bg-slate-700 rounded-md disabled:opacity-30 transition-colors"
+                                        className="p-1 hover:bg-app-layer-2 rounded-md disabled:opacity-30 transition-colors"
                                         disabled={currentPage <= 1}
                                     >
                                         <ChevronLeft size={16} />
@@ -236,7 +236,7 @@ const DocumentViewerPage = () => {
                                     </span>
                                     <button
                                         onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                                        className="p-1 hover:bg-slate-700 rounded-md disabled:opacity-30 transition-colors"
+                                        className="p-1 hover:bg-app-layer-2 rounded-md disabled:opacity-30 transition-colors"
                                         disabled={currentPage >= totalPages}
                                     >
                                         <ChevronRight size={16} />
@@ -247,7 +247,7 @@ const DocumentViewerPage = () => {
 
                         <button
                             onClick={() => setPanelWidth(panelWidth > 20 ? 0 : 35)}
-                            className="p-2 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors"
+                            className="p-2 hover:bg-app-layer-2 rounded-lg text-app-muted hover:text-app-text transition-colors"
                             title={panelWidth > 0 ? 'Maximize Viewer' : 'Show Notes'}
                         >
                             {panelWidth > 0 ? <Maximize2 size={18} /> : <Minimize2 size={18} />}
@@ -255,7 +255,7 @@ const DocumentViewerPage = () => {
                     </div>
 
                     {/* Document Display Content */}
-                    <div className="flex-1 overflow-auto p-8 flex items-start justify-center bg-slate-900/50">
+                    <div className="flex-1 overflow-auto p-8 flex items-start justify-center bg-app-base/50">
                         {fileType === 'pdf' && fileUrl ? (
                             <iframe
                                 src={fileUrl}
@@ -295,12 +295,12 @@ const DocumentViewerPage = () => {
                                     maxWidth: 'none'
                                 }}
                             >
-                                <table className="w-full border-collapse text-sm text-slate-800">
+                                <table className="w-full border-collapse text-sm text-app-text">
                                     <tbody>
                                         {excelData.map((row, rowIndex) => (
-                                            <tr key={rowIndex} className={rowIndex === 0 ? "bg-slate-100 font-bold border-b border-slate-300" : "border-b border-slate-100 hover:bg-slate-50"}>
+                                            <tr key={rowIndex} className={rowIndex === 0 ? "bg-app-layer-2 font-bold border-b border-app-border" : "border-b border-app-border hover:bg-app-layer-2"}>
                                                 {row.map((cell, cellIndex) => (
-                                                    <td key={cellIndex} className="p-2 border-r border-slate-200 min-w-[100px] whitespace-nowrap">
+                                                    <td key={cellIndex} className="p-2 border-r border-app-border min-w-[100px] whitespace-nowrap">
                                                         {cell}
                                                     </td>
                                                 ))}
@@ -310,13 +310,13 @@ const DocumentViewerPage = () => {
                                 </table>
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center h-full text-slate-500 gap-4">
-                                <div className="p-6 bg-slate-800/50 rounded-2xl flex flex-col items-center">
+                            <div className="flex flex-col items-center justify-center h-full text-app-muted gap-4">
+                                <div className="p-6 bg-app-layer-2/50 rounded-2xl flex flex-col items-center">
                                     <FileText size={48} className="mb-4 opacity-50" />
-                                    <h3 className="text-lg font-medium text-slate-300">
+                                    <h3 className="text-lg font-medium text-app-text">
                                         Preview not available
                                     </h3>
-                                    <p className="text-sm text-slate-500 mb-6 text-center max-w-xs">
+                                    <p className="text-sm text-app-muted mb-6 text-center max-w-xs">
                                         This file type ({document?.current_version?.mime_type || 'unknown'}) cannot be previewed directly.
                                     </p>
                                     <button
@@ -338,18 +338,18 @@ const DocumentViewerPage = () => {
                         initial={{ x: 50, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         exit={{ x: 50, opacity: 0 }}
-                        className="bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-200"
+                        className="bg-app-card rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-app-border"
                         style={{ width: `${panelWidth}%` }}
                     >
                         {/* Panel Header */}
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-app-border bg-app-base/50">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-primary-50 rounded-lg text-primary-600">
                                     <BookOpen size={20} />
                                 </div>
                                 <div>
-                                    <h2 className="font-bold text-slate-800">Noting Sheet</h2>
-                                    <p className="text-xs text-slate-500">
+                                    <h2 className="font-bold text-app-text">Noting Sheet</h2>
+                                    <p className="text-xs text-app-muted">
                                         {notings.filter(n => !n.is_draft).length} official notes
                                     </p>
                                 </div>
@@ -363,7 +363,7 @@ const DocumentViewerPage = () => {
                         </div>
 
                         {/* Noting Panel Content */}
-                        <div className="flex-1 overflow-y-auto bg-slate-50/30">
+                        <div className="flex-1 overflow-y-auto bg-app-base/30">
                             <NotingPanel
                                 notings={notings}
                                 documentId={id}

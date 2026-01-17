@@ -153,19 +153,19 @@ const BIM = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('common.bim')}</h1>
-        <p className="text-gray-600 dark:text-neutral-400 mt-1">{t('bim.subtitle')}</p>
+        <h1 className="text-3xl font-bold text-app-heading">{t('common.bim')}</h1>
+        <p className="text-app-muted mt-1">{t('bim.subtitle')}</p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>{t('bim.modelViewer')}</CardTitle>
-          <p className="text-sm text-gray-600 dark:text-neutral-400 mt-1">
+          <p className="text-sm text-app-muted mt-1">
             {t('bim.interactiveVisualization')}
           </p>
         </CardHeader>
         <CardContent>
-          <div ref={containerRef} className="h-[600px] w-full rounded-lg bg-gray-100 dark:bg-neutral-800 relative overflow-hidden">
+          <div ref={containerRef} className="h-[600px] w-full rounded-lg bg-app-base relative overflow-hidden">
             {/* Interactive Hotspots */}
             {hotspots.map((hotspot) => (
               <motion.button
@@ -188,14 +188,14 @@ const BIM = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="absolute bottom-4 left-4 right-4 z-20 bg-white/95 backdrop-blur-xl rounded-xl shadow-glass border border-slate-200/50 p-4"
+                  className="absolute bottom-4 left-4 right-4 z-20 bg-app-card/95 backdrop-blur-xl rounded-xl shadow-glass border border-app-border p-4"
                 >
                   {(() => {
                     const hotspot = hotspots.find((h) => h.id === activeHotspot);
                     return hotspot ? (
                       <>
                         <h4 className="font-semibold text-sm mb-1">{hotspot.label}</h4>
-                        <p className="text-xs text-slate-600">{hotspot.info}</p>
+                        <p className="text-xs text-app-muted">{hotspot.info}</p>
                       </>
                     ) : null;
                   })()}
@@ -212,8 +212,8 @@ const BIM = () => {
             <div className="flex items-center gap-3">
               <Box className="text-primary-600" size={32} />
               <div>
-                <p className="font-medium dark:text-white">{t('bim.infrastructureModels')}</p>
-                <p className="text-sm text-gray-600 dark:text-neutral-400">{t('bim.modelsDescription')}</p>
+                <p className="font-medium text-app-text">{t('bim.infrastructureModels')}</p>
+                <p className="text-sm text-app-muted">{t('bim.modelsDescription')}</p>
               </div>
             </div>
           </CardContent>
@@ -224,8 +224,8 @@ const BIM = () => {
             <div className="flex items-center gap-3">
               <RotateCw className="text-primary-600" size={32} />
               <div>
-                <p className="font-medium dark:text-white">{t('bim.interactiveView')}</p>
-                <p className="text-sm text-gray-600 dark:text-neutral-400">{t('bim.rotateZoomExplore')}</p>
+                <p className="font-medium text-app-text">{t('bim.interactiveView')}</p>
+                <p className="text-sm text-app-muted">{t('bim.rotateZoomExplore')}</p>
               </div>
             </div>
           </CardContent>
@@ -236,8 +236,8 @@ const BIM = () => {
             <div className="flex items-center gap-3">
               <Box className="text-primary-600" size={32} />
               <div>
-                <p className="font-medium dark:text-white">{t('bim.bimIntegration')}</p>
-                <p className="text-sm text-gray-600 dark:text-neutral-400">{t('bim.bimData')}</p>
+                <p className="font-medium text-app-text">{t('bim.bimIntegration')}</p>
+                <p className="text-sm text-app-muted">{t('bim.bimData')}</p>
               </div>
             </div>
           </CardContent>

@@ -132,18 +132,18 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
     );
 
     return (
-        <div className="w-full h-full bg-white dark:bg-neutral-900 rounded-lg shadow-sm">
+        <div className="w-full h-full bg-app-card rounded-lg shadow-sm">
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-white dark:bg-neutral-900 border-b border-gray-200 dark:border-neutral-800 px-6 py-4 flex items-center justify-between">
+            <div className="sticky top-0 z-10 bg-app-card border-b border-app-subtle px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <div className={`p-3 rounded-full ${statusColors.bg}`}>
                         <FolderOpen className={statusColors.text} size={28} />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-primary-950 dark:text-white">{project.name}</h2>
+                        <h2 className="text-2xl font-bold text-app-heading">{project.name}</h2>
                         <div className="flex items-center gap-2 mt-1">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">{project.category}</span>
-                            <span className="w-1 h-1 bg-gray-300 dark:bg-neutral-600 rounded-full"></span>
+                            <span className="text-sm text-app-muted">{project.category}</span>
+                            <span className="w-1 h-1 bg-app-subtle rounded-full"></span>
                             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors.bg} ${statusColors.text}`}>
                                 {project.status}
                             </span>
@@ -161,7 +161,7 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
             </div>
 
             {/* Tab Navigation */}
-            <div className="px-6 border-b border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 sticky top-[88px] z-10">
+            <div className="px-6 border-b border-app-subtle bg-app-card sticky top-[88px] z-10">
                 <div className="flex gap-6">
                     {['Overview', 'Packages', 'Procurements', 'Budget', 'Risks'].map((tab) => (
                         <button
@@ -169,7 +169,7 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                             onClick={() => setActiveTab(tab.toLowerCase())}
                             className={`py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.toLowerCase()
                                 ? 'border-primary-600 text-primary-600 dark:text-primary-400'
-                                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                                : 'border-transparent text-app-muted hover:text-app-heading'
                                 }`}
                         >
                             {tab}
@@ -190,12 +190,12 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                 <CardContent className="p-4">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Project Progress</p>
-                                            <p className="text-2xl font-bold text-primary-950 dark:text-white">{project.progress}%</p>
+                                            <p className="text-sm text-app-muted mb-1">Project Progress</p>
+                                            <p className="text-2xl font-bold text-app-heading">{project.progress}%</p>
                                         </div>
                                         <Target className="text-primary-600" size={32} />
                                     </div>
-                                    <div className="mt-3 w-full h-2 bg-gray-200 dark:bg-neutral-700 rounded-full">
+                                    <div className="mt-3 w-full h-2 bg-app-secondary rounded-full">
                                         <div
                                             className={`h-2 rounded-full ${project.progress === 100
                                                 ? 'bg-success-600'
@@ -213,12 +213,12 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                 <CardContent className="p-4">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Budget Utilization</p>
-                                            <p className="text-2xl font-bold text-primary-950 dark:text-white">{budgetUtilization.toFixed(1)}%</p>
+                                            <p className="text-sm text-app-muted mb-1">Budget Utilization</p>
+                                            <p className="text-2xl font-bold text-app-heading">{budgetUtilization.toFixed(1)}%</p>
                                         </div>
                                         <DollarSign className="text-primary-600" size={32} />
                                     </div>
-                                    <div className="mt-3 w-full h-2 bg-gray-200 dark:bg-neutral-700 rounded-full">
+                                    <div className="mt-3 w-full h-2 bg-app-secondary rounded-full">
                                         <div
                                             className={`h-2 rounded-full ${budgetUtilization > 90
                                                 ? 'bg-error-600'
@@ -236,14 +236,14 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                 <CardContent className="p-4">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Days Remaining</p>
-                                            <p className={`text-2xl font-bold ${isOverdue ? 'text-error-600' : 'text-primary-950 dark:text-white'}`}>
+                                            <p className="text-sm text-app-muted mb-1">Days Remaining</p>
+                                            <p className={`text-2xl font-bold ${isOverdue ? 'text-error-600' : 'text-app-heading'}`}>
                                                 {Math.abs(daysRemaining)}
                                             </p>
                                         </div>
-                                        <Clock className="text-gray-600 dark:text-gray-400" size={32} />
+                                        <Clock className="text-app-muted" size={32} />
                                     </div>
-                                    <p className={`text-xs mt-2 ${isOverdue ? 'text-error-600' : 'text-gray-600 dark:text-gray-400'}`}>
+                                    <p className={`text-xs mt-2 ${isOverdue ? 'text-error-600' : 'text-app-muted'}`}>
                                         {isOverdue ? 'Overdue' : 'On Schedule'}
                                     </p>
                                 </CardContent>
@@ -253,7 +253,7 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                 <CardContent className="p-4">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Cost Variation</p>
+                                            <p className="text-sm text-app-muted mb-1">Cost Variation</p>
                                             <p
                                                 className={`text-2xl font-bold ${costVariancePercentage > 0 ? 'text-error-600' : 'text-success-600'
                                                     }`}
@@ -281,13 +281,13 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{project.description}</p>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-neutral-800">
+                                <p className="text-app-text leading-relaxed">{project.description}</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-app-subtle">
                                     <div className="flex items-start gap-3">
-                                        <Calendar className="text-gray-400 mt-1" size={18} />
+                                        <Calendar className="text-app-muted mt-1" size={18} />
                                         <div>
-                                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Project Timeline</p>
-                                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                            <p className="text-sm font-medium text-app-heading">Project Timeline</p>
+                                            <p className="text-sm text-app-muted">
                                                 {new Date(project.startDate).toLocaleDateString('en-US', {
                                                     year: 'numeric',
                                                     month: 'long',
@@ -303,24 +303,24 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-3">
-                                        <User className="text-gray-400 mt-1" size={18} />
+                                        <User className="text-app-muted mt-1" size={18} />
                                         <div>
-                                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Project Manager</p>
-                                            <p className="text-sm text-gray-600 dark:text-gray-400">{project.manager}</p>
+                                            <p className="text-sm font-medium text-app-heading">Project Manager</p>
+                                            <p className="text-sm text-app-muted">{project.manager}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-3">
-                                        <MapPin className="text-gray-400 mt-1" size={18} />
+                                        <MapPin className="text-app-muted mt-1" size={18} />
                                         <div>
-                                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Location</p>
-                                            <p className="text-sm text-gray-600 dark:text-gray-400">{project.location?.address || 'N/A'}</p>
+                                            <p className="text-sm font-medium text-app-heading">Location</p>
+                                            <p className="text-sm text-app-muted">{project.location?.address || 'N/A'}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-3">
-                                        <Users className="text-gray-400 mt-1" size={18} />
+                                        <Users className="text-app-muted mt-1" size={18} />
                                         <div>
-                                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Stakeholders</p>
-                                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                            <p className="text-sm font-medium text-app-heading">Stakeholders</p>
+                                            <p className="text-sm text-app-muted">
                                                 {project.stakeholders?.length > 0
                                                     ? project.stakeholders.join(', ')
                                                     : 'No stakeholders assigned'}
@@ -336,7 +336,7 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                 {activeTab === 'procurements' && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                         <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Contractors & Procurements</h3>
+                            <h3 className="text-lg font-bold text-app-heading">Contractors & Procurements</h3>
                             <Button
                                 onClick={() => setIsAddContractorModalOpen(true)}
                                 className="bg-primary-950 text-white hover:bg-primary-900 shadow-lg shadow-primary-950/20 flex items-center gap-2"
@@ -352,31 +352,31 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                         <CardContent className="p-4">
                                             <div className="flex items-start justify-between mb-3">
                                                 <div>
-                                                    <h4 className="font-semibold text-slate-900 dark:text-white">{contractor.contractorName}</h4>
-                                                    <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                    <h4 className="font-semibold text-app-heading">{contractor.contractorName}</h4>
+                                                    <div className="flex items-center gap-1 text-xs text-app-muted mt-1">
                                                         <MapPin size={12} /> {contractor.city}, {contractor.state}
                                                     </div>
                                                 </div>
-                                                <span className="p-1.5 bg-slate-100 dark:bg-neutral-800 rounded-lg text-slate-500 dark:text-slate-400">
+                                                <span className="p-1.5 bg-app-secondary rounded-lg text-app-muted">
                                                     <Briefcase size={16} />
                                                 </span>
                                             </div>
 
                                             <div className="space-y-2 mt-4 text-sm">
-                                                <div className="flex justify-between p-2 bg-slate-50 dark:bg-neutral-800 rounded">
-                                                    <span className="text-slate-500 dark:text-slate-400 text-xs uppercase font-medium">PAN</span>
-                                                    <span className="text-slate-700 dark:text-slate-300 font-mono tracking-wide">{contractor.panNo}</span>
+                                                <div className="flex justify-between p-2 bg-app-secondary rounded">
+                                                    <span className="text-app-muted text-xs uppercase font-medium">PAN</span>
+                                                    <span className="text-app-text font-mono tracking-wide">{contractor.panNo}</span>
                                                 </div>
-                                                <div className="flex justify-between p-2 bg-slate-50 dark:bg-neutral-800 rounded">
-                                                    <span className="text-slate-500 dark:text-slate-400 text-xs uppercase font-medium">GSTIN</span>
-                                                    <span className="text-slate-700 dark:text-slate-300 font-mono tracking-wide">{contractor.gstinNo}</span>
+                                                <div className="flex justify-between p-2 bg-app-secondary rounded">
+                                                    <span className="text-app-muted text-xs uppercase font-medium">GSTIN</span>
+                                                    <span className="text-app-text font-mono tracking-wide">{contractor.gstinNo}</span>
                                                 </div>
                                                 <div className="pt-2 flex flex-col gap-1">
-                                                    <span className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                                                        <User size={14} className="text-slate-400" /> {contractor.email}
+                                                    <span className="flex items-center gap-2 text-app-muted">
+                                                        <User size={14} className="text-app-muted" /> {contractor.email}
                                                     </span>
-                                                    <span className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                                                        <DollarSign size={14} className="text-slate-400" /> {contractor.mobile}
+                                                    <span className="flex items-center gap-2 text-app-muted">
+                                                        <DollarSign size={14} className="text-app-muted" /> {contractor.mobile}
                                                     </span>
                                                 </div>
                                             </div>
@@ -385,15 +385,15 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                 ))}
                             </div>
                         ) : (
-                            <div className="border border-dashed border-slate-300 dark:border-neutral-700 rounded-xl p-12 text-center bg-slate-50 dark:bg-neutral-800">
-                                <div className="w-16 h-16 bg-slate-100 dark:bg-neutral-700 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                            <div className="border border-dashed border-app-subtle rounded-xl p-12 text-center bg-app-secondary">
+                                <div className="w-16 h-16 bg-app-surface rounded-full flex items-center justify-center mx-auto mb-4 text-app-muted">
                                     <Briefcase size={32} />
                                 </div>
-                                <h4 className="text-slate-900 dark:text-white font-medium mb-1">No Contractors Added</h4>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">Add contractors to manage procurements for this project.</p>
+                                <h4 className="text-app-heading font-medium mb-1">No Contractors Added</h4>
+                                <p className="text-app-muted text-sm mb-4">Add contractors to manage procurements for this project.</p>
                                 <button
                                     onClick={() => setIsAddContractorModalOpen(true)}
-                                    className="px-4 py-2 border border-slate-300 dark:border-neutral-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-neutral-700 transition-colors"
+                                    className="px-4 py-2 border border-app rounded-lg text-sm font-medium text-app-text hover:bg-app-surface transition-colors"
                                 >
                                     Add Your First Contractor
                                 </button>
@@ -405,7 +405,7 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                 {activeTab === 'packages' && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                         <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Work Packages</h3>
+                            <h3 className="text-lg font-bold text-app-heading">Work Packages</h3>
                             {/* Contextual create button - we might want to reinject the create logic purely for context later, for now just view */}
                         </div>
 
@@ -416,45 +416,45 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                         <CardContent className="p-4">
                                             <div className="flex justify-between items-start mb-2">
                                                 <div>
-                                                    <h4 className="font-semibold text-lg text-slate-900 dark:text-white">{pkg.name}</h4>
-                                                    {pkg.description && <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{pkg.description}</p>}
+                                                    <h4 className="font-semibold text-lg text-app-heading">{pkg.name}</h4>
+                                                    {pkg.description && <p className="text-sm text-app-muted mb-2">{pkg.description}</p>}
                                                 </div>
                                                 <span className="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full shrink-0">
                                                     {pkg.status}
                                                 </span>
                                             </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-4 text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-neutral-800 p-3 rounded-lg">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-4 text-sm text-app-text bg-app-secondary p-3 rounded-lg">
                                                 <div className="flex flex-col">
-                                                    <span className="text-xs text-slate-400 uppercase font-medium">Contractor</span>
-                                                    <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
-                                                        <User size={14} className="text-slate-400" /> {pkg.contractor}
+                                                    <span className="text-xs text-app-muted uppercase font-medium">Contractor</span>
+                                                    <span className="flex items-center gap-1 font-medium text-app-heading">
+                                                        <User size={14} className="text-app-muted" /> {pkg.contractor}
                                                     </span>
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-xs text-slate-400 uppercase font-medium">Responsible Staff</span>
-                                                    <span className="font-medium text-slate-700 dark:text-slate-300">{pkg.responsibleStaff || '-'}</span>
+                                                    <span className="text-xs text-app-muted uppercase font-medium">Responsible Staff</span>
+                                                    <span className="font-medium text-app-heading">{pkg.responsibleStaff || '-'}</span>
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-xs text-slate-400 uppercase font-medium">Contract Value</span>
-                                                    <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
-                                                        <DollarSign size={14} className="text-slate-400" /> {formatCurrency(pkg.contractValue || pkg.budget)}
+                                                    <span className="text-xs text-app-muted uppercase font-medium">Contract Value</span>
+                                                    <span className="flex items-center gap-1 font-medium text-app-heading">
+                                                        <DollarSign size={14} className="text-app-muted" /> {formatCurrency(pkg.contractValue || pkg.budget)}
                                                     </span>
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-xs text-slate-400 uppercase font-medium">Agreement No.</span>
-                                                    <span className="font-medium text-slate-700 dark:text-slate-300">{pkg.agreementNo || '-'}</span>
+                                                    <span className="text-xs text-app-muted uppercase font-medium">Agreement No.</span>
+                                                    <span className="font-medium text-app-heading">{pkg.agreementNo || '-'}</span>
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-xs text-slate-400 uppercase font-medium">Agreement Date</span>
-                                                    <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
-                                                        <Calendar size={14} className="text-slate-400" /> {pkg.agreementDate ? new Date(pkg.agreementDate).toLocaleDateString() : '-'}
+                                                    <span className="text-xs text-app-muted uppercase font-medium">Agreement Date</span>
+                                                    <span className="flex items-center gap-1 font-medium text-app-heading">
+                                                        <Calendar size={14} className="text-app-muted" /> {pkg.agreementDate ? new Date(pkg.agreementDate).toLocaleDateString() : '-'}
                                                     </span>
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-xs text-slate-400 uppercase font-medium">Due Date</span>
-                                                    <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
-                                                        <Calendar size={14} className="text-slate-400" /> {pkg.endDate ? new Date(pkg.endDate).toLocaleDateString() : '-'}
+                                                    <span className="text-xs text-app-muted uppercase font-medium">Due Date</span>
+                                                    <span className="flex items-center gap-1 font-medium text-app-heading">
+                                                        <Calendar size={14} className="text-app-muted" /> {pkg.endDate ? new Date(pkg.endDate).toLocaleDateString() : '-'}
                                                     </span>
                                                 </div>
                                             </div>
@@ -463,12 +463,12 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                 ))}
                             </div>
                         ) : (
-                            <div className="border border-dashed border-slate-300 dark:border-neutral-700 rounded-xl p-12 text-center bg-slate-50 dark:bg-neutral-800">
-                                <div className="w-16 h-16 bg-slate-100 dark:bg-neutral-700 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                            <div className="border border-dashed border-app-subtle rounded-xl p-12 text-center bg-app-secondary">
+                                <div className="w-16 h-16 bg-app-surface rounded-full flex items-center justify-center mx-auto mb-4 text-app-muted">
                                     <FolderOpen size={32} />
                                 </div>
-                                <h4 className="text-slate-900 dark:text-white font-medium mb-1">No Packages Created Yet</h4>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">Create packages from the Projects page to assign work.</p>
+                                <h4 className="text-app-heading font-medium mb-1">No Packages Created Yet</h4>
+                                <p className="text-app-muted text-sm mb-4">Create packages from the Projects page to assign work.</p>
                             </div>
                         )}
                     </motion.div>
@@ -519,7 +519,7 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                         {/* Header */}
                         <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <h3 className="text-lg font-bold text-app-heading flex items-center gap-2">
                                 <Shield size={20} className="text-orange-500" />
                                 Project Risks
                             </h3>
@@ -568,13 +568,13 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                             return (
                                                 <div
                                                     key={risk.id}
-                                                    className="p-3 bg-gray-50 dark:bg-neutral-800 rounded-lg border border-gray-200 dark:border-neutral-700 hover:border-primary-300 cursor-pointer transition-colors"
+                                                    className="p-3 bg-app-secondary rounded-lg border border-app-subtle hover:border-primary-300 cursor-pointer transition-colors"
                                                     onClick={() => navigate(`/risk?risk=${risk.id}`)}
                                                 >
                                                     <div className="flex items-start justify-between">
                                                         <div className="flex-1">
                                                             <div className="flex items-center gap-2 mb-1">
-                                                                <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{risk.risk_code}</span>
+                                                                <span className="text-xs text-app-muted font-mono">{risk.risk_code}</span>
                                                                 <span className={`px-2 py-0.5 rounded-full text-xs ${sevColors.bg} ${sevColors.text}`}>
                                                                     {risk.severity}
                                                                 </span>
@@ -582,12 +582,12 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                                                     {risk.status}
                                                                 </span>
                                                             </div>
-                                                            <h4 className="font-medium text-gray-900 dark:text-white">{risk.title}</h4>
-                                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">{risk.description}</p>
+                                                            <h4 className="font-medium text-app-heading">{risk.title}</h4>
+                                                            <p className="text-sm text-app-muted mt-1 line-clamp-1">{risk.description}</p>
                                                         </div>
                                                         <div className="text-right ml-4">
-                                                            <div className="text-2xl font-bold text-gray-900 dark:text-white">{risk.risk_score}</div>
-                                                            <div className="text-xs text-gray-500 dark:text-gray-400">Score</div>
+                                                            <div className="text-2xl font-bold text-app-heading">{risk.risk_score}</div>
+                                                            <div className="text-xs text-app-muted">Score</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -605,12 +605,12 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                 </Card>
                             </>
                         ) : (
-                            <div className="border border-dashed border-slate-300 dark:border-neutral-700 rounded-xl p-12 text-center bg-slate-50 dark:bg-neutral-800">
+                            <div className="border border-dashed border-app-subtle rounded-xl p-12 text-center bg-app-secondary">
                                 <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <AlertTriangle size={32} className="text-orange-500" />
                                 </div>
-                                <h4 className="text-slate-900 dark:text-white font-medium mb-1">No Risks Identified</h4>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">Start tracking potential risks for this project.</p>
+                                <h4 className="text-app-heading font-medium mb-1">No Risks Identified</h4>
+                                <p className="text-app-muted text-sm mb-4">Start tracking potential risks for this project.</p>
                                 <Button
                                     onClick={() => navigate(`/risk?project=${project.id}`)}
                                     variant="outline"
