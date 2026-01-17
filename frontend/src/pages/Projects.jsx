@@ -108,7 +108,7 @@ const Projects = () => {
             <Button
               onClick={() => setIsCreatePackageModalOpen(true)}
               variant="outline"
-              className="flex-1 sm:flex-none border-primary-950 text-primary-950 hover:bg-primary-50 min-h-[44px]"
+              className="flex-1 sm:flex-none min-h-[44px]"
             >
               <Package size={18} />
               <span className="hidden sm:inline ml-2">Create Package</span>
