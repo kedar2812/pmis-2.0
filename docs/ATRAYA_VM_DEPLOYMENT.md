@@ -15,7 +15,7 @@
 | **RDP Username** | `Administrator` |
 | **RDP Password** | `Bl@ckp#@rl00` |
 | **PostgreSQL Superuser** | `postgres` / `PostgresAdmin123!` |
-| **PostgreSQL App User** | `pmis_user` / `PmisSecure@2024` |
+| **PostgreSQL App User** | `pmis_user` / `PmisSecure@2026` |
 | **Django SECRET_KEY** | `k8xP2mN9vQ4wR7tY1uZ3aB6cD0eF5gH8iJ2lM4nO7pS9qU1xW3yA6zC0dE5fG8hI` |
 | **Application URL** | `http://45.118.163.111` |
 | **API URL** | `http://45.118.163.111/api` |
@@ -180,7 +180,7 @@ Then run these SQL commands:
 CREATE DATABASE pmis_db;
 
 -- Create application user
-CREATE USER pmis_user WITH PASSWORD 'PmisSecure@2024';
+CREATE USER pmis_user WITH PASSWORD 'PmisSecure@2026';
 
 -- Grant privileges
 GRANT ALL PRIVILEGES ON DATABASE pmis_db TO pmis_user;
@@ -300,24 +300,25 @@ python manage.py import_geography_data
 ### 6.7 Import Bank Data
 
 ```powershell
-# Clone Razorpay IFSC data
-cd C:\pmis\backend
-git clone --depth 1 https://github.com/razorpay/ifsc.git temp_razorpay_ifsc
-
-# Import bank data
-python manage.py import_razorpay_ifsc --data-dir temp_razorpay_ifsc\src --clear
-
-# Cleanup
-Remove-Item -Recurse -Force temp_razorpay_ifsc
+# Import all bank IFSC codes (~177K records, takes 2-3 minutes)
+python manage.py import_ifsc --clear
 ```
 
 **Expected output:**
 ```
-Importing IFSC data from Razorpay format...
-Found 1511 banks in database
-Imported 1000 branches...
-Import completed successfully!
-Total imported: 1346
+Downloading IFSC.csv from Razorpay GitHub releases...
+Downloaded: 35.0 MB
+Clearing existing bank data...
+Importing from IFSC.csv...
+Progress: 50,000 records imported...
+Progress: 100,000 records imported...
+Progress: 150,000 records imported...
+============================================================
+IFSC Import Completed!
+============================================================
+Records processed: 177,571
+Total in database: 177,571
+Unique banks: 1,500+
 ```
 
 ### 6.8 Collect Static Files

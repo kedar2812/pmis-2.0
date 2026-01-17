@@ -38,8 +38,8 @@ class BankListView(APIView):
                 return Response({
                     'count': 0,
                     'banks': [],
-                    'warning': 'No bank data available. Please run: python manage.py import_ifsc_data',
-                    'help': 'Visit https://github.com/snarayanank2/indian_banks for data source'
+                    'warning': 'No bank data available. Please run: python manage.py import_ifsc --clear',
+                    'help': 'This downloads latest IFSC data from Razorpay GitHub releases'
                 }, status=status.HTTP_200_OK)
             
             # Cache for 24 hours

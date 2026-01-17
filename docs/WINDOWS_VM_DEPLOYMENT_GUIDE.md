@@ -12,7 +12,7 @@
 |---------|----------|----------|
 | VM Server (RDP) | `Administrator` | `Bl@ckp#@rl00` |
 | PostgreSQL Superuser | `postgres` | `PostgresAdmin123!` |
-| PostgreSQL App User | `pmis_user` | `PmisSecure@2024` |
+| PostgreSQL App User | `pmis_user` | `PmisSecure@2026` |
 | Django SECRET_KEY | - | `k8xP2mN9vQ4wR7tY1uZ3aB6cD0eF5gH8iJ2lM4nO7pS9qU1xW3yA6zC0dE5fG8hI` |
 
 ---
@@ -47,7 +47,7 @@ git clone https://github.com/kedar2812/pmis-2.0.git pmis
 ### Part 4: Database Setup
 ```powershell
 # Start PostgreSQL service
-net start postgresql-x64-17
+net start postgresql-x64-16
 
 # Connect to PostgreSQL
 psql -U postgres -h localhost
