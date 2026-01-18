@@ -9,7 +9,7 @@ import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
 import { CreatePackageModal } from '@/components/packages/CreatePackageModal';
 import { LandStats } from '@/components/projects/LandStats';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { FolderOpen, Plus, Search, DollarSign, TrendingUp, Package } from 'lucide-react';
+import { FolderOpen, Plus, Search, DollarSign, TrendingUp, Package, Filter, X } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { getStatusColor } from '@/lib/colors';
@@ -27,6 +27,9 @@ const Projects = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [divisionFilter, setDivisionFilter] = useState('all');
+  const [showFilters, setShowFilters] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreatePackageModalOpen, setIsCreatePackageModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
@@ -58,10 +61,20 @@ const Projects = () => {
   // Check if user can create projects
   const canCreateProject = user?.role === 'SPV_Official' || user?.role === 'PMNC_Team';
 
-  // Filter projects
+  // Get unique categories and divisions for filters
+  const categories = useMemo(() => {
+    const cats = [...new Set(projects.map(p => p.category).filter(Boolean))];
+    return cats.sort();
+  }, [projects]);
+
+  const divisions = useMemo(() => {
+    const divs = [...new Set(projects.map(p => p.division_name || p.division).filter(Boolean))];
+    return divs.sort();
+  }, [projects]);
+
+  // Filter projects with all criteria
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
-      // Safe checks for potentially missing fields in new data
       const name = project.name || '';
       const desc = project.description || '';
       const cat = project.category || '';
@@ -73,9 +86,24 @@ const Projects = () => {
         cat.toLowerCase().includes(searchQuery.toLowerCase()) ||
         mgr.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
-      return matchesSearch && matchesStatus;
+      const matchesCategory = categoryFilter === 'all' || project.category === categoryFilter;
+      const matchesDivision = divisionFilter === 'all' ||
+        (project.division_name || project.division) === divisionFilter;
+
+      return matchesSearch && matchesStatus && matchesCategory && matchesDivision;
     });
-  }, [projects, searchQuery, statusFilter]);
+  }, [projects, searchQuery, statusFilter, categoryFilter, divisionFilter]);
+
+  // Check if any filters are active
+  const hasActiveFilters = statusFilter !== 'all' || categoryFilter !== 'all' || divisionFilter !== 'all' || searchQuery !== '';
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('all');
+    setCategoryFilter('all');
+    setDivisionFilter('all');
+  };
 
   const handleCreateProject = async (projectData) => {
     // Create project - toast is already shown by modal
@@ -227,31 +255,100 @@ const Projects = () => {
       {/* Filters */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-app-muted" size={18} />
-              <input
-                type="text"
-                placeholder={t('projects.searchPlaceholder')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-app bg-app-card text-app-heading rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                aria-label="Search projects"
-              />
+          <div className="flex flex-col gap-4">
+            {/* Search and Filter Toggle Row */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-app-muted" size={18} />
+                <input
+                  type="text"
+                  placeholder={t('projects.searchPlaceholder')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-app bg-app-card text-app-heading rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  aria-label="Search projects"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-colors ${showFilters || hasActiveFilters
+                      ? 'bg-primary-50 border-primary-300 text-primary-700 dark:bg-blue-900/30 dark:border-blue-600 dark:text-blue-300'
+                      : 'border-app bg-app-card text-app-muted hover:bg-app-surface'
+                    }`}
+                >
+                  <Filter size={18} />
+                  <span className="hidden sm:inline">Filters</span>
+                  {hasActiveFilters && (
+                    <span className="bg-primary-600 text-white text-xs px-1.5 py-0.5 rounded-full">
+                      {[statusFilter !== 'all', categoryFilter !== 'all', divisionFilter !== 'all'].filter(Boolean).length}
+                    </span>
+                  )}
+                </button>
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="flex items-center gap-1 px-3 py-2.5 rounded-lg border border-app bg-app-card text-app-muted hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                    title="Clear all filters"
+                  >
+                    <X size={16} />
+                    <span className="hidden sm:inline">Clear</span>
+                  </button>
+                )}
+              </div>
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-app bg-app-card text-app-heading rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              aria-label="Filter by status"
-            >
-              <option value="all">{t('projects.allStatus')}</option>
-              <option value="Planning">{t('status.planning')}</option>
-              <option value="In Progress">{t('status.inProgress')}</option>
-              <option value="On Hold">{t('status.onHold')}</option>
-              <option value="Completed">{t('status.completed')}</option>
-              <option value="Cancelled">{t('status.cancelled')}</option>
-            </select>
+
+            {/* Expanded Filters */}
+            {showFilters && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-app-subtle"
+              >
+                <div>
+                  <label className="block text-xs font-medium text-app-muted mb-1.5">Status</label>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-app bg-app-card text-app-heading rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                  >
+                    <option value="all">{t('projects.allStatus')}</option>
+                    <option value="Planning">{t('status.planning')}</option>
+                    <option value="In Progress">{t('status.inProgress')}</option>
+                    <option value="On Hold">{t('status.onHold')}</option>
+                    <option value="Completed">{t('status.completed')}</option>
+                    <option value="Cancelled">{t('status.cancelled')}</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-app-muted mb-1.5">Category</label>
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-app bg-app-card text-app-heading rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                  >
+                    <option value="all">All Categories</option>
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-app-muted mb-1.5">Division</label>
+                  <select
+                    value={divisionFilter}
+                    onChange={(e) => setDivisionFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-app bg-app-card text-app-heading rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                  >
+                    <option value="all">All Divisions</option>
+                    {divisions.map(div => (
+                      <option key={div} value={div}>{div}</option>
+                    ))}
+                  </select>
+                </div>
+              </motion.div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -293,12 +390,12 @@ const Projects = () => {
               >
                 <CardHeader>
                   <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg mb-2 text-app-heading">{project.name}</CardTitle>
+                    <div className="flex-1 min-w-0 pr-2">
+                      <CardTitle className="text-xl font-bold mb-2 text-app-heading leading-tight">{project.name}</CardTitle>
                       <p className="text-sm text-app-muted line-clamp-2">{project.description}</p>
                     </div>
                     <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadgeColor(project.status)}`}
+                      className={`px-2 py-1 rounded text-xs font-medium flex-shrink-0 ${getStatusBadgeColor(project.status)}`}
                     >
                       {project.status}
                     </span>

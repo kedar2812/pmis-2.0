@@ -311,3 +311,9 @@ class Notification(models.Model):
     def __str__(self):
         return f"{self.title} - {'Read' if self.is_read else 'Unread'}"
 
+
+# Import BOQ Execution models to make them accessible via finance.models
+from .boq_execution import BOQExecution, ProgressCalculationLog
+
+# Import EVM models
+from .evm_service import ProjectEVMHistory

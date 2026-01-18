@@ -10,7 +10,7 @@ const ChartSkeleton = ({ height }) => (
   <div className="w-full relative overflow-hidden" style={{ height }}>
     {/* Animated gradient background */}
     <div className="absolute inset-0 bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 animate-pulse rounded-xl" />
-    
+
     {/* Shimmer effect */}
     <motion.div
       className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent"
@@ -22,7 +22,7 @@ const ChartSkeleton = ({ height }) => (
         ease: 'linear',
       }}
     />
-    
+
     {/* Skeleton bars */}
     <div className="absolute bottom-8 left-12 right-8 flex items-end justify-around gap-4">
       {[65, 85, 45, 70, 55].map((h, i) => (
@@ -40,7 +40,7 @@ const ChartSkeleton = ({ height }) => (
         />
       ))}
     </div>
-    
+
     {/* Loading indicator */}
     <div className="absolute inset-0 flex items-center justify-center">
       <motion.div
@@ -58,9 +58,11 @@ const ChartSkeleton = ({ height }) => (
 export const DynamicChart = ({
   data,
   dataKey,
+  secondaryDataKey,
   height = 300,
   colors = ['#10b981', '#8b5cf6', '#f59e0b', '#f43f5e', '#06b6d4'],
   name,
+  secondaryName,
   nameKey = 'name',
   title,
   defaultType = 'bar',
@@ -112,7 +114,18 @@ export const DynamicChart = ({
   const renderChart = () => {
     switch (chartType) {
       case 'bar':
-        return <AnimatedBarChart data={data} dataKey={dataKey} height={height} color={colors[0]} name={name} />;
+        return (
+          <AnimatedBarChart
+            data={data}
+            dataKey={dataKey}
+            secondaryDataKey={secondaryDataKey}
+            height={height}
+            color={colors[0]}
+            secondaryColor={colors[1]}
+            name={name}
+            secondaryName={secondaryName}
+          />
+        );
       case 'line':
         return <AnimatedLineChart data={data} dataKey={dataKey} height={height} color={colors[1]} name={name} />;
       case 'pie':
@@ -199,14 +212,14 @@ export const DynamicChart = ({
           <motion.div
             key={`chart-${chartType}`}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ 
-              opacity: showChart ? 1 : 0, 
+            animate={{
+              opacity: showChart ? 1 : 0,
               y: showChart ? 0 : 20,
               scale: showChart ? 1 : 0.95
             }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ 
-              duration: 0.4, 
+            transition={{
+              duration: 0.4,
               ease: [0.4, 0, 0.2, 1],
               opacity: { duration: 0.3 }
             }}

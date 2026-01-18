@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'banks.apps.BanksConfig',
     'masters.apps.MastersConfig',
     'procurement',
+    'workflow',
 ]
 
 MIDDLEWARE = [

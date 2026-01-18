@@ -53,6 +53,24 @@ try:
 except ImportError:
     Contractor = None
 
+# Additional model imports for comprehensive search
+try:
+    from projects.models import Risk
+except ImportError:
+    Risk = None
+
+try:
+    from finance.models import BOQItem, RABill, Fund
+except ImportError:
+    BOQItem = None
+    RABill = None
+    Fund = None
+
+try:
+    from procurement.models import Package as ProcurementPackage
+except ImportError:
+    ProcurementPackage = None
+
 User = get_user_model()
 
 
@@ -213,11 +231,36 @@ def global_search(request):
         contractor_results = search_contractors(normalized_query, user, limit)
         results.extend(contractor_results)
     
+    # Search Risks
+    if category in ['all', 'risks'] and Risk:
+        risk_results = search_risks(normalized_query, user, limit)
+        results.extend(risk_results)
+    
+    # Search BOQ Items
+    if category in ['all', 'boq'] and BOQItem:
+        boq_results = search_boq(normalized_query, user, limit)
+        results.extend(boq_results)
+    
+    # Search RA Bills (Billing)
+    if category in ['all', 'billing'] and RABill:
+        billing_results = search_billing(normalized_query, user, limit)
+        results.extend(billing_results)
+    
+    # Search Funds
+    if category in ['all', 'funds'] and Fund:
+        fund_results = search_funds(normalized_query, user, limit)
+        results.extend(fund_results)
+    
+    # Search Procurement Packages
+    if category in ['all', 'procurement'] and ProcurementPackage:
+        procurement_results = search_procurement(normalized_query, user, limit)
+        results.extend(procurement_results)
+    
     # Sort by relevance score
     results.sort(key=lambda x: x.get('score', 0), reverse=True)
     
     # Limit total results
-    results = results[:limit * 2]  # Allow some overflow for category diversity
+    results = results[:limit * 3]  # Allow more overflow for additional categories
     
     return Response({
         'results': results,
@@ -508,3 +551,197 @@ def search_contractors(query, user, limit):
         print(f"Error searching contractors: {e}")
     
     return results
+
+
+def search_risks(query, user, limit):
+    """Search project risks."""
+    results = []
+    
+    try:
+        queryset = Risk.objects.filter(
+            Q(title__icontains=query) |
+            Q(description__icontains=query) |
+            Q(category__icontains=query)
+        )
+        
+        for risk in queryset[:limit]:
+            score = max(
+                calculate_relevance_score(risk.title, query, 1.0),
+                calculate_relevance_score(getattr(risk, 'description', ''), query, 0.6)
+            )
+            
+            project_name = None
+            if hasattr(risk, 'project') and risk.project:
+                project_name = risk.project.name
+            
+            results.append({
+                'id': str(risk.id),
+                'type': 'risk',
+                'title': risk.title,
+                'description': getattr(risk, 'description', '')[:100] if hasattr(risk, 'description') else '',
+                'url': '/risk',
+                'path': '/risk',
+                'score': score,
+                'status': getattr(risk, 'status', None),
+                'breadcrumb': [project_name] if project_name else None,
+            })
+    except Exception as e:
+        print(f"Error searching risks: {e}")
+    
+    return results
+
+
+def search_boq(query, user, limit):
+    """Search BOQ items."""
+    results = []
+    
+    try:
+        queryset = BOQItem.objects.filter(
+            Q(description__icontains=query) |
+            Q(item_code__icontains=query) |
+            Q(unit__icontains=query)
+        )
+        
+        for item in queryset[:limit]:
+            title = getattr(item, 'item_code', '') or 'BOQ Item'
+            score = max(
+                calculate_relevance_score(getattr(item, 'description', ''), query, 1.0),
+                calculate_relevance_score(title, query, 0.9)
+            )
+            
+            project_name = None
+            if hasattr(item, 'project') and item.project:
+                project_name = item.project.name
+            
+            results.append({
+                'id': str(item.id),
+                'type': 'boq',
+                'title': f"{title}: {getattr(item, 'description', '')[:50]}",
+                'description': f"Qty: {getattr(item, 'quantity', 0)} {getattr(item, 'unit', '')}",
+                'url': '/cost/boq',
+                'path': '/cost/boq',
+                'score': score,
+                'breadcrumb': [project_name] if project_name else None,
+            })
+    except Exception as e:
+        print(f"Error searching BOQ: {e}")
+    
+    return results
+
+
+def search_billing(query, user, limit):
+    """Search RA Bills."""
+    results = []
+    
+    try:
+        queryset = RABill.objects.filter(
+            Q(bill_number__icontains=query) |
+            Q(description__icontains=query) |
+            Q(remarks__icontains=query)
+        )
+        
+        for bill in queryset[:limit]:
+            title = getattr(bill, 'bill_number', '') or 'RA Bill'
+            score = max(
+                calculate_relevance_score(title, query, 1.0),
+                calculate_relevance_score(getattr(bill, 'description', ''), query, 0.7)
+            )
+            
+            project_name = None
+            if hasattr(bill, 'project') and bill.project:
+                project_name = bill.project.name
+            
+            results.append({
+                'id': str(bill.id),
+                'type': 'billing',
+                'title': f"RA Bill: {title}",
+                'description': getattr(bill, 'description', '')[:80] if hasattr(bill, 'description') else '',
+                'url': '/cost/billing',
+                'path': '/cost/billing',
+                'score': score,
+                'status': getattr(bill, 'status', None),
+                'breadcrumb': [project_name] if project_name else None,
+            })
+    except Exception as e:
+        print(f"Error searching billing: {e}")
+    
+    return results
+
+
+def search_funds(query, user, limit):
+    """Search fund records."""
+    results = []
+    
+    try:
+        queryset = Fund.objects.filter(
+            Q(name__icontains=query) |
+            Q(description__icontains=query) |
+            Q(fund_type__icontains=query)
+        )
+        
+        for fund in queryset[:limit]:
+            title = getattr(fund, 'name', '') or 'Fund'
+            score = max(
+                calculate_relevance_score(title, query, 1.0),
+                calculate_relevance_score(getattr(fund, 'description', ''), query, 0.6)
+            )
+            
+            project_name = None
+            if hasattr(fund, 'project') and fund.project:
+                project_name = fund.project.name
+            
+            results.append({
+                'id': str(fund.id),
+                'type': 'fund',
+                'title': title,
+                'description': getattr(fund, 'description', '')[:80] if hasattr(fund, 'description') else '',
+                'url': '/cost/funds',
+                'path': '/cost/funds',
+                'score': score,
+                'status': getattr(fund, 'status', None),
+                'breadcrumb': [project_name] if project_name else None,
+            })
+    except Exception as e:
+        print(f"Error searching funds: {e}")
+    
+    return results
+
+
+def search_procurement(query, user, limit):
+    """Search procurement packages."""
+    results = []
+    
+    try:
+        queryset = ProcurementPackage.objects.filter(
+            Q(name__icontains=query) |
+            Q(description__icontains=query) |
+            Q(package_number__icontains=query)
+        )
+        
+        for pkg in queryset[:limit]:
+            title = getattr(pkg, 'name', '') or getattr(pkg, 'package_number', 'Package')
+            score = max(
+                calculate_relevance_score(title, query, 1.0),
+                calculate_relevance_score(getattr(pkg, 'description', ''), query, 0.6)
+            )
+            
+            project_name = None
+            if hasattr(pkg, 'project') and pkg.project:
+                project_name = pkg.project.name
+            
+            results.append({
+                'id': str(pkg.id),
+                'type': 'procurement',
+                'title': title,
+                'description': getattr(pkg, 'description', '')[:80] if hasattr(pkg, 'description') else '',
+                'url': '/e-procurement',
+                'path': '/e-procurement',
+                'score': score,
+                'status': getattr(pkg, 'status', None),
+                'breadcrumb': [project_name] if project_name else None,
+            })
+    except Exception as e:
+        print(f"Error searching procurement: {e}")
+    
+    return results
+

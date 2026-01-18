@@ -9,8 +9,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import client from '@/api/client';
 import {
     Bell, X, Check, MessageSquare, AlertTriangle,
-    Gavel, Clock, ChevronRight, UserCheck, Users
+    Gavel, Clock, ChevronRight, UserCheck, Users, Settings
 } from 'lucide-react';
+import NotificationPreferencesModal from '@/components/ui/NotificationPreferencesModal';
 
 const NotificationDropdown = () => {
     const navigate = useNavigate();
@@ -20,6 +21,7 @@ const NotificationDropdown = () => {
     const [unreadCount, setUnreadCount] = useState(0);
     const [pendingApprovals, setPendingApprovals] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const [showPreferences, setShowPreferences] = useState(false);
     const dropdownRef = useRef(null);
 
     const isAdmin = hasPermission('users:manage');
@@ -251,20 +253,38 @@ const NotificationDropdown = () => {
 
                         {/* Footer */}
                         <div className="p-2 border-t border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800">
-                            <button
-                                onClick={() => {
-                                    navigate('/communications');
-                                    setIsOpen(false);
-                                }}
-                                className="w-full text-center text-sm text-primary-600 hover:text-primary-700 font-medium py-2 hover:bg-slate-100 dark:hover:bg-neutral-700 rounded transition-colors flex items-center justify-center gap-1"
-                            >
-                                View All Communications
-                                <ChevronRight size={14} />
-                            </button>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => {
+                                        setShowPreferences(true);
+                                        setIsOpen(false);
+                                    }}
+                                    className="flex-1 text-center text-sm text-slate-600 dark:text-neutral-400 hover:text-slate-800 dark:hover:text-white font-medium py-2 hover:bg-slate-100 dark:hover:bg-neutral-700 rounded transition-colors flex items-center justify-center gap-1"
+                                >
+                                    <Settings size={14} />
+                                    Preferences
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        navigate('/communications');
+                                        setIsOpen(false);
+                                    }}
+                                    className="flex-1 text-center text-sm text-primary-600 hover:text-primary-700 font-medium py-2 hover:bg-slate-100 dark:hover:bg-neutral-700 rounded transition-colors flex items-center justify-center gap-1"
+                                >
+                                    View All
+                                    <ChevronRight size={14} />
+                                </button>
+                            </div>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Preferences Modal */}
+            <NotificationPreferencesModal
+                isOpen={showPreferences}
+                onClose={() => setShowPreferences(false)}
+            />
         </div>
     );
 };

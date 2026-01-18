@@ -577,3 +577,57 @@ class RecentActivityView(APIView):
             'total': len(activities)
         })
 
+
+class CalendarEventsView(APIView):
+    """
+    Calendar events aggregated from all modules.
+    Returns milestones, billing events, risks, compliance deadlines, and workflows.
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        from datetime import datetime
+        from .calendar_service import calendar_aggregator
+        
+        # Parse date range
+        start_str = request.query_params.get('start')
+        end_str = request.query_params.get('end')
+        
+        try:
+            if start_str:
+                start_date = datetime.fromisoformat(start_str.replace('Z', '+00:00')).date()
+            else:
+                start_date = timezone.now().date() - timedelta(days=30)
+            
+            if end_str:
+                end_date = datetime.fromisoformat(end_str.replace('Z', '+00:00')).date()
+            else:
+                end_date = timezone.now().date() + timedelta(days=60)
+        except ValueError:
+            return Response({'error': 'Invalid date format'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Parse filters
+        filters = {}
+        event_types = request.query_params.get('event_types')
+        if event_types:
+            filters['event_types'] = event_types.split(',')
+        
+        projects = request.query_params.get('projects')
+        if projects:
+            filters['projects'] = projects.split(',')
+        
+        # Get aggregated events
+        events = calendar_aggregator.get_events(
+            user=request.user,
+            start_date=start_date,
+            end_date=end_date,
+            filters=filters
+        )
+        
+        return Response({
+            'events': events,
+            'count': len(events),
+            'start_date': start_date.isoformat(),
+            'end_date': end_date.isoformat()
+        })
+

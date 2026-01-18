@@ -12,6 +12,7 @@ import api from '@/api/client';
 import Button from '@/components/ui/Button';
 import MasterFormModal from '@/components/masters/MasterFormModal';
 import DeleteConfirmModal from '@/components/masters/DeleteConfirmModal';
+import SortableDataTable from '@/components/ui/SortableDataTable';
 import * as fieldConfigs from '@/components/masters/fieldConfigs';
 import { toast } from 'sonner';
 import StatusBadge from '@/components/ui/StatusBadge';
@@ -344,82 +345,49 @@ const MasterData = () => {
         );
     };
 
-    // Render table
+    // Render table with SortableDataTable component
     const renderDataTable = (dataKey, columns, title, masterType) => {
         const items = data[dataKey] || [];
-        const filtered = items.filter(item =>
-            Object.values(item).some(val =>
-                String(val).toLowerCase().includes(searchQuery.toLowerCase())
-            )
-        );
+
+        // Row actions for edit/delete
+        const rowActions = canEdit ? (item) => (
+            <>
+                <button
+                    onClick={(e) => { e.stopPropagation(); handleEdit(masterType, item); }}
+                    className="p-1.5 text-app-muted hover:text-primary-600 transition-colors"
+                    title="Edit"
+                >
+                    <Edit2 size={16} />
+                </button>
+                <button
+                    onClick={(e) => { e.stopPropagation(); handleDelete(masterType, item); }}
+                    className="p-1.5 text-app-muted hover:text-red-600 transition-colors ml-1"
+                    title="Delete"
+                >
+                    <Trash2 size={16} />
+                </button>
+            </>
+        ) : null;
+
+        // Header actions for Add button
+        const headerActions = canEdit ? (
+            <Button size="sm" variant="outline" onClick={() => handleAdd(masterType)}>
+                <Plus size={14} className="mr-1" />
+                Add
+            </Button>
+        ) : null;
 
         return (
-            <div className="bg-app-card rounded-xl border border-app-subtle overflow-hidden">
-                <div className="px-4 py-3 border-b border-app-subtle flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-app-heading">{title}</h3>
-                        <span className="text-xs text-app-muted bg-app-surface px-2 py-0.5 rounded-full">
-                            {filtered.length}
-                        </span>
-                    </div>
-                    {canEdit && (
-                        <Button size="sm" variant="outline" onClick={() => handleAdd(masterType)}>
-                            <Plus size={14} className="mr-1" />
-                            Add
-                        </Button>
-                    )}
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead className="bg-app-surface">
-                            <tr>
-                                {columns.map(col => (
-                                    <th key={col.key} className="text-left px-4 py-3 font-medium text-app-muted">
-                                        {col.label}
-                                    </th>
-                                ))}
-                                {canEdit && <th className="text-right px-4 py-3 font-medium text-app-muted w-24">Actions</th>}
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-app-subtle">
-                            {filtered.length === 0 ? (
-                                <tr>
-                                    <td colSpan={columns.length + (canEdit ? 1 : 0)} className="text-center py-8 text-app-muted">
-                                        <Database size={32} className="mx-auto mb-2 opacity-30" />
-                                        No records found
-                                    </td>
-                                </tr>
-                            ) : (
-                                filtered.map((item, idx) => (
-                                    <tr key={item.id || idx} className="hover:bg-app-surface transition-colors">
-                                        {columns.map(col => (
-                                            <td key={col.key} className="px-4 py-3 text-app-text">
-                                                {col.render ? col.render(item[col.key], item) : item[col.key] || '-'}
-                                            </td>
-                                        ))}
-                                        {canEdit && (
-                                            <td className="px-4 py-3 text-right">
-                                                <button
-                                                    onClick={() => handleEdit(masterType, item)}
-                                                    className="p-1.5 text-app-muted hover:text-primary-600 transition-colors"
-                                                >
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(masterType, item)}
-                                                    className="p-1.5 text-app-muted hover:text-red-600 transition-colors ml-1"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </td>
-                                        )}
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <SortableDataTable
+                data={items}
+                columns={columns}
+                title={title}
+                headerActions={headerActions}
+                rowActions={rowActions}
+                pageSize={15}
+                defaultSortKey="name"
+                searchPlaceholder={`Search ${title.toLowerCase()}...`}
+            />
         );
     };
 

@@ -56,7 +56,7 @@ const NAVIGATION_PAGES = [
     { id: 'nav-master-data', title: 'Master Data', description: 'Manage master data', path: '/admin/master-data', icon: Settings, category: 'pages', keywords: ['master data', 'masters', 'configuration'] },
 ];
 
-// Filter categories
+// Filter categories - comprehensive system-wide search
 const FILTER_CATEGORIES = [
     { id: 'all', label: 'All', icon: Search },
     { id: 'pages', label: 'Pages', icon: LayoutDashboard },
@@ -65,6 +65,11 @@ const FILTER_CATEGORIES = [
     { id: 'users', label: 'Users', icon: Users },
     { id: 'communications', label: 'Messages', icon: MessageSquare },
     { id: 'tasks', label: 'Tasks', icon: Calendar },
+    { id: 'risks', label: 'Risks', icon: Shield },
+    { id: 'billing', label: 'Billing', icon: Receipt },
+    { id: 'boq', label: 'BOQ', icon: FileText },
+    { id: 'funds', label: 'Funds', icon: CreditCard },
+    { id: 'procurement', label: 'Procurement', icon: Briefcase },
 ];
 
 /**

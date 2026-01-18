@@ -36,6 +36,7 @@ const EDMS = () => {
     // UI state
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
+    const [projectSearchQuery, setProjectSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [typeFilter, setTypeFilter] = useState('');
     const [viewMode, setViewMode] = useState('grid');
@@ -242,50 +243,88 @@ const EDMS = () => {
         toast.success('Discussion thread created');
     };
 
+    // Filter projects by search
+    const filteredProjects = projects.filter(p => {
+        if (!projectSearchQuery.trim()) return true;
+        const query = projectSearchQuery.toLowerCase();
+        return (
+            (p.name || '').toLowerCase().includes(query) ||
+            (p.node_name || '').toLowerCase().includes(query) ||
+            (p.category || '').toLowerCase().includes(query)
+        );
+    });
+
     // Render project cards (Rich Card Design)
     const renderProjectsView = () => (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
-            {projects.map((project, index) => (
-                <motion.div
-                    key={project.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="bg-app-card rounded-xl overflow-hidden border border-app-subtle shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
-                    onDoubleClick={() => navigateToProject(project)}
-                    onClick={() => navigateToProject(project)}
-                >
-                    {/* Card Header / Icon Area */}
-                    <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:from-neutral-800 dark:to-neutral-800 p-6 flex justify-center items-center border-b border-app-subtle relative">
-                        <div className="absolute top-2 right-2 opacity-50">
-                            {/* Optional: Status badge or similar could go here */}
-                        </div>
-                        <div className="w-20 h-20 rounded-2xl bg-app-surface shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <FolderOpen size={40} className="text-blue-600 dark:text-blue-400" />
-                        </div>
-                    </div>
+        <div className="p-6">
+            {/* Project Search Bar */}
+            <div className="mb-6 flex items-center gap-4">
+                <div className="relative flex-1 max-w-md">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted" />
+                    <input
+                        type="text"
+                        value={projectSearchQuery}
+                        onChange={(e) => setProjectSearchQuery(e.target.value)}
+                        placeholder="Search projects by name or category..."
+                        className="w-full pl-10 pr-4 py-2.5 bg-app-input text-app-text border border-app rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+                <span className="text-sm text-app-muted">
+                    {filteredProjects.length} project{filteredProjects.length !== 1 ? 's' : ''}
+                </span>
+            </div>
 
-                    <div className="p-5">
-                        <h3 className="font-bold text-app-heading text-lg mb-1 line-clamp-1 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
-                            {project.name}
-                        </h3>
-                        <p className="text-sm text-app-muted mb-4 line-clamp-1">
-                            {project.node_name || 'Project Root'}
-                        </p>
-
-                        {/* Footer / Meta */}
-                        <div className="flex items-center justify-between text-xs text-app-muted mt-2 pt-3 border-t border-app-subtle">
-                            <span className="flex items-center gap-1">
-                                <Folder size={12} />
-                                Project Folder
-                            </span>
-                            <span className="flex items-center gap-1 bg-app-surface px-2 py-0.5 rounded-full text-app-muted">
-                                Open <ChevronRight size={10} />
-                            </span>
+            {/* Projects Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredProjects.map((project, index) => (
+                    <motion.div
+                        key={project.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="bg-app-card rounded-xl overflow-hidden border border-app-subtle shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
+                        onDoubleClick={() => navigateToProject(project)}
+                        onClick={() => navigateToProject(project)}
+                    >
+                        {/* Card Header / Icon Area */}
+                        <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:from-neutral-800 dark:to-neutral-800 p-6 flex justify-center items-center border-b border-app-subtle relative">
+                            <div className="absolute top-2 right-2 opacity-50">
+                                {/* Optional: Status badge or similar could go here */}
+                            </div>
+                            <div className="w-20 h-20 rounded-2xl bg-app-surface shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <FolderOpen size={40} className="text-blue-600 dark:text-blue-400" />
+                            </div>
                         </div>
+
+                        <div className="p-5">
+                            <h3 className="font-bold text-app-heading text-lg mb-1 line-clamp-2 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
+                                {project.name}
+                            </h3>
+                            <p className="text-sm text-app-muted mb-4 line-clamp-1">
+                                {project.node_name || 'Project Root'}
+                            </p>
+
+                            {/* Footer / Meta */}
+                            <div className="flex items-center justify-between text-xs text-app-muted mt-2 pt-3 border-t border-app-subtle">
+                                <span className="flex items-center gap-1">
+                                    <Folder size={12} />
+                                    Project Folder
+                                </span>
+                                <span className="flex items-center gap-1 bg-app-surface px-2 py-0.5 rounded-full text-app-muted">
+                                    Open <ChevronRight size={10} />
+                                </span>
+                            </div>
+                        </div>
+                    </motion.div>
+                ))}
+                {filteredProjects.length === 0 && (
+                    <div className="col-span-full text-center py-12 text-app-muted">
+                        <FolderOpen size={48} className="mx-auto mb-4 opacity-30" />
+                        <p className="text-lg font-medium">No projects found</p>
+                        <p className="text-sm">Try adjusting your search</p>
                     </div>
-                </motion.div>
-            ))}
+                )}
+            </div>
         </div>
     );
 
@@ -482,8 +521,8 @@ const EDMS = () => {
                                         type="text"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        placeholder="Search..."
-                                        className="pl-9 pr-3 py-1.5 bg-app-input text-app-text border border-app rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 w-40 focus:w-60 transition-all shadow-sm"
+                                        placeholder="Search documents..."
+                                        className="pl-9 pr-3 py-1.5 bg-app-input text-app-text border border-app rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 w-44 focus:w-60 transition-all shadow-sm"
                                     />
                                 </div>
                                 <select
@@ -493,6 +532,15 @@ const EDMS = () => {
                                 >
                                     {documentStatuses.map(s => (
                                         <option key={s.value} value={s.value}>{s.label}</option>
+                                    ))}
+                                </select>
+                                <select
+                                    value={typeFilter}
+                                    onChange={(e) => setTypeFilter(e.target.value)}
+                                    className="px-3 py-1.5 bg-app-input text-app-text border border-app rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 shadow-sm"
+                                >
+                                    {documentTypes.map(t => (
+                                        <option key={t.value} value={t.value}>{t.label}</option>
                                     ))}
                                 </select>
                             </div>

@@ -382,36 +382,36 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Composer */}
+            {/* Composer - Compact design for more message visibility */}
             {thread.status !== 'CLOSED' && canSendMessage && (
                 <div className="border-t border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
                     {/* File Preview */}
                     {attachedFile && (
-                        <div className="px-4 pt-3 pb-2">
-                            <div className="flex items-center gap-2 bg-slate-100 dark:bg-neutral-800 rounded-lg p-2">
-                                <Paperclip size={16} className="text-slate-500 dark:text-neutral-400" />
-                                <span className="text-sm text-slate-700 dark:text-neutral-300 flex-1 truncate">{attachedFile.name}</span>
-                                <span className="text-xs text-slate-500 dark:text-neutral-400">{(attachedFile.size / 1024).toFixed(1)} KB</span>
+                        <div className="px-3 pt-2 pb-1">
+                            <div className="flex items-center gap-2 bg-slate-100 dark:bg-neutral-800 rounded-lg px-2 py-1.5">
+                                <Paperclip size={14} className="text-slate-500 dark:text-neutral-400" />
+                                <span className="text-xs text-slate-700 dark:text-neutral-300 flex-1 truncate">{attachedFile.name}</span>
+                                <span className="text-[10px] text-slate-500 dark:text-neutral-400">{(attachedFile.size / 1024).toFixed(1)} KB</span>
                                 <button
                                     onClick={handleRemoveFile}
-                                    className="p-1 hover:bg-slate-200 rounded-full"
+                                    className="p-0.5 hover:bg-slate-200 rounded-full"
                                 >
-                                    <X size={16} className="text-slate-500" />
+                                    <X size={14} className="text-slate-500" />
                                 </button>
                             </div>
                         </div>
                     )}
 
-                    {/* Input Area */}
-                    <div className="px-2 sm:px-4 py-2">
-                        <div className="flex items-center gap-1 sm:gap-2">
+                    {/* Input Area - Compact */}
+                    <div className="px-2 sm:px-3 py-1.5">
+                        <div className="flex items-center gap-1">
                             {/* File Attachment Button */}
                             <button
                                 onClick={() => fileInputRef.current?.click()}
-                                className="p-2 text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full transition-colors flex-shrink-0 min-w-[40px] min-h-[40px] flex items-center justify-center"
+                                className="p-1.5 text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full transition-colors flex-shrink-0"
                                 title="Attach file"
                             >
-                                <Paperclip size={20} />
+                                <Paperclip size={18} />
                             </button>
                             <input
                                 ref={fileInputRef}
@@ -433,19 +433,19 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                                     }
                                 }}
                                 placeholder="Type a message"
-                                className="flex-1 min-w-0 px-3 sm:px-4 py-2 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                className="flex-1 min-w-0 px-3 py-1.5 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
                             />
 
                             {/* Send Button */}
                             <button
                                 onClick={handleSendMessage}
                                 disabled={(!messageContent.trim() && !attachedFile) || isSending || isUploading}
-                                className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0 min-w-[40px] min-h-[40px] flex items-center justify-center"
+                                className="p-1.5 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
                             >
                                 {isUploading ? (
-                                    <div className="w-[18px] h-[18px] border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    <div className="w-[16px] h-[16px] border-2 border-white border-t-transparent rounded-full animate-spin" />
                                 ) : (
-                                    <Send size={18} />
+                                    <Send size={16} />
                                 )}
                             </button>
                         </div>

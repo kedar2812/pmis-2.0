@@ -95,6 +95,11 @@ class SearchService {
             'task': 'tasks',
             'schedule': 'tasks',
             'contractor': 'contractors',
+            'risk': 'risks',
+            'boq': 'boq',
+            'billing': 'billing',
+            'fund': 'funds',
+            'procurement': 'procurement',
         };
         return categoryMap[apiType] || 'other';
     }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,10 +7,13 @@ import projectService from '@/api/services/projectService';
 import { DynamicChart } from '@/components/ui/DynamicChart';
 import { PageLoading } from '@/components/ui/Loading';
 import GraphAnalysisModal from '@/components/ui/GraphAnalysisModal';
+import InfoTooltip from '@/components/ui/InfoTooltip';
 import HealthSummaryPanel from './HealthSummaryPanel';
 import RadialProgressCard from './RadialProgressCard';
 import PhaseProgressCard from './PhaseProgressCard';
-import MiniCalendarWidget from './MiniCalendarWidget';
+import ProjectCalendar from './ProjectCalendar';
+import WorkflowActionCards from '@/components/workflow/WorkflowActionCards';
+import EVMSCurveChart from '@/components/evm/EVMSCurveChart';
 import { AnimatedNumber } from '@/hooks/useAnimatedCounter';
 import {
     TrendingUp, TrendingDown, DollarSign, FolderOpen, Clock, AlertTriangle,
@@ -40,8 +43,8 @@ const GlassCard = ({ children, className = '', onClick, hoverable = false }) => 
     </motion.div>
 );
 
-// KPI Card - Architecture compliant
-const KPICard = ({ icon: Icon, label, value, subtext, color, trend, onClick }) => {
+// KPI Card - Architecture compliant with info tooltip
+const KPICard = ({ icon: Icon, label, value, subtext, color, trend, onClick, tooltip }) => {
     const colorClasses = {
         blue: 'from-blue-500 to-blue-600',
         emerald: 'from-emerald-500 to-emerald-600',
@@ -58,9 +61,12 @@ const KPICard = ({ icon: Icon, label, value, subtext, color, trend, onClick }) =
                 <div className={`p-3 rounded-xl bg-gradient-to-br ${colorClasses[color]} shadow-lg`}>
                     <Icon className="text-white" size={20} />
                 </div>
-                {trend && (
-                    <TrendIcon size={16} className={trend === 'up' ? 'text-emerald-500' : trend === 'down' ? 'text-rose-500' : 'text-slate-400'} />
-                )}
+                <div className="flex items-center gap-1">
+                    {tooltip && <InfoTooltip content={tooltip} position="left" />}
+                    {trend && (
+                        <TrendIcon size={16} className={trend === 'up' ? 'text-emerald-500' : trend === 'down' ? 'text-rose-500' : 'text-slate-400'} />
+                    )}
+                </div>
             </div>
             <div className="mt-4">
                 <p className="text-sm text-app-muted font-medium">{label}</p>
@@ -302,7 +308,7 @@ const UnifiedDashboard = () => {
                 )}
             </motion.div>
 
-            {/* Section 1: KPI Metrics Row */}
+            {/* Section 1: KPI Metrics Row - Reordered for logical flow */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <KPICard
                     icon={Target}
@@ -312,15 +318,7 @@ const UnifiedDashboard = () => {
                     color="blue"
                     trend={physicalProgress >= 50 ? 'up' : 'down'}
                     onClick={() => navigate('/projects')}
-                />
-                <KPICard
-                    icon={CircleDollarSign}
-                    label="Financial Progress"
-                    value={`${financialProgress}%`}
-                    subtext={`₹${((financialSummary.total_spent || 0) / 10000000).toFixed(1)} Cr spent`}
-                    color="emerald"
-                    trend={financialProgress <= 80 ? 'up' : 'down'}
-                    onClick={() => navigate('/cost/budgeting')}
+                    tooltip="Weighted average of BOQ completion across all active projects. Calculated from actual quantities vs planned quantities."
                 />
                 <KPICard
                     icon={Clock}
@@ -330,6 +328,17 @@ const UnifiedDashboard = () => {
                     color={scheduleHealth.no_data ? 'violet' : (scheduleHealth.percentage >= 80 ? 'emerald' : 'amber')}
                     trend={scheduleHealth.no_data ? null : (scheduleHealth.percentage >= 80 ? 'up' : 'down')}
                     onClick={() => navigate('/scheduling')}
+                    tooltip="Percentage of tasks/milestones on track. Green (≥80%) indicates healthy schedule, amber indicates delays."
+                />
+                <KPICard
+                    icon={CircleDollarSign}
+                    label="Financial Progress"
+                    value={`${financialProgress}%`}
+                    subtext={`₹${((financialSummary.total_spent || 0) / 10000000).toFixed(1)} Cr spent`}
+                    color="emerald"
+                    trend={financialProgress <= 80 ? 'up' : 'down'}
+                    onClick={() => navigate('/cost/budgeting')}
+                    tooltip="Budget utilization rate. (Total Paid RA Bills / Total Contract Value) × 100. Usually lags behind physical progress."
                 />
                 <KPICard
                     icon={FileSignature}
@@ -338,10 +347,139 @@ const UnifiedDashboard = () => {
                     subtext="documents awaiting review"
                     color={stats?.pending_approvals > 0 ? 'amber' : 'emerald'}
                     onClick={() => navigate('/approvals')}
+                    tooltip="Number of documents, RA bills, or change requests pending your approval or review action."
                 />
             </div>
 
-            {/* Section 1.5: Health Summary + Phase Progress */}
+            {/* Section 2: EVM S-Curve - Full Width */}
+            <GlassCard className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                        <BarChart3 size={20} className="text-emerald-600" />
+                        Earned Value Analysis (S-Curve)
+                    </h3>
+                    <InfoTooltip content="S-Curve shows Planned Value (PV), Earned Value (EV), and Actual Cost (AC) over time. CPI > 1 means under budget, SPI > 1 means ahead of schedule." />
+                </div>
+                {projects.length > 0 ? (
+                    <React.Suspense fallback={<div className="h-[400px] flex items-center justify-center text-app-muted">Loading chart...</div>}>
+                        <EVMSCurveChart
+                            projectId={projects[0]?.id}
+                            height={320}
+                            showMetricsPanel={true}
+                        />
+                    </React.Suspense>
+                ) : (
+                    <div className="h-[400px] flex flex-col items-center justify-center text-center">
+                        <BarChart3 size={48} className="text-slate-300 dark:text-slate-600 mb-3" />
+                        <p className="text-slate-500 dark:text-slate-400 mb-1">No projects available</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500">S-Curve shows PV, EV, AC trends over time</p>
+                    </div>
+                )}
+            </GlassCard>
+
+            {/* Section 2.5: Cash Flow - Full Width Below EVM */}
+            <GlassCard className="p-6">
+                <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                        <Wallet size={20} className="text-blue-600" />
+                        Cash Flow Trend
+                    </h3>
+                    <button
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
+                        onClick={() => { setGraphModalMetric('spent'); setGraphModalOpen(true); }}
+                    >
+                        <Maximize2 size={16} className="text-slate-400 hover:text-primary-500" />
+                    </button>
+                </div>
+                <DynamicChart
+                    data={cashFlowChartData}
+                    dataKey="inflow"
+                    height={280}
+                    colors={['#10b981', '#3b82f6', '#8b5cf6']}
+                    name="Inflow"
+                    defaultType="area"
+                />
+            </GlassCard>
+
+            {/* Section 3: Project Portfolio Table (Moved up) */}
+            <GlassCard className="overflow-hidden">
+                <div className="p-6 border-b border-app-subtle">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                            <FolderOpen size={20} className="text-primary-600" />
+                            Project Portfolio
+                        </h3>
+                        <button
+                            className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium"
+                            onClick={() => navigate('/projects')}
+                        >
+                            View all <ArrowRight size={16} />
+                        </button>
+                    </div>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full">
+                        <thead className="bg-app-secondary">
+                            <tr className="text-xs font-medium text-app-muted uppercase tracking-wider">
+                                <th className="py-3 pl-6 text-left">Project</th>
+                                <th className="py-3 text-left">Status</th>
+                                <th className="py-3 text-right">Budget</th>
+                                <th className="py-3 text-right">Spent</th>
+                                <th className="py-3 pr-6">Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-app-subtle">
+                            {(topProjects.length > 0 ? topProjects : projects.slice(0, 5)).map((project, idx) => {
+                                const budget = Number(project.budget) || 0;
+                                const spent = Number(project.spent) || 0;
+                                const progress = Number(project.progress) || 0;
+                                const statusColors = {
+                                    'In Progress': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+                                    'Planning': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+                                    'Completed': 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+                                    'On Hold': 'bg-slate-100 text-slate-700 dark:bg-neutral-700 dark:text-slate-300',
+                                };
+                                return (
+                                    <tr key={project.id || idx} className="hover:bg-app-hover cursor-pointer" onClick={() => navigate(`/projects/${project.id}`)}>
+                                        <td className="py-3 pl-6">
+                                            <p className="font-medium text-app-heading">{project.name}</p>
+                                        </td>
+                                        <td className="py-3">
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[project.status] || 'bg-slate-100 text-slate-700 dark:bg-neutral-700 dark:text-slate-300'}`}>
+                                                {project.status || 'Unknown'}
+                                            </span>
+                                        </td>
+                                        <td className="py-3 text-right text-sm font-medium text-app-text">
+                                            ₹{(budget / 10000000).toFixed(2)} Cr
+                                        </td>
+                                        <td className="py-3 text-right text-sm text-app-muted">
+                                            ₹{(spent / 10000000).toFixed(2)} Cr
+                                        </td>
+                                        <td className="py-3 pr-6">
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex-1 h-2 bg-app-secondary rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-gradient-to-r from-primary-500 to-primary-600 rounded-full"
+                                                        style={{ width: `${progress}%` }}
+                                                    />
+                                                </div>
+                                                <span className="text-xs font-medium text-app-muted w-10 text-right">{progress}%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                            {topProjects.length === 0 && projects.length === 0 && (
+                                <tr>
+                                    <td colSpan={5} className="py-8 text-center text-slate-400 dark:text-neutral-500">No projects found</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </GlassCard>
+
+            {/* Section 4: Health Summary + Phase Progress */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Health Summary Panel */}
                 <HealthSummaryPanel
@@ -480,27 +618,28 @@ const UnifiedDashboard = () => {
                 </GlassCard>
             </div>
 
-            {/* Section 3: Calendar + GIS Map */}
+            {/* Section 3: Calendar + Pending Approvals */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Mini Calendar Widget */}
-                <MiniCalendarWidget milestones={milestones} />
+                {/* Project Calendar Widget */}
+                <GlassCard className="overflow-hidden">
+                    <ProjectCalendar height={380} showFilters={true} />
+                </GlassCard>
 
-                {/* GIS Map Placeholder */}
+                {/* Pending Workflow Approvals */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-app-heading flex items-center gap-2">
-                            <Map size={20} className="text-blue-600" />
-                            Project Locations (GIS)
+                            <Clock size={20} className="text-primary-600" />
+                            Pending Approvals
                         </h3>
-                        <span className="text-xs text-slate-400 dark:text-neutral-500 bg-slate-100 dark:bg-neutral-800 px-2 py-1 rounded">Phase 2</span>
+                        <button
+                            className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                            onClick={() => navigate('/approvals')}
+                        >
+                            View All →
+                        </button>
                     </div>
-                    <div className="h-48 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-300">
-                        <div className="text-center">
-                            <MapPin size={40} className="mx-auto text-slate-400 mb-2" />
-                            <p className="text-slate-500 font-medium">Interactive GIS Map</p>
-                            <p className="text-xs text-slate-400">Project sites, utilities & boundaries</p>
-                        </div>
-                    </div>
+                    <WorkflowActionCards maxItems={3} />
                 </GlassCard>
             </div>
 
@@ -570,130 +709,6 @@ const UnifiedDashboard = () => {
                     </div>
                 </GlassCard>
             </div>
-
-            {/* Section 5: Financial Overview - EVM + Cash Flow */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* EVM Metrics */}
-                <GlassCard className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
-                            <BarChart3 size={20} className="text-emerald-600" />
-                            Earned Value Analysis
-                        </h3>
-                    </div>
-                    <div className="grid grid-cols-2 gap-8">
-                        <EVMGauge label="CPI (Cost Performance)" value={earnedValue.cpi || 1.0} isGood={(earnedValue.cpi || 1.0) >= 1.0} />
-                        <EVMGauge label="SPI (Schedule Performance)" value={earnedValue.spi || 1.0} isGood={(earnedValue.spi || 1.0) >= 1.0} />
-                    </div>
-                    <div className="mt-4 pt-4 border-t border-app-subtle text-center">
-                        <span className={`text-sm font-medium ${earnedValue.status === 'on_budget' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                            {earnedValue.status === 'on_budget' ? '✓ Project Portfolio On Budget' : '⚠ Budget Variance Detected'}
-                        </span>
-                    </div>
-                </GlassCard>
-
-                {/* Cash Flow Chart */}
-                <GlassCard className="p-6">
-                    <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
-                            <Wallet size={20} className="text-blue-600" />
-                            Cash Flow Trend
-                        </h3>
-                        <button
-                            className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
-                            onClick={() => { setGraphModalMetric('spent'); setGraphModalOpen(true); }}
-                        >
-                            <Maximize2 size={16} className="text-slate-400 hover:text-primary-500" />
-                        </button>
-                    </div>
-                    <DynamicChart
-                        data={cashFlowChartData}
-                        dataKey="inflow"
-                        height={200}
-                        colors={['#10b981', '#3b82f6', '#8b5cf6']}
-                        name="Inflow"
-                        defaultType="area"
-                    />
-                </GlassCard>
-            </div>
-
-            {/* Section 6: Projects Table */}
-            <GlassCard className="overflow-hidden">
-                <div className="p-6 border-b border-app-subtle">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
-                            <FolderOpen size={20} className="text-primary-600" />
-                            Project Portfolio
-                        </h3>
-                        <button
-                            className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium"
-                            onClick={() => navigate('/projects')}
-                        >
-                            View all <ArrowRight size={16} />
-                        </button>
-                    </div>
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-app-secondary">
-                            <tr className="text-xs font-medium text-app-muted uppercase tracking-wider">
-                                <th className="py-3 pl-6 text-left">Project</th>
-                                <th className="py-3 text-left">Status</th>
-                                <th className="py-3 text-right">Budget</th>
-                                <th className="py-3 text-right">Spent</th>
-                                <th className="py-3 pr-6">Progress</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-app-subtle">
-                            {(topProjects.length > 0 ? topProjects : projects.slice(0, 5)).map((project, idx) => {
-                                const budget = Number(project.budget) || 0;
-                                const spent = Number(project.spent) || 0;
-                                const progress = Number(project.progress) || 0;
-                                const statusColors = {
-                                    'In Progress': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-                                    'Planning': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-                                    'Completed': 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-                                    'On Hold': 'bg-slate-100 text-slate-700 dark:bg-neutral-700 dark:text-slate-300',
-                                };
-                                return (
-                                    <tr key={project.id || idx} className="hover:bg-app-hover cursor-pointer" onClick={() => navigate(`/projects/${project.id}`)}>
-                                        <td className="py-3 pl-6">
-                                            <p className="font-medium text-app-heading">{project.name}</p>
-                                        </td>
-                                        <td className="py-3">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[project.status] || 'bg-slate-100 text-slate-700 dark:bg-neutral-700 dark:text-slate-300'}`}>
-                                                {project.status || 'Unknown'}
-                                            </span>
-                                        </td>
-                                        <td className="py-3 text-right text-sm font-medium text-app-text">
-                                            ₹{(budget / 10000000).toFixed(2)} Cr
-                                        </td>
-                                        <td className="py-3 text-right text-sm text-app-muted">
-                                            ₹{(spent / 10000000).toFixed(2)} Cr
-                                        </td>
-                                        <td className="py-3 pr-6">
-                                            <div className="flex items-center gap-2">
-                                                <div className="flex-1 h-2 bg-app-secondary rounded-full overflow-hidden">
-                                                    <div
-                                                        className="h-full bg-gradient-to-r from-primary-500 to-primary-600 rounded-full"
-                                                        style={{ width: `${progress}%` }}
-                                                    />
-                                                </div>
-                                                <span className="text-xs font-medium text-app-muted w-10 text-right">{progress}%</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                            {topProjects.length === 0 && projects.length === 0 && (
-                                <tr>
-                                    <td colSpan={5} className="py-8 text-center text-slate-400 dark:text-neutral-500">No projects found</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </GlassCard>
 
             {/* Graph Analysis Modal */}
             <GraphAnalysisModal
