@@ -2,9 +2,13 @@
  * SearchableSelect Component
  * Searchable dropdown with keyboard navigation
  * Used for bank selection
+ * 
+ * Features:
+ * - Only shows errors after user has interacted (touched) the field
+ * - Full dark mode support
  */
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Search, X } from 'lucide-react';
+import { ChevronDown, Search, X, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SearchableSelect = ({
@@ -20,6 +24,7 @@ const SearchableSelect = ({
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredOptions, setFilteredOptions] = useState(options);
+    const [touched, setTouched] = useState(false); // Track if user has interacted
     const containerRef = useRef(null);
     const searchInputRef = useRef(null);
 
@@ -39,6 +44,9 @@ const SearchableSelect = ({
         // Close dropdown when clicking outside
         const handleClickOutside = (event) => {
             if (containerRef.current && !containerRef.current.contains(event.target)) {
+                if (isOpen) {
+                    setTouched(true); // Mark as touched when closing without selection
+                }
                 setIsOpen(false);
                 setSearchTerm('');
             }
@@ -46,7 +54,7 @@ const SearchableSelect = ({
 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    }, [isOpen]);
 
     useEffect(() => {
         // Focus search input when dropdown opens
@@ -55,16 +63,37 @@ const SearchableSelect = ({
         }
     }, [isOpen]);
 
+    // Reset touched when value is set externally
+    useEffect(() => {
+        if (value) {
+            setTouched(false);
+        }
+    }, [value]);
+
     const handleSelect = (option) => {
         onChange(option);
         setIsOpen(false);
         setSearchTerm('');
+        setTouched(false); // Clear touched on selection
     };
 
     const handleClear = () => {
         onChange('');
         setSearchTerm('');
+        setTouched(true); // Mark as touched when clearing
     };
+
+    const handleOpen = () => {
+        if (!disabled) {
+            setIsOpen(!isOpen);
+            if (!isOpen) {
+                setTouched(true); // Mark as touched when opening
+            }
+        }
+    };
+
+    // Only show error if field has been touched
+    const displayError = touched ? error : '';
 
     return (
         <div ref={containerRef} className="relative">
@@ -78,14 +107,14 @@ const SearchableSelect = ({
             <div className="relative">
                 <button
                     type="button"
-                    onClick={() => !disabled && setIsOpen(!isOpen)}
+                    onClick={handleOpen}
                     disabled={disabled}
-                    className={`w-full px-4 py-2.5 pr-10 text-left rounded-xl border transition-all outline-none focus:ring-2 ${error
-                        ? 'border-red-300 focus:border-red-500 focus:ring-red-100 dark:border-red-500/50'
+                    className={`w-full px-4 py-2.5 pr-10 text-left rounded-xl border transition-all outline-none focus:ring-2 ${displayError
+                        ? 'border-red-400 focus:border-red-500 focus:ring-red-100 dark:border-red-500/50 dark:focus:ring-red-900/30'
                         : isOpen
                             ? 'border-app-focus ring-2 ring-primary-100 dark:ring-primary-900/30'
                             : 'border-app focus:border-app-focus focus:ring-primary-100 dark:focus:ring-primary-900/30'
-                        } ${disabled ? 'bg-app-hover cursor-not-allowed' : 'bg-app-card'}`}
+                        } ${disabled ? 'bg-app-hover cursor-not-allowed text-app-muted' : 'bg-app-card text-app-heading'}`}
                 >
                     <span className={value ? 'text-app-heading' : 'text-app-muted'}>
                         {value || placeholder}
@@ -112,8 +141,10 @@ const SearchableSelect = ({
                 </div>
             </div>
 
-            {error && (
-                <p className="mt-1 text-sm text-red-500">{error}</p>
+            {displayError && (
+                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                    <AlertCircle size={14} /> {displayError}
+                </p>
             )}
 
             <AnimatePresence>

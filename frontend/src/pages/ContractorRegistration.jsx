@@ -14,33 +14,45 @@ import IFSCInput from '@/components/contractor/IFSCInput';
 import LocationSelector from '@/components/masters/LocationSelector';
 import { fetchBankList } from '@/services/ifscService';
 
-const InputField = ({ label, name, value, onChange, error, type = 'text', required = false, icon: Icon, placeholder, ...props }) => (
-    <div>
-        <label className="block text-sm font-medium text-app-heading mb-1.5">
-            {label} {required && <span className="text-red-500">*</span>}
-        </label>
-        <div className="relative">
-            {Icon && <Icon className="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted" size={18} />}
-            <input
-                type={type}
-                name={name}
-                value={value}
-                onChange={onChange}
-                placeholder={placeholder}
-                className={`w-full px-4 py-2.5 ${Icon ? 'pl-10' : ''} rounded-xl border transition-all outline-none focus:ring-2 bg-app-card text-app-heading disabled:bg-app-hover disabled:text-app-muted ${error
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-100 dark:border-red-500/50'
-                    : 'border-app focus:border-app-focus focus:ring-primary-100 dark:focus:ring-primary-900/30'
-                    }`}
-                {...props}
-            />
+// InputField with touched state tracking - only shows errors after blur
+const InputField = ({ label, name, value, onChange, error, type = 'text', required = false, icon: Icon, placeholder, ...props }) => {
+    const [touched, setTouched] = useState(false);
+
+    // Only show error if field has been touched (blurred) or if there's already a value with an error
+    const showError = touched && error;
+
+    return (
+        <div>
+            <label className="block text-sm font-medium text-app-heading mb-1.5">
+                {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            <div className="relative">
+                {Icon && <Icon className="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted" size={18} />}
+                <input
+                    type={type}
+                    name={name}
+                    value={value}
+                    onChange={(e) => {
+                        onChange(e);
+                        // Don't clear touched on change - user still needs to fix it
+                    }}
+                    onBlur={() => setTouched(true)}
+                    placeholder={placeholder}
+                    className={`w-full px-4 py-2.5 ${Icon ? 'pl-10' : ''} rounded-xl border transition-all outline-none focus:ring-2 bg-app-card text-app-heading disabled:bg-app-hover disabled:text-app-muted ${showError
+                        ? 'border-red-400 focus:border-red-500 focus:ring-red-100 dark:border-red-500/50 dark:focus:ring-red-900/30'
+                        : 'border-app focus:border-app-focus focus:ring-primary-100 dark:focus:ring-primary-900/30'
+                        }`}
+                    {...props}
+                />
+            </div>
+            {showError && (
+                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                    <AlertCircle size={14} /> {error}
+                </p>
+            )}
         </div>
-        {error && (
-            <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                <AlertCircle size={14} /> {error}
-            </p>
-        )}
-    </div>
-);
+    );
+};
 
 const ContractorRegistration = () => {
     const navigate = useNavigate();
@@ -54,7 +66,7 @@ const ContractorRegistration = () => {
         email: '', password: '', confirm_password: '',
         first_name: '', last_name: '', phone_number: '',
         company_name: '', pan_number: '', gstin_number: '', eproc_number: '',
-        building_number: '', street: '', area: '', zip_code: '', location: null,
+        building_number: '', street: '', area: '', zip_code: '', location: {},
         bank_name: '', ifsc_code: '', bank_branch: '', account_number: '', account_type: 'CURRENT'
     });
     const [errors, setErrors] = useState({});
@@ -80,7 +92,15 @@ const ContractorRegistration = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        // Clear error when user starts typing
         if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    };
+
+    // Special handler for phone number - digits only, max 10
+    const handlePhoneChange = (e) => {
+        const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+        setFormData(prev => ({ ...prev, phone_number: value }));
+        if (errors.phone_number) setErrors(prev => ({ ...prev, phone_number: '' }));
     };
 
     const handleLocationChange = (loc) => {
@@ -91,12 +111,15 @@ const ContractorRegistration = () => {
     const validateStep = (step) => {
         const newErrors = {};
         if (step === 1) {
-            if (!formData.email) newErrors.email = 'Required';
-            if (!formData.password) newErrors.password = 'Required';
+            if (!formData.email) newErrors.email = 'Email is required';
+            else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid email format';
+            if (!formData.password) newErrors.password = 'Password is required';
+            else if (formData.password.length < 6) newErrors.password = 'Minimum 6 characters';
             if (formData.password !== formData.confirm_password) newErrors.confirm_password = 'Passwords do not match';
-            if (!formData.first_name) newErrors.first_name = 'Required';
-            if (!formData.last_name) newErrors.last_name = 'Required';
-            if (!formData.phone_number) newErrors.phone_number = 'Required';
+            if (!formData.first_name) newErrors.first_name = 'First name is required';
+            if (!formData.last_name) newErrors.last_name = 'Last name is required';
+            if (!formData.phone_number) newErrors.phone_number = 'Phone number is required';
+            else if (formData.phone_number.length !== 10) newErrors.phone_number = 'Phone number must be exactly 10 digits';
         }
         if (step === 2) {
             if (!formData.company_name) newErrors.company_name = 'Required';
@@ -107,32 +130,60 @@ const ContractorRegistration = () => {
         if (step === 3) {
             if (!formData.street) newErrors.street = 'Required';
             if (!formData.zip_code) newErrors.zip_code = 'Required';
-            if (!formData.location) newErrors.location = 'Required';
+            if (!formData.location?.country) newErrors.location = 'Please select a location';
         }
         if (step === 4) {
             if (!formData.bank_name) newErrors.bank_name = 'Required';
             if (!formData.ifsc_code) newErrors.ifsc_code = 'Required';
-            if (!formData.account_number) newErrors.account_number = 'Required';
+            if (!formData.account_number) newErrors.account_number = 'Account number is required';
+            else if (formData.account_number.length < 9 || formData.account_number.length > 18) {
+                newErrors.account_number = 'Account number must be 9-18 digits';
+            }
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const handleNext = () => {
-        if (validateStep(currentStep)) setCurrentStep(prev => prev + 1);
+        if (validateStep(currentStep)) {
+            setErrors({}); // Clear errors when moving to new step
+            setCurrentStep(prev => prev + 1);
+        }
     };
 
-    const handleBack = () => setCurrentStep(prev => prev - 1);
+    const handleBack = () => {
+        setErrors({}); // Clear errors when going back
+        setCurrentStep(prev => prev - 1);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateStep(4)) return;
         setIsSubmitting(true);
         try {
-            await api.post('/users/register-contractor/', formData);
+            // Transform formData to match backend API expectations
+            const { location, ...restData } = formData;
+
+            // Backend expects city, state, country as string names, not IDs
+            const payload = {
+                ...restData,
+                city: location?.cityName || location?.districtName || '',
+                state: location?.stateName || '',
+                country: location?.countryName || 'India',
+            };
+
+            await api.post('/users/register-contractor/', payload);
             setIsSuccess(true);
-        } catch (e) {
-            toast.error(e.response?.data?.message || 'Registration failed');
+        } catch (err) {
+            // Show specific validation errors from backend
+            const errorData = err.response?.data;
+            if (errorData && typeof errorData === 'object') {
+                // Show first error message
+                const firstError = Object.values(errorData).flat()[0];
+                toast.error(firstError || 'Registration failed');
+            } else {
+                toast.error('Registration failed. Please check your details.');
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -261,7 +312,7 @@ const ContractorRegistration = () => {
                             </div>
 
                             <div className="space-y-1">
-                                <InputField label="Phone Number" name="phone_number" required icon={Phone} placeholder="9876543210" value={formData.phone_number} onChange={handleChange} error={errors.phone_number} />
+                                <InputField label="Phone Number" name="phone_number" required icon={Phone} placeholder="9876543210" value={formData.phone_number} onChange={handlePhoneChange} error={errors.phone_number} maxLength={10} />
                                 {formData.first_name && (
                                     <p className="text-sm text-green-600 font-medium px-1">
                                         Username: epc_contractor_{formData.first_name.toLowerCase().replace(/[^a-z0-9]/g, '')}_{formData.last_name ? formData.last_name.toLowerCase().replace(/[^a-z0-9]/g, '').charAt(0) : 'x'}
@@ -365,7 +416,7 @@ const ContractorRegistration = () => {
                                     label="Account Number"
                                     name="account_number"
                                     required
-                                    placeholder="1234567890123456"
+                                    placeholder="Enter 9-18 digit account number"
                                     value={formData.account_number}
                                     onChange={handleChange}
                                     error={errors.account_number}

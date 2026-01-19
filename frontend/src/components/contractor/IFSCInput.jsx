@@ -7,6 +7,7 @@
  * - Only shows errors AFTER user has interacted (touched) the field
  * - Validates format and looks up in database on blur
  * - Auto-fills bank and branch name on successful lookup
+ * - Full dark mode support
  */
 import { useState, useEffect } from 'react';
 import { fetchIFSCDetails, isValidIFSCFormat } from '@/services/ifscService';
@@ -99,7 +100,7 @@ const IFSCInput = ({
 
     return (
         <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label className="block text-sm font-medium text-app-heading mb-1.5">
                 IFSC Code <span className="text-red-500">*</span>
             </label>
             <div className="relative">
@@ -112,24 +113,24 @@ const IFSCInput = ({
                     placeholder="SBIN0001234"
                     disabled={disabled}
                     className={`w-full px-4 py-2.5 pr-10 rounded-xl border transition-all outline-none focus:ring-2 ${displayError
-                        ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
+                        ? 'border-red-400 focus:border-red-500 focus:ring-red-100 dark:border-red-500/50 dark:focus:ring-red-900/30'
                         : validated
-                            ? 'border-green-300 focus:border-green-500 focus:ring-green-100'
-                            : 'border-slate-200 focus:border-primary-500 focus:ring-primary-100'
-                        } ${disabled ? 'bg-slate-50 cursor-not-allowed' : 'bg-white'}`}
+                            ? 'border-green-400 focus:border-green-500 focus:ring-green-100 dark:border-green-500/50 dark:focus:ring-green-900/30'
+                            : 'border-app focus:border-app-focus focus:ring-primary-100 dark:focus:ring-primary-900/30'
+                        } ${disabled ? 'bg-app-hover cursor-not-allowed text-app-muted' : 'bg-app-card text-app-heading'}`}
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
                     {loading && (
                         <Loader2 size={18} className="animate-spin text-primary-600" />
                     )}
                     {validated && !loading && (
-                        <CheckCircle size={18} className="text-green-600" />
+                        <CheckCircle size={18} className="text-green-500" />
                     )}
                     {displayError && !loading && (
                         <AlertCircle size={18} className="text-red-500" />
                     )}
                     {!loading && !validated && !displayError && value && (
-                        <Search size={18} className="text-slate-400" />
+                        <Search size={18} className="text-app-muted" />
                     )}
                 </div>
             </div>
@@ -139,12 +140,12 @@ const IFSCInput = ({
                 </p>
             )}
             {!displayError && !validated && (
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-xs text-app-muted">
                     Enter 11-character IFSC code (e.g., SBIN0001234)
                 </p>
             )}
             {validated && (
-                <p className="mt-1 text-xs text-green-600 flex items-center gap-1">
+                <p className="mt-1 text-xs text-green-500 flex items-center gap-1">
                     <CheckCircle size={12} /> IFSC verified - branch details auto-filled
                 </p>
             )}

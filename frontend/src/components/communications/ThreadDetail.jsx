@@ -180,21 +180,21 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
     const getMessageStyles = (msg) => {
         // Use loose equality to handle potential string/number mismatches
         const isOwn = msg.sender == user?.id;
-        let baseStyles = 'rounded-lg p-4 max-w-[85%] break-words shadow-sm';
+        let baseStyles = 'rounded-xl px-4 py-3 max-w-[75%] break-words';
 
         switch (msg.message_type) {
             case 'RULING':
-                return `${baseStyles} bg-yellow-50 border-l-4 border-yellow-500 dark:bg-yellow-900/20 dark:border-yellow-600 dark:text-yellow-100`;
+                return `${baseStyles} bg-yellow-50 border-l-3 border-yellow-500 dark:bg-yellow-900/20 dark:border-yellow-600 dark:text-yellow-100`;
             case 'CLARIFICATION_REQUEST':
-                return `${baseStyles} bg-blue-50 border-l-4 border-blue-500 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-100`;
+                return `${baseStyles} bg-blue-50 border-l-3 border-blue-500 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-100`;
             case 'CLARIFICATION_RESPONSE':
-                return `${baseStyles} bg-green-50 border-l-4 border-green-500 dark:bg-green-900/20 dark:border-green-600 dark:text-green-100`;
+                return `${baseStyles} bg-green-50 border-l-3 border-green-500 dark:bg-green-900/20 dark:border-green-600 dark:text-green-100`;
             case 'INTERNAL_NOTE':
-                return `${baseStyles} bg-purple-50 border-l-4 border-purple-500 dark:bg-purple-900/20 dark:border-purple-600 dark:text-purple-100`;
+                return `${baseStyles} bg-purple-50 border-l-3 border-purple-500 dark:bg-purple-900/20 dark:border-purple-600 dark:text-purple-100`;
             default:
                 return isOwn
-                    ? `${baseStyles} bg-blue-50 text-slate-900 border border-blue-100 ml-auto dark:bg-blue-900/30 dark:text-blue-100 dark:border-blue-800/50`
-                    : `${baseStyles} bg-slate-100 text-slate-900 border border-slate-200 dark:bg-neutral-800 dark:text-slate-200 dark:border-neutral-800`;
+                    ? `${baseStyles} bg-primary-600 text-white ml-auto`
+                    : `${baseStyles} bg-slate-100 text-slate-900 dark:bg-neutral-800 dark:text-slate-200`;
         }
     };
 
@@ -210,22 +210,22 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
 
     return (
         <div className="flex flex-col h-full bg-white dark:bg-neutral-900">
-            {/* Header */}
-            <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-neutral-800">
-                {/* Top Row: Title and Close button */}
-                <div className="flex items-start justify-between gap-2 mb-2">
+            {/* Header - Single row with glassmorphism effect */}
+            <div className="px-3 py-3 border-b border-white/20 dark:border-white/10 bg-gradient-to-r from-slate-100/90 via-white/80 to-slate-100/90 dark:from-neutral-800/90 dark:via-neutral-900/80 dark:to-neutral-800/90 backdrop-blur-md shadow-sm sticky top-0 z-10">
+                <div className="flex items-center gap-3">
+                    {/* Title + Meta */}
                     <div className="min-w-0 flex-1">
-                        <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white truncate">{thread.subject}</h2>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs sm:text-sm text-slate-500 dark:text-neutral-400">
+                        <h2 className="text-base font-bold text-slate-800 dark:text-white truncate">{thread.subject}</h2>
+                        <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-500 dark:text-neutral-400">
                             <span className="flex items-center gap-1">
-                                <User size={14} />
+                                <User size={12} />
                                 {thread.participant_count}
                             </span>
-                            <span className="hidden sm:flex items-center gap-1">
-                                <Clock size={14} />
+                            <span className="flex items-center gap-1">
+                                <Clock size={12} />
                                 {formatTimestamp(thread.created_at)}
                             </span>
-                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${thread.status === 'OPEN' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
+                            <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${thread.status === 'OPEN' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
                                 thread.status === 'PENDING_RESPONSE' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300' :
                                     thread.status === 'ESCALATED' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
                                         'bg-gray-100 text-gray-700 dark:bg-neutral-700 dark:text-gray-300'
@@ -234,128 +234,118 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                             </span>
                         </div>
                     </div>
-                    {/* Close Panel Button - always visible */}
-                    <button
-                        onClick={onClose}
-                        className="p-2 hover:bg-slate-200 dark:hover:bg-neutral-700 rounded-lg flex-shrink-0 min-w-[36px] min-h-[36px] flex items-center justify-center text-slate-600 dark:text-neutral-300"
-                        aria-label="Close"
-                    >
-                        <X size={20} />
-                    </button>
-                </div>
 
-                {/* Action Buttons Row */}
-                <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-1 -mb-1">
-                    {/* Participants Button */}
-                    <button
-                        onClick={() => setShowParticipants(true)}
-                        className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-neutral-700 text-slate-600 dark:text-neutral-300 transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center flex-shrink-0"
-                        title="View Participants"
-                    >
-                        <Users size={18} />
-                    </button>
+                    {/* Action Buttons - Inline */}
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                            onClick={() => setShowParticipants(true)}
+                            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-neutral-700 text-slate-600 dark:text-neutral-300"
+                            title="View Participants"
+                        >
+                            <Users size={16} />
+                        </button>
+                        <button
+                            onClick={handlePin}
+                            className={`p-1.5 rounded-lg ${isPinned ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'hover:bg-slate-100 dark:hover:bg-neutral-700 text-slate-600 dark:text-neutral-300'}`}
+                            title={isPinned ? 'Unpin' : 'Pin'}
+                        >
+                            <Pin size={16} fill={isPinned ? 'currentColor' : 'none'} />
+                        </button>
+                        <button
+                            onClick={() => handleMute()}
+                            className={`p-1.5 rounded-lg ${isMuted ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' : 'hover:bg-slate-100 dark:hover:bg-neutral-700 text-slate-600 dark:text-neutral-300'}`}
+                            title={isMuted ? 'Unmute' : 'Mute'}
+                        >
+                            {isMuted ? <BellOff size={16} /> : <Bell size={16} />}
+                        </button>
 
-                    {/* Pin Button */}
-                    <button
-                        onClick={handlePin}
-                        className={`p-2 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center flex-shrink-0 ${isPinned ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'hover:bg-slate-100 dark:hover:bg-neutral-700 text-slate-600 dark:text-neutral-300'
-                            }`}
-                        title={isPinned ? 'Unpin thread' : 'Pin thread'}
-                    >
-                        <Pin size={18} fill={isPinned ? 'currentColor' : 'none'} />
-                    </button>
-
-                    {/* Mute Button */}
-                    <button
-                        onClick={() => handleMute()}
-                        className={`p-2 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center flex-shrink-0 ${isMuted ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' : 'hover:bg-slate-100 dark:hover:bg-neutral-700 text-slate-600 dark:text-neutral-300'
-                            }`}
-                        title={isMuted ? 'Unmute thread' : 'Mute thread'}
-                    >
-                        {isMuted ? <BellOff size={18} /> : <Bell size={18} />}
-                    </button>
-
-                    {/* More Actions Menu (for group chats only) */}
-                    {thread.thread_type === 'GROUP' && (
-                        <div className="relative">
-                            <button
-                                onClick={() => setShowActionsMenu(!showActionsMenu)}
-                                className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-700 rounded-lg transition-colors text-slate-600 dark:text-neutral-300 min-w-[36px] min-h-[36px] flex items-center justify-center"
-                            >
-                                <MoreVertical size={18} />
-                            </button>
-
-                            <AnimatePresence>
-                                {showActionsMenu && (
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.95 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.95 }}
-                                        className="absolute right-0 mt-2 w-48 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 rounded-lg shadow-lg py-1 z-10"
-                                    >
-                                        <button
-                                            onClick={() => {
-                                                setShowActionsMenu(false);
-                                                setShowAddParticipants(true);
-                                            }}
-                                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-neutral-300 hover:bg-slate-50 dark:hover:bg-neutral-700"
+                        {/* More Actions (group chats) */}
+                        {thread.thread_type === 'GROUP' && (
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowActionsMenu(!showActionsMenu)}
+                                    className="p-1.5 hover:bg-slate-100 dark:hover:bg-neutral-700 rounded-lg text-slate-600 dark:text-neutral-300"
+                                >
+                                    <MoreVertical size={16} />
+                                </button>
+                                <AnimatePresence>
+                                    {showActionsMenu && (
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.95 }}
+                                            className="absolute right-0 mt-2 w-48 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 rounded-lg shadow-lg py-1 z-10"
                                         >
-                                            <UserPlus size={16} />
-                                            Add Participants
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                setShowActionsMenu(false);
-                                                handleLeaveGroup();
-                                            }}
-                                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                                        >
-                                            <LogOut size={16} />
-                                            Leave Group
-                                        </button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
-                    )}
+                                            <button
+                                                onClick={() => {
+                                                    setShowActionsMenu(false);
+                                                    setShowAddParticipants(true);
+                                                }}
+                                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-neutral-300 hover:bg-slate-50 dark:hover:bg-neutral-700"
+                                            >
+                                                <UserPlus size={16} />
+                                                Add Participants
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setShowActionsMenu(false);
+                                                    handleLeaveGroup();
+                                                }}
+                                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                            >
+                                                <LogOut size={16} />
+                                                Leave Group
+                                            </button>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        )}
 
-                    {/* Spacer */}
-                    <div className="flex-1" />
+                        {/* Close Thread */}
+                        {thread.status !== 'CLOSED' && canCloseThread && (
+                            <Button variant="outline" size="sm" onClick={handleCloseThread} className="text-xs px-2 py-1 h-7">
+                                <CheckCircle size={12} className="mr-1" /> Close
+                            </Button>
+                        )}
 
-                    {/* Close Thread Button */}
-                    {thread.status !== 'CLOSED' && canCloseThread && (
-                        <Button variant="outline" size="sm" onClick={handleCloseThread} className="flex-shrink-0 text-xs">
-                            <CheckCircle size={14} className="mr-1" /> Close
-                        </Button>
-                    )}
+                        {/* Close Panel */}
+                        <button
+                            onClick={onClose}
+                            className="p-1.5 hover:bg-slate-200 dark:hover:bg-neutral-700 rounded-lg text-slate-600 dark:text-neutral-300 ml-1"
+                            aria-label="Close"
+                        >
+                            <X size={18} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {/* Messages - Compact Layout */}
+            <div className="flex-1 overflow-y-auto px-3 py-2 space-y-1.5">
                 {thread.messages && thread.messages.length > 0 ? (
                     thread.messages.map((msg) => {
                         const isOwn = msg.sender === user?.id;
 
                         return (
-                            <motion.div
+                            <div
                                 key={msg.id}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
                                 className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
                             >
                                 {/* Message Bubble */}
                                 <div className={getMessageStyles(msg)}>
-                                    {/* Sender Info */}
-                                    <div className="flex items-center gap-2 mb-2 text-xs text-slate-500 dark:text-slate-400">
-                                        <span className={`font-semibold ${isOwn ? 'text-blue-700 dark:text-blue-300' : 'text-slate-700 dark:text-slate-300'}`}>{msg.sender_name}</span>
-                                        <span className="px-1.5 py-0.5 bg-slate-200/80 dark:bg-white/10 rounded text-[10px] uppercase">
+                                    {/* Sender + Role Row */}
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className={`text-sm font-semibold ${isOwn ? 'text-white/90' : 'text-slate-700 dark:text-slate-300'}`}>
+                                            {msg.sender_name}
+                                        </span>
+                                        <span className={`text-xs px-1.5 py-0.5 rounded ${isOwn ? 'bg-white/20 text-white/80' : 'bg-slate-200/80 dark:bg-white/10 text-slate-500 dark:text-slate-400'}`}>
                                             {msg.sender_role?.replace('_', ' ')}
                                         </span>
                                     </div>
 
                                     {/* Content */}
-                                    <p className="text-base whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                                    <p className={`text-base whitespace-pre-wrap leading-relaxed ${isOwn ? 'text-white' : ''}`}>{msg.content}</p>
 
                                     {/* Reference */}
                                     {msg.references_content && (
@@ -366,17 +356,17 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                                     )}
 
                                     {/* Timestamp */}
-                                    <div className="text-xs text-slate-400 mt-2">
+                                    <div className={`text-xs mt-2 ${isOwn ? 'text-white/70' : 'text-slate-400'}`}>
                                         {formatTimestamp(msg.created_at)}
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
                         );
                     })
                 ) : (
                     <div className="flex flex-col items-center justify-center h-full text-slate-400 dark:text-neutral-500">
-                        <MessageSquare size={48} className="mb-2 opacity-20" />
-                        <p>No messages yet. Start the conversation!</p>
+                        <MessageSquare size={40} className="mb-2 opacity-20" />
+                        <p className="text-sm">No messages yet. Start the conversation!</p>
                     </div>
                 )}
                 <div ref={messagesEndRef} />

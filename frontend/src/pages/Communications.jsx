@@ -7,29 +7,21 @@
  * - Mobile: Single view toggle (list OR detail with back button)
  */
 import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
 import client from '@/api/client';
 import { toast } from 'sonner';
-import {
-    MessageSquare, Filter, Search, Plus, Bell, ChevronRight,
-    Clock, AlertTriangle, CheckCircle, Lock, Gavel, FileText,
-    ArrowLeft, Menu
-} from 'lucide-react';
+import { MessageSquare, Filter, Search, AlertTriangle, ArrowLeft, FileText } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import ThreadList from '@/components/communications/ThreadList';
 import ThreadDetail from '@/components/communications/ThreadDetail';
 import NewThreadModal from '@/components/communications/NewThreadModal';
 import StartChatModal from '@/components/communications/StartChatModal';
-
 import { useParams, useNavigate } from 'react-router-dom';
 
 const Communications = () => {
     const { threadId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
-    const { t } = useLanguage();
     const [threads, setThreads] = useState([]);
     const [selectedThread, setSelectedThread] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -224,104 +216,93 @@ const Communications = () => {
 
     return (
         <div className="h-[calc(100vh-4rem)] flex flex-col">
-            {/* Header */}
-            <div className="bg-app-card border-b border-app-subtle p-3 sm:p-4">
-                {/* Title Row */}
-                <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            {/* Header - Compact */}
+            <div className="bg-app-card border-b border-app-subtle px-3 py-2 sm:px-4 sm:py-3">
+                {/* Title + Actions Row */}
+                <div className="flex items-center justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
                         {/* Mobile back button when viewing thread detail */}
                         {showThreadDetailOnMobile && (
                             <button
                                 onClick={handleMobileBack}
-                                className="p-2 -ml-2 hover:bg-app-surface rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0"
+                                className="p-1.5 -ml-1 hover:bg-app-surface rounded-lg transition-colors flex-shrink-0"
                                 aria-label="Back to thread list"
                             >
-                                <ArrowLeft size={24} className="text-app-muted" />
+                                <ArrowLeft size={20} className="text-app-muted" />
                             </button>
                         )}
-                        <div className="min-w-0 flex-1">
-                            <h1 className="text-lg sm:text-2xl font-bold text-app-heading flex items-center gap-2 sm:gap-3">
-                                <MessageSquare className="text-primary-600 dark:text-blue-400 hidden sm:block flex-shrink-0" size={28} />
-                                <span className="truncate">
-                                    {showThreadDetailOnMobile && selectedThread
-                                        ? selectedThread.subject || 'Conversation'
-                                        : 'Communications'
-                                    }
-                                </span>
-                            </h1>
-                            <p className="text-app-muted text-xs sm:text-sm mt-0.5 hidden sm:block">
-                                Official, auditable communication system
-                            </p>
-                        </div>
+                        <h1 className="text-base sm:text-xl font-bold text-app-heading flex items-center gap-2 truncate">
+                            <MessageSquare className="text-primary-600 dark:text-primary-400 hidden sm:block flex-shrink-0" size={22} />
+                            <span className="truncate">
+                                {showThreadDetailOnMobile && selectedThread
+                                    ? selectedThread.subject || 'Conversation'
+                                    : 'Communications'
+                                }
+                            </span>
+                        </h1>
                     </div>
-                </div>
 
-                {/* Actions Row - Only show when NOT viewing thread detail on mobile */}
-                {!showThreadDetailOnMobile && (
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                        {/* Stats Pills */}
-                        <div className="flex gap-2">
-                            <span className="px-2 sm:px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">
+                    {/* Action Buttons - On same line as title */}
+                    {!showThreadDetailOnMobile && (
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                            {/* Stats Pills */}
+                            <span className="hidden sm:inline-flex px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium">
                                 {stats.open} Open
                             </span>
                             {stats.escalated > 0 && (
-                                <span className="px-2 sm:px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 whitespace-nowrap">
-                                    <AlertTriangle size={14} /> {stats.escalated}
+                                <span className="hidden sm:inline-flex px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-xs font-medium items-center gap-1">
+                                    <AlertTriangle size={12} /> {stats.escalated}
                                 </span>
                             )}
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex gap-2">
                             {canInitiateThread && (
                                 <Button
                                     onClick={() => setShowNewThread(true)}
-                                    className="min-h-[40px] text-xs sm:text-sm px-3"
+                                    className="text-xs px-2 py-1.5"
                                     size="sm"
                                 >
-                                    <FileText size={16} className="sm:mr-1" />
-                                    <span className="hidden sm:inline">New Thread</span>
+                                    <FileText size={14} className="sm:mr-1" />
+                                    <span className="hidden sm:inline">New</span>
                                 </Button>
                             )}
                             <Button
                                 onClick={() => setShowStartChat(true)}
-                                className="min-h-[40px] text-xs sm:text-sm px-3"
+                                className="text-xs px-2 py-1.5"
                                 size="sm"
                             >
-                                <MessageSquare size={16} className="sm:mr-1" />
+                                <MessageSquare size={14} className="sm:mr-1" />
                                 <span className="hidden sm:inline">Chat</span>
                             </Button>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
 
-                {/* Filters - Collapsible on mobile */}
+                {/* Filters Row - Compact */}
                 {!showThreadDetailOnMobile && (
-                    <div className="mt-3 sm:mt-4">
+                    <div className="flex flex-col sm:flex-row gap-2">
                         {/* Mobile filter toggle */}
                         <button
                             onClick={() => setShowMobileFilters(!showMobileFilters)}
-                            className="sm:hidden flex items-center gap-2 text-sm text-slate-600 mb-2"
+                            className="sm:hidden flex items-center gap-2 text-xs text-app-muted py-1"
                         >
-                            <Filter size={16} />
-                            {showMobileFilters ? 'Hide Filters' : 'Show Filters'}
+                            <Filter size={14} />
+                            {showMobileFilters ? 'Hide Filters' : 'Filters'}
                         </button>
 
                         {/* Filter controls */}
-                        <div className={`flex-col sm:flex-row gap-3 sm:gap-4 ${showMobileFilters ? 'flex' : 'hidden sm:flex'}`}>
+                        <div className={`flex-col sm:flex-row gap-2 ${showMobileFilters ? 'flex' : 'hidden sm:flex'} flex-1`}>
                             <div className="relative flex-1">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted" size={18} />
+                                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-app-muted" size={16} />
                                 <input
                                     type="text"
-                                    placeholder="Search threads..."
-                                    className="w-full pl-10 pr-4 py-2 min-h-[44px] border border-app bg-app-input text-app-text rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-blue-500"
+                                    placeholder="Search..."
+                                    className="w-full pl-8 pr-3 py-1.5 border border-app bg-app-input text-app-text rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                                     value={filters.search}
                                     onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                                 />
                             </div>
-                            <div className="flex gap-2 sm:gap-4">
+                            <div className="flex gap-2">
                                 <select
-                                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2 min-h-[44px] border border-app bg-app-input text-app-text rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-blue-500"
+                                    className="flex-1 sm:flex-none px-2 py-1.5 border border-app bg-app-input text-app-text rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-primary-500"
                                     value={filters.status}
                                     onChange={(e) => setFilters({ ...filters, status: e.target.value })}
                                 >
@@ -332,7 +313,7 @@ const Communications = () => {
                                     <option value="CLOSED">Closed</option>
                                 </select>
                                 <select
-                                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2 min-h-[44px] border border-app bg-app-input text-app-text rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-blue-500"
+                                    className="flex-1 sm:flex-none px-2 py-1.5 border border-app bg-app-input text-app-text rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-primary-500"
                                     value={filters.type}
                                     onChange={(e) => setFilters({ ...filters, type: e.target.value })}
                                 >
@@ -353,15 +334,14 @@ const Communications = () => {
                 {/* Desktop: Always show both panels */}
                 {/* Mobile: Show one panel at a time */}
 
-                {/* Thread List Panel */}
+                {/* Thread List Panel - 35% width with border */}
                 <div
                     className={`
                         ${isMobile
                             ? (showThreadListOnMobile ? 'w-full' : 'hidden')
-                            : 'w-[320px] lg:w-[380px]'
+                            : 'w-[35%] min-w-[280px] max-w-[400px]'
                         }
-                        border-r border-app-subtle bg-app-surface overflow-y-auto
-                        transition-all duration-200
+                        border-r-2 border-slate-200 dark:border-neutral-700 bg-app-surface overflow-y-auto
                     `}
                 >
                     <ThreadList
@@ -372,14 +352,14 @@ const Communications = () => {
                     />
                 </div>
 
-                {/* Thread Detail Panel */}
+                {/* Thread Detail Panel - 65% width with subtle left shadow */}
                 <div
                     className={`
                         ${isMobile
                             ? (showThreadDetailOnMobile ? 'w-full' : 'hidden')
                             : 'flex-1'
                         }
-                        bg-app-card overflow-hidden
+                        bg-app-card overflow-hidden shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.05)] dark:shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.3)]
                     `}
                 >
                     {selectedThread ? (

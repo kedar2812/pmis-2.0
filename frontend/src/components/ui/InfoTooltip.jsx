@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Info } from 'lucide-react';
 
@@ -6,6 +7,7 @@ import { Info } from 'lucide-react';
  * InfoTooltip - Animated tooltip with "i" icon for explaining dashboard cards
  * 
  * Features:
+ * - Portal rendering to avoid parent overflow issues
  * - Smooth enter/exit animations
  * - Auto-positioning (avoids screen edges)
  * - Dark mode compliant
@@ -13,47 +15,68 @@ import { Info } from 'lucide-react';
  */
 const InfoTooltip = ({
     content,
-    position = 'top', // 'top' | 'bottom' | 'left' | 'right'
+    position = 'left', // 'top' | 'bottom' | 'left' | 'right'
     className = ''
 }) => {
     const [isVisible, setIsVisible] = useState(false);
-    const [adjustedPosition, setAdjustedPosition] = useState(position);
-    const tooltipRef = useRef(null);
+    const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
+    const [mounted, setMounted] = useState(false);
     const buttonRef = useRef(null);
 
-    // Check if tooltip would overflow and adjust position
+    // Ensure component is mounted before using portal
     useEffect(() => {
-        if (isVisible && tooltipRef.current && buttonRef.current) {
-            const tooltipRect = tooltipRef.current.getBoundingClientRect();
-            const buttonRect = buttonRef.current.getBoundingClientRect();
+        setMounted(true);
+        return () => setMounted(false);
+    }, []);
 
-            // Check boundaries
-            if (position === 'top' && tooltipRect.top < 10) {
-                setAdjustedPosition('bottom');
-            } else if (position === 'bottom' && tooltipRect.bottom > window.innerHeight - 10) {
-                setAdjustedPosition('top');
-            } else if (position === 'left' && tooltipRect.left < 10) {
-                setAdjustedPosition('right');
-            } else if (position === 'right' && tooltipRect.right > window.innerWidth - 10) {
-                setAdjustedPosition('left');
-            } else {
-                setAdjustedPosition(position);
+    // Calculate tooltip position based on button position
+    useEffect(() => {
+        if (isVisible && buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            const tooltipWidth = 300; // Max width of tooltip
+            const tooltipHeight = 100; // Approximate height
+
+            let top = 0;
+            let left = 0;
+
+            // Calculate position based on preference
+            switch (position) {
+                case 'top':
+                    top = rect.top - tooltipHeight - 8;
+                    left = rect.left + rect.width / 2 - tooltipWidth / 2;
+                    break;
+                case 'bottom':
+                    top = rect.bottom + 8;
+                    left = rect.left + rect.width / 2 - tooltipWidth / 2;
+                    break;
+                case 'left':
+                    top = rect.top + rect.height / 2 - tooltipHeight / 2;
+                    left = rect.left - tooltipWidth - 8;
+                    break;
+                case 'right':
+                    top = rect.top + rect.height / 2 - tooltipHeight / 2;
+                    left = rect.right + 8;
+                    break;
+                default:
+                    top = rect.top - tooltipHeight - 8;
+                    left = rect.left + rect.width / 2 - tooltipWidth / 2;
             }
+
+            // Boundary checks - keep tooltip on screen
+            if (left < 10) left = 10;
+            if (left + tooltipWidth > window.innerWidth - 10) left = window.innerWidth - tooltipWidth - 10;
+            if (top < 10) top = rect.bottom + 8; // Flip to bottom if no space on top
+            if (top + tooltipHeight > window.innerHeight - 10) top = rect.top - tooltipHeight - 8;
+
+            setTooltipPosition({ top, left });
         }
     }, [isVisible, position]);
 
-    const positionStyles = {
-        top: 'bottom-full left-1/2 -translate-x-1/2 mb-2',
-        bottom: 'top-full left-1/2 -translate-x-1/2 mt-2',
-        left: 'right-full top-1/2 -translate-y-1/2 mr-2',
-        right: 'left-full top-1/2 -translate-y-1/2 ml-2',
-    };
-
-    const arrowStyles = {
-        top: 'top-full left-1/2 -translate-x-1/2 border-l-transparent border-r-transparent border-b-transparent border-t-slate-800 dark:border-t-neutral-700',
-        bottom: 'bottom-full left-1/2 -translate-x-1/2 border-l-transparent border-r-transparent border-t-transparent border-b-slate-800 dark:border-b-neutral-700',
-        left: 'left-full top-1/2 -translate-y-1/2 border-t-transparent border-b-transparent border-r-transparent border-l-slate-800 dark:border-l-neutral-700',
-        right: 'right-full top-1/2 -translate-y-1/2 border-t-transparent border-b-transparent border-l-transparent border-r-slate-800 dark:border-r-neutral-700',
+    const handleMouseEnter = () => setIsVisible(true);
+    const handleMouseLeave = () => setIsVisible(false);
+    const handleClick = (e) => {
+        e.stopPropagation();
+        setIsVisible(!isVisible);
     };
 
     return (
@@ -61,46 +84,44 @@ const InfoTooltip = ({
             {/* Info Button */}
             <button
                 ref={buttonRef}
-                onMouseEnter={() => setIsVisible(true)}
-                onMouseLeave={() => setIsVisible(false)}
-                onFocus={() => setIsVisible(true)}
-                onBlur={() => setIsVisible(false)}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    setIsVisible(!isVisible);
-                }}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:text-neutral-500 dark:hover:text-neutral-300 hover:bg-slate-100 dark:hover:bg-neutral-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                onFocus={handleMouseEnter}
+                onBlur={handleMouseLeave}
+                onClick={handleClick}
+                className="p-1.5 rounded-full text-slate-400 hover:text-primary-600 dark:text-neutral-400 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50"
                 aria-label="More information"
                 type="button"
             >
-                <Info size={14} />
+                <Info size={16} />
             </button>
 
-            {/* Tooltip */}
-            <AnimatePresence>
-                {isVisible && (
-                    <motion.div
-                        ref={tooltipRef}
-                        initial={{ opacity: 0, scale: 0.9, y: adjustedPosition === 'top' ? 10 : adjustedPosition === 'bottom' ? -10 : 0, x: adjustedPosition === 'left' ? 10 : adjustedPosition === 'right' ? -10 : 0 }}
-                        animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: adjustedPosition === 'top' ? 10 : adjustedPosition === 'bottom' ? -10 : 0, x: adjustedPosition === 'left' ? 10 : adjustedPosition === 'right' ? -10 : 0 }}
-                        transition={{
-                            duration: 0.15,
-                            ease: [0.4, 0, 0.2, 1]
-                        }}
-                        className={`absolute z-50 ${positionStyles[adjustedPosition]}`}
-                        role="tooltip"
-                    >
-                        <div className="relative px-3 py-2 text-xs font-medium text-white bg-slate-800 dark:bg-neutral-700 rounded-lg shadow-lg max-w-xs whitespace-normal">
-                            {content}
-                            {/* Arrow */}
-                            <div
-                                className={`absolute w-0 h-0 border-4 ${arrowStyles[adjustedPosition]}`}
-                            />
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Tooltip - Rendered as Portal to avoid overflow clipping */}
+            {mounted && createPortal(
+                <AnimatePresence>
+                    {isVisible && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
+                            style={{
+                                position: 'fixed',
+                                top: tooltipPosition.top,
+                                left: tooltipPosition.left,
+                                zIndex: 99999,
+                                pointerEvents: 'none',
+                            }}
+                            role="tooltip"
+                        >
+                            <div className="px-4 py-3 text-sm text-white bg-slate-800 dark:bg-neutral-700 rounded-xl shadow-2xl max-w-[300px] leading-relaxed border border-slate-700 dark:border-neutral-600">
+                                {content}
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
         </div>
     );
 };
