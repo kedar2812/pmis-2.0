@@ -228,7 +228,7 @@ const RABilling = () => {
                                     <th className="px-6 py-4 font-semibold text-app-muted text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-app-subtle">
+                            <tbody className="divide-y divide-slate-200 dark:divide-neutral-800">
                                 {filteredBills.map((bill, index) => (
                                     <motion.tr
                                         key={bill.id}

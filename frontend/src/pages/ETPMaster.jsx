@@ -238,7 +238,7 @@ const ETPMaster = () => {
                                 <th className="text-left px-4 py-3 font-semibold text-app-text">Reference</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-app-subtle">
+                        <tbody className="divide-y divide-slate-200 dark:divide-neutral-800">
                             {loading ? (
                                 <tr>
                                     <td colSpan={7} className="text-center py-12">

@@ -342,7 +342,7 @@ const UserManagementSection = () => {
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
-                            <tr className="border-b border-slate-200">
+                            <tr className="border-b border-slate-200 dark:border-neutral-700">
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-slate-600 uppercase">User</th>
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-slate-600 uppercase">Role</th>
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-slate-600 uppercase">Status</th>
@@ -351,7 +351,7 @@ const UserManagementSection = () => {
                         </thead>
                         <tbody>
                             {users.map((u) => (
-                                <tr key={u.id} className="border-b border-slate-100 hover:bg-slate-50">
+                                <tr key={u.id} className="border-b border-slate-100 dark:border-neutral-700 hover:bg-slate-50 dark:hover:bg-neutral-800">
                                     <td className="py-3 px-4">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-violet-500 rounded-full flex items-center justify-center">
@@ -702,7 +702,7 @@ const MasterDataSection = ({ navigate, onClose }) => {
                     {filtered.length === 0 ? (
                         <div className="px-3 py-4 text-center text-sm text-slate-400 dark:text-neutral-500">No entries</div>
                     ) : (
-                        <div className="divide-y divide-slate-100">
+                        <div className="divide-y divide-slate-100 dark:divide-neutral-700">
                             {filtered.map((item, idx) => {
                                 const isActive = getItemStatus(item, type);
                                 return (
@@ -987,7 +987,7 @@ const MasterDataSection = ({ navigate, onClose }) => {
                                     This change will sync across the entire website.
                                 </p>
                             </div>
-                            <div className="flex border-t border-slate-200">
+                            <div className="flex border-t border-slate-200 dark:border-neutral-700">
                                 <button
                                     onClick={closeConfirmModal}
                                     disabled={updating}

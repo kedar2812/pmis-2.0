@@ -585,7 +585,7 @@ const UserManagement = () => {
                                         <th className="p-4">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-app-subtle">
+                                <tbody className="divide-y divide-slate-200 dark:divide-neutral-800">
                                     {filteredUsers.length > 0 ? (
                                         filteredUsers.map(u => (
                                             <tr key={u.id} className="hover:bg-app-surface transition-colors">

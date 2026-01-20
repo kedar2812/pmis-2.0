@@ -132,7 +132,7 @@ const Budgeting = () => {
                                 <th className="px-6 py-4">Status</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-app-subtle">
+                        <tbody className="divide-y divide-slate-200 dark:divide-neutral-800">
                             {budgets.map(item => (
                                 <tr key={item.id} className="hover:bg-app-surface">
                                     <td className="px-6 py-4 font-medium text-app-heading flex items-center gap-2">

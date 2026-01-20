@@ -205,7 +205,7 @@ const SortableDataTable = ({
                             )}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-app-subtle">
+                    <tbody className="divide-y divide-slate-200 dark:divide-neutral-800">
                         {paginatedData.length === 0 ? (
                             <tr>
                                 <td
@@ -288,8 +288,8 @@ const SortableDataTable = ({
                                         key={pageNum}
                                         onClick={() => setCurrentPage(pageNum)}
                                         className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${currentPage === pageNum
-                                                ? 'bg-primary-600 text-white'
-                                                : 'hover:bg-slate-100 dark:hover:bg-neutral-700 text-app-muted'
+                                            ? 'bg-primary-600 text-white'
+                                            : 'hover:bg-slate-100 dark:hover:bg-neutral-700 text-app-muted'
                                             }`}
                                     >
                                         {pageNum}

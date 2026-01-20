@@ -403,7 +403,7 @@ const UnifiedDashboard = () => {
 
             {/* Section 3: Project Portfolio Table (Moved up) */}
             <GlassCard className="overflow-hidden">
-                <div className="p-6 border-b border-app-subtle">
+                <div className="p-6 border-b border-slate-200 dark:border-neutral-800">
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                             <FolderOpen size={20} className="text-primary-600" />
@@ -428,7 +428,7 @@ const UnifiedDashboard = () => {
                                 <th className="py-3 pr-6">Progress</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-app-subtle">
+                        <tbody className="divide-y divide-slate-200 dark:divide-neutral-800">
                             {(topProjects.length > 0 ? topProjects : projects.slice(0, 5)).map((project, idx) => {
                                 const budget = Number(project.budget) || 0;
                                 const spent = Number(project.spent) || 0;
@@ -659,7 +659,7 @@ const UnifiedDashboard = () => {
                         <RiskBadge level="low" count={riskSummary.low || 0} />
                     </div>
                     {riskSummary.top_risks?.length > 0 && (
-                        <div className="mt-4 pt-4 border-t border-slate-100">
+                        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-neutral-700">
                             <p className="text-xs font-medium text-slate-400 uppercase mb-2">Top Risks</p>
                             {riskSummary.top_risks.map((r, idx) => (
                                 <div key={idx} className="text-sm text-rose-600 py-1">• {r.title}</div>

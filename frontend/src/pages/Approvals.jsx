@@ -278,7 +278,7 @@ const Approvals = () => {
                                     BOQ Approval Requests
                                 </h3>
                             </div>
-                            <div className="divide-y divide-app-subtle">
+                            <div className="divide-y divide-slate-200 dark:divide-neutral-800">
                                 {filteredBoqRequests.map((req, index) => {
                                     const config = getBoqRequestConfig(req.request_type);
                                     const RequestIcon = config.icon;
@@ -355,7 +355,7 @@ const Approvals = () => {
                                     Document Approvals
                                 </h3>
                             </div>
-                            <div className="divide-y divide-app-subtle">
+                            <div className="divide-y divide-slate-200 dark:divide-neutral-800">
                                 {filteredDocuments.map((doc, index) => {
                                     const statusConfig = getStatusConfig(doc.status);
                                     const StatusIcon = statusConfig.icon;

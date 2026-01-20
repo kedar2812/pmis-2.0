@@ -895,7 +895,7 @@ const BOQManagement = () => {
                                                 )}
                                             </AnimatePresence>
                                         </thead>
-                                        <tbody className="divide-y divide-app-subtle">
+                                        <tbody className="divide-y divide-slate-200 dark:divide-neutral-800">
                                             {paginatedItems.length === 0 ? (
                                                 <tr>
                                                     <td colSpan="7" className="px-6 py-16 text-center">

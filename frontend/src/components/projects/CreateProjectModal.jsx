@@ -592,7 +592,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                           <th className="p-3 w-12"></th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-app-subtle">
+                      <tbody className="divide-y divide-slate-200 dark:divide-neutral-800">
                         {formData.fundingPattern.map((item, idx) => (
                           <tr key={item.id}>
                             <td className="p-3">

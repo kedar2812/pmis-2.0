@@ -20,7 +20,7 @@ export const GraphLoader = ({ height = 300, type = 'bar' }) => {
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
         >
-          <div className="absolute inset-0 rounded-full border-8 border-slate-200 border-t-primary-600" />
+          <div className="absolute inset-0 rounded-full border-8 border-slate-200 dark:border-neutral-800 border-t-primary-600" />
         </motion.div>
       </div>
     );

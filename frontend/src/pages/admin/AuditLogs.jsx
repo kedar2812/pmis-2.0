@@ -252,7 +252,7 @@ const AuditLogs = () => {
                                 {activeTab === 'backend' && <th className="p-4 w-32">IP Address</th>}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-app-subtle">
+                        <tbody className="divide-y divide-slate-200 dark:divide-neutral-800">
                             {(activeTab === 'backend' && isLoadingBackend) ? (
                                 <tr>
                                     <td colSpan={7} className="p-8 text-center text-app-muted">

@@ -16,7 +16,7 @@ const MotionCard = forwardRef(
           ease: 'easeOut',
         }}
         className={cn(
-          'rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-md shadow-sm',
+          'rounded-2xl border border-slate-200 dark:border-neutral-700 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md shadow-sm dark:shadow-lg',
           'hover:shadow-blue-glow transition-shadow duration-300',
           className
         )}

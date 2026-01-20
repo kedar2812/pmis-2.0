@@ -595,7 +595,7 @@ const MasterData = () => {
                                             {canEdit && <th className="text-center px-4 py-3 font-medium text-app-muted w-32">Actions</th>}
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-app-subtle">
+                                    <tbody className="divide-y divide-slate-200 dark:divide-neutral-800">
                                         {(data.contractors || []).filter(item =>
                                             Object.values(item).some(val =>
                                                 String(val).toLowerCase().includes(searchQuery.toLowerCase())

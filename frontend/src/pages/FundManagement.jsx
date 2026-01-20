@@ -100,7 +100,7 @@ const FundManagement = () => {
                             <th className="px-6 py-4 text-right">Allocation Period</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-app-subtle">
+                    <tbody className="divide-y divide-slate-200 dark:divide-neutral-800">
                         {funds.map(fund => (
                             <tr key={fund.id} className="hover:bg-app-surface">
                                 <td className="px-6 py-4 font-medium text-app-heading">{fund.name}</td>

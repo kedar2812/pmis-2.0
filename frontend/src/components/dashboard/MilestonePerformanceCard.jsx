@@ -160,10 +160,10 @@ const MilestonePerformanceCard = ({ projectId, projectName }) => {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.1 }}
-                        className={`p-3 rounded-lg border ${m.status === 'overspend' ? 'border-red-200 bg-red-50/50' : m.status === 'caution' ? 'border-amber-200 bg-amber-50/50' : 'border-slate-200 bg-white'}`}
+                        className={`p-3 rounded-lg border ${m.status === 'overspend' ? 'border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/20' : m.status === 'caution' ? 'border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/20' : 'border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800'}`}
                     >
                         <div className="flex justify-between items-start mb-2">
-                            <span className="font-medium text-sm text-slate-800 line-clamp-1 flex-1">{m.name}</span>
+                            <span className="font-medium text-sm text-slate-800 dark:text-white line-clamp-1 flex-1">{m.name}</span>
                             <span className={`ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 ${getStatusColor(m.status)}`}>
                                 {getStatusIcon(m.status)}
                                 {m.status === 'overspend' ? 'Over' : m.status === 'caution' ? 'Watch' : 'OK'}
@@ -174,7 +174,7 @@ const MilestonePerformanceCard = ({ projectId, projectName }) => {
                         <div className="space-y-1.5">
                             <div className="flex items-center gap-2">
                                 <span className="text-[10px] text-slate-500 w-14">Physical</span>
-                                <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                <div className="flex-1 h-2 bg-slate-200 dark:bg-neutral-700 rounded-full overflow-hidden">
                                     <motion.div
                                         className="h-full bg-blue-500"
                                         initial={{ width: 0 }}
@@ -182,11 +182,11 @@ const MilestonePerformanceCard = ({ projectId, projectName }) => {
                                         transition={{ duration: 0.5, delay: idx * 0.1 }}
                                     />
                                 </div>
-                                <span className="text-[10px] font-mono text-slate-700 w-10 text-right">{m.physicalProgress}%</span>
+                                <span className="text-[10px] font-mono text-slate-700 dark:text-slate-300 w-10 text-right">{m.physicalProgress}%</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className="text-[10px] text-slate-500 w-14">Financial</span>
-                                <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                <div className="flex-1 h-2 bg-slate-200 dark:bg-neutral-700 rounded-full overflow-hidden">
                                     <motion.div
                                         className={`h-full ${m.status === 'overspend' ? 'bg-red-500' : m.status === 'caution' ? 'bg-amber-500' : 'bg-green-500'}`}
                                         initial={{ width: 0 }}
@@ -194,12 +194,12 @@ const MilestonePerformanceCard = ({ projectId, projectName }) => {
                                         transition={{ duration: 0.5, delay: idx * 0.1 + 0.1 }}
                                     />
                                 </div>
-                                <span className="text-[10px] font-mono text-slate-700 w-10 text-right">{m.financialProgress.toFixed(0)}%</span>
+                                <span className="text-[10px] font-mono text-slate-700 dark:text-slate-300 w-10 text-right">{m.financialProgress.toFixed(0)}%</span>
                             </div>
                         </div>
 
                         {/* Budget Summary */}
-                        <div className="mt-2 pt-2 border-t border-slate-100 flex justify-between text-[10px] text-slate-500">
+                        <div className="mt-2 pt-2 border-t border-slate-100 dark:border-neutral-700 flex justify-between text-[10px] text-slate-500 dark:text-slate-400">
                             <span>Budget: {formatCurrency(m.budget)}</span>
                             <span>Spent: {formatCurrency(m.spent)}</span>
                         </div>
