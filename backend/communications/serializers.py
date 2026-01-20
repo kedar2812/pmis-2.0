@@ -3,7 +3,21 @@ Serializers for the Communications System.
 """
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
-from .models import Thread, Message, CommunicationAuditLog, Notification
+from .models import Thread, Message, CommunicationAuditLog, Notification, Attachment
+
+
+class AttachmentSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Attachment model.
+    Download happens via secure authenticated endpoint, no URL exposed.
+    """
+    class Meta:
+        model = Attachment
+        fields = [
+            'id', 'filename', 'file_size', 'content_type', 
+            'uploaded_at', 'uploaded_by'
+        ]
+        read_only_fields = ['id', 'uploaded_at', 'uploaded_by']
 
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -15,13 +29,14 @@ class MessageSerializer(serializers.ModelSerializer):
     sender_name = serializers.SerializerMethodField()
     references_content = serializers.SerializerMethodField()
     content = serializers.SerializerMethodField()  # Decrypt on read
+    attachments = AttachmentSerializer(many=True, read_only=True)
     
     class Meta:
         model = Message
         fields = [
             'id', 'thread', 'sender', 'sender_name', 'sender_role',
             'content', 'message_type', 'is_ruling', 'references',
-            'references_content', 'created_at', 'is_encrypted'
+            'references_content', 'created_at', 'is_encrypted', 'attachments'
         ]
         read_only_fields = ['id', 'sender', 'sender_role', 'is_ruling', 'created_at', 'is_encrypted']
     
@@ -181,11 +196,13 @@ class ThreadSerializer(serializers.ModelSerializer):
 class ThreadListSerializer(serializers.ModelSerializer):
     """
     Lightweight serializer for thread list views.
+    Includes participants for DM name resolution.
     """
     initiated_by_name = serializers.SerializerMethodField()
     message_count = serializers.SerializerMethodField()
     last_message_preview = serializers.SerializerMethodField()
     unread_count = serializers.SerializerMethodField()
+    participants = serializers.SerializerMethodField()
     
     class Meta:
         model = Thread
@@ -193,7 +210,18 @@ class ThreadListSerializer(serializers.ModelSerializer):
             'id', 'subject', 'context_type', 'context_id',
             'thread_type', 'status', 'initiated_by_name',
             'initiated_by_role', 'sla_deadline', 'created_at', 'updated_at',
-            'message_count', 'last_message_preview', 'unread_count'
+            'message_count', 'last_message_preview', 'unread_count', 'participants'
+        ]
+    
+    def get_participants(self, obj):
+        """Return minimal participant info for DM name resolution."""
+        return [
+            {
+                'id': p.id,
+                'username': p.username,
+                'full_name': f"{p.first_name} {p.last_name}".strip() or p.username
+            }
+            for p in obj.participants.all()[:10]  # Limit for performance
         ]
     
     def get_initiated_by_name(self, obj):

@@ -9,8 +9,26 @@ import {
     Lock, Gavel, MessageCircle, Users,
     Pin, BellOff
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ThreadList = ({ threads, selectedThread, onSelect, isLoading }) => {
+    const { user } = useAuth();
+
+    /**
+     * Get display name for thread - shows OTHER participant for DMs
+     * This ensures Kedar sees "Sahil" and Sahil sees "Kedar"
+     */
+    const getDisplayName = (thread) => {
+        // For Direct Messages, show the OTHER person's name
+        if (thread.thread_type === 'DIRECT_MESSAGE' && thread.participants) {
+            const otherParticipant = thread.participants.find(p => p.id !== user?.id);
+            if (otherParticipant) {
+                return otherParticipant.full_name || otherParticipant.username || 'User';
+            }
+        }
+        // For all other types, show the subject
+        return thread.subject || 'Untitled Thread';
+    };
 
     const getTypeIcon = (type) => {
         const iconClass = "flex-shrink-0";
@@ -113,10 +131,10 @@ const ThreadList = ({ threads, selectedThread, onSelect, isLoading }) => {
                             {/* Row 1: Subject + Time */}
                             <div className="flex items-center justify-between gap-2">
                                 <h3 className={`text-sm font-semibold truncate flex-1 ${selectedThread?.id === thread.id
-                                        ? 'text-primary-700 dark:text-primary-400'
-                                        : 'text-slate-800 dark:text-white'
+                                    ? 'text-primary-700 dark:text-primary-400'
+                                    : 'text-slate-800 dark:text-white'
                                     }`}>
-                                    {thread.subject}
+                                    {getDisplayName(thread)}
                                 </h3>
                                 <div className="flex items-center gap-2 flex-shrink-0">
                                     {thread.unread_count > 0 && (

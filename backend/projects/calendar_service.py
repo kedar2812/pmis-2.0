@@ -112,7 +112,7 @@ class CalendarEventAggregator:
                     'end': task.end_date.isoformat() if task.end_date else None,
                     'type': CalendarEventType.MILESTONE,
                     'color': '#ef4444' if is_overdue else CalendarEventType.COLORS[CalendarEventType.MILESTONE],
-                    'priority': 'high' if task.is_critical else 'medium',
+                    'priority': 'high' if getattr(task, 'is_critical', False) else 'medium',
                     'entity_type': 'ScheduleTask',
                     'entity_id': str(task.id),
                     'project_name': task.project.name if task.project else None,
@@ -120,8 +120,7 @@ class CalendarEventAggregator:
                     'is_overdue': is_overdue,
                     'link_url': f'/scheduling?task={task.id}',
                     'metadata': {
-                        'progress': task.progress,
-                        'is_critical': task.is_critical
+                        'is_critical': getattr(task, 'is_critical', False)
                     }
                 })
         except Exception as e:
@@ -141,22 +140,22 @@ class CalendarEventAggregator:
         try:
             from finance.models import RABill
             
+            # Use bill_date field which exists in the model
             queryset = RABill.objects.filter(
-                Q(submitted_date__range=[start_date, end_date]) |
-                Q(certified_date__range=[start_date, end_date])
+                bill_date__range=[start_date, end_date]
             )
             
             if project_ids:
                 queryset = queryset.filter(project_id__in=project_ids)
             
-            for bill in queryset.select_related('project', 'contract')[:50]:
-                event_date = bill.certified_date or bill.submitted_date
+            for bill in queryset.select_related('project')[:50]:
+                event_date = bill.bill_date
                 if not event_date:
                     continue
                     
                 events.append({
                     'id': f'billing-{bill.id}',
-                    'title': f'RA Bill #{bill.bill_number or bill.id}',
+                    'title': f'RA Bill #{bill.bill_no or bill.id}',
                     'start': event_date.isoformat(),
                     'end': event_date.isoformat(),
                     'type': CalendarEventType.BILLING,
@@ -169,8 +168,7 @@ class CalendarEventAggregator:
                     'is_overdue': False,
                     'link_url': f'/cost/ra-billing?bill={bill.id}',
                     'metadata': {
-                        'amount': float(bill.net_payable or 0),
-                        'contract': str(bill.contract) if bill.contract else None
+                        'amount': float(bill.net_payable or 0)
                     }
                 })
         except Exception as e:
@@ -236,29 +234,32 @@ class CalendarEventAggregator:
         end_date, 
         project_ids: List = None
     ) -> List[Dict]:
-        """Get compliance events (BG expiry, insurance, etc.)."""
+        """Get compliance events (contract end dates, etc.)."""
         events = []
         
         try:
             from procurement.models import Contract
             
-            # Bank Guarantee expiry dates
+            # Use end_date field which exists in Contract model
             queryset = Contract.objects.filter(
-                bg_expiry_date__range=[start_date, end_date]
+                end_date__range=[start_date, end_date]
             )
             
             if project_ids:
                 queryset = queryset.filter(project_id__in=project_ids)
             
             for contract in queryset.select_related('project')[:30]:
-                days_until = (contract.bg_expiry_date - timezone.now().date()).days
+                if not contract.end_date:
+                    continue
+                    
+                days_until = (contract.end_date - timezone.now().date()).days
                 is_urgent = days_until <= 30
                 
                 events.append({
-                    'id': f'compliance-bg-{contract.id}',
-                    'title': f'BG Expiry: {contract.contract_number or contract.title[:30]}',
-                    'start': contract.bg_expiry_date.isoformat(),
-                    'end': contract.bg_expiry_date.isoformat(),
+                    'id': f'compliance-{contract.id}',
+                    'title': f'Contract End: {contract.contract_no or str(contract.id)[:8]}',
+                    'start': contract.end_date.isoformat(),
+                    'end': contract.end_date.isoformat(),
                     'type': CalendarEventType.COMPLIANCE,
                     'color': '#ef4444' if is_urgent else CalendarEventType.COLORS[CalendarEventType.COMPLIANCE],
                     'priority': 'high' if is_urgent else 'medium',

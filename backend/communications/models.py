@@ -277,9 +277,10 @@ class MessageReadReceipt(models.Model):
 class Attachment(models.Model):
     """
     File attachments for messages.
+    Message can be null initially for uploads before message is sent.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='attachments')
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='attachments', null=True, blank=True)
     file = models.FileField(upload_to='communications/attachments/%Y/%m/%d/')
     filename = models.CharField(max_length=255)
     file_size = models.PositiveIntegerField(help_text="File size in bytes")

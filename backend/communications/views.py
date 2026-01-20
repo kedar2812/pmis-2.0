@@ -5,14 +5,17 @@ All views enforce role-based access control server-side.
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
+from django.http import FileResponse, Http404
 
-from .models import Thread, Message, CommunicationAuditLog, Notification
+from .models import Thread, Message, CommunicationAuditLog, Notification, Attachment
 from .serializers import (
     ThreadSerializer, ThreadListSerializer, ThreadCreateSerializer,
     MessageSerializer, MessageCreateSerializer,
-    NotificationSerializer, CommunicationAuditLogSerializer
+    NotificationSerializer, CommunicationAuditLogSerializer,
+    AttachmentSerializer
 )
 from .permissions import (
     CommunicationPermissions, CanInitiateThread, CanSendMessage,
@@ -146,7 +149,7 @@ class ThreadViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def send_message(self, request, pk=None):
-        """Send a message to the thread."""
+        """Send a message to the thread with optional attachments."""
         thread = self.get_object()
         user = request.user
         
@@ -175,7 +178,25 @@ class ThreadViewSet(viewsets.ModelViewSet):
             request=request
         )
         
-        return Response(MessageSerializer(message).data, status=status.HTTP_201_CREATED)
+        # Link attachments to the message
+        attachment_id = request.data.get('attachment_id')  # Single attachment (legacy)
+        attachment_ids = request.data.get('attachment_ids', [])  # Multiple attachments
+        
+        if attachment_id:
+            attachment_ids = [attachment_id] + list(attachment_ids)
+        
+        if attachment_ids:
+            # Link all attachments to this message
+            Attachment.objects.filter(
+                id__in=attachment_ids,
+                uploaded_by=user,
+                message__isnull=True  # Only unlinked attachments
+            ).update(message=message)
+        
+        # Refresh message to include attachments
+        message.refresh_from_db()
+        
+        return Response(MessageSerializer(message, context={'request': request}).data, status=status.HTTP_201_CREATED)
     
     @action(detail=True, methods=['post'])
     def close(self, request, pk=None):
@@ -532,3 +553,124 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(timestamp__lte=end_date)
         
         return queryset
+
+
+class AttachmentViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for file attachments.
+    Supports single and multiple file uploads.
+    """
+    serializer_class = AttachmentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def get_queryset(self):
+        user = self.request.user
+        # Only show attachments from threads user participates in
+        return Attachment.objects.filter(
+            message__thread__participants=user
+        ).select_related('message', 'uploaded_by')
+    
+    @action(detail=False, methods=['post'])
+    def upload(self, request):
+        """
+        Upload a single file attachment.
+        Returns the attachment ID to be linked to a message.
+        """
+        file = request.FILES.get('file')
+        
+        if not file:
+            return Response(
+                {'error': 'No file provided'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Create temporary attachment (not linked to message yet)
+        attachment = Attachment.objects.create(
+            message=None,  # Will be linked when message is sent
+            file=file,
+            filename=file.name,
+            file_size=file.size,
+            content_type=file.content_type or 'application/octet-stream',
+            uploaded_by=request.user
+        )
+        
+        return Response({
+            'id': str(attachment.id),
+            'filename': attachment.filename,
+            'file_size': attachment.file_size,
+            'content_type': attachment.content_type
+        }, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['post'])
+    def upload_multiple(self, request):
+        """
+        Upload multiple files at once.
+        Returns a list of attachment IDs.
+        """
+        files = request.FILES.getlist('files')
+        
+        if not files:
+            return Response(
+                {'error': 'No files provided'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        attachments = []
+        for file in files:
+            attachment = Attachment.objects.create(
+                message=None,  # Will be linked when message is sent
+                file=file,
+                filename=file.name,
+                file_size=file.size,
+                content_type=file.content_type or 'application/octet-stream',
+                uploaded_by=request.user
+            )
+            attachments.append({
+                'id': str(attachment.id),
+                'filename': attachment.filename,
+                'file_size': attachment.file_size,
+                'content_type': attachment.content_type
+            })
+        
+        return Response({
+            'attachments': attachments,
+            'count': len(attachments)
+        }, status=status.HTTP_201_CREATED)
+    
+    @action(detail=True, methods=['get'])
+    def download(self, request, pk=None):
+        """
+        Download an attachment file.
+        """
+        try:
+            attachment = Attachment.objects.get(pk=pk)
+            
+            # Check if user has access to this attachment
+            if attachment.message:
+                thread = attachment.message.thread
+                if request.user not in thread.participants.all():
+                    return Response(
+                        {'error': 'Access denied'},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+            
+            # Return file response
+            try:
+                response = FileResponse(
+                    attachment.file.open('rb'),
+                    content_type=attachment.content_type
+                )
+                response['Content-Disposition'] = f'attachment; filename="{attachment.filename}"'
+                return response
+            except Exception as e:
+                return Response(
+                    {'error': f'File not found: {str(e)}'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+                
+        except Attachment.DoesNotExist:
+            return Response(
+                {'error': 'Attachment not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )

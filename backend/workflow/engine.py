@@ -368,7 +368,7 @@ class WorkflowEngine:
         
         return WorkflowInstance.objects.filter(
             role_instances | direct_assignments | delegated
-        ).select_related('template', 'current_step', 'current_step__role').distinct()
+        ).select_related('template', 'current_step').distinct()
     
     def get_workflow_history(self, instance: WorkflowInstance) -> List[Dict[str, Any]]:
         """

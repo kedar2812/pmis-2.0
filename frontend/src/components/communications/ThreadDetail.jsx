@@ -8,8 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import client from '@/api/client';
 import { toast } from 'sonner';
 import {
-    CheckCircle, ChevronDown, CornerDownRight, FolderOpen, FileText,
-    User, Send, Clock, Gavel, Lock, AlertTriangle, X,
+    CheckCircle, ChevronDown, CornerDownRight, FolderOpen, FileText, Download,
+    User, Send, Clock, Gavel, Lock, AlertTriangle, X, File,
     Pin, BellOff, Bell, UserPlus, LogOut, MoreVertical, Paperclip, MessageSquare, Users
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
@@ -25,10 +25,34 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
     const [isMuted, setIsMuted] = useState(thread?.is_muted || false);
     const [showAddParticipants, setShowAddParticipants] = useState(false);
     const [showParticipants, setShowParticipants] = useState(false);
-    const [attachedFile, setAttachedFile] = useState(null);
+    const [attachedFiles, setAttachedFiles] = useState([]);
     const [isUploading, setIsUploading] = useState(false);
     const messagesEndRef = useRef(null);
     const fileInputRef = useRef(null);
+
+    // Format file size
+    const formatFileSize = (bytes) => {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    };
+
+    /**
+     * Get display name for thread - shows OTHER participant for DMs
+     * This ensures each user sees the other person's name, not their own
+     */
+    const getDisplayName = () => {
+        if (!thread) return 'Chat';
+        // For Direct Messages, show the OTHER person's name
+        if (thread.thread_type === 'DIRECT_MESSAGE' && thread.participants) {
+            const otherParticipant = thread.participants.find(p => p.id !== user?.id);
+            if (otherParticipant) {
+                return otherParticipant.full_name || otherParticipant.username || 'User';
+            }
+        }
+        // For all other types, show the subject
+        return thread.subject || 'Thread';
+    };
 
     // Auto-scroll to bottom
     useEffect(() => {
@@ -58,59 +82,64 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
     const canRequestClarification = ['SPV_Official', 'PMNC_Team', 'Nodal_Officer', 'Govt_Official'].includes(user?.role);
     const canCloseThread = ['SPV_Official', 'PMNC_Team', 'Nodal_Officer'].includes(user?.role);
 
-    // File handling
+    // File handling - supports multiple files
     const handleFileSelect = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setAttachedFile(file);
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            setAttachedFiles(prev => [...prev, ...files]);
         }
-    };
-
-    const handleRemoveFile = () => {
-        setAttachedFile(null);
+        // Reset input so same file can be selected again
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
     };
 
+    const handleRemoveFile = (index) => {
+        setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleClearAllFiles = () => {
+        setAttachedFiles([]);
+    };
+
     const handleSendMessage = async () => {
-        if (!messageContent.trim() && !attachedFile) return;
+        if (!messageContent.trim() && attachedFiles.length === 0) return;
 
         setIsSending(true);
         try {
-            let attachmentId = null;
+            let attachmentIds = [];
 
-            // Upload file first if attached
-            if (attachedFile) {
+            // Upload all files first
+            if (attachedFiles.length > 0) {
                 setIsUploading(true);
-                const formData = new FormData();
-                formData.append('file', attachedFile);
 
-                const uploadRes = await client.post('/communications/messages/upload_attachment/', formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-                attachmentId = uploadRes.data.id;
+                // Upload each file and collect IDs
+                for (const file of attachedFiles) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    const uploadRes = await client.post('/communications/attachments/upload/', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    attachmentIds.push(uploadRes.data.id);
+                }
                 setIsUploading(false);
             }
 
             // Send message
             const payload = {
-                content: messageContent || '📎 File attached',
+                content: messageContent || `📎 ${attachedFiles.length} file(s) attached`,
                 message_type: 'STANDARD'
             };
 
-            if (attachmentId) {
-                payload.attachment_id = attachmentId;
+            if (attachmentIds.length > 0) {
+                payload.attachment_ids = attachmentIds;
             }
 
             await client.post(`/communications/threads/${thread.id}/send_message/`, payload);
 
             setMessageContent('');
-
-            setAttachedFile(null);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
+            setAttachedFiles([]);
             onMessageSent();
             toast.success('Message sent');
         } catch (error) {
@@ -215,7 +244,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                 <div className="flex items-center gap-3">
                     {/* Title + Meta */}
                     <div className="min-w-0 flex-1">
-                        <h2 className="text-base font-bold text-slate-800 dark:text-white truncate">{thread.subject}</h2>
+                        <h2 className="text-base font-bold text-slate-800 dark:text-white truncate">{getDisplayName()}</h2>
                         <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-500 dark:text-neutral-400">
                             <span className="flex items-center gap-1">
                                 <User size={12} />
@@ -347,6 +376,49 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                                     {/* Content */}
                                     <p className={`text-base whitespace-pre-wrap leading-relaxed ${isOwn ? 'text-white' : ''}`}>{msg.content}</p>
 
+                                    {/* Attachments */}
+                                    {msg.attachments && msg.attachments.length > 0 && (
+                                        <div className="mt-2 space-y-1">
+                                            {msg.attachments.map((att) => (
+                                                <button
+                                                    key={att.id}
+                                                    onClick={async (e) => {
+                                                        e.preventDefault();
+                                                        try {
+                                                            // Download via authenticated API
+                                                            const response = await client.get(
+                                                                `/communications/attachments/${att.id}/download/`,
+                                                                { responseType: 'blob' }
+                                                            );
+                                                            // Create blob URL and trigger download
+                                                            const blob = new Blob([response.data], { type: att.content_type });
+                                                            const url = window.URL.createObjectURL(blob);
+                                                            const link = document.createElement('a');
+                                                            link.href = url;
+                                                            link.download = att.filename;
+                                                            document.body.appendChild(link);
+                                                            link.click();
+                                                            document.body.removeChild(link);
+                                                            window.URL.revokeObjectURL(url);
+                                                        } catch (error) {
+                                                            console.error('Download failed:', error);
+                                                            toast.error('Failed to download file');
+                                                        }
+                                                    }}
+                                                    className={`flex items-center gap-2 px-2 py-1.5 rounded-lg transition-colors cursor-pointer w-full text-left ${isOwn
+                                                        ? 'bg-white/20 hover:bg-white/30 text-white'
+                                                        : 'bg-slate-200 dark:bg-neutral-700 hover:bg-slate-300 dark:hover:bg-neutral-600 text-slate-700 dark:text-slate-200'
+                                                        }`}
+                                                >
+                                                    <File size={14} />
+                                                    <span className="text-sm flex-1 truncate">{att.filename}</span>
+                                                    <span className="text-xs opacity-70">{formatFileSize(att.file_size)}</span>
+                                                    <Download size={14} className="opacity-70" />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+
                                     {/* Reference */}
                                     {msg.references_content && (
                                         <div className="mt-2 pl-3 border-l-2 border-slate-300 dark:border-slate-600 text-sm text-slate-600 dark:text-slate-300">
@@ -375,20 +447,30 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
             {/* Composer - Compact design for more message visibility */}
             {thread.status !== 'CLOSED' && canSendMessage && (
                 <div className="border-t border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
-                    {/* File Preview */}
-                    {attachedFile && (
-                        <div className="px-3 pt-2 pb-1">
-                            <div className="flex items-center gap-2 bg-slate-100 dark:bg-neutral-800 rounded-lg px-2 py-1.5">
-                                <Paperclip size={14} className="text-slate-500 dark:text-neutral-400" />
-                                <span className="text-xs text-slate-700 dark:text-neutral-300 flex-1 truncate">{attachedFile.name}</span>
-                                <span className="text-[10px] text-slate-500 dark:text-neutral-400">{(attachedFile.size / 1024).toFixed(1)} KB</span>
+                    {/* File Preview - Multiple files */}
+                    {attachedFiles.length > 0 && (
+                        <div className="px-3 pt-2 pb-1 space-y-1">
+                            {attachedFiles.map((file, index) => (
+                                <div key={index} className="flex items-center gap-2 bg-slate-100 dark:bg-neutral-800 rounded-lg px-2 py-1.5">
+                                    <File size={14} className="text-slate-500 dark:text-neutral-400 flex-shrink-0" />
+                                    <span className="text-xs text-slate-700 dark:text-neutral-300 flex-1 truncate">{file.name}</span>
+                                    <span className="text-[10px] text-slate-500 dark:text-neutral-400 flex-shrink-0">{formatFileSize(file.size)}</span>
+                                    <button
+                                        onClick={() => handleRemoveFile(index)}
+                                        className="p-0.5 hover:bg-slate-200 dark:hover:bg-neutral-700 rounded-full flex-shrink-0"
+                                    >
+                                        <X size={14} className="text-slate-500 dark:text-neutral-400" />
+                                    </button>
+                                </div>
+                            ))}
+                            {attachedFiles.length > 1 && (
                                 <button
-                                    onClick={handleRemoveFile}
-                                    className="p-0.5 hover:bg-slate-200 rounded-full"
+                                    onClick={handleClearAllFiles}
+                                    className="text-xs text-red-500 hover:text-red-600 transition-colors"
                                 >
-                                    <X size={14} className="text-slate-500" />
+                                    Clear all ({attachedFiles.length} files)
                                 </button>
-                            </div>
+                            )}
                         </div>
                     )}
 
@@ -399,7 +481,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                             <button
                                 onClick={() => fileInputRef.current?.click()}
                                 className="p-1.5 text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full transition-colors flex-shrink-0"
-                                title="Attach file"
+                                title="Attach files (multiple allowed)"
                             >
                                 <Paperclip size={18} />
                             </button>
@@ -408,7 +490,8 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                                 type="file"
                                 onChange={handleFileSelect}
                                 className="hidden"
-                                accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.zip,.rar"
+                                multiple
                             />
 
                             {/* Input */}
@@ -429,7 +512,7 @@ const ThreadDetail = ({ thread, onMessageSent, onClose }) => {
                             {/* Send Button */}
                             <button
                                 onClick={handleSendMessage}
-                                disabled={(!messageContent.trim() && !attachedFile) || isSending || isUploading}
+                                disabled={(!messageContent.trim() && attachedFiles.length === 0) || isSending || isUploading}
                                 className="p-1.5 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
                             >
                                 {isUploading ? (

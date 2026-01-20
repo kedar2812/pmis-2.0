@@ -1,0 +1,60 @@
+name: Sync to GitLab
+
+# Automatically sync code to GitLab repositories when pushed to GitHub
+# - Webapp repo: Full mirror of entire codebase
+# - API repo: Only the backend folder
+
+on:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  # Job 1: Sync entire repo to GitLab Webapp
+  sync-webapp:
+    name: Sync to GitLab Webapp
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for proper push
+      
+      - name: Push to GitLab Webapp
+        env:
+          GITLAB_WEBAPP_URL: ${{ secrets.GITLAB_WEBAPP_URL }}
+        run: |
+          git remote add gitlab-webapp "$GITLAB_WEBAPP_URL" || git remote set-url gitlab-webapp "$GITLAB_WEBAPP_URL"
+          git push gitlab-webapp ${{ github.ref_name }} --force
+          echo "✅ Synced to GitLab Webapp repository"
+
+  # Job 2: Sync only backend folder to GitLab API
+  sync-api:
+    name: Sync Backend to GitLab API
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history required for subtree
+      
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+      
+      - name: Push backend to GitLab API
+        env:
+          GITLAB_API_URL: ${{ secrets.GITLAB_API_URL }}
+        run: |
+          # Add the GitLab API remote
+          git remote add gitlab-api "$GITLAB_API_URL" || git remote set-url gitlab-api "$GITLAB_API_URL"
+          
+          # Use subtree split to extract only the backend folder
+          # Then force push to the API repo
+          git subtree split --prefix=backend -b backend-only
+          git push gitlab-api backend-only:${{ github.ref_name }} --force
+          
+          # Cleanup
+          git branch -D backend-only
+          echo "✅ Synced backend to GitLab API repository"
