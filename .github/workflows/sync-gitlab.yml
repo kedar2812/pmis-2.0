@@ -7,7 +7,7 @@ name: Sync to GitLab
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main]  # Only sync when pushing to main
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
