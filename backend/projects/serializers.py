@@ -25,8 +25,11 @@ class WorkPackageSerializer(serializers.ModelSerializer):
 class FundingSourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = FundingSource
-        fields = ['id', 'project', 'source', 'amount', 'document', 'created_at']
+        fields = ['id', 'source', 'amount', 'document', 'created_at']
         read_only_fields = ['id', 'created_at']
+        extra_kwargs = {
+            'document': {'required': False, 'allow_null': True},
+        }
 
 
 class ProjectSerializer(serializers.ModelSerializer):

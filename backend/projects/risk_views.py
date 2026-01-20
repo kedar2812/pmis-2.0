@@ -14,6 +14,9 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.db.models import Avg, Sum, Count, Q
 from django.db.models.functions import Coalesce
 from django.utils import timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 from .risk_models import (
     Risk, RiskDocument, RiskMitigationAction, 
@@ -126,71 +129,91 @@ class RiskViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def stats(self, request):
         """Get aggregated risk statistics for dashboard."""
-        queryset = self.get_queryset()
-        
-        # Aggregate statistics
-        stats = {
-            'total': queryset.count(),
-            'by_severity': {
-                'critical': queryset.filter(severity='CRITICAL').count(),
-                'high': queryset.filter(severity='HIGH').count(),
-                'medium': queryset.filter(severity='MEDIUM').count(),
-                'low': queryset.filter(severity='LOW').count(),
-            },
-            'by_status': {},
-            'by_category': {},
-            'overdue_count': 0,
-            'avg_days_open': 0,
-            'total_cost_impact': 0,
-            'total_schedule_impact': 0,
-            'top_risks': []
-        }
-        
-        # Count by status
-        for choice in Risk.Status.choices:
-            stats['by_status'][choice[0]] = queryset.filter(status=choice[0]).count()
-        
-        # Count by category
-        for choice in Risk.Category.choices:
-            count = queryset.filter(category=choice[0]).count()
-            if count > 0:
-                stats['by_category'][choice[0]] = count
-        
-        # Overdue count
-        today = timezone.now().date()
-        stats['overdue_count'] = queryset.filter(
-            target_resolution__lt=today
-        ).exclude(
-            status__in=[Risk.Status.CLOSED, Risk.Status.MITIGATED]
-        ).count()
-        
-        # Average days open (for non-closed risks)
-        open_risks = queryset.exclude(status=Risk.Status.CLOSED)
-        if open_risks.exists():
-            try:
-                total_days = sum(r.days_open for r in open_risks)
-                stats['avg_days_open'] = round(total_days / open_risks.count(), 1)
-            except Exception as e:
-                logger.warning(f"Failed to calculate average days open: {e}")
-                stats['avg_days_open'] = 0
-        
-        # Total impacts
-        aggregates = queryset.aggregate(
-            total_cost=Coalesce(Sum('cost_impact'), 0),
-            total_schedule=Coalesce(Sum('schedule_impact_days'), 0)
-        )
-        stats['total_cost_impact'] = float(aggregates['total_cost'])
-        stats['total_schedule_impact'] = aggregates['total_schedule']
-        
-        # Top 5 high/critical risks
-        top_risks = queryset.filter(
-            severity__in=['HIGH', 'CRITICAL']
-        ).exclude(
-            status=Risk.Status.CLOSED
-        ).order_by('-risk_score', '-created_at')[:5]
-        stats['top_risks'] = RiskListSerializer(top_risks, many=True).data
-        
-        return Response(stats)
+        try:
+            queryset = self.get_queryset()
+            total_count = queryset.count()
+            logger.info(f"Risk stats: Found {total_count} risks in queryset")
+            
+            # Aggregate statistics
+            stats = {
+                'total': total_count,
+                'by_severity': {
+                    'critical': queryset.filter(severity='CRITICAL').count(),
+                    'high': queryset.filter(severity='HIGH').count(),
+                    'medium': queryset.filter(severity='MEDIUM').count(),
+                    'low': queryset.filter(severity='LOW').count(),
+                },
+                'by_status': {},
+                'by_category': {},
+                'overdue_count': 0,
+                'avg_days_open': 0,
+                'total_cost_impact': 0,
+                'total_schedule_impact': 0,
+                'top_risks': []
+            }
+            
+            # Count by status
+            for choice in Risk.Status.choices:
+                stats['by_status'][choice[0]] = queryset.filter(status=choice[0]).count()
+            
+            # Count by category
+            for choice in Risk.Category.choices:
+                count = queryset.filter(category=choice[0]).count()
+                if count > 0:
+                    stats['by_category'][choice[0]] = count
+            
+            # Overdue count
+            today = timezone.now().date()
+            stats['overdue_count'] = queryset.filter(
+                target_resolution__lt=today
+            ).exclude(
+                status__in=[Risk.Status.CLOSED, Risk.Status.MITIGATED]
+            ).count()
+            
+            # Average days open (for non-closed risks)
+            open_risks = queryset.exclude(status=Risk.Status.CLOSED)
+            if open_risks.exists():
+                try:
+                    total_days = sum(r.days_open for r in open_risks)
+                    stats['avg_days_open'] = round(total_days / open_risks.count(), 1)
+                except Exception as e:
+                    logger.warning(f"Failed to calculate average days open: {e}")
+                    stats['avg_days_open'] = 0
+            
+            # Total impacts
+            from django.db.models import DecimalField, IntegerField
+            from decimal import Decimal
+            aggregates = queryset.aggregate(
+                total_cost=Coalesce(Sum('cost_impact'), Decimal('0.00'), output_field=DecimalField()),
+                total_schedule=Coalesce(Sum('schedule_impact_days'), 0, output_field=IntegerField())
+            )
+            stats['total_cost_impact'] = float(aggregates['total_cost'])
+            stats['total_schedule_impact'] = aggregates['total_schedule']
+            
+            # Top 5 high/critical risks
+            top_risks = queryset.filter(
+                severity__in=['HIGH', 'CRITICAL']
+            ).exclude(
+                status=Risk.Status.CLOSED
+            ).order_by('-risk_score', '-created_at')[:5]
+            stats['top_risks'] = RiskListSerializer(top_risks, many=True).data
+            
+            return Response(stats)
+        except Exception as e:
+            logger.error(f"Error fetching risk stats: {e}")
+            # Return empty stats on error instead of 500
+            return Response({
+                'total': 0,
+                'by_severity': {'critical': 0, 'high': 0, 'medium': 0, 'low': 0},
+                'by_status': {},
+                'by_category': {},
+                'overdue_count': 0,
+                'avg_days_open': 0,
+                'total_cost_impact': 0,
+                'total_schedule_impact': 0,
+                'top_risks': [],
+                'error': str(e)
+            })
     
     @action(detail=True, methods=['get'])
     def audit_log(self, request, pk=None):

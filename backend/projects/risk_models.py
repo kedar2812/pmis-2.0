@@ -311,6 +311,8 @@ class Risk(models.Model):
     @property
     def days_open(self):
         """Number of days risk has been open."""
+        if not self.identified_date:
+            return 0
         end_date = self.actual_closure or timezone.now().date()
         return (end_date - self.identified_date).days
     

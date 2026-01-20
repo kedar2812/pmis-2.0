@@ -154,12 +154,22 @@ class WorkflowInstanceViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def pending(self, request):
         """Get pending workflow items for current user."""
-        instances = workflow_engine.get_pending_for_user(request.user)
-        serializer = WorkflowInstanceListSerializer(instances, many=True)
-        return Response({
-            'count': len(serializer.data),
-            'results': serializer.data
-        })
+        try:
+            instances = workflow_engine.get_pending_for_user(request.user)
+            serializer = WorkflowInstanceListSerializer(instances, many=True)
+            return Response({
+                'count': len(serializer.data),
+                'results': serializer.data
+            })
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error fetching pending workflows: {e}")
+            return Response({
+                'count': 0,
+                'results': [],
+                'error': str(e)
+            })
     
     @action(detail=False, methods=['post'])
     def start(self, request):

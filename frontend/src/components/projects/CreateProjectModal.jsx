@@ -731,9 +731,9 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                     onClick={() => document.getElementById('admin-approval-upload').click()}
-                    className={`p-8 border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center transition-colors cursor-pointer ${errors.adminApprovalDoc ? 'border-red-300 bg-red-50' :
-                      isDragging ? 'border-primary-500 bg-primary-50' :
-                        formData.adminApprovalDoc ? 'border-green-500 bg-green-50' :
+                    className={`p-8 border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center transition-colors cursor-pointer ${errors.adminApprovalDoc ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20' :
+                      isDragging ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30' :
+                        formData.adminApprovalDoc ? 'border-green-500 dark:border-green-600 bg-green-50 dark:bg-green-900/20' :
                           'border-app-subtle hover:bg-app-surface'
                       }`}
                   >
@@ -750,17 +750,17 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
                         }
                       }}
                     />
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${formData.adminApprovalDoc ? 'bg-green-100 text-green-600' :
-                      isDragging ? 'bg-primary-100 text-primary-600' :
-                        'bg-blue-50 text-blue-600'
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${formData.adminApprovalDoc ? 'bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400' :
+                      isDragging ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400' :
+                        'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
                       }`}>
                       {formData.adminApprovalDoc ? <Check size={24} /> : <Upload size={24} />}
                     </div>
                     {formData.adminApprovalDoc ? (
                       <>
-                        <p className="font-medium text-green-700">Document Selected</p>
-                        <p className="text-sm text-green-600 mt-1">{formData.adminApprovalDoc.name}</p>
-                        <p className="text-xs text-green-500 mt-2">Click or drag to replace</p>
+                        <p className="font-medium text-green-700 dark:text-green-400">Document Selected</p>
+                        <p className="text-sm text-green-600 dark:text-green-500 mt-1">{formData.adminApprovalDoc.name}</p>
+                        <p className="text-xs text-green-500 dark:text-green-600 mt-2">Click or drag to replace</p>
                       </>
                     ) : (
                       <>

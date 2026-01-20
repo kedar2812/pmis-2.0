@@ -78,7 +78,7 @@ const Projects = () => {
       const name = project.name || '';
       const desc = project.description || '';
       const cat = project.category || '';
-      const mgr = project.manager || '';
+      const mgr = typeof project.manager === 'string' ? project.manager : (project.manager?.name || project.manager_name || '');
 
       const matchesSearch =
         name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -273,8 +273,8 @@ const Projects = () => {
                 <button
                   onClick={() => setShowFilters(!showFilters)}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-colors ${showFilters || hasActiveFilters
-                      ? 'bg-primary-50 border-primary-300 text-primary-700 dark:bg-blue-900/30 dark:border-blue-600 dark:text-blue-300'
-                      : 'border-app bg-app-card text-app-muted hover:bg-app-surface'
+                    ? 'bg-primary-50 border-primary-300 text-primary-700 dark:bg-blue-900/30 dark:border-blue-600 dark:text-blue-300'
+                    : 'border-app bg-app-card text-app-muted hover:bg-app-surface'
                     }`}
                 >
                   <Filter size={18} />

@@ -13,6 +13,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import CreateRiskModal from '@/components/risks/CreateRiskModal';
 import RiskDetailPanel from '@/components/risks/RiskDetailPanel';
+import Button from '@/components/ui/Button';
 
 const RiskManagement = () => {
   const { t } = useLanguage();
@@ -187,13 +188,13 @@ const RiskManagement = () => {
             {t('risk.subtitle') || 'Identify, assess, and mitigate project risks'}
           </p>
         </div>
-        <button
+        <Button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors shadow-md"
+          className="min-h-[44px]"
         >
           <Plus size={20} />
-          <span>Add New Risk</span>
-        </button>
+          Add New Risk
+        </Button>
       </div>
 
       {/* Summary Cards */}

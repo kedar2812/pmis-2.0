@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import riskService from '@/api/services/riskService';
+import Button from '@/components/ui/Button';
 import {
     X, AlertTriangle, AlertCircle, CheckCircle, Clock, FileText, Plus,
     Edit2, Save, ChevronDown, ChevronRight, Loader2, Upload, Trash2,
@@ -76,90 +78,100 @@ const RiskDetailPanel = ({ isOpen, onClose, risk: initialRisk, onUpdate }) => {
 
     if (!isOpen) return null;
 
-    return (
-        <AnimatePresence>
-            <div className="fixed inset-0 z-50 flex justify-end">
-                {/* Backdrop */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/40"
-                    onClick={onClose}
-                />
+    // Severity badge styling
+    const getSeverityBadge = (severity) => {
+        const colors = {
+            CRITICAL: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800',
+            HIGH: 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800',
+            MEDIUM: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800',
+            LOW: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800'
+        };
+        return colors[severity] || colors.MEDIUM;
+    };
 
-                {/* Panel */}
+    return createPortal(
+        <AnimatePresence>
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[9999] flex items-center justify-center bg-app-overlay backdrop-blur-sm p-4"
+                onClick={onClose}
+            >
+                {/* Panel - Center modal like other windows */}
                 <motion.div
-                    initial={{ x: '100%' }}
-                    animate={{ x: 0 }}
-                    exit={{ x: '100%' }}
-                    transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                    className="relative w-full max-w-2xl bg-app-card shadow-2xl flex flex-col h-full"
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                    className="relative w-full max-w-3xl bg-app-card rounded-xl sm:rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]"
+                    onClick={(e) => e.stopPropagation()}
                 >
-                    {/* Header */}
-                    <div className={`px-6 py-4 bg-gradient-to-r ${risk?.severity === 'CRITICAL' ? 'from-red-500 to-red-600' :
-                        risk?.severity === 'HIGH' ? 'from-orange-500 to-orange-600' :
-                            risk?.severity === 'MEDIUM' ? 'from-yellow-500 to-yellow-600' :
-                                'from-green-500 to-green-600'
-                        } text-white`}>
+                    {/* Header - Clean design matching system UI */}
+                    <div className="px-6 py-4 border-b border-app-subtle bg-app-card">
                         <div className="flex items-start justify-between">
-                            <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-white/80 text-sm font-mono">{risk?.risk_code}</span>
-                                    <span className={`px-2 py-0.5 rounded-full text-xs ${statusColors.bg} ${statusColors.text}`}>
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <span className="px-2 py-1 rounded text-xs font-mono bg-app-surface text-app-muted">
+                                        {risk?.risk_code}
+                                    </span>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getSeverityBadge(risk?.severity)}`}>
+                                        {risk?.severity}
+                                    </span>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors.bg} ${statusColors.text}`}>
                                         {riskService.STATUSES.find(s => s.value === risk?.status)?.label}
                                     </span>
                                 </div>
-                                <h2 className="text-xl font-semibold">{risk?.title}</h2>
-                                <p className="text-white/80 text-sm mt-1">{risk?.project_name}</p>
+                                <h2 className="text-xl font-semibold text-app-heading">{risk?.title}</h2>
+                                <p className="text-sm text-app-muted mt-1">{risk?.project_name}</p>
                             </div>
                             <button
                                 onClick={onClose}
-                                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                                className="p-2 hover:bg-app-surface rounded-lg transition-colors"
                             >
-                                <X size={20} />
+                                <X size={20} className="text-app-muted" />
                             </button>
                         </div>
 
-                        {/* Risk Score Display */}
-                        <div className="flex items-center gap-6 mt-4 pt-4 border-t border-white/20">
+                        {/* Risk Score Display - Compact */}
+                        <div className="flex items-center gap-6 mt-4 pt-4 border-t border-app-subtle">
                             <div className="text-center">
-                                <div className="text-3xl font-bold">{risk?.risk_score}</div>
-                                <div className="text-xs text-white/70">Risk Score</div>
+                                <div className="text-2xl font-bold text-app-heading">{risk?.risk_score}</div>
+                                <div className="text-xs text-app-muted">Risk Score</div>
                             </div>
                             <div className="text-center">
                                 <div className="flex gap-1">
                                     {[1, 2, 3, 4, 5].map(i => (
                                         <div
                                             key={i}
-                                            className={`w-3 h-6 rounded ${i <= risk?.probability ? 'bg-white' : 'bg-white/30'}`}
+                                            className={`w-2 h-5 rounded ${i <= risk?.probability ? 'bg-primary-500' : 'bg-app-subtle'}`}
                                         />
                                     ))}
                                 </div>
-                                <div className="text-xs text-white/70 mt-1">Probability</div>
+                                <div className="text-xs text-app-muted mt-1">Probability</div>
                             </div>
                             <div className="text-center">
                                 <div className="flex gap-1">
                                     {[1, 2, 3, 4, 5].map(i => (
                                         <div
                                             key={i}
-                                            className={`w-3 h-6 rounded ${i <= risk?.impact ? 'bg-white' : 'bg-white/30'}`}
+                                            className={`w-2 h-5 rounded ${i <= risk?.impact ? 'bg-primary-500' : 'bg-app-subtle'}`}
                                         />
                                     ))}
                                 </div>
-                                <div className="text-xs text-white/70 mt-1">Impact</div>
+                                <div className="text-xs text-app-muted mt-1">Impact</div>
                             </div>
                             {risk?.residual_risk_score && (
-                                <div className="text-center border-l border-white/20 pl-6">
-                                    <div className="text-2xl font-bold">{risk.residual_risk_score}</div>
-                                    <div className="text-xs text-white/70">Residual</div>
+                                <div className="text-center border-l border-app-subtle pl-6">
+                                    <div className="text-xl font-bold text-app-heading">{risk.residual_risk_score}</div>
+                                    <div className="text-xs text-app-muted">Residual</div>
                                 </div>
                             )}
                         </div>
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex border-b border-app-subtle">
+                    <div className="flex border-b border-app-subtle bg-app-card">
                         {[
                             { id: 'details', label: 'Details', icon: AlertTriangle },
                             { id: 'mitigations', label: 'Mitigations', icon: Shield, count: mitigationActions.length },
@@ -170,7 +182,7 @@ const RiskDetailPanel = ({ isOpen, onClose, risk: initialRisk, onUpdate }) => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex-1 py-3 px-4 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${activeTab === tab.id
-                                    ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50 dark:bg-primary-900/20'
+                                    ? 'text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400 bg-primary-50/50 dark:bg-primary-900/20'
                                     : 'text-app-muted hover:text-app-text hover:bg-app-surface'
                                     }`}
                             >
@@ -186,7 +198,7 @@ const RiskDetailPanel = ({ isOpen, onClose, risk: initialRisk, onUpdate }) => {
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 overflow-y-auto p-6">
+                    <div className="flex-1 overflow-y-auto p-6 bg-app-card">
                         {loading ? (
                             <div className="flex items-center justify-center h-40">
                                 <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
@@ -228,8 +240,9 @@ const RiskDetailPanel = ({ isOpen, onClose, risk: initialRisk, onUpdate }) => {
                         )}
                     </div>
                 </motion.div>
-            </div>
-        </AnimatePresence>
+            </motion.div>
+        </AnimatePresence>,
+        document.body
     );
 };
 
@@ -407,17 +420,17 @@ const MitigationsTab = ({ risk, mitigationActions, onRefresh, showAddModal, setS
             {/* Add Button */}
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium text-app-text">Mitigation Actions</h3>
-                <button
+                <Button
                     onClick={() => setShowAddModal(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm"
+                    size="sm"
                 >
                     <Plus size={16} />
                     Add Mitigation
-                </button>
+                </Button>
             </div>
 
             {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-center gap-2">
+                <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm flex items-center gap-2">
                     <AlertCircle size={16} />
                     {error}
                     <button onClick={() => setError(null)} className="ml-auto">
@@ -454,7 +467,7 @@ const MitigationsTab = ({ risk, mitigationActions, onRefresh, showAddModal, setS
                                                 <span className="text-xs text-app-muted">#{action.action_number}</span>
                                                 <StatusBadge status={action.status} />
                                                 {!action.has_proof && action.status === 'DRAFT' && (
-                                                    <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs">
+                                                    <span className="px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 rounded-full text-xs">
                                                         Needs Proof
                                                     </span>
                                                 )}
@@ -558,9 +571,9 @@ const MitigationsTab = ({ risk, mitigationActions, onRefresh, showAddModal, setS
                                                 {action.proof_documents?.length > 0 ? (
                                                     <div className="space-y-2">
                                                         {action.proof_documents.map(doc => (
-                                                            <div key={doc.id} className="flex items-center gap-2 p-2 bg-green-50 rounded text-sm">
-                                                                <FileText size={16} className="text-green-600" />
-                                                                <span className="flex-1">{doc.document_title}</span>
+                                                            <div key={doc.id} className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/30 rounded text-sm">
+                                                                <FileText size={16} className="text-green-600 dark:text-green-400" />
+                                                                <span className="flex-1 text-app-text">{doc.document_title}</span>
                                                                 <a
                                                                     href={doc.document_url}
                                                                     target="_blank"
@@ -573,45 +586,47 @@ const MitigationsTab = ({ risk, mitigationActions, onRefresh, showAddModal, setS
                                                         ))}
                                                     </div>
                                                 ) : (
-                                                    <p className="text-sm text-yellow-600 bg-yellow-50 p-2 rounded">
+                                                    <p className="text-sm text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/30 p-2 rounded">
                                                         ⚠️ No proof documents attached. Required before submission.
                                                     </p>
                                                 )}
                                             </div>
 
                                             {/* Action Buttons */}
-                                            <div className="flex gap-2 pt-3 border-t">
+                                            <div className="flex gap-2 pt-3 border-t border-app-subtle">
                                                 {action.status === 'DRAFT' && (
-                                                    <button
+                                                    <Button
                                                         onClick={() => handleSubmitForReview(action.id)}
                                                         disabled={!action.has_proof || submitting}
-                                                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm disabled:opacity-50 hover:bg-blue-700"
+                                                        size="sm"
                                                     >
                                                         <Send size={14} />
                                                         Submit for Review
-                                                    </button>
+                                                    </Button>
                                                 )}
                                                 {action.status === 'SUBMITTED' && (
                                                     <>
-                                                        <button
+                                                        <Button
                                                             onClick={() => handleReview(action.id, 'approve')}
                                                             disabled={submitting}
-                                                            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700"
+                                                            variant="success"
+                                                            size="sm"
                                                         >
                                                             <ThumbsUp size={14} />
                                                             Approve
-                                                        </button>
-                                                        <button
+                                                        </Button>
+                                                        <Button
                                                             onClick={() => {
                                                                 const reason = prompt('Enter rejection reason:');
                                                                 if (reason) handleReview(action.id, 'reject', reason);
                                                             }}
                                                             disabled={submitting}
-                                                            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
+                                                            variant="danger"
+                                                            size="sm"
                                                         >
                                                             <ThumbsDown size={14} />
                                                             Reject
-                                                        </button>
+                                                        </Button>
                                                     </>
                                                 )}
                                             </div>
@@ -654,10 +669,10 @@ const MitigationsTab = ({ risk, mitigationActions, onRefresh, showAddModal, setS
  */
 const StatusBadge = ({ status }) => {
     const colors = {
-        DRAFT: 'bg-gray-100 text-gray-700',
-        SUBMITTED: 'bg-blue-100 text-blue-700',
-        APPROVED: 'bg-green-100 text-green-700',
-        REJECTED: 'bg-red-100 text-red-700'
+        DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
+        SUBMITTED: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400',
+        APPROVED: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400',
+        REJECTED: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400'
     };
     return (
         <span className={`px-2 py-0.5 rounded-full text-xs ${colors[status] || colors.DRAFT}`}>
@@ -723,7 +738,7 @@ const AddMitigationModal = ({ risk, onClose, onSuccess }) => {
                     </div>
 
                     {error && (
-                        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
                             {error}
                         </div>
                     )}
@@ -798,8 +813,8 @@ const AddMitigationModal = ({ risk, onClose, onSuccess }) => {
                             />
                         </div>
 
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                            <p className="text-sm text-yellow-700">
+                        <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                            <p className="text-sm text-yellow-700 dark:text-yellow-400">
                                 <strong>Note:</strong> After creating this action, you must upload proof documents before submitting for review.
                             </p>
                         </div>
@@ -836,10 +851,10 @@ const DocumentsTab = ({ risk, documents, onRefresh }) => {
         <div className="space-y-4">
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium text-app-text">Risk Documents</h3>
-                <button className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm">
+                <Button size="sm">
                     <Upload size={16} />
                     Upload Document
-                </button>
+                </Button>
             </div>
 
             {documents.length === 0 ? (
