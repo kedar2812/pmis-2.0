@@ -3,6 +3,7 @@ name: Sync to GitLab
 # Automatically sync code to GitLab repositories when pushed to GitHub
 # - Webapp repo: Full mirror of entire codebase
 # - API repo: Only the backend folder
+# Always syncs to main branch on GitLab
 
 on:
   push:
@@ -20,13 +21,13 @@ jobs:
         with:
           fetch-depth: 0  # Full history for proper push
       
-      - name: Push to GitLab Webapp
+      - name: Push to GitLab Webapp (main branch)
         env:
           GITLAB_WEBAPP_URL: ${{ secrets.GITLAB_WEBAPP_URL }}
         run: |
           git remote add gitlab-webapp "$GITLAB_WEBAPP_URL" || git remote set-url gitlab-webapp "$GITLAB_WEBAPP_URL"
-          git push gitlab-webapp ${{ github.ref_name }} --force
-          echo "✅ Synced to GitLab Webapp repository"
+          git push gitlab-webapp HEAD:main --force
+          echo "✅ Synced to GitLab Webapp main branch"
 
   # Job 2: Sync only backend folder to GitLab API
   sync-api:
@@ -43,7 +44,7 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
       
-      - name: Push backend to GitLab API
+      - name: Push backend to GitLab API (main branch)
         env:
           GITLAB_API_URL: ${{ secrets.GITLAB_API_URL }}
         run: |
@@ -51,10 +52,11 @@ jobs:
           git remote add gitlab-api "$GITLAB_API_URL" || git remote set-url gitlab-api "$GITLAB_API_URL"
           
           # Use subtree split to extract only the backend folder
-          # Then force push to the API repo
+          # Then force push to main branch on API repo
           git subtree split --prefix=backend -b backend-only
-          git push gitlab-api backend-only:${{ github.ref_name }} --force
+          git push gitlab-api backend-only:main --force
           
           # Cleanup
           git branch -D backend-only
-          echo "✅ Synced backend to GitLab API repository"
+          echo "✅ Synced backend to GitLab API main branch"
+
