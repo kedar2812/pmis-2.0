@@ -471,8 +471,10 @@ class DashboardStatsView(APIView):
         total_spent = float(financial_summary['total_spent'] or 0)
         avg_progress = float(projects.aggregate(avg=Avg('progress'))['avg'] or 0)
         
-        # EV = Budget * Progress%
-        earned_value = total_budget * (avg_progress / 100)
+        # EV = Sum of EV of all projects
+        # We use the persisted earned_value field which is updated by the calculator service
+        earned_value = float(projects.aggregate(total=Sum('earned_value'))['total'] or 0)
+
         # CPI = EV / AC (Cost Performance Index)
         cpi = earned_value / total_spent if total_spent > 0 else 1.0
         # SPI = EV / PV (Schedule Performance Index) - simplified

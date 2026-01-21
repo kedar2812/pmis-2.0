@@ -10,6 +10,9 @@ def check_and_fix_schema(apps, schema_editor):
     This handles the case where migration 0005 was partially applied
     or applied with a different version.
     """
+    if schema_editor.connection.vendor != 'postgresql':
+        return
+
     from django.db import connection
     
     with connection.cursor() as cursor:
