@@ -239,7 +239,19 @@ class WorkPackage(models.Model):
     ]
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='work_packages')
+    
+    # Legacy contractor field (FK to User) - kept for backward compatibility
     contractor = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_packages')
+    
+    # New contractor field (FK to Contractor model) - preferred for new packages
+    contractor_master = models.ForeignKey(
+        'masters.Contractor',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='work_packages',
+        help_text="Contractor assigned to this package (new field)"
+    )
     
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
@@ -250,15 +262,82 @@ class WorkPackage(models.Model):
     end_date = models.DateField(null=True, blank=True)
     
     # Agreement Details
-    agreement_no = models.CharField(max_length=100, blank=True, null=True)
+    agreement_no = models.CharField(max_length=100, blank=True, null=True, help_text="Agreement/Contract number")
     agreement_date = models.DateField(null=True, blank=True)
     responsible_staff = models.CharField(max_length=255, blank=True, null=True)
+    
+    # EDMS Integration for document management
+    agreement_document = models.FileField(
+        upload_to='temp/package_agreements/',
+        null=True,
+        blank=True,
+        help_text="Temporary storage during upload, moved to EDMS after creation"
+    )
+    agreement_document_edms = models.ForeignKey(
+        'edms.Document',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='package_agreements',
+        help_text="EDMS document reference for agreement"
+    )
+    package_folder_edms = models.ForeignKey(
+        'edms.Folder',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='work_packages',
+        help_text="EDMS folder for this package's documents"
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.name} ({self.project.name})"
+    
+    @property
+    def package_folder_path(self) -> str:
+        """
+        Get human-readable EDMS folder path for this package.
+        
+        Returns:
+            str: Full EDMS folder path or status message
+        """
+        if self.package_folder_edms:
+            try:
+                return self.package_folder_edms.get_full_path()
+            except Exception:
+                return f"Folder ID: {self.package_folder_edms.id}"
+        return "Folder not yet created"
+    
+    def clean(self):
+        """
+        Validate package data before saving.
+        
+        Raises:
+            ValidationError: If validation fails
+        """
+        from django.core.exceptions import ValidationError as DjangoValidationError
+        
+        errors = {}
+        
+        # Ensure contractor has linked user account for notifications
+        if self.contractor and not self.contractor.linked_user:
+            errors['contractor'] = "Selected contractor must have a linked user account"
+        
+        # Ensure agreement number is provided
+        if not self.agreement_no or not self.agreement_no.strip():
+            errors['agreement_no'] = "Agreement number is required"
+        
+        # Validate responsible staff is from same project hierarchy if possible
+        if self.responsible_staff and self.project:
+            # This is a soft validation - log warning but don't block
+            # Could be enhanced to check division/zone match
+            pass
+        
+        if errors:
+            raise DjangoValidationError(errors)
 
 
 class FundingSource(models.Model):

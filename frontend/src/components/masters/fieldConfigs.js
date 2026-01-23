@@ -8,7 +8,14 @@ export const zoneFields = [
     { name: 'code', label: 'Zone Code', required: true, placeholder: 'e.g., ZN-SOUTH', helpText: 'Unique identifier for this zone' },
     { name: 'name', label: 'Zone Name', required: true, placeholder: 'e.g., South Operations Zone' },
     { name: 'state_covered', label: 'State/Region', placeholder: 'e.g., Telangana' },
-    { name: 'head', label: 'Zone Head', placeholder: 'Name and designation' },
+    {
+        name: 'head_user',
+        label: 'Zone Head',
+        type: 'user-select',
+        placeholder: 'Select or invite Zone Head user',
+        helpText: 'Select a user for Zone Head'
+    },
+    { name: 'head', label: 'Zone Head Name (Legacy)', type: 'hidden' },
     {
         name: 'status',
         label: 'Status',

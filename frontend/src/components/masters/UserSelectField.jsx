@@ -136,21 +136,21 @@ const UserSelectField = ({
 
     const getRoleBadgeColor = (role) => {
         const colors = {
-            'SPV_Official': 'bg-purple-100 text-purple-700',
-            'PMNC_Team': 'bg-indigo-100 text-indigo-700',
-            'Consultant_Design': 'bg-cyan-100 text-cyan-700',
-            'Govt_Department': 'bg-emerald-100 text-emerald-700',
-            'NICDC_HQ': 'bg-pink-100 text-pink-700',
+            'SPV_Official': 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+            'PMNC_Team': 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
+            'Consultant_Design': 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300',
+            'Govt_Department': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+            'NICDC_HQ': 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300',
         };
-        return colors[role] || 'bg-slate-100 text-slate-700';
+        return colors[role] || 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
     };
 
     return (
         <div className="relative" ref={containerRef}>
             {/* Label */}
             {label && (
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                    {label} {required && <span className="text-red-500">*</span>}
+                <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">
+                    {label} {required && <span className="text-red-500 dark:text-red-400">*</span>}
                 </label>
             )}
 
@@ -159,43 +159,43 @@ const UserSelectField = ({
                 type="button"
                 disabled={disabled}
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full flex items-center justify-between px-4 py-2.5 bg-white border rounded-xl text-left transition-all ${error ? 'border-red-300 focus:ring-red-100' :
-                        isOpen ? 'border-primary-500 ring-2 ring-primary-100' :
-                            'border-slate-200 hover:border-slate-300'
-                    } ${disabled ? 'bg-slate-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                className={`w-full flex items-center justify-between px-4 py-2.5 bg-white dark:bg-neutral-900 border rounded-xl text-left transition-all ${error ? 'border-red-300 dark:border-red-700 focus:ring-red-100 dark:focus:ring-red-900' :
+                    isOpen ? 'border-primary-500 dark:border-primary-400 ring-2 ring-primary-100 dark:ring-primary-900' :
+                        'border-slate-200 dark:border-neutral-700 hover:border-slate-300 dark:hover:border-neutral-600'
+                    } ${disabled ? 'bg-slate-50 dark:bg-neutral-800 cursor-not-allowed' : 'cursor-pointer'}`}
             >
                 {selectedUser ? (
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-medium flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 font-medium flex-shrink-0">
                             {(selectedUser.first_name?.[0] || selectedUser.username?.[0] || '?').toUpperCase()}
                         </div>
                         <div className="min-w-0 flex-1">
-                            <p className="font-medium text-slate-800 truncate">
+                            <p className="font-medium text-slate-800 dark:text-white truncate">
                                 {selectedUser.first_name} {selectedUser.last_name}
                             </p>
-                            <p className="text-xs text-slate-500 truncate">{selectedUser.email}</p>
+                            <p className="text-xs text-slate-500 dark:text-neutral-400 truncate">{selectedUser.email}</p>
                         </div>
                         {!disabled && (
                             <button
                                 type="button"
                                 onClick={handleClear}
-                                className="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600"
+                                className="p-1 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full text-slate-400 dark:text-neutral-500 hover:text-slate-600 dark:hover:text-neutral-300"
                             >
                                 <X size={16} />
                             </button>
                         )}
                     </div>
                 ) : (
-                    <span className="text-slate-400">{placeholder}</span>
+                    <span className="text-slate-400 dark:text-neutral-500">{placeholder}</span>
                 )}
                 <ChevronDown
                     size={18}
-                    className={`text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''} ${selectedUser ? 'ml-2' : ''}`}
+                    className={`text-slate-400 dark:text-neutral-500 transition-transform ${isOpen ? 'rotate-180' : ''} ${selectedUser ? 'ml-2' : ''}`}
                 />
             </button>
 
             {/* Error Message */}
-            {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+            {error && <p className="text-sm text-red-500 dark:text-red-400 mt-1">{error}</p>}
 
             {/* Dropdown */}
             <AnimatePresence>
@@ -205,19 +205,19 @@ const UserSelectField = ({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -8 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden"
+                        className="absolute z-50 w-full mt-1 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 rounded-xl shadow-lg overflow-hidden"
                     >
                         {/* Search */}
-                        <div className="p-2 border-b border-slate-100">
+                        <div className="p-2 border-b border-slate-100 dark:border-neutral-700">
                             <div className="relative">
-                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500" />
                                 <input
                                     ref={inputRef}
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Search by name or email..."
-                                    className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-primary-500"
+                                    className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white rounded-lg focus:outline-none focus:border-primary-500 dark:focus:border-primary-400 placeholder:text-slate-400 dark:placeholder:text-neutral-500"
                                     autoFocus
                                 />
                             </div>
@@ -227,13 +227,13 @@ const UserSelectField = ({
                         <div className="max-h-60 overflow-y-auto">
                             {loading ? (
                                 <div className="py-8 text-center">
-                                    <Loader2 className="animate-spin mx-auto text-primary-500 mb-2" size={24} />
-                                    <p className="text-sm text-slate-500">Loading users...</p>
+                                    <Loader2 className="animate-spin mx-auto text-primary-500 dark:text-primary-400 mb-2" size={24} />
+                                    <p className="text-sm text-slate-500 dark:text-neutral-400">Loading users...</p>
                                 </div>
                             ) : filteredUsers.length === 0 ? (
                                 <div className="py-8 text-center">
-                                    <User className="mx-auto text-slate-300 mb-2" size={32} />
-                                    <p className="text-sm text-slate-500">
+                                    <User className="mx-auto text-slate-300 dark:text-neutral-600 mb-2" size={32} />
+                                    <p className="text-sm text-slate-500 dark:text-neutral-400">
                                         {searchQuery ? 'No users match your search' : 'No users available'}
                                     </p>
                                 </div>
@@ -243,17 +243,17 @@ const UserSelectField = ({
                                         key={user.id}
                                         type="button"
                                         onClick={() => handleSelect(user)}
-                                        className={`w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-slate-50 transition-colors ${selectedUser?.id === user.id ? 'bg-primary-50' : ''
+                                        className={`w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-neutral-700 transition-colors border-b border-slate-100 dark:border-neutral-700 last:border-0 ${selectedUser?.id === user.id ? 'bg-primary-50 dark:bg-primary-900/20' : ''
                                             }`}
                                     >
-                                        <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-medium flex-shrink-0">
+                                        <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-neutral-700 flex items-center justify-center text-slate-600 dark:text-neutral-300 font-medium flex-shrink-0">
                                             {(user.first_name?.[0] || user.username?.[0] || '?').toUpperCase()}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-medium text-slate-800 truncate">
+                                            <p className="font-medium text-slate-800 dark:text-white truncate">
                                                 {user.first_name} {user.last_name}
                                             </p>
-                                            <div className="flex items-center gap-2 text-xs text-slate-500">
+                                            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-neutral-400">
                                                 <Mail size={12} />
                                                 <span className="truncate">{user.email}</span>
                                             </div>
@@ -262,7 +262,7 @@ const UserSelectField = ({
                                             {user.role?.replace('_', ' ')}
                                         </span>
                                         {selectedUser?.id === user.id && (
-                                            <Check size={18} className="text-primary-600 flex-shrink-0" />
+                                            <Check size={18} className="text-primary-600 dark:text-primary-400 flex-shrink-0" />
                                         )}
                                     </button>
                                 ))
@@ -271,15 +271,14 @@ const UserSelectField = ({
 
                         {/* Invite New User Option */}
                         {showInviteOption && (
-                            <div className="border-t border-slate-100 p-2">
+                            <div className="border-t border-slate-100 dark:border-neutral-700 p-2">
                                 <button
                                     type="button"
                                     onClick={() => {
                                         setIsOpen(false);
                                         setInviteModalOpen(true);
                                     }}
-                                    className="w-full flex items-center gap-2 px-3 py-2.5 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors font-medium text-sm"
-                                >
+                                    className="w-full flex items-center gap-2 px-3 py-2.5 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors font-medium text-sm">
                                     <UserPlus size={18} />
                                     Invite New User
                                 </button>
@@ -358,69 +357,69 @@ const InviteUserModal = ({ isOpen, onClose, onSuccess }) => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4"
+                className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full max-w-lg mx-4 border border-slate-100 dark:border-neutral-800"
             >
-                <div className="p-6 border-b border-slate-200 flex items-center justify-between">
+                <div className="p-6 border-b border-slate-200 dark:border-neutral-800 flex items-center justify-between">
                     <div>
-                        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                            <UserPlus className="text-primary-600" size={24} />
+                        <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <UserPlus className="text-primary-600 dark:text-primary-400" size={24} />
                             Invite New User
                         </h2>
-                        <p className="text-sm text-slate-500 mt-1">Send an invite to a new team member</p>
+                        <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">Send an invite to a new team member</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg text-slate-400">
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg text-slate-400 dark:text-neutral-500 transition-colors">
                         <X size={20} />
                     </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Email <span className="text-red-500">*</span>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">
+                            Email <span className="text-red-500 dark:text-red-400">*</span>
                         </label>
                         <input
                             type="email"
                             value={formData.email}
                             onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                            className={`w-full px-4 py-2 rounded-lg border ${errors.email ? 'border-red-300' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-primary-500`}
+                            className={`w-full px-4 py-2 rounded-lg border bg-white dark:bg-neutral-800 dark:text-white ${errors.email ? 'border-red-300 dark:border-red-700' : 'border-slate-200 dark:border-neutral-700'} focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 placeholder:text-slate-400 dark:placeholder:text-neutral-500`}
                             placeholder="user@example.com"
                         />
-                        {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
+                        {errors.email && <p className="text-sm text-red-500 dark:text-red-400 mt-1">{errors.email}</p>}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
-                                First Name <span className="text-red-500">*</span>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">
+                                First Name <span className="text-red-500 dark:text-red-400">*</span>
                             </label>
                             <input
                                 type="text"
                                 value={formData.first_name}
                                 onChange={(e) => setFormData(prev => ({ ...prev, first_name: e.target.value }))}
-                                className={`w-full px-4 py-2 rounded-lg border ${errors.first_name ? 'border-red-300' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-primary-500`}
+                                className={`w-full px-4 py-2 rounded-lg border bg-white dark:bg-neutral-800 dark:text-white ${errors.first_name ? 'border-red-300 dark:border-red-700' : 'border-slate-200 dark:border-neutral-700'} focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 placeholder:text-slate-400 dark:placeholder:text-neutral-500`}
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
-                                Last Name <span className="text-red-500">*</span>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">
+                                Last Name <span className="text-red-500 dark:text-red-400">*</span>
                             </label>
                             <input
                                 type="text"
                                 value={formData.last_name}
                                 onChange={(e) => setFormData(prev => ({ ...prev, last_name: e.target.value }))}
-                                className={`w-full px-4 py-2 rounded-lg border ${errors.last_name ? 'border-red-300' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-primary-500`}
+                                className={`w-full px-4 py-2 rounded-lg border bg-white dark:bg-neutral-800 dark:text-white ${errors.last_name ? 'border-red-300 dark:border-red-700' : 'border-slate-200 dark:border-neutral-700'} focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 placeholder:text-slate-400 dark:placeholder:text-neutral-500`}
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Role <span className="text-red-500">*</span>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">
+                            Role <span className="text-red-500 dark:text-red-400">*</span>
                         </label>
                         <select
                             value={formData.role}
                             onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                            className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
                         >
                             <option value="SPV_Official">SPV Official</option>
                             <option value="PMNC_Team">PMNC Team</option>
@@ -432,27 +431,27 @@ const InviteUserModal = ({ isOpen, onClose, onSuccess }) => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Department</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Department</label>
                             <input
                                 type="text"
                                 value={formData.department}
                                 onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
-                                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 placeholder:text-slate-400 dark:placeholder:text-neutral-500"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-neutral-300 mb-1">Phone</label>
                             <input
                                 type="text"
                                 value={formData.phone_number}
                                 onChange={(e) => setFormData(prev => ({ ...prev, phone_number: e.target.value }))}
-                                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 placeholder:text-slate-400 dark:placeholder:text-neutral-500"
                             />
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-4">
-                        <Button variant="outline" type="button" onClick={onClose}>Cancel</Button>
+                    <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-neutral-800">
+                        <Button variant="outline" type="button" onClick={onClose} className="dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800">Cancel</Button>
                         <Button type="submit" disabled={isSubmitting}>
                             {isSubmitting ? <Loader2 className="animate-spin mr-2" size={18} /> : <Mail className="mr-2" size={18} />}
                             Send Invite

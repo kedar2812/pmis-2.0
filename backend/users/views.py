@@ -109,6 +109,85 @@ class EligibleManagersListView(ListAPIView):
         ).order_by('first_name', 'last_name')
 
 
+class UserSearchView(APIView):
+    """
+    Search users with fuzzy matching for package staff and zone head selection.
+    
+    Query Parameters:
+        q (str): Search query (name, email, username)
+        role (str, optional): Filter by specific role
+        limit (int, optional): Limit results (default: 20, max: 100)
+    
+    Features:
+        - Fuzzy search across first_name, last_name, email, username
+        - Case-insensitive matching
+        - Role filtering
+        - Active users only
+        - Performance optimized with query limits
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        query = request.GET.get('q', '').strip()
+        role_filter = request.GET.get('role', None)
+        limit = min(int(request.GET.get('limit', 20)), 100)  # Cap at 100 for performance
+        
+        # Require at least 2 characters for search to prevent loading all users
+        if not query or len(query) < 2:
+            return Response({
+                'error': 'Search query must be at least 2 characters',
+                'users': []
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Build search query with fuzzy matching (case-insensitive)
+        from django.db.models import Q
+        query_lower = query.lower()
+        
+        search_filter = Q(
+            Q(first_name__icontains=query_lower) |
+            Q(last_name__icontains=query_lower) |
+            Q(email__icontains=query_lower) |
+            Q(username__icontains=query_lower)
+        )
+        
+        # Start with active users only
+        users = User.objects.filter(
+            search_filter,
+            account_status='ACTIVE'
+        )
+        
+        # Apply role filter if specified
+        if role_filter:
+            users = users.filter(role=role_filter)
+        
+        # Optimize query and limit results
+        users = users.select_related('division', 'subdivision', 'zone').order_by(
+            'first_name', 'last_name'
+        )[:limit]
+        
+        # Serialize results
+        user_data = [{ 
+            'id': user.id,
+            'username': user.username,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'full_name': f"{user.first_name} {user.last_name}".strip() or user.username,
+            'role': user.role,
+            'role_display': user.get_role_display() if hasattr(user, 'get_role_display') else user.role,
+            'division': user.division.name if user.division else None,
+            'subdivision': user.subdivision.name if hasattr(user, 'subdivision') and user.subdivision else None,
+            'account_status': user.account_status,
+        } for user in users]
+        
+        return Response({
+            'count': len(user_data),
+            'query': query,
+            'role_filter': role_filter,
+            'users': user_data
+        })
+
+
 class UserDetailView(RetrieveUpdateAPIView):
     """Get/Update user details (Admin only)."""
     queryset = User.objects.all()

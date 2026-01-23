@@ -5,7 +5,7 @@ from .views import (
     ContractorRegistrationView, PendingUsersView,
     ApproveUserView, RejectUserView, ToggleUserStatusView,
     PasswordResetRequestView, PasswordResetConfirmView,
-    EligibleManagersListView
+    EligibleManagersListView, UserSearchView
 )
 
 urlpatterns = [
@@ -15,6 +15,7 @@ urlpatterns = [
     
     # User management (Admin)
     path('', UserListView.as_view(), name='user-list'),
+    path('search/', UserSearchView.as_view(), name='user-search'),  # Fuzzy search endpoint
     path('eligible-managers/', EligibleManagersListView.as_view(), name='eligible-managers'),
     path('<int:pk>/', UserDetailView.as_view(), name='user-detail'),
     path('<int:pk>/toggle-status/', ToggleUserStatusView.as_view(), name='user-toggle-status'),

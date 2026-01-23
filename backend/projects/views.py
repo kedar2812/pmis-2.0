@@ -32,6 +32,72 @@ class ProjectViewSet(viewsets.ModelViewSet):
         except Exception as e:
             logger.error(f"Project creation exception: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['get'])
+    def eligible_staff(self, request, pk=None):
+        """
+        Get staff eligible for package assignment based on project hierarchy.
+        
+        Returns users who are:
+        - In the same division, subdivision, or zone as the project
+        - Have appropriate roles (not contractors or consultants)
+        - Active accounts
+        
+        This ensures package responsible staff are from the project's hierarchy.
+        """
+        from django.contrib.auth import get_user_model
+        
+        User = get_user_model()
+        project = self.get_object()
+        
+        # Build hierarchy filter
+        hierarchy_filter = Q()
+        
+        # Filter by division first (most specific)
+        if project.division:
+            hierarchy_filter |= Q(division=project.division)
+        
+        # Filter by subdivision if available
+        if project.sub_division:
+            hierarchy_filter |= Q(subdivision=project.sub_division)
+        
+        # Filter by zone (broader)
+        if project.zone:
+            hierarchy_filter |= Q(zone=project.zone)
+        
+        # Fallback: if no hierarchy set, return all active staff
+        if not (project.division or project.sub_division or project.zone):
+            hierarchy_filter = Q(account_status='ACTIVE')
+        
+        # Get users matching hierarchy
+        staff = User.objects.filter(hierarchy_filter).filter(
+            account_status='ACTIVE'
+        ).exclude(
+            role__in=['EPC_Contractor', 'Consultant', 'Guest']  # Exclude non-staff roles
+        ).select_related('division', 'subdivision', 'zone').order_by('first_name', 'last_name')[:100]
+        
+        # Serialize user data
+        staff_data = [{
+           'id': user.id,
+            'username': user.username,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'full_name': user.get_full_name() if hasattr(user, 'get_full_name') else f"{user.first_name} {user.last_name}",
+            'role': user.role,
+            'role_display': getattr(user, 'get_role_display', lambda: user.role)(),
+            'division': user.division.name if user.division else None,
+        } for user in staff]
+        
+        return Response({
+            'count': len(staff_data),
+            'eligible_staff': staff_data,
+            'filter_applied': {
+                'division': project.division.name if project.division else None,
+                'subdivision': project.sub_division.name if project.sub_division else None,
+                'zone': project.zone.name if project.zone else None,
+            }
+        })
 
 
 class WorkPackageViewSet(viewsets.ModelViewSet):

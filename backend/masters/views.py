@@ -260,6 +260,30 @@ class ContractorViewSet(BaseMasterViewSet):
         serializer = ContractorListSerializer(contractors, many=True)
         return Response(serializer.data)
     
+    @action(detail=False, methods=['get'])
+    def active_with_accounts(self, request):
+        """
+        Get active contractors with linked user accounts.
+        
+        This endpoint is used for package creation to ensure selected contractors
+        can receive notifications via email and in-app.
+        
+        Returns:
+            List of active contractors who have linked_user accounts
+        """
+        from django.utils import timezone
+        today = timezone.now().date()
+        
+        contractors = self.queryset.filter(
+            blacklisted=False,
+            linked_user__isnull=False  # Must have linked user account
+        ).filter(
+            models.Q(validity_date__isnull=True) | models.Q(validity_date__gte=today)
+        ).select_related('linked_user')
+        
+        serializer = ContractorListSerializer(contractors, many=True)
+        return Response(serializer.data)
+    
     @action(detail=False, methods=['post'])
     def sync_from_users(self, request):
         """
