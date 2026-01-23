@@ -43,9 +43,14 @@ const Projects = () => {
         mastersService.getActiveContractors(),
         projectService.getWorkPackages ? projectService.getWorkPackages() : Promise.resolve({ data: [] })
       ]);
-      setProjects(projectsData || []);
-      setContractors(contractorsRes.data || []);
-      setPackages(packagesRes.data || []);
+
+      // Handle paginated responses
+      setProjects(Array.isArray(projectsData) ? projectsData : []);
+      setContractors(Array.isArray(contractorsRes.data) ? contractorsRes.data : (contractorsRes.data?.results || []));
+
+      // Fix packages pagination handling
+      const packagesData = packagesRes.data;
+      setPackages(Array.isArray(packagesData) ? packagesData : (packagesData?.results || []));
     } catch (error) {
       console.error('Failed to load data:', error);
       toast.error('Failed to load projects');

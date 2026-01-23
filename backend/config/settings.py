@@ -156,7 +156,80 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    # Pagination (Feature Flag Controlled)
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination' if config('ENABLE_PAGINATION', default=True, cast=bool) else None,
+    'PAGE_SIZE': config('API_PAGE_SIZE', default=50, cast=int),
+    # Rate Limiting / Throttling (Feature Flag Controlled)
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ] if config('ENABLE_RATE_LIMITING', default=True, cast=bool) else [],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': config('THROTTLE_RATE_ANON', default='100/hour'),
+        'user': config('THROTTLE_RATE_USER', default='1000/hour'),
+        'login': '5/minute',  # Prevent brute force attacks
+        'dashboard': '60/hour',  # Limit expensive dashboard queries
+        'masterdata': '500/hour',  # Master data is cached, less restrictive
+        'bulk': '10/hour',  # Bulk operations are expensive
+    },
 }
+
+# ============================================================================
+# CACHING CONFIGURATION
+# ============================================================================
+# Use Redis for caching in production, fallback to local memory in development
+REDIS_URL = config('REDIS_URL', default=None)
+
+if REDIS_URL:
+    # Production: Redis cache
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'SOCKET_CONNECT_TIMEOUT': 5,
+                'SOCKET_TIMEOUT': 5,
+                'CONNECTION_POOL_KWARGS': {
+                    'max_connections': 50,
+                    'retry_on_timeout': True,
+                },
+                'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
+            },
+            'KEY_PREFIX': 'pmis',
+            'TIMEOUT': 300,  # 5 minutes default
+        }
+    }
+else:
+    # Development: Local memory cache (no Redis required)
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'pmis-dev-cache',
+            'TIMEOUT': 300,
+            'OPTIONS': {
+                'MAX_ENTRIES': 1000,
+            }
+        }
+    }
+
+# Cache timeouts (in seconds)
+CACHE_TTL_SHORT = 60 * 1  # 1 minute
+CACHE_TTL_MEDIUM = 60 * 5  # 5 minutes
+CACHE_TTL_LONG = 60 * 30  # 30 minutes
+
+# ============================================================================
+# FILE UPLOAD & DATA LIMITS
+# ============================================================================
+# Maximum size for uploaded files and form data
+DATA_UPLOAD_MAX_MEMORY_SIZE = config('DATA_UPLOAD_MAX_MEMORY_SIZE', default=10485760, cast=int)  # 10MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = config('FILE_UPLOAD_MAX_MEMORY_SIZE', default=52428800, cast=int)  # 50MB
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000  # Prevent form field attacks
+
+# File upload handlers
+FILE_UPLOAD_HANDLERS = [
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+]
 
 # Frontend URL (for invite links, etc.)
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')

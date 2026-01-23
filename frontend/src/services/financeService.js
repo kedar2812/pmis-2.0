@@ -4,7 +4,8 @@ const financeService = {
     // --- FUND MANAGEMENT ---
     getFunds: async () => {
         const response = await api.get('/finance/funds/');
-        return response.data;
+        const data = response.data;
+        return data?.results || data || [];
     },
 
     createFund: async (data) => {
@@ -15,10 +16,8 @@ const financeService = {
     // --- BUDGETING ---
     getBudgets: async (projectId) => {
         const response = await api.get('/finance/budgets/', { params: { project: projectId } });
-        // Map response to include fund details if needed, though backend serializer key is 'fund_head' (ID)
-        // If we need the name, we might need a nested serializer or separate fetch.
-        // For now, return as is.
-        return response.data;
+        const data = response.data;
+        return data?.results || data || [];
     },
 
     createBudget: async (data) => {
@@ -34,8 +33,9 @@ const financeService = {
         if (status) params.status = status;
 
         const response = await api.get('/finance/bills/', { params });
-        // Transform snake_case to camelCase for Frontend
-        return response.data.map(transformBillToFrontend);
+        const data = response.data;
+        const items = data?.results || data || [];
+        return items.map(transformBillToFrontend);
     },
 
     createBill: async (data) => {
@@ -59,13 +59,15 @@ const financeService = {
     // --- SCHEDULING ---
     getScheduleTasks: async (projectId) => {
         const response = await api.get('/scheduling/tasks/', { params: { project: projectId } });
-        return response.data;
+        const data = response.data;
+        return data?.results || data || [];
     },
 
     // --- BOQ ---
     getBOQItems: async (projectId) => {
         const response = await api.get('/finance/boq/', { params: { project: projectId } });
-        return response.data;
+        const data = response.data;
+        return data?.results || data || [];
     },
 
     updateBOQItem: async (itemId, data) => {

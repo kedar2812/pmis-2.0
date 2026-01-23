@@ -119,14 +119,22 @@ const MasterData = () => {
                         mastersService.getDivisions(),
                         mastersService.getSubDivisions(),
                     ]);
-                    return { zones: z.data, circles: c.data, divisions: d.data, subdivisions: s.data };
+                    return {
+                        zones: z.data?.results || z.data || [],
+                        circles: c.data?.results || c.data || [],
+                        divisions: d.data?.results || d.data || [],
+                        subdivisions: s.data?.results || s.data || []
+                    };
                 },
                 geography: async () => {
                     const [d, t] = await Promise.all([
                         mastersService.getDistricts(),
                         mastersService.getTowns(),
                     ]);
-                    return { districts: d.data, towns: t.data };
+                    return {
+                        districts: d.data?.results || d.data || [],
+                        towns: t.data?.results || t.data || []
+                    };
                 },
                 classification: async () => {
                     const [st, s, wt, pc] = await Promise.all([
@@ -135,15 +143,20 @@ const MasterData = () => {
                         mastersService.getWorkTypes(),
                         mastersService.getProjectCategories(),
                     ]);
-                    return { schemeTypes: st.data, schemes: s.data, workTypes: wt.data, projectCategories: pc.data };
+                    return {
+                        schemeTypes: st.data?.results || st.data || [],
+                        schemes: s.data?.results || s.data || [],
+                        workTypes: wt.data?.results || wt.data || [],
+                        projectCategories: pc.data?.results || pc.data || []
+                    };
                 },
                 entities: async () => {
                     const c = await mastersService.getContractors();
-                    return { contractors: c.data };
+                    return { contractors: c.data?.results || c.data || [] };
                 },
                 etp: async () => {
                     const e = await mastersService.getETPCharges();
-                    return { etpCharges: e.data };
+                    return { etpCharges: e.data?.results || e.data || [] };
                 },
             };
 

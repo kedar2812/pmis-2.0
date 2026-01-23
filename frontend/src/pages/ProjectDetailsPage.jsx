@@ -26,7 +26,7 @@ const ProjectDetailsPage = () => {
             ]);
 
             setProject(projectData);
-            setContractors(contractorsRes.data || []);
+            setContractors(contractorsRes.data?.results || contractorsRes.data || []);
 
             // If the project serializer returns work_packages, use them.
             // Otherwise fetch separately.
