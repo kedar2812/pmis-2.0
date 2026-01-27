@@ -20,6 +20,7 @@ import financeService from '@/services/financeService'; // Real Service
 import projectService from '@/services/projectService';
 import userService from '@/services/userService';
 import { GenerateBillModal } from '@/components/billing/GenerateBillModal';
+import BillDetailModal from '@/components/billing/BillDetailModal';
 import { RABillTemplate } from '@/components/billing/RABillTemplate';
 import { useRef } from 'react';
 import { toast } from 'sonner';
@@ -34,6 +35,7 @@ const RABilling = () => {
 
     const [searchQuery, setSearchQuery] = useState('');
     const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
+    const [selectedBillForDetail, setSelectedBillForDetail] = useState(null);
 
     // For printing from the list
     const [selectedBillForPrint, setSelectedBillForPrint] = useState(null);
@@ -253,15 +255,26 @@ const RABilling = () => {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => triggerPrint(bill)}
-                                                className="text-app-muted hover:text-primary-600"
-                                                title="Print Bill"
-                                            >
-                                                <Printer size={18} />
-                                            </Button>
+                                            <div className="flex items-center justify-end gap-1">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => setSelectedBillForDetail(bill)}
+                                                    className="text-app-muted hover:text-primary-600"
+                                                    title="View Details"
+                                                >
+                                                    <Eye size={18} />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => triggerPrint(bill)}
+                                                    className="text-app-muted hover:text-primary-600"
+                                                    title="Print Bill"
+                                                >
+                                                    <Printer size={18} />
+                                                </Button>
+                                            </div>
                                         </td>
                                     </motion.tr>
                                 ))}
@@ -301,8 +314,30 @@ const RABilling = () => {
                     />
                 </div>
             )}
+
+            {/* Bill Detail Modal with Workflow Card */}
+            <BillDetailModal
+                isOpen={!!selectedBillForDetail}
+                onClose={() => setSelectedBillForDetail(null)}
+                bill={selectedBillForDetail}
+                onBillUpdate={async () => {
+                    // Refetch bills after workflow action
+                    try {
+                        const billsData = await financeService.getBills();
+                        setRaBills(billsData);
+                        // Update the selected bill if still viewing it
+                        if (selectedBillForDetail) {
+                            const updated = billsData.find(b => b.id === selectedBillForDetail.id);
+                            if (updated) setSelectedBillForDetail(updated);
+                        }
+                    } catch (error) {
+                        console.error('Failed to refresh bills:', error);
+                    }
+                }}
+            />
         </div>
     );
 };
 
 export default RABilling;
+

@@ -22,9 +22,12 @@ from .serializers import (
     WorkflowStepSerializer, WorkflowTriggerRuleSerializer,
     WorkflowInstanceListSerializer, WorkflowInstanceDetailSerializer,
     WorkflowAuditLogSerializer, DelegationRuleSerializer,
-    WorkflowActionSerializer, StartWorkflowSerializer
+    WorkflowActionSerializer, StartWorkflowSerializer,
+    WorkflowActionsResponseSerializer, PerformActionRequestSerializer,
+    EntityHistoryRequestSerializer
 )
 from .engine import workflow_engine
+from .models import WorkflowStatus
 
 
 class WorkflowTemplateViewSet(viewsets.ModelViewSet):
@@ -346,3 +349,246 @@ class DelegationRuleViewSet(viewsets.ModelViewSet):
         )
         serializer = self.get_serializer(delegations, many=True)
         return Response(serializer.data)
+
+
+class WorkflowActionsViewSet(viewsets.ViewSet):
+    """
+    Unified API for workflow actions on any entity.
+    
+    Provides a single interface for the frontend to:
+    - Check what actions are available for the current user
+    - Perform workflow actions (forward, revert, reject)
+    - Get workflow history for an entity
+    
+    All endpoints use entity_type and entity_id parameters
+    rather than workflow instance IDs.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    # Entity type to model mapping
+    ENTITY_MODEL_MAP = {
+        'RABill': ('finance', 'RABill'),
+        'Tender': ('procurement', 'Tender'),
+        'Contract': ('procurement', 'Contract'),
+        'Variation': ('procurement', 'Variation'),
+        'Risk': ('projects', 'Risk'),
+        'BOQItem': ('finance', 'BOQItem'),
+    }
+    
+    def _get_entity(self, entity_type: str, entity_id: str):
+        """Get the entity model instance."""
+        if entity_type not in self.ENTITY_MODEL_MAP:
+            return None
+        
+        app_label, model_name = self.ENTITY_MODEL_MAP[entity_type]
+        try:
+            model = apps.get_model(app_label, model_name)
+            return model.objects.get(pk=entity_id)
+        except Exception:
+            return None
+    
+    def _get_active_workflow(self, entity_type: str, entity_id: str):
+        """Get the active workflow instance for an entity."""
+        return WorkflowInstance.objects.filter(
+            entity_type=entity_type,
+            entity_id=str(entity_id),
+            status__in=[WorkflowStatus.PENDING, WorkflowStatus.IN_PROGRESS, WorkflowStatus.REVERTED]
+        ).select_related('template', 'current_step').first()
+    
+    @action(detail=False, methods=['get'], url_path='actions')
+    def get_actions(self, request):
+        """
+        Check what workflow actions the current user can perform on an entity.
+        
+        Query Params:
+            entity_type: Model name (e.g., 'RABill', 'Tender')
+            entity_id: Primary key of the document
+            
+        Returns:
+            WorkflowActionsResponseSerializer data
+        """
+        entity_type = request.query_params.get('entity_type')
+        entity_id = request.query_params.get('entity_id')
+        
+        if not entity_type or not entity_id:
+            return Response(
+                {'error': 'entity_type and entity_id are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            # Get active workflow for this entity
+            instance = self._get_active_workflow(entity_type, entity_id)
+            
+            if not instance:
+                # No active workflow
+                return Response({
+                    'has_workflow': False,
+                    'can_approve': False,
+                    'can_revert': False,
+                    'can_reject': False,
+                    'current_step_label': None,
+                    'current_step_sequence': None,
+                    'required_role': None,
+                    'workflow_status': None,
+                    'workflow_id': None,
+                    'remarks_required': False
+                })
+            
+            # Check if user can act on this workflow
+            can_act = workflow_engine._can_user_act(instance, request.user)
+            current_step = instance.current_step
+            
+            return Response({
+                'has_workflow': True,
+                'can_approve': can_act,
+                'can_revert': can_act and (current_step.can_revert if current_step else False),
+                'can_reject': can_act,
+                'current_step_label': str(current_step) if current_step else 'Completed',
+                'current_step_sequence': current_step.sequence if current_step else None,
+                'required_role': current_step.get_role_display() if current_step else None,
+                'workflow_status': instance.status,
+                'workflow_id': str(instance.id),
+                'remarks_required': current_step.remarks_required if current_step else False
+            })
+            
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error getting workflow actions: {e}")
+            return Response(
+                {'error': 'Failed to check workflow actions'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    @action(detail=False, methods=['post'], url_path='perform-action')
+    def perform_action(self, request):
+        """
+        Perform a workflow action on an entity.
+        
+        Request Body:
+            entity_type: Model name
+            entity_id: Document ID
+            action: 'FORWARD', 'REVERT', or 'REJECT'
+            remarks: Optional comments
+            to_step: Target step (required for REVERT)
+        """
+        serializer = PerformActionRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        data = serializer.validated_data
+        entity_type = data['entity_type']
+        entity_id = str(data['entity_id'])
+        action_type = data['action']
+        remarks = data.get('remarks', '')
+        to_step = data.get('to_step')
+        
+        try:
+            # Get active workflow
+            instance = self._get_active_workflow(entity_type, entity_id)
+            
+            if not instance:
+                return Response(
+                    {'success': False, 'error': 'No active workflow found for this entity'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Perform the requested action
+            if action_type == 'FORWARD':
+                result = workflow_engine.forward(
+                    instance=instance,
+                    user=request.user,
+                    remarks=remarks
+                )
+            elif action_type == 'REVERT':
+                result = workflow_engine.revert(
+                    instance=instance,
+                    to_step_sequence=to_step,
+                    user=request.user,
+                    remarks=remarks
+                )
+            elif action_type == 'REJECT':
+                result = workflow_engine.reject(
+                    instance=instance,
+                    user=request.user,
+                    remarks=remarks
+                )
+            else:
+                return Response(
+                    {'success': False, 'error': f'Unknown action: {action_type}'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            if result.get('success'):
+                return Response(result)
+            return Response(result, status=status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error performing workflow action: {e}")
+            return Response(
+                {'success': False, 'error': 'Failed to perform workflow action'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    @action(detail=False, methods=['get'], url_path='entity-history')
+    def entity_history(self, request):
+        """
+        Get workflow history for an entity.
+        
+        Query Params:
+            entity_type: Model name
+            entity_id: Document ID
+        """
+        entity_type = request.query_params.get('entity_type')
+        entity_id = request.query_params.get('entity_id')
+        
+        if not entity_type or not entity_id:
+            return Response(
+                {'error': 'entity_type and entity_id are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            # Get all workflow instances for this entity (including completed)
+            instances = WorkflowInstance.objects.filter(
+                entity_type=entity_type,
+                entity_id=str(entity_id)
+            ).select_related('template').order_by('-started_at')
+            
+            if not instances.exists():
+                return Response({
+                    'has_history': False,
+                    'workflows': []
+                })
+            
+            # Get history for all workflows
+            all_history = []
+            for instance in instances:
+                history = workflow_engine.get_workflow_history(instance)
+                all_history.append({
+                    'workflow_id': str(instance.id),
+                    'template_name': instance.template.name,
+                    'status': instance.status,
+                    'status_display': instance.get_status_display(),
+                    'started_at': instance.started_at.isoformat() if instance.started_at else None,
+                    'completed_at': instance.completed_at.isoformat() if instance.completed_at else None,
+                    'history': history
+                })
+            
+            return Response({
+                'has_history': True,
+                'workflows': all_history
+            })
+            
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error getting workflow history: {e}")
+            return Response(
+                {'error': 'Failed to get workflow history'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
