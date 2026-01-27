@@ -276,28 +276,12 @@ class WorkPackage(models.Model):
     agreement_date = models.DateField(null=True, blank=True)
     responsible_staff = models.CharField(max_length=255, blank=True, null=True)
     
-    # EDMS Integration for document management
+    # Agreement Document (simple file upload)
     agreement_document = models.FileField(
         upload_to='temp/package_agreements/',
         null=True,
         blank=True,
-        help_text="Temporary storage during upload, moved to EDMS after creation"
-    )
-    agreement_document_edms = models.ForeignKey(
-        'edms.Document',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='package_agreements',
-        help_text="EDMS document reference for agreement"
-    )
-    package_folder_edms = models.ForeignKey(
-        'edms.Folder',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='work_packages',
-        help_text="EDMS folder for this package's documents"
+        help_text="Agreement document upload"
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -306,20 +290,7 @@ class WorkPackage(models.Model):
     def __str__(self):
         return f"{self.name} ({self.project.name})"
     
-    @property
-    def package_folder_path(self) -> str:
-        """
-        Get human-readable EDMS folder path for this package.
-        
-        Returns:
-            str: Full EDMS folder path or status message
-        """
-        if self.package_folder_edms:
-            try:
-                return self.package_folder_edms.get_full_path()
-            except Exception:
-                return f"Folder ID: {self.package_folder_edms.id}"
-        return "Folder not yet created"
+
     
     def clean(self):
         """

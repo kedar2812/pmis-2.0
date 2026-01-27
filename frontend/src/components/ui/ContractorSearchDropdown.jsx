@@ -178,12 +178,12 @@ export const ContractorSearchDropdown = ({
                             <p className="font-medium text-slate-800 dark:text-white truncate">{selectedContractor.name}</p>
                             <p className="text-xs text-slate-500 dark:text-neutral-400 truncate">{selectedContractor.code}</p>
                         </div>
-                        <button
+                        <div
                             onClick={handleClear}
-                            className="p-1 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full text-slate-400 dark:text-neutral-500 hover:text-slate-600 dark:hover:text-neutral-300"
+                            className="p-1 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full text-slate-400 dark:text-neutral-500 hover:text-slate-600 dark:hover:text-neutral-300 cursor-pointer"
                         >
                             <X size={16} />
-                        </button>
+                        </div>
                     </div>
                 ) : (
                     <span className="text-slate-400 dark:text-neutral-500">{placeholder}</span>

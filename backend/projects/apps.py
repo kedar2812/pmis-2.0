@@ -7,4 +7,5 @@ class ProjectsConfig(AppConfig):
     
     def ready(self):
         """Import signals when Django app is ready."""
-        import projects.signals  # noqa
+        # Signals removed as part of EDMS integration revert
+        pass
