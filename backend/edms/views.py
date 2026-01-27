@@ -195,7 +195,13 @@ class DocumentViewSet(viewsets.ModelViewSet):
         return DocumentDetailSerializer
     
     def create(self, request, *args, **kwargs):
-        """Upload a new document or add version if exists."""
+        """
+        Upload a new document or add version if exists.
+        
+        Smart Routing: If 'auto_route_category' is provided, the document is
+        automatically filed to the standard folder (e.g., RA_BILL → 04_Financials/RA Bills).
+        Falls back to manual 'folder' selection if not provided.
+        """
         if not EDMSPermissions.can_upload(request.user):
             return Response(
                 {'error': 'You do not have permission to upload documents.'},
@@ -211,8 +217,25 @@ class DocumentViewSet(viewsets.ModelViewSet):
             from projects.models import Project
             project = Project.objects.get(id=serializer.validated_data['project'])
             
+            # Smart Routing: Determine target folder
             folder = None
-            if serializer.validated_data.get('folder'):
+            auto_route_category = serializer.validated_data.get('auto_route_category')
+            
+            if auto_route_category:
+                # Use DirectoryService to get the correct folder
+                from edms.services.directory_service import DirectoryService
+                import logging
+                logger = logging.getLogger(__name__)
+                
+                logger.info(f"Smart routing document to category: {auto_route_category}")
+                folder = DirectoryService.get_route_folder(
+                    project=project,
+                    route_category=auto_route_category,
+                    created_by=request.user
+                )
+                logger.info(f"Document routed to folder: {folder.name if folder else 'None'}")
+            elif serializer.validated_data.get('folder'):
+                # Fallback to manual folder selection
                 folder = Folder.objects.get(id=serializer.validated_data['folder'])
             
             # Use smart upload/version detection

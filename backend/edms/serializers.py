@@ -215,7 +215,13 @@ class DocumentDetailSerializer(serializers.ModelSerializer):
 
 
 class DocumentUploadSerializer(serializers.Serializer):
-    """Serializer for document upload with smart versioning support."""
+    """
+    Serializer for document upload with smart versioning and auto-routing support.
+    
+    Auto-routing: If `auto_route_category` is provided, the document will be
+    automatically filed to the corresponding standard folder (e.g., RA_BILL → 04_Financials/RA Bills).
+    If not provided, falls back to manual `folder` selection.
+    """
     title = serializers.CharField(max_length=500, required=False, allow_blank=True)  # Optional - will use filename if not provided
     description = serializers.CharField(required=False, allow_blank=True)
     document_type = serializers.ChoiceField(
@@ -230,6 +236,51 @@ class DocumentUploadSerializer(serializers.Serializer):
     is_confidential = serializers.BooleanField(default=False)
     metadata = serializers.JSONField(required=False, default=dict)
     change_notes = serializers.CharField(required=False, allow_blank=True)  # For version updates
+    
+    # Smart Routing: Auto-file to standard folder based on category
+    auto_route_category = serializers.ChoiceField(
+        choices=[
+            ('ADMIN_APPROVAL', 'Admin Approval'),
+            ('DPR', 'Detailed Project Report'),
+            ('FEASIBILITY', 'Feasibility Report'),
+            ('SITE_SURVEY', 'Site Survey'),
+            ('ENV_CLEARANCE', 'Environmental Clearance'),
+            ('TENDER', 'Tender Document'),
+            ('AGREEMENT', 'Agreement/Contract'),
+            ('WORK_ORDER', 'Work Order'),
+            ('LOA', 'Letter of Award'),
+            ('TENDER_EVALUATION', 'Tender Evaluation'),
+            ('DRAWING', 'Drawing'),
+            ('BOQ', 'Bill of Quantities'),
+            ('TECH_SPEC', 'Technical Specification'),
+            ('AS_BUILT', 'As-Built Drawing'),
+            ('RA_BILL', 'Running Account Bill'),
+            ('INVOICE', 'Tax Invoice'),
+            ('PAYMENT_ADVICE', 'Payment Advice'),
+            ('BUDGET', 'Budget Estimate'),
+            ('FINAL_BILL', 'Final Bill'),
+            ('FUNDING_PROOF', 'Fund Sanction Order'),
+            ('DAILY_REPORT', 'Daily Progress Report'),
+            ('SITE_PHOTO', 'Site Photograph'),
+            ('INSPECTION', 'Inspection Report'),
+            ('RISK_EVIDENCE', 'Risk Evidence'),
+            ('QUALITY_REPORT', 'Quality Report'),
+            ('SAFETY_REPORT', 'Safety Report'),
+            ('INSURANCE', 'Insurance Document'),
+            ('BANK_GUARANTEE', 'Bank Guarantee'),
+            ('NOTICE', 'Notice'),
+            ('NOC', 'No Objection Certificate'),
+            ('LICENSE', 'License/Permit'),
+            ('CORRESPONDENCE_IN', 'Incoming Correspondence'),
+            ('CORRESPONDENCE_OUT', 'Outgoing Correspondence'),
+            ('MEETING_MINUTES', 'Meeting Minutes'),
+            ('OTHER', 'Other/Miscellaneous'),
+        ],
+        required=False,
+        allow_null=True,
+        allow_blank=True,
+        help_text="Auto-route to standard folder based on category. Overrides 'folder' if provided."
+    )
     
     def validate_project(self, value):
         from projects.models import Project
