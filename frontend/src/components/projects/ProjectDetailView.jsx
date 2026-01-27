@@ -458,6 +458,8 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                                     </span>
                                                 </div>
                                             </div>
+
+
                                         </CardContent>
                                     </Card>
                                 ))}
