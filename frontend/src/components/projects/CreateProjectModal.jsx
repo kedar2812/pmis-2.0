@@ -12,6 +12,7 @@ import ChainedHierarchySelector from '@/components/masters/ChainedHierarchySelec
 import GeographySelector from '@/components/masters/GeographySelector';
 import ClassificationSelector from '@/components/masters/ClassificationSelector';
 import userService from '@/api/services/userService';
+import edmsService from '@/api/services/edmsService';
 
 const STEPS = [
   { id: 1, title: 'General Info' },
@@ -50,6 +51,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState(''); // Two-step save status
   const [direction, setDirection] = useState(0);
 
   // Eligible managers state
@@ -272,8 +274,12 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
     if (!validateStep(currentStep)) return;
 
     setIsSubmitting(true);
+    setSubmissionStatus('Creating Project...');
+
     try {
-      // Get selected manager details
+      // ============================================================
+      // STEP A: Create the Project first (to get the ID)
+      // ============================================================
       const selectedManager = eligibleManagers.find(m => m.id === parseInt(formData.managerId));
 
       // Format project name with approval number
@@ -337,17 +343,95 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
         category: formData.classification.projectCategoryName || 'General',
       };
 
-      // TODO: Upload documents to correct folders after project creation
-      // - adminApprovalDoc -> /{project_id}/approvals/admin_approval.pdf
-      // - funding documents -> /{project_id}/fund_details/{source_slug}.pdf
+      // Create the project and get the new ID
+      const projectResult = await onSave(projectData);
+      const newProjectId = projectResult?.id || projectResult?.data?.id;
 
-      await onSave(projectData);
-      toast.success(t('project.createdSuccessfully'));
+      if (!newProjectId) {
+        throw new Error('Project created but ID not returned');
+      }
+
+      // ============================================================
+      // STEP B: Upload Funding Proof Documents to EDMS
+      // ============================================================
+      const fundingDocsToUpload = formData.fundingPattern.filter(
+        item => item.document && parseFloat(item.amount) > 0
+      );
+
+      // Also include admin approval doc if present
+      const adminDoc = formData.adminApprovalDoc;
+      const totalDocs = fundingDocsToUpload.length + (adminDoc ? 1 : 0);
+
+      if (totalDocs > 0) {
+        setSubmissionStatus(`Uploading ${totalDocs} Sanction Order(s)...`);
+
+        let uploadSuccess = 0;
+        let uploadFailed = 0;
+
+        // Upload funding proof documents
+        const uploadPromises = fundingDocsToUpload.map(async (item) => {
+          try {
+            await edmsService.uploadDocument({
+              projectId: newProjectId,
+              file: item.document,
+              title: `Sanction Order - ${item.source}`,
+              autoRouteCategory: 'FUNDING_PROOF',
+              documentType: 'CONTRACT', // Sanction orders are contractual
+            });
+            uploadSuccess++;
+          } catch (error) {
+            console.error(`Failed to upload funding doc for ${item.source}:`, error);
+            uploadFailed++;
+          }
+        });
+
+        // Upload admin approval document
+        if (adminDoc) {
+          uploadPromises.push(
+            (async () => {
+              try {
+                await edmsService.uploadDocument({
+                  projectId: newProjectId,
+                  file: adminDoc,
+                  title: `Administrative Approval - ${formData.adminApprovalNo}`,
+                  autoRouteCategory: 'ADMIN_APPROVAL',
+                  documentType: 'CONTRACT',
+                });
+                uploadSuccess++;
+              } catch (error) {
+                console.error('Failed to upload admin approval doc:', error);
+                uploadFailed++;
+              }
+            })()
+          );
+        }
+
+        // Wait for all uploads to complete
+        await Promise.all(uploadPromises);
+
+        // Show appropriate message based on upload results
+        if (uploadFailed > 0) {
+          toast.warning(
+            `Project created successfully, but ${uploadFailed} document(s) failed to upload. Please upload them manually in EDMS.`,
+            { duration: 6000 }
+          );
+        } else {
+          toast.success(
+            `${t('project.createdSuccessfully')} ${uploadSuccess} document(s) uploaded.`,
+            { duration: 4000 }
+          );
+        }
+      } else {
+        toast.success(t('project.createdSuccessfully'));
+      }
+
       onClose();
     } catch (error) {
+      console.error('Project creation failed:', error);
       toast.error(t('project.failedToCreate'));
     } finally {
       setIsSubmitting(false);
+      setSubmissionStatus('');
     }
   };
 
@@ -798,7 +882,12 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
             </Button>
           ) : (
             <Button onClick={handleSubmit} disabled={isSubmitting} className="min-h-[44px] bg-green-600 text-white hover:bg-green-700">
-              {isSubmitting ? <Loader2 className="animate-spin" /> : 'Create Project'}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin mr-2" size={16} />
+                  {submissionStatus || 'Creating Project...'}
+                </>
+              ) : 'Create Project'}
             </Button>
           )}
         </div>

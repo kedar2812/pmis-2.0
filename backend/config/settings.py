@@ -249,20 +249,7 @@ EMAIL_HOST_PASSWORD = config('AWS_SES_SMTP_PASSWORD', default='')  # SES SMTP pa
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@pmis-zia.gov.in')
 
 # Production Settings
-# Cloudinary for media storage (Production only)
-USE_CLOUDINARY = config('USE_CLOUDINARY', default=False, cast=bool)
-
-if USE_CLOUDINARY:
-    INSTALLED_APPS.insert(0, 'cloudinary_storage')
-    INSTALLED_APPS.insert(0, 'cloudinary')
-    
-    CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
-        'API_KEY': config('CLOUDINARY_API_KEY'),
-        'API_SECRET': config('CLOUDINARY_API_SECRET'),
-    }
-    
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# TODO: Configure production file storage (e.g., AWS S3, MinIO, or government-approved object storage)
 
 
 # ============================================================================
