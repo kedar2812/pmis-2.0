@@ -106,10 +106,11 @@ const Projects = () => {
   };
 
   const handleCreateProject = async (projectData) => {
-    // Create project - toast is already shown by modal
-    await projectService.createProject(projectData);
+    // Create project and return result for modal's two-step upload
+    const result = await projectService.createProject(projectData);
     setIsCreateModalOpen(false);
     fetchData(); // Reload list
+    return result; // CRITICAL: Return the created project for document uploads
   };
 
   const getStatusBadgeColor = (status) => {

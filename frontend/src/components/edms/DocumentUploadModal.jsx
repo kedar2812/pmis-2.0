@@ -20,17 +20,68 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
     const [title, setTitle] = useState(''); // Only used for single file
     const [description, setDescription] = useState('');
     const [documentType, setDocumentType] = useState('OTHER');
-    // documentNumber state removed
     const [isConfidential, setIsConfidential] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
 
-    // Folder selection
+    // Auto-routing: Category-based smart filing
+    const [useCategory, setUseCategory] = useState(true); // Default to category mode
+    const [selectedCategory, setSelectedCategory] = useState(''); // Auto-route category
+
+    // Folder selection (fallback/manual mode)
     const [folders, setFolders] = useState([]);
     const [selectedFolderId, setSelectedFolderId] = useState(currentFolderId);
     const [showCreateFolder, setShowCreateFolder] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
     const [isCreatingFolder, setIsCreatingFolder] = useState(false);
     const [loadingFolders, setLoadingFolders] = useState(true);
+
+    // All 35 auto-routing categories matching backend DirectoryService
+    const routeCategories = [
+        { value: '', label: '-- Select Category --', group: '' },
+        // Planning & Approvals
+        { value: 'ADMIN_APPROVAL', label: 'Admin Approval', group: 'Planning & Approvals' },
+        { value: 'DPR', label: 'Detailed Project Report (DPR)', group: 'Planning & Approvals' },
+        { value: 'FEASIBILITY', label: 'Feasibility Report', group: 'Planning & Approvals' },
+        { value: 'SITE_SURVEY', label: 'Site Survey', group: 'Planning & Approvals' },
+        { value: 'ENV_CLEARANCE', label: 'Environmental Clearance', group: 'Planning & Approvals' },
+        // Procurement & Contracts
+        { value: 'TENDER', label: 'Tender Document', group: 'Procurement & Contracts' },
+        { value: 'AGREEMENT', label: 'Agreement', group: 'Procurement & Contracts' },
+        { value: 'WORK_ORDER', label: 'Work Order', group: 'Procurement & Contracts' },
+        { value: 'LOA', label: 'Letter of Acceptance', group: 'Procurement & Contracts' },
+        { value: 'TENDER_EVALUATION', label: 'Tender Evaluation', group: 'Procurement & Contracts' },
+        // Engineering & Design
+        { value: 'DRAWING', label: 'Drawing', group: 'Engineering & Design' },
+        { value: 'BOQ', label: 'Bill of Quantities', group: 'Engineering & Design' },
+        { value: 'TECH_SPEC', label: 'Technical Specification', group: 'Engineering & Design' },
+        { value: 'AS_BUILT', label: 'As-Built Drawing', group: 'Engineering & Design' },
+        // Financials
+        { value: 'RA_BILL', label: 'RA Bill', group: 'Financials' },
+        { value: 'INVOICE', label: 'Tax Invoice', group: 'Financials' },
+        { value: 'PAYMENT_ADVICE', label: 'Payment Advice', group: 'Financials' },
+        { value: 'BUDGET', label: 'Budget Estimate', group: 'Financials' },
+        { value: 'FINAL_BILL', label: 'Final Bill', group: 'Financials' },
+        { value: 'FUNDING_PROOF', label: 'Fund Sanction Order', group: 'Financials' },
+        // Site Execution
+        { value: 'DAILY_REPORT', label: 'Daily Progress Report', group: 'Site Execution' },
+        { value: 'SITE_PHOTO', label: 'Site Photograph', group: 'Site Execution' },
+        { value: 'INSPECTION', label: 'Inspection Report', group: 'Site Execution' },
+        { value: 'RISK_EVIDENCE', label: 'Risk Evidence', group: 'Site Execution' },
+        { value: 'QUALITY_REPORT', label: 'Quality Report', group: 'Site Execution' },
+        { value: 'SAFETY_REPORT', label: 'Safety Report', group: 'Site Execution' },
+        // Legal & Compliance
+        { value: 'INSURANCE', label: 'Insurance', group: 'Legal & Compliance' },
+        { value: 'BANK_GUARANTEE', label: 'Bank Guarantee', group: 'Legal & Compliance' },
+        { value: 'NOTICE', label: 'Notice', group: 'Legal & Compliance' },
+        { value: 'NOC', label: 'No Objection Certificate', group: 'Legal & Compliance' },
+        { value: 'LICENSE', label: 'License', group: 'Legal & Compliance' },
+        // Correspondence
+        { value: 'CORRESPONDENCE_IN', label: 'Incoming Correspondence', group: 'Correspondence' },
+        { value: 'CORRESPONDENCE_OUT', label: 'Outgoing Correspondence', group: 'Correspondence' },
+        { value: 'MEETING_MINUTES', label: 'Meeting Minutes', group: 'Correspondence' },
+        // Fallback
+        { value: 'OTHER', label: 'Other/Miscellaneous', group: 'Other' },
+    ];
 
     const documentTypes = [
         { value: 'DRAWING', label: 'Drawing' },
@@ -177,6 +228,12 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
             return;
         }
 
+        // ROBUST VALIDATION: Require category when in category mode
+        if (useCategory && !selectedCategory) {
+            toast.error('Please select a document category');
+            return;
+        }
+
         // Title is now optional - backend will use filename if not provided
 
         setIsUploading(true);
@@ -201,12 +258,18 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
             formData.append('title', finalTitle);
             formData.append('description', description);
             formData.append('document_type', documentType);
-            // documentNumber append removed
             formData.append('project', projectId);
             formData.append('is_confidential', isConfidential);
-            if (selectedFolderId) {
+
+            // ROBUST ROUTING: Category takes precedence over manual folder
+            if (useCategory && selectedCategory) {
+                formData.append('auto_route_category', selectedCategory);
+                // DO NOT send folder when using category (backend handles it)
+            } else if (selectedFolderId) {
+                // Manual folder mode
                 formData.append('folder', selectedFolderId);
             }
+            // If neither, backend will use root folder
 
             try {
                 await client.post('/edms/documents/', formData, {
@@ -323,48 +386,90 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                     <div className="p-3 bg-slate-50 dark:bg-neutral-800 rounded-xl border border-slate-200/60 dark:border-neutral-700 space-y-3">
                         <p className="text-xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider">Common Settings</p>
 
-                        {/* Folder Selection */}
-                        <div>
-                            <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">Folder</label>
-                            <div className="flex gap-2">
-                                <div className="relative flex-1">
-                                    <select
-                                        value={selectedFolderId || ''}
-                                        onChange={(e) => setSelectedFolderId(e.target.value || null)}
-                                        disabled={loadingFolders}
-                                        className="w-full pl-2 pr-8 py-1.5 bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                    >
-                                        <option value="">Root (No folder)</option>
-                                        {folders.map(folder => (
-                                            <option key={folder.id} value={folder.id}>
-                                                {folder.full_path || folder.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setShowCreateFolder(!showCreateFolder)}
+                        {/* Smart Routing Toggle */}
+                        <div className="flex items-center justify-between mb-3 pb-3 border-b border-slate-200/60 dark:border-neutral-700">
+                            <div>
+                                <label className="text-xs font-medium text-slate-700 dark:text-neutral-300">Filing Mode</label>
+                                <p className="text-[10px] text-slate-400 dark:text-neutral-500 mt-0.5">
+                                    {useCategory ? 'Smart auto-filing by category' : 'Manual folder selection'}
+                                </p>
+                            </div>
+                            <Toggle
+                                checked={useCategory}
+                                onCheckedChange={setUseCategory}
+                            />
+                        </div>
+
+                        {/* Category Selection (Smart Mode) */}
+                        {useCategory ? (
+                            <div>
+                                <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">
+                                    Document Category <span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    value={selectedCategory}
+                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                    required={useCategory}
+                                    className="w-full px-2 py-1.5 bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 >
-                                    <Plus size={16} />
+                                    {routeCategories.map((cat) => (
+                                        <option key={cat.value} value={cat.value}>
+                                            {cat.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className="text-[10px] text-slate-400 dark:text-neutral-500 mt-1">
+                                    Documents will auto-file to the correct folder
+                                </p>
+                            </div>
+                        ) : (
+                            /* Manual Folder Selection */
+                            <div>
+                                <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">Folder</label>
+                                <div className="flex gap-2">
+                                    <div className="relative flex-1">
+                                        <select
+                                            value={selectedFolderId || ''}
+                                            onChange={(e) => setSelectedFolderId(e.target.value || null)}
+                                            disabled={loadingFolders}
+                                            className="w-full pl-2 pr-8 py-1.5 bg-white dark:bg-neutral-900 dark:text-white border border-slate-200 dark:border-neutral-700 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        >
+                                            <option value="">Root (No folder)</option>
+                                            {folders.map(folder => (
+                                                <option key={folder.id} value={folder.id}>
+                                                    {folder.full_path || folder.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setShowCreateFolder(!showCreateFolder)}
+                                    >
+                                        <Plus size={14} />
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Create Folder Form (Manual Mode Only) */}
+                        {!useCategory && showCreateFolder && (
+                            <div className="mt-2 flex gap-2">
+                                <input
+                                    type="text"
+                                    value={newFolderName}
+                                    onChange={(e) => setNewFolderName(e.target.value)}
+                                    placeholder="Folder name"
+                                    onKeyPress={(e) => e.key === 'Enter' && handleCreateFolder()}
+                                    className="flex-1 px-3 py-1.5 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 dark:text-white rounded text-sm"
+                                />
+                                <Button type="button" size="sm" onClick={handleCreateFolder} disabled={isCreatingFolder || !newFolderName.trim()}>
+                                    {isCreatingFolder ? <Loader2 className="animate-spin" size={14} /> : 'Create'}
                                 </Button>
                             </div>
-                            {/* Create New Folder Inline */}
-                            {showCreateFolder && (
-                                <div className="mt-2 flex gap-2">
-                                    <input
-                                        type="text"
-                                        value={newFolderName}
-                                        onChange={(e) => setNewFolderName(e.target.value)}
-                                        placeholder="Folder name"
-                                        className="flex-1 px-3 py-1.5 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 dark:text-white rounded text-sm"
-                                    />
-                                    <Button type="button" size="sm" onClick={handleCreateFolder}>Create</Button>
-                                </div>
-                            )}
-                        </div>
+                        )}
 
                         <div className="grid grid-cols-2 gap-3">
                             <div>
@@ -392,27 +497,29 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                         </div>
 
                         {/* Title Input - Only show if single file */}
-                        {files.length <= 1 && (
-                            <div>
-                                <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">
-                                    Title <span className="text-slate-400 dark:text-neutral-500">(optional)</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    placeholder="Leave blank to use filename"
-                                    className="w-full px-3 py-1.5 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 dark:text-white rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                />
-                                <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">
-                                    💡 If a document with this name exists, a new version will be created
-                                </p>
-                            </div>
-                        )}
+                        {
+                            files.length <= 1 && (
+                                <div>
+                                    <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">
+                                        Title <span className="text-slate-400 dark:text-neutral-500">(optional)</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={title}
+                                        onChange={(e) => setTitle(e.target.value)}
+                                        placeholder="Leave blank to use filename"
+                                        className="w-full px-3 py-1.5 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 dark:text-white rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    />
+                                    <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">
+                                        💡 If a document with this name exists, a new version will be created
+                                    </p>
+                                </div>
+                            )
+                        }
 
                         {/* Document Number Input Removed */}
 
-                        <div>
+                        < div >
                             <label className="block text-xs font-medium text-slate-700 dark:text-neutral-300 mb-1">Description</label>
                             <textarea
                                 value={description}
@@ -421,11 +528,11 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                                 className="w-full px-3 py-1.5 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 dark:text-white rounded text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 rows={2}
                             />
-                        </div>
-                    </div>
+                        </div >
+                    </div >
 
                     {/* Actions */}
-                    <div className="flex justify-end gap-2 pt-2">
+                    < div className="flex justify-end gap-2 pt-2" >
                         <Button type="button" variant="outline" onClick={onClose} disabled={isUploading}>
                             Cancel
                         </Button>
@@ -442,10 +549,10 @@ const DocumentUploadModal = ({ onClose, projectId, currentFolderId = null, onUpl
                                 </>
                             )}
                         </Button>
-                    </div>
-                </form>
-            </motion.div>
-        </div>,
+                    </div >
+                </form >
+            </motion.div >
+        </div >,
         document.body
     );
 };
