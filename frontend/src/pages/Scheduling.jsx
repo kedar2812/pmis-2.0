@@ -4,7 +4,7 @@ import Button from '@/components/ui/Button';
 import { GanttChart } from '@/components/scheduling/GanttChart';
 import ImportScheduleModal from '@/components/scheduling/ImportScheduleModal';
 import schedulingService from '@/services/schedulingService';
-import projectService from '@/services/projectService';
+import projectService from '@/api/services/projectService';
 import { toast } from 'sonner';
 import AddScheduleTaskModal from '@/components/scheduling/AddScheduleTaskModal';
 
@@ -24,10 +24,12 @@ const Scheduling = () => {
   const loadProjects = async () => {
     try {
       const data = await projectService.getAllProjects();
-      setProjects(data);
-      if (data.length > 0) {
-        setSelectedProject(data[0].id);
-        loadTasks(data[0].id);
+      // getAllProjects already extracts results, so data is always an array
+      const projectsArray = Array.isArray(data) ? data : [];
+      setProjects(projectsArray);
+      if (projectsArray.length > 0) {
+        setSelectedProject(projectsArray[0].id);
+        loadTasks(projectsArray[0].id);
       }
     } catch (error) {
       console.error(error);
@@ -74,9 +76,11 @@ const Scheduling = () => {
           <Button
             variant="outline"
             onClick={() => setIsImportModalOpen(true)}
-            className="border-primary-200 text-primary-700 hover:bg-primary-50"
+            className="flex-1 sm:flex-none min-h-[44px]"
           >
-            <FileUp size={18} className="mr-2" /> Import Schedule
+            <FileUp size={18} className="mr-2" />
+            <span className="hidden sm:inline">Import Schedule</span>
+            <span className="sm:hidden">Import</span>
           </Button>
           <Button onClick={() => setIsModalOpen(true)} className="bg-primary-600 text-white">
             <Plus size={18} className="mr-2" /> Add Task

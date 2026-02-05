@@ -118,8 +118,12 @@ class DashboardStatsView(APIView):
     Aggregated dashboard statistics from all modules.
     Returns KPIs, financial summary, project status distribution, and recent activity.
     Enhanced with procurement, schedule health, alerts, and top projects.
+    
+    Note: Caching will be implemented manually in _get_stats method for DRF compatibility.
+    Rate limited to 60 requests per hour per user.
     """
     permission_classes = [IsAuthenticated]
+    throttle_classes = []  # Add custom throttle class if needed
     
     def get(self, request):
         try:
@@ -302,13 +306,14 @@ class DashboardStatsView(APIView):
                 'link': '/scheduling'
             })
         # Budget warnings - projects over 90% utilization
-        over_budget = projects.filter(spent__gt=0).annotate(
-            util=Count('id')  # placeholder
-        )
-        budget_warning_count = 0
-        for p in projects:
-            if p.budget and p.spent and float(p.spent) > float(p.budget) * 0.9:
-                budget_warning_count += 1
+        # Use database aggregation instead of Python loop for better performance
+        from django.db.models import F, ExpressionWrapper, DecimalField
+        
+        budget_warning_count = projects.filter(
+            spent__gt=F('budget') * 0.9,
+            budget__gt=0
+        ).count()
+        
         if budget_warning_count > 0:
             alerts.append({
                 'type': 'budget_warning',

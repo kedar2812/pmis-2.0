@@ -3,7 +3,9 @@ import api from '@/api/client';
 const schedulingService = {
     getTasks: async (projectId) => {
         const response = await api.get('/scheduling/tasks/', { params: { project: projectId } });
-        return response.data.map(transformTaskToFrontend);
+        const data = response.data;
+        const items = data?.results || data || [];
+        return items.map(transformTaskToFrontend);
     },
 
     createTask: async (data, projectId) => {
@@ -81,7 +83,9 @@ const schedulingService = {
         const response = await api.get('/scheduling/tasks/', {
             params: { project: projectId }
         });
-        return response.data
+        const data = response.data;
+        const items = data?.results || data || [];
+        return items
             .filter(t => t.is_milestone)
             .map(transformTaskToFrontend);
     }

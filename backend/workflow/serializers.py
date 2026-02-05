@@ -151,3 +151,56 @@ class StartWorkflowSerializer(serializers.Serializer):
     entity_type = serializers.CharField()
     entity_id = serializers.UUIDField()
     module = serializers.CharField(required=False)
+
+
+class WorkflowActionsResponseSerializer(serializers.Serializer):
+    """
+    Response serializer for /actions/ endpoint.
+    Provides permission flags for the current user on a specific entity.
+    """
+    has_workflow = serializers.BooleanField(help_text="Whether this entity has an active workflow")
+    can_approve = serializers.BooleanField(help_text="User can forward/approve this step")
+    can_revert = serializers.BooleanField(help_text="User can send back to previous step")
+    can_reject = serializers.BooleanField(help_text="User can reject the workflow")
+    current_step_label = serializers.CharField(allow_null=True, help_text="Label of current step")
+    current_step_sequence = serializers.IntegerField(allow_null=True, help_text="Sequence number of current step")
+    required_role = serializers.CharField(allow_null=True, help_text="Role required for current step")
+    workflow_status = serializers.CharField(allow_null=True, help_text="Current workflow status")
+    workflow_id = serializers.UUIDField(allow_null=True, help_text="ID of the workflow instance")
+    remarks_required = serializers.BooleanField(help_text="Whether remarks are required for this step")
+
+
+class PerformActionRequestSerializer(serializers.Serializer):
+    """
+    Request serializer for /perform-action/ endpoint.
+    """
+    entity_type = serializers.CharField(help_text="Model name (e.g., 'RABill', 'Tender')")
+    entity_id = serializers.UUIDField(help_text="Primary key of the document")
+    action = serializers.ChoiceField(
+        choices=['FORWARD', 'REVERT', 'REJECT'],
+        help_text="Action to perform"
+    )
+    remarks = serializers.CharField(
+        required=False, 
+        allow_blank=True,
+        help_text="Remarks/comments for the action"
+    )
+    to_step = serializers.IntegerField(
+        required=False,
+        help_text="Target step sequence (required for REVERT)"
+    )
+    
+    def validate(self, attrs):
+        """Validate that REVERT actions have to_step specified."""
+        if attrs.get('action') == 'REVERT' and not attrs.get('to_step'):
+            raise serializers.ValidationError({
+                'to_step': 'Target step is required for REVERT action'
+            })
+        return attrs
+
+
+class EntityHistoryRequestSerializer(serializers.Serializer):
+    """Request serializer for /entity-history/ endpoint."""
+    entity_type = serializers.CharField(help_text="Model name (e.g., 'RABill', 'Tender')")
+    entity_id = serializers.UUIDField(help_text="Primary key of the document")
+

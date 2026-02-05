@@ -31,7 +31,7 @@ const ETPMaster = () => {
         setLoading(true);
         try {
             const response = await mastersService.getActiveETPCharges();
-            setCharges(response.data || []);
+            setCharges(response.data?.results || response.data || []);
         } catch (error) {
             console.error('Failed to fetch ETP charges:', error);
             // Try fallback to all charges
@@ -39,7 +39,8 @@ const ETPMaster = () => {
                 const fallback = await mastersService.getETPCharges();
                 // Filter only active and effective ones
                 const today = new Date();
-                const activeCharges = (fallback.data || []).filter(c => {
+                const allCharges = fallback.data?.results || fallback.data || [];
+                const activeCharges = allCharges.filter(c => {
                     if (!c.is_active) return false;
                     if (!c.effective_date) return true;
                     return new Date(c.effective_date) <= today;

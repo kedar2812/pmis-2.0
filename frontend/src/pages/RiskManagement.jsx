@@ -57,8 +57,9 @@ const RiskManagement = () => {
         riskService.getRiskStats()
       ]);
 
-      setRisks(risksRes.data || []);
-      setProjects(projectsRes.data || []);
+      // Handle paginated responses
+      setRisks(risksRes.data?.results || risksRes.data || []);
+      setProjects(projectsRes.data?.results || projectsRes.data || []);
       setStats(statsRes.data || null);
     } catch (err) {
       console.error('Failed to fetch risk data:', err);

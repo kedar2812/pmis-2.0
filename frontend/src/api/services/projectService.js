@@ -53,7 +53,9 @@ const transformProjectData = (data) => {
 const projectService = {
     getAllProjects: async () => {
         const response = await client.get('/projects/');
-        return response.data;
+        // Handle paginated response (new format with results wrapper)
+        const data = response.data;
+        return data.results || data; // Extract results if paginated
     },
 
     // Alias for getAllProjects (used by RiskManagement)

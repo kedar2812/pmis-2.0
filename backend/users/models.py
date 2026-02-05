@@ -4,12 +4,20 @@ import uuid
 
 class User(AbstractUser):
     class Roles(models.TextChoices):
+        # Organizational roles
         SPV_OFFICIAL = 'SPV_Official', 'SPV Official'
         PMNC_TEAM = 'PMNC_Team', 'PMNC Team'
         EPC_CONTRACTOR = 'EPC_Contractor', 'EPC Contractor'
         CONSULTANT_DESIGN = 'Consultant_Design', 'Design Consultant'
         GOVT_DEPARTMENT = 'Govt_Department', 'Government Department'
         NICDC_HQ = 'NICDC_HQ', 'NICDC HQ'
+        # Government hierarchy roles (for workflow routing)
+        AE = 'AE', 'Assistant Engineer'
+        EE = 'EE', 'Executive Engineer'
+        SE = 'SE', 'Superintending Engineer'
+        CE = 'CE', 'Chief Engineer'
+        DA = 'DA', 'Divisional Accountant'
+        PD = 'PD', 'Project Director'
     
     class AccountStatus(models.TextChoices):
         ACTIVE = 'ACTIVE', 'Active'

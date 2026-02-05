@@ -40,7 +40,12 @@ class Project(models.Model):
     # ========== BASIC INFORMATION ==========
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Planning')
+    status = models.CharField(
+        max_length=50, 
+        choices=STATUS_CHOICES, 
+        default='Planning',
+        db_index=True  # Index for filtering
+    )
     
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
@@ -198,11 +203,16 @@ class Project(models.Model):
     category = models.CharField(max_length=100, blank=True, help_text='Legacy category field')
     land_acquisition_status = models.FloatField(default=0.0)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)  # Index for ordering
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status', 'physical_progress'], name='proj_status_progress_idx'),
+            models.Index(fields=['start_date', 'end_date'], name='proj_date_range_idx'),
+            models.Index(fields=['-created_at', 'status'], name='proj_created_status_idx'),
+        ]
         
     def __str__(self):
         return self.name

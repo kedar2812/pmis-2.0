@@ -47,8 +47,9 @@ export const ContractorSearchDropdown = ({
             setLoading(true);
             try {
                 const response = await client.get('/masters/contractors/active_with_accounts/');
-                setAllContractors(response.data || []);
-                setContractors(response.data || []);
+                const contractorsList = response.data?.results || response.data || [];
+                setAllContractors(contractorsList);
+                setContractors(contractorsList);
             } catch (err) {
                 console.error('Failed to load contractors:', err);
             } finally {

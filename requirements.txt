@@ -13,3 +13,7 @@ dj-database-url>=2.1
 django-filter>=24.0
 drf-nested-routers>=0.93
 
+# Caching & Performance
+django-redis>=5.4.0
+redis>=5.0.1
+

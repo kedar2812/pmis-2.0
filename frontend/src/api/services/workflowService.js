@@ -274,6 +274,83 @@ export const workflowService = {
      */
     deleteDelegation: async (delegationId) => {
         await client.delete(`${BASE_URL}/delegations/${delegationId}/`);
+    },
+
+    // ============================================
+    // ENTITY-BASED WORKFLOW ACTIONS (Universal API)
+    // ============================================
+
+    /**
+     * Get available workflow actions for an entity
+     * 
+     * @param {string} entityType - Model name (e.g., 'RABill', 'Tender')
+     * @param {string} entityId - Document primary key
+     * @returns {Object} Permission flags and current step info
+     */
+    getActionsForEntity: async (entityType, entityId) => {
+        try {
+            const response = await client.get(`${BASE_URL}/actions/actions/`, {
+                params: { entity_type: entityType, entity_id: entityId }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Failed to get workflow actions:', error);
+            // Return safe defaults on error
+            return {
+                has_workflow: false,
+                can_approve: false,
+                can_revert: false,
+                can_reject: false,
+                current_step_label: null,
+                required_role: null,
+                workflow_status: null,
+                workflow_id: null,
+                remarks_required: false
+            };
+        }
+    },
+
+    /**
+     * Perform a workflow action on an entity
+     * 
+     * @param {string} entityType - Model name
+     * @param {string} entityId - Document primary key  
+     * @param {string} action - 'FORWARD', 'REVERT', or 'REJECT'
+     * @param {string} remarks - Optional remarks/comments
+     * @param {number} toStep - Target step (required for REVERT)
+     * @returns {Object} Action result with success flag and message
+     */
+    performEntityAction: async (entityType, entityId, action, remarks = '', toStep = null) => {
+        const data = {
+            entity_type: entityType,
+            entity_id: entityId,
+            action: action,
+            remarks: remarks
+        };
+        if (toStep !== null) {
+            data.to_step = toStep;
+        }
+        const response = await client.post(`${BASE_URL}/actions/perform-action/`, data);
+        return response.data;
+    },
+
+    /**
+     * Get workflow history for an entity
+     * 
+     * @param {string} entityType - Model name
+     * @param {string} entityId - Document primary key
+     * @returns {Object} Workflow history with timeline entries
+     */
+    getEntityHistory: async (entityType, entityId) => {
+        try {
+            const response = await client.get(`${BASE_URL}/actions/entity-history/`, {
+                params: { entity_type: entityType, entity_id: entityId }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Failed to get workflow history:', error);
+            return { has_history: false, workflows: [] };
+        }
     }
 };
 

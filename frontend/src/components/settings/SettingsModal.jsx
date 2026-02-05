@@ -531,26 +531,26 @@ const MasterDataSection = ({ navigate, onClose }) => {
                         mastersService.getZones(), mastersService.getCircles(),
                         mastersService.getDivisions(), mastersService.getSubDivisions()
                     ]);
-                    setData(prev => ({ ...prev, zones: z.data || [], circles: c.data || [], divisions: d.data || [], subdivisions: s.data || [] }));
+                    setData(prev => ({ ...prev, zones: z.data?.results || z.data || [], circles: c.data?.results || c.data || [], divisions: d.data?.results || d.data || [], subdivisions: s.data?.results || s.data || [] }));
                     break;
                 case 'geography':
                     const [dist, towns] = await Promise.all([mastersService.getDistricts(), mastersService.getTowns()]);
-                    setData(prev => ({ ...prev, districts: dist.data || [], towns: towns.data || [] }));
+                    setData(prev => ({ ...prev, districts: dist.data?.results || dist.data || [], towns: towns.data?.results || towns.data || [] }));
                     break;
                 case 'classification':
                     const [st, sc, wt, pc] = await Promise.all([
                         mastersService.getSchemeTypes(), mastersService.getSchemes(),
                         mastersService.getWorkTypes(), mastersService.getProjectCategories()
                     ]);
-                    setData(prev => ({ ...prev, schemeTypes: st.data || [], schemes: sc.data || [], workTypes: wt.data || [], projectCategories: pc.data || [] }));
+                    setData(prev => ({ ...prev, schemeTypes: st.data?.results || st.data || [], schemes: sc.data?.results || sc.data || [], workTypes: wt.data?.results || wt.data || [], projectCategories: pc.data?.results || pc.data || [] }));
                     break;
                 case 'entities':
                     const contractors = await mastersService.getContractors();
-                    setData(prev => ({ ...prev, contractors: contractors.data || [] }));
+                    setData(prev => ({ ...prev, contractors: contractors.data?.results || contractors.data || [] }));
                     break;
                 case 'etp':
                     const etp = await mastersService.getETPCharges();
-                    setData(prev => ({ ...prev, etpCharges: etp.data || [] }));
+                    setData(prev => ({ ...prev, etpCharges: etp.data?.results || etp.data || [] }));
                     break;
             }
         } catch (e) { console.error(e); toast.error('Failed to load data'); }
@@ -570,11 +570,11 @@ const MasterDataSection = ({ navigate, onClose }) => {
                 mastersService.getContractors(), mastersService.getETPCharges()
             ]);
             setData({
-                zones: z.data || [], circles: c.data || [], divisions: d.data || [], subdivisions: s.data || [],
-                districts: dist.data || [], towns: towns.data || [],
-                schemeTypes: st.data || [], schemes: sc.data || [], workTypes: wt.data || [], projectCategories: pc.data || [],
-                contractors: contractors.data || [],
-                etpCharges: etp.data || []
+                zones: z.data?.results || z.data || [], circles: c.data?.results || c.data || [], divisions: d.data?.results || d.data || [], subdivisions: s.data?.results || s.data || [],
+                districts: dist.data?.results || dist.data || [], towns: towns.data?.results || towns.data || [],
+                schemeTypes: st.data?.results || st.data || [], schemes: sc.data?.results || sc.data || [], workTypes: wt.data?.results || wt.data || [], projectCategories: pc.data?.results || pc.data || [],
+                contractors: contractors.data?.results || contractors.data || [],
+                etpCharges: etp.data?.results || etp.data || []
             });
             setAllDataLoaded(true);
         } catch (e) { console.error(e); toast.error('Failed to load search data'); }

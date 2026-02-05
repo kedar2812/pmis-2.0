@@ -176,13 +176,15 @@ const UserSelectField = ({
                             <p className="text-xs text-slate-500 dark:text-neutral-400 truncate">{selectedUser.email}</p>
                         </div>
                         {!disabled && (
-                            <button
-                                type="button"
+                            <div
+                                role="button"
+                                tabIndex={0}
                                 onClick={handleClear}
-                                className="p-1 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full text-slate-400 dark:text-neutral-500 hover:text-slate-600 dark:hover:text-neutral-300"
+                                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClear(e)}
+                                className="p-1 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full text-slate-400 dark:text-neutral-500 hover:text-slate-600 dark:hover:text-neutral-300 cursor-pointer"
                             >
                                 <X size={16} />
-                            </button>
+                            </div>
                         )}
                     </div>
                 ) : (

@@ -3,7 +3,8 @@ import api from '@/api/client';
 const projectService = {
     getAllProjects: async () => {
         const response = await api.get('/projects/');
-        return response.data;
+        const data = response.data;
+        return data?.results || data || [];
     },
 
     getProject: async (id) => {
