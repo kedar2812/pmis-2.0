@@ -49,6 +49,7 @@ const Procurement = () => {
                     projectService.getAllProjects()
                 ]);
                 setContractors(contractorsRes.data?.results || contractorsRes.data || []);
+                // projectService.getAllProjects() already handles pagination
                 setProjects(projectsData || []);
             } catch (error) {
                 console.error('Failed to fetch procurement data:', error);

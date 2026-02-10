@@ -18,6 +18,16 @@ export const AddContractorModal = ({
     contractor = null
 }) => {
     const isEditing = !!contractor;
+
+    // Normalize projects and packages to always be arrays
+    // Handle both paginated ({results: [...]}) and non-paginated ([...]) formats
+    const normalizedProjects = Array.isArray(projects)
+        ? projects
+        : (projects?.results || projects?.data?.results || []);
+    const normalizedPackages = Array.isArray(packages)
+        ? packages
+        : (packages?.results || packages?.data?.results || []);
+
     const [formData, setFormData] = useState({
         panNo: '',
         gstinNo: '',
@@ -44,7 +54,7 @@ export const AddContractorModal = ({
 
     // Filter packages based on selected project
     const projectPackages = formData.projectId
-        ? packages.filter(pkg => pkg.projectId === formData.projectId)
+        ? normalizedPackages.filter(pkg => pkg.projectId === formData.projectId)
         : [];
 
     // Reset form when modal opens
@@ -319,7 +329,7 @@ export const AddContractorModal = ({
                                                 className="flex-1 w-full px-3 py-2 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-700 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
                                             >
                                                 <option value="">Select Project...</option>
-                                                {projects.map(p => (
+                                                {normalizedProjects.map(p => (
                                                     <option key={p.id} value={p.id}>{p.name}</option>
                                                 ))}
                                             </select>
