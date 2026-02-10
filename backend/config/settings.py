@@ -9,6 +9,9 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 
+# PRODUCTION DEPLOYMENT: Add your server IP and domain to ALLOWED_HOSTS
+# Windows VM: Must include server IP (e.g., 45.118.163.111)
+# Format: ALLOWED_HOSTS=45.118.163.111,yourdomain.com,localhost
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 
@@ -145,6 +148,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
 # CORS Settings
+# PRODUCTION DEPLOYMENT: Set CORS_ALLOWED_ORIGINS to your frontend URL
+# Windows VM: Must include server IP (e.g., http://45.118.163.111)
+# Format: CORS_ALLOWED_ORIGINS=http://45.118.163.111,https://yourdomain.com
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only in debug mode
 CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:5173').split(',')
 
@@ -231,7 +237,9 @@ FILE_UPLOAD_HANDLERS = [
     'django.core.files.uploadhandler.TemporaryFileUploadHandler',
 ]
 
-# Frontend URL (for invite links, etc.)
+# PRODUCTION DEPLOYMENT: Set FRONTEND_URL for invite links and emails
+# Windows VM: Must be set to server IP (e.g., http://45.118.163.111)
+# Format: FRONTEND_URL=http://45.118.163.111
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
 
 # Email Configuration
