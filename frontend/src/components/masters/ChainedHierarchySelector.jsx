@@ -41,7 +41,9 @@ const ChainedHierarchySelector = ({
         setLoading(prev => ({ ...prev, zones: true }));
         try {
             const res = await mastersService.getZones();
-            setZones(res.data.filter(z => z.status === 'Active'));
+            // Handle both paginated ({results: [...]}) and non-paginated ([...]) responses
+            const zonesData = res.data?.results || res.data || [];
+            setZones(zonesData.filter(z => z.status === 'Active'));
         } catch (error) {
             console.error('Failed to fetch zones:', error);
         } finally {
@@ -58,13 +60,16 @@ const ChainedHierarchySelector = ({
         setLoading(prev => ({ ...prev, circles: true }));
         try {
             const res = await mastersService.getZoneCircles(zoneId);
-            setCircles(res.data);
+            // Handle both paginated and non-paginated responses
+            const circlesData = res.data?.results || res.data || [];
+            setCircles(circlesData);
         } catch (error) {
             console.error('Failed to fetch circles:', error);
             // Fallback: filter from all circles
             try {
                 const allCircles = await mastersService.getCircles({ zone: zoneId });
-                setCircles(allCircles.data.filter(c => c.status === 'Active'));
+                const circlesData = allCircles.data?.results || allCircles.data || [];
+                setCircles(circlesData.filter(c => c.status === 'Active'));
             } catch {
                 setCircles([]);
             }
@@ -82,12 +87,14 @@ const ChainedHierarchySelector = ({
         setLoading(prev => ({ ...prev, divisions: true }));
         try {
             const res = await mastersService.getCircleDivisions(circleId);
-            setDivisions(res.data);
+            const divisionsData = res.data?.results || res.data || [];
+            setDivisions(divisionsData);
         } catch (error) {
             console.error('Failed to fetch divisions:', error);
             try {
                 const allDivisions = await mastersService.getDivisions({ circle: circleId });
-                setDivisions(allDivisions.data.filter(d => d.status === 'Active'));
+                const divisionsData = allDivisions.data?.results || allDivisions.data || [];
+                setDivisions(divisionsData.filter(d => d.status === 'Active'));
             } catch {
                 setDivisions([]);
             }
@@ -105,12 +112,14 @@ const ChainedHierarchySelector = ({
         setLoading(prev => ({ ...prev, subDivisions: true }));
         try {
             const res = await mastersService.getDivisionSubDivisions(divisionId);
-            setSubDivisions(res.data);
+            const subDivisionsData = res.data?.results || res.data || [];
+            setSubDivisions(subDivisionsData);
         } catch (error) {
             console.error('Failed to fetch subdivisions:', error);
             try {
                 const allSubs = await mastersService.getSubDivisions({ division: divisionId });
-                setSubDivisions(allSubs.data);
+                const subDivisionsData = allSubs.data?.results || allSubs.data || [];
+                setSubDivisions(subDivisionsData);
             } catch {
                 setSubDivisions([]);
             }
