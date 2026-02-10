@@ -92,9 +92,23 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
     setLoadingManagers(true);
     try {
       const response = await userService.getEligibleManagers();
-      setEligibleManagers(response.data || []);
+      // Defensive: ensure we always set an array, never an object
+      const managersData = response.data;
+      if (Array.isArray(managersData)) {
+        setEligibleManagers(managersData);
+      } else if (managersData?.results && Array.isArray(managersData.results)) {
+        // Handle paginated response
+        setEligibleManagers(managersData.results);
+      } else {
+        // API returned error object or unexpected format
+        console.error('Unexpected managers data format:', managersData);
+        setEligibleManagers([]);
+        toast.error('Failed to load project managers');
+      }
     } catch (error) {
       console.error('Failed to fetch eligible managers:', error);
+      // CRITICAL: Always set an empty array on error, never leave it undefined
+      setEligibleManagers([]);
       toast.error('Failed to load project managers');
     } finally {
       setLoadingManagers(false);

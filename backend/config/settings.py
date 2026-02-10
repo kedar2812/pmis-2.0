@@ -154,6 +154,11 @@ AUTH_USER_MODEL = 'users.User'
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only in debug mode
 CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:5173').split(',')
 
+# CSRF Trusted Origins (required for production POST requests)
+# PRODUCTION DEPLOYMENT: Set to match FRONTEND_URL
+# Windows VM: Must include server IP (e.g., http://45.118.163.111)
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS if origin.strip()]
+
 # REST Framework Config
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
