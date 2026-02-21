@@ -1,0 +1,19 @@
+# .gitingestignore
+node_modules/
+venv/
+.vite/
+__pycache__/
+*.pyc
+frontend/dist/
+frontend/build/
+backend/media/
+backend/staticfiles/
+*.pdf
+*.jpg
+*.png
+*.svg
+*.ico
+*.sqlite3
+.git/
+.vscode/
+.env
