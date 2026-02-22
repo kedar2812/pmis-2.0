@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    FileText, Plus, Search, Filter, Calendar, DollarSign,
+    FileText, Plus, Search, Filter, Calendar, IndianRupee,
     Building2, CheckCircle2, Clock, AlertCircle, ChevronRight,
     Gavel, FileSignature, TrendingUp, Loader2
 } from 'lucide-react';
@@ -120,7 +120,7 @@ const EProcurement = () => {
                 {[
                     { label: 'Active Tenders', value: tenders.filter(t => t.status !== 'CLOSED' && t.status !== 'CANCELLED').length, icon: Gavel, color: 'text-blue-600', bg: 'bg-blue-50' },
                     { label: 'Active Contracts', value: summary.active_contracts, icon: FileSignature, color: 'text-green-600', bg: 'bg-green-50' },
-                    { label: 'Total Value', value: formatCurrency(summary.total_value), icon: DollarSign, color: 'text-primary-600', bg: 'bg-primary-50' },
+                    { label: 'Total Value', value: formatCurrency(summary.total_value), icon: IndianRupee, color: 'text-primary-600', bg: 'bg-primary-50' },
                     { label: 'Variations', value: formatCurrency(summary.total_variations), icon: TrendingUp, color: 'text-amber-600', bg: 'bg-amber-50' },
                 ].map((stat, idx) => (
                     <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}>

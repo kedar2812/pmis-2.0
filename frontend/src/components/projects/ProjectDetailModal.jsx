@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
   Calendar,
-  DollarSign,
+  IndianRupee,
   MapPin,
   User,
   TrendingUp,
@@ -219,7 +219,7 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                           <p className="text-sm text-gray-600 dark:text-neutral-400 mb-1">Budget Utilization</p>
                           <p className="text-2xl font-bold text-primary-950 dark:text-white">{budgetUtilization.toFixed(1)}%</p>
                         </div>
-                        <DollarSign className="text-primary-600" size={32} />
+                        <IndianRupee className="text-primary-600" size={32} />
                       </div>
                       <div className="mt-3 w-full h-2 bg-gray-200 dark:bg-neutral-700 rounded-full">
                         <div
@@ -380,7 +380,7 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                                 <User size={14} className="text-slate-400" /> {contractor.email}
                               </span>
                               <span className="flex items-center gap-2 text-slate-600">
-                                <DollarSign size={14} className="text-slate-400" /> {contractor.mobile}
+                                <IndianRupee size={14} className="text-slate-400" /> {contractor.mobile}
                               </span>
                             </div>
                           </div>
@@ -439,7 +439,7 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                             <div className="flex flex-col">
                               <span className="text-xs text-slate-400 dark:text-neutral-500 uppercase font-medium">Contract Value</span>
                               <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-neutral-300">
-                                <DollarSign size={14} className="text-slate-400" /> {formatCurrency(pkg.contractValue || pkg.budget)}
+                                <IndianRupee size={14} className="text-slate-400" /> {formatCurrency(pkg.contractValue || pkg.budget)}
                               </span>
                             </div>
                             <div className="flex flex-col">
@@ -481,7 +481,7 @@ export const ProjectDetailModal = ({ isOpen, onClose, project, packages = [], co
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <DollarSign size={20} />
+                      <IndianRupee size={20} />
                       Budget & Financial Details
                     </CardTitle>
                   </CardHeader>

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
-    Clock, CheckSquare, AlertTriangle, TrendingUp, DollarSign,
+    Clock, CheckSquare, AlertTriangle, TrendingUp, IndianRupee,
     ArrowRight, CheckCircle, XCircle, AlertCircle
 } from 'lucide-react';
 
@@ -105,7 +105,7 @@ const HealthSummaryPanel = ({
         },
         {
             id: 'cost',
-            icon: DollarSign,
+            icon: IndianRupee,
             label: 'Cost',
             status: costStatus,
             healthy: costHealthy,

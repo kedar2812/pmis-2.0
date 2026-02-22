@@ -9,7 +9,7 @@ import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
 import { CreatePackageModal } from '@/components/packages/CreatePackageModal';
 import { LandStats } from '@/components/projects/LandStats';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { FolderOpen, Plus, Search, DollarSign, TrendingUp, Package, Filter, X } from 'lucide-react';
+import { FolderOpen, Plus, Search, IndianRupee, TrendingUp, Package, Filter, X } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { getStatusColor } from '@/lib/colors';
@@ -250,7 +250,7 @@ const Projects = () => {
                       {formatCurrency(projects.filter(p => p.status === 'In Progress' || p.status === 'Completed').reduce((sum, p) => sum + Number(p.budget || 0), 0))}
                     </p>
                   </div>
-                  <DollarSign className="text-primary-600" size={32} />
+                  <IndianRupee className="text-primary-600" size={32} />
                 </div>
               </CardContent>
             </Card>

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2, FolderOpen, Calendar, DollarSign, FileText, Upload, CheckCircle } from 'lucide-react';
+import { X, Loader2, FolderOpen, Calendar, IndianRupee, FileText, Upload, CheckCircle } from 'lucide-react';
+import projectService from '@/api/services/projectService';
 import Button from '@/components/ui/Button';
 import { toast } from 'sonner';
 import UserSelectField from '@/components/masters/UserSelectField';
@@ -141,7 +142,55 @@ export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelec
         }
 
         setIsSubmitting(true);
-        // ... (rest of submit logic) ...
+        try {
+            // 1. Create the package
+            const packageData = {
+                project: formData.projectId,
+                name: formData.name,
+                description: formData.description || '',
+                contractor_id: formData.contractor?.id,
+                responsible_staff_id: formData.responsibleStaff?.id,
+                agreement_no: formData.agreementNo,
+                agreement_date: formData.agreementDate,
+                contract_value: parseFloat(formData.contractValue.replace(/,/g, '')),
+                start_date: formData.startDate || null,
+                end_date: formData.endDate,
+                status: formData.status
+            };
+
+            const createdPackage = await projectService.createPackage(packageData);
+
+            // 2. Upload agreement document to EDMS
+            if (agreementFile) {
+                const docFormData = new FormData();
+                docFormData.append('file', agreementFile);
+                docFormData.append('title', `Agreement - ${formData.name}`);
+                docFormData.append('description', `Agreement No: ${formData.agreementNo}`);
+                docFormData.append('project', formData.projectId);
+                docFormData.append('category', 'Agreements');
+
+                // Assuming you have a documentService or standard axios call for EDMS
+                // We'll use the generic client for now
+                const { default: client } = await import('@/api/client');
+                await client.post('/edms/documents/', docFormData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            }
+
+            toast.success('Work package created successfully');
+            if (onPackageCreated) onPackageCreated(createdPackage);
+            resetForm();
+            onClose();
+        } catch (error) {
+            console.error('Failed to create package:', error);
+            const errorMsg = error.response?.data?.detail
+                || error.response?.data?.error
+                || Object.values(error.response?.data || {}).flat()[0]
+                || 'Failed to create work package';
+            toast.error(typeof errorMsg === 'string' ? errorMsg : 'Failed to create work package');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     // Helper to check if error should be shown
@@ -340,14 +389,28 @@ export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelec
                                 </label>
                                 <div className="relative">
                                     <input
-                                        type="number"
+                                        type="text"
                                         value={formData.contractValue}
-                                        onChange={(e) => setFormData({ ...formData, contractValue: e.target.value })}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/[^0-9.]/g, '');
+                                            const parts = val.split('.');
+                                            let cleanVal = parts[0];
+                                            if (parts.length > 1) cleanVal += '.' + parts[1].slice(0, 2);
+
+                                            if (cleanVal) {
+                                                const formatted = Number(cleanVal).toLocaleString('en-IN', {
+                                                    maximumFractionDigits: 2,
+                                                });
+                                                setFormData({ ...formData, contractValue: formatted });
+                                            } else {
+                                                setFormData({ ...formData, contractValue: '' });
+                                            }
+                                        }}
                                         onBlur={() => handleBlur('contractValue')}
                                         className={`w-full p-2 pl-10 border rounded-lg bg-white dark:bg-neutral-900 dark:text-white ${showError('contractValue') ? 'border-red-500' : 'border-slate-200 dark:border-neutral-700'}`}
                                         placeholder="0.00"
                                     />
-                                    <DollarSign className="absolute left-3 top-2.5 text-slate-400 dark:text-neutral-500" size={18} />
+                                    <IndianRupee className="absolute left-3 top-2.5 text-slate-400 dark:text-neutral-500" size={18} />
                                 </div>
                                 {showError('contractValue') && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.contractValue}</p>}
                             </div>

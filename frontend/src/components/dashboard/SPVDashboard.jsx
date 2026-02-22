@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { MotionCard, MotionCardContent, MotionCardHeader, MotionCardTitle } from '@/components/ui/MotionCard';
 import { DynamicChart } from '@/components/ui/DynamicChart';
-import { TrendingUp, TrendingDown, DollarSign, AlertTriangle, CheckCircle, Activity, FolderOpen } from 'lucide-react';
+import { TrendingUp, TrendingDown, IndianRupee, AlertTriangle, CheckCircle, Activity, FolderOpen } from 'lucide-react';
 import { CalculationRules } from '@/lib/calculations';
 import MetricsDetailModal from '@/components/ui/MetricsDetailModal';
 import GraphAnalysisModal from '@/components/ui/GraphAnalysisModal';
@@ -170,7 +170,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
                   </p>
                 </div>
                 <div className="p-3 bg-emerald-100 rounded-xl">
-                  <DollarSign className="text-emerald-600" size={24} />
+                  <IndianRupee className="text-emerald-600" size={24} />
                 </div>
               </div>
             </MotionCardContent>

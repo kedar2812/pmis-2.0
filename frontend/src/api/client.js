@@ -32,6 +32,20 @@ client.interceptors.request.use(
 );
 
 // Add a response interceptor to handle token refresh
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
+
 client.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -39,7 +53,19 @@ client.interceptors.response.use(
 
         // If error is 401 and we haven't retried yet
         if (error.response?.status === 401 && !originalRequest._retry) {
+            if (isRefreshing) {
+                return new Promise(function (resolve, reject) {
+                    failedQueue.push({ resolve, reject });
+                }).then(token => {
+                    originalRequest.headers['Authorization'] = `Bearer ${token}`;
+                    return client(originalRequest);
+                }).catch(err => {
+                    return Promise.reject(err);
+                });
+            }
+
             originalRequest._retry = true;
+            isRefreshing = true;
 
             const refreshToken = localStorage.getItem('refresh_token');
             if (refreshToken) {
@@ -61,18 +87,24 @@ client.interceptors.response.use(
 
                         // Update current request headers and retry
                         originalRequest.headers['Authorization'] = `Bearer ${access}`;
+
+                        processQueue(null, access);
                         return client(originalRequest);
                     }
                 } catch (refreshError) {
+                    processQueue(refreshError, null);
                     console.error("Token refresh failed:", refreshError);
                     // Refresh failed - clean up and redirect
                     localStorage.removeItem('access_token');
                     localStorage.removeItem('refresh_token');
                     window.location.href = '/login';
                     return Promise.reject(refreshError);
+                } finally {
+                    isRefreshing = false;
                 }
             } else {
                 // No refresh token available
+                isRefreshing = false;
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('refresh_token');
                 window.location.href = '/login';

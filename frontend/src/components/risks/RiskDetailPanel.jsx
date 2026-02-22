@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button';
 import {
     X, AlertTriangle, AlertCircle, CheckCircle, Clock, FileText, Plus,
     Edit2, Save, ChevronDown, ChevronRight, Loader2, Upload, Trash2,
-    User, Calendar, Target, DollarSign, Timer, Shield, History,
+    User, Calendar, Target, IndianRupee, Timer, Shield, History,
     Send, ThumbsUp, ThumbsDown, ExternalLink
 } from 'lucide-react';
 
@@ -282,7 +282,7 @@ const DetailsTab = ({ risk, onUpdate, onRefresh }) => {
                     highlight={risk?.is_overdue}
                 />
                 <InfoItem
-                    icon={DollarSign}
+                    icon={IndianRupee}
                     label="Cost Impact"
                     value={risk?.cost_impact ? `₹${parseFloat(risk.cost_impact).toLocaleString()}` : '-'}
                 />

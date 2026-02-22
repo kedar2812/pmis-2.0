@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Flag, Target, Scale, DollarSign, AlertCircle, ChevronDown } from 'lucide-react';
+import { X, Calendar, Flag, Target, Scale, IndianRupee, AlertCircle, ChevronDown } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Toggle from '@/components/ui/Toggle';
 import { toast } from 'sonner';
@@ -273,7 +273,7 @@ const AddScheduleTaskModal = ({ isOpen, onClose, projectId, onTaskCreated, editT
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div>
                                                     <label className="block text-xs font-medium text-slate-600 dark:text-neutral-400 mb-1 flex items-center gap-1">
-                                                        <DollarSign size={12} /> Budgeted Cost (₹) *
+                                                        <IndianRupee size={12} /> Budgeted Cost (₹) *
                                                     </label>
                                                     <input
                                                         type="number"

@@ -8,7 +8,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Calendar, ChevronLeft, ChevronRight, Clock, AlertTriangle,
-    CheckCircle, DollarSign, Shield, Workflow, CalendarDays,
+    CheckCircle, IndianRupee, Shield, Workflow, CalendarDays,
     Filter, ChevronDown, ExternalLink
 } from 'lucide-react';
 import { calendarService, EVENT_COLORS, getEventTypeLabel } from '@/api/services/calendarService';
@@ -20,7 +20,7 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
 const EventIcon = ({ type, size = 14 }) => {
     const icons = {
         MILESTONE: Calendar,
-        BILLING: DollarSign,
+        BILLING: IndianRupee,
         RISK: AlertTriangle,
         COMPLIANCE: Shield,
         WORKFLOW: Workflow,

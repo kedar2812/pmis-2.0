@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
     Calendar,
-    DollarSign,
+    IndianRupee,
     MapPin,
     User,
     TrendingUp,
@@ -216,7 +216,7 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                             <p className="text-sm text-app-muted mb-1">Budget Utilization</p>
                                             <p className="text-2xl font-bold text-app-heading">{budgetUtilization.toFixed(1)}%</p>
                                         </div>
-                                        <DollarSign className="text-primary-600" size={32} />
+                                        <IndianRupee className="text-primary-600" size={32} />
                                     </div>
                                     <div className="mt-3 w-full h-2 bg-app-secondary rounded-full">
                                         <div
@@ -376,7 +376,7 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                                         <User size={14} className="text-app-muted" /> {contractor.email}
                                                     </span>
                                                     <span className="flex items-center gap-2 text-app-muted">
-                                                        <DollarSign size={14} className="text-app-muted" /> {contractor.mobile}
+                                                        <IndianRupee size={14} className="text-app-muted" /> {contractor.mobile}
                                                     </span>
                                                 </div>
                                             </div>
@@ -438,7 +438,7 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                                 <div className="flex flex-col">
                                                     <span className="text-xs text-app-muted uppercase font-medium">Contract Value</span>
                                                     <span className="flex items-center gap-1 font-medium text-app-heading">
-                                                        <DollarSign size={14} className="text-app-muted" /> {formatCurrency(pkg.contractValue || pkg.budget)}
+                                                        <IndianRupee size={14} className="text-app-muted" /> {formatCurrency(pkg.contractValue || pkg.budget)}
                                                     </span>
                                                 </div>
                                                 <div className="flex flex-col">
@@ -482,7 +482,7 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <DollarSign size={20} />
+                                    <IndianRupee size={20} />
                                     Budget & Financial Details
                                 </CardTitle>
                             </CardHeader>

@@ -166,7 +166,8 @@ const financeService = {
         const response = await api.get('/finance/mappings/', {
             params: { boq_item: boqItemId }
         });
-        return response.data;
+        const data = response.data;
+        return data?.results || data || [];
     },
 
     /**
@@ -176,7 +177,8 @@ const financeService = {
         const response = await api.get('/finance/mappings/', {
             params: { project: projectId }
         });
-        return response.data;
+        const data = response.data;
+        return data?.results || data || [];
     },
 
     /**

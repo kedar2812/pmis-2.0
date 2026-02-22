@@ -9,14 +9,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     CheckCircle, XCircle, RotateCcw, Clock, User,
     ChevronRight, AlertTriangle, Loader2, Workflow,
-    FileText, DollarSign, Shield, Package
+    FileText, IndianRupee, Shield, Package
 } from 'lucide-react';
 import { workflowService, getStatusColor } from '@/api/services/workflowService';
 import { toast } from 'sonner';
 
 const EntityIcon = ({ entityType }) => {
     const icons = {
-        RABill: DollarSign,
+        RABill: IndianRupee,
         Tender: Package,
         Contract: FileText,
         Risk: AlertTriangle,
