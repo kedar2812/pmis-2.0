@@ -80,7 +80,7 @@ const NewThreadModal = ({ onClose, onCreated, preselectedContext = null }) => {
             const items = Array.isArray(res.data) ? res.data : (res.data.results || []);
             setContextItems(items.map(item => ({
                 id: item.id,
-                name: item.title || item.name || `${contextConfig.label} ${item.id.substring(0, 8)}`,
+                name: item.title || item.name || `${contextConfig.label} ${String(item.id).substring(0, 8)}`,
                 subtitle: item.status || item.category || ''
             })));
         } catch (error) {

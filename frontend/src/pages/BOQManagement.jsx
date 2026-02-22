@@ -49,6 +49,7 @@ const BOQManagement = () => {
     const [importMode, setImportMode] = useState(false);
     const [impStep, setImpStep] = useState(1);
     const [impFile, setImpFile] = useState(null);
+    const [importData, setImportData] = useState([]); // Holds parsed Excel rows
     const [fileHeaders, setFileHeaders] = useState([]);
     const [analyzing, setAnalyzing] = useState(false);
     const [importing, setImporting] = useState(false);
@@ -61,7 +62,8 @@ const BOQManagement = () => {
         description: '',
         uom: '',
         quantity: '',
-        rate: ''
+        rate: '',
+        amount: ''
     });
 
     const dbFields = [
@@ -333,63 +335,91 @@ const BOQManagement = () => {
 
         setAnalyzing(true);
         try {
-            const res = await financeService.analyzeBOQFile(file);
-            setFileHeaders(res.headers || []);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = e.target.result;
+                    const workbook = XLSX.read(data, { type: 'binary' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
-            const newMapping = { item_code: '', description: '', uom: '', quantity: '', rate: '' };
-            (res.headers || []).forEach(h => {
-                const lower = h.toLowerCase();
+                    if (jsonData.length === 0) {
+                        toast.error("The uploaded file is empty.");
+                        setAnalyzing(false);
+                        return;
+                    }
 
-                // ======== DESCRIPTION - Check FIRST (highest priority) ========
-                // Matches: Description, Work Description, Item Description, Particulars, etc.
-                if (!newMapping.description && (
-                    lower.includes('desc') ||
-                    lower.includes('particular') ||
-                    lower.includes('work')
-                )) {
-                    newMapping.description = h;
+                    // Extract headers from the first object keys
+                    const headers = Object.keys(jsonData[0]);
+                    setFileHeaders(headers);
+                    setImportData(jsonData);
+
+                    const newMapping = { item_code: '', description: '', uom: '', quantity: '', rate: '', amount: '' };
+                    headers.forEach(h => {
+                        const lower = h.toLowerCase();
+
+                        // ======== DESCRIPTION - Check FIRST (highest priority) ========
+                        if (!newMapping.description && (
+                            lower.includes('desc') ||
+                            lower.includes('particular') ||
+                            lower.includes('work')
+                        )) {
+                            newMapping.description = h;
+                        }
+
+                        // ======== ITEM CODE - Check SECOND (with exclusions) ========
+                        if (!newMapping.item_code && !lower.includes('desc') && !lower.includes('particular') && (
+                            lower.includes('code') ||
+                            lower.includes('s.no') ||
+                            lower.includes('sno') ||
+                            lower.includes('sl.no') ||
+                            lower.includes('sr.no') ||
+                            lower.includes('serial') ||
+                            lower === 'no' ||
+                            lower === 'id' ||
+                            (lower.includes('item') && lower.includes('no'))
+                        )) {
+                            newMapping.item_code = h;
+                        }
+
+                        // ======== UNIT OF MEASUREMENT ========
+                        if (!newMapping.uom && (lower.includes('unit') || lower.includes('uom') || lower === 'u/m')) {
+                            newMapping.uom = h;
+                        }
+
+                        // ======== QUANTITY ========
+                        if (!newMapping.quantity && (lower.includes('qty') || lower.includes('quant') || lower.includes('nos') || lower === 'quantity')) {
+                            newMapping.quantity = h;
+                        }
+
+                        // ======== RATE ========
+                        if (!newMapping.rate && (lower.includes('rate') || lower.includes('price') || lower.includes('cost'))) {
+                            newMapping.rate = h;
+                        }
+
+                        // ======== AMOUNT ========
+                        if (!newMapping.amount && (lower.includes('amount') || lower.includes('total') || lower === 'value')) {
+                            newMapping.amount = h;
+                        }
+                    });
+
+                    setMapping(newMapping);
+                    setImpStep(2); // Step 2 is now the Interactive Grid
+                    toast.success(`Found ${headers.length} columns and ${jsonData.length} rows in ${file.name}`);
+                } catch (err) {
+                    console.error('Parse error:', err);
+                    toast.error('Failed to parse Excel file.');
+                    setImpStep(1);
+                } finally {
+                    setAnalyzing(false);
                 }
-
-                // ======== ITEM CODE - Check SECOND (with exclusions) ========
-                // Matches: Item Code, S.No, Code, ID - but NOT if already matched as description
-                // Also exclude if the column name contains description-like keywords
-                if (!newMapping.item_code && !lower.includes('desc') && !lower.includes('particular') && (
-                    lower.includes('code') ||
-                    lower.includes('s.no') ||
-                    lower.includes('sno') ||
-                    lower.includes('sl.no') ||
-                    lower.includes('sr.no') ||
-                    lower.includes('serial') ||
-                    lower === 'no' ||
-                    lower === 'id' ||
-                    (lower.includes('item') && lower.includes('no'))  // "Item No" specifically
-                )) {
-                    newMapping.item_code = h;
-                }
-
-                // ======== UNIT OF MEASUREMENT ========
-                if (!newMapping.uom && (lower.includes('unit') || lower.includes('uom') || lower === 'u/m')) {
-                    newMapping.uom = h;
-                }
-
-                // ======== QUANTITY ========
-                if (!newMapping.quantity && (lower.includes('qty') || lower.includes('quant') || lower.includes('nos') || lower === 'quantity')) {
-                    newMapping.quantity = h;
-                }
-
-                // ======== RATE ========
-                if (!newMapping.rate && (lower.includes('rate') || lower.includes('price') || lower.includes('cost'))) {
-                    newMapping.rate = h;
-                }
-            });
-            setMapping(newMapping);
-            setImpStep(2);
-            toast.success(`Found ${res.headers.length} columns in ${file.name}`);
+            };
+            reader.readAsBinaryString(file);
         } catch (err) {
             console.error('Analyze error:', err);
-            toast.error(err.response?.data?.error || 'Failed to analyze file.');
+            toast.error('Failed to read file.');
             setImpStep(1);
-        } finally {
             setAnalyzing(false);
         }
     };
@@ -404,11 +434,52 @@ const BOQManagement = () => {
             return toast.error(`Please map required columns: ${missing.join(', ')}`);
         }
 
+        // ==========================================
+        // GUARDRAILS: Check for duplicates
+        // ==========================================
+        const itemCodeCol = mapping.item_code;
+
+        // 1. Check for duplicates within the uploaded file itself
+        const incomingCodes = importData.map(row => String(row[itemCodeCol] || '').trim()).filter(Boolean);
+        const uniqueIncomingCodes = new Set();
+        const internalDuplicates = new Set();
+
+        for (const code of incomingCodes) {
+            if (uniqueIncomingCodes.has(code)) {
+                internalDuplicates.add(code);
+            }
+            uniqueIncomingCodes.add(code);
+        }
+
+        if (internalDuplicates.size > 0) {
+            const dupList = Array.from(internalDuplicates).join(', ');
+            return toast.error(`Duplicate Item Codes found inside the uploaded file: ${dupList}. Please fix them in the grid before importing.`, { duration: 6000 });
+        }
+
+        // 2. Check for duplicates against existing DB items for this project
+        const existingCodes = new Set(boqItems.map(item => String(item.item_code).trim()));
+        const conflicts = incomingCodes.filter(code => existingCodes.has(code));
+
+        if (conflicts.length > 0) {
+            const conflictList = conflicts.slice(0, 5).join(', ') + (conflicts.length > 5 ? ` and ${conflicts.length - 5} more` : '');
+            return toast.error(`Import Blocked: The following Item Codes already exist in this project: ${conflictList}. You cannot import duplicate entries. Please remove or change them in the grid.`, { duration: 8000 });
+        }
+        // ==========================================
+
         setImporting(true);
         try {
-            const res = await financeService.importBOQFile(selectedProject, impFile, mapping);
+            // Generate a new Excel file from the edited importData
+            const worksheet = XLSX.utils.json_to_sheet(importData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'ImportData');
+
+            // Write to array buffer and convert to Blob/File
+            const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+            const newFile = new File([wbout], impFile.name || 'edited_import.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+            const res = await financeService.importBOQFile(selectedProject, newFile, mapping);
             setImportResult(res);
-            setImpStep(3);
+            setImpStep(4); // Assuming step 4 is success (Step 3 is mapping now)
             toast.success(`Successfully imported ${res.imported} BOQ items!`);
         } catch (err) {
             console.error('Import error:', err);
@@ -422,8 +493,9 @@ const BOQManagement = () => {
         setImportMode(false);
         setImpStep(1);
         setImpFile(null);
+        setImportData([]);
         setFileHeaders([]);
-        setMapping({ item_code: '', description: '', uom: '', quantity: '', rate: '' });
+        setMapping({ item_code: '', description: '', uom: '', quantity: '', rate: '', amount: '' });
         setImportResult(null);
         fetchBOQ();
     };
@@ -663,7 +735,7 @@ const BOQManagement = () => {
                                     <div>
                                         <span className="block">Import Wizard</span>
                                         <span className="text-sm font-normal text-app-muted">
-                                            Step {impStep} of 3: {impStep === 1 ? 'Upload File' : impStep === 2 ? 'Map Columns' : 'Complete'}
+                                            Step {impStep} of 4: {impStep === 1 ? 'Upload File' : impStep === 2 ? 'Review & Edit Data' : impStep === 3 ? 'Map Columns' : 'Complete'}
                                         </span>
                                     </div>
                                 </CardTitle>
@@ -705,7 +777,7 @@ const BOQManagement = () => {
                                             {analyzing ? (
                                                 <>
                                                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                                    Analyzing...
+                                                    Parsing File...
                                                 </>
                                             ) : (
                                                 <>
@@ -724,8 +796,104 @@ const BOQManagement = () => {
                                     </div>
                                 )}
 
-                                {/* Step 2: Map Columns */}
+                                {/* Step 2: Interactive Grid Review & Edit */}
                                 {impStep === 2 && (
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-center bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-200 dark:border-blue-800">
+                                            <div className="flex items-start gap-3">
+                                                <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                                                <div>
+                                                    <h4 className="font-semibold text-blue-800 dark:text-blue-200">Review and Edit Imported Data</h4>
+                                                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                                                        You can edit the cell contents below before mapping columns. Click any cell to edit. Ensure no duplicates!
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                                                {importData.length} rows loaded
+                                            </div>
+                                        </div>
+
+                                        <div className="border border-app rounded-xl overflow-hidden shadow-sm overflow-x-auto max-h-[500px]">
+                                            <table className="w-full text-sm text-left">
+                                                <thead className="text-xs text-app-muted uppercase bg-app-surface border-b border-app sticky top-0 z-10">
+                                                    <tr>
+                                                        <th className="px-4 py-3 bg-app-surface shadow-sm">#</th>
+                                                        {fileHeaders.map((header, idx) => (
+                                                            <th key={idx} className="px-4 py-3 whitespace-nowrap bg-app-surface shadow-sm">{header}</th>
+                                                        ))}
+                                                        <th className="px-4 py-3 text-center bg-app-surface shadow-sm">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-app">
+                                                    {importData.map((row, rInd) => (
+                                                        <tr key={rInd} className="hover:bg-app-subtle transition-colors group">
+                                                            <td className="px-4 py-2 text-app-muted font-medium bg-app-surface/50">{rInd + 1}</td>
+                                                            {fileHeaders.map((header, cInd) => (
+                                                                <td key={cInd} className="p-0 border-x border-app-subtle/50 min-w-[150px]">
+                                                                    <input
+                                                                        type="text"
+                                                                        className="w-full h-full px-4 py-2 bg-transparent text-app-text outline-none focus:bg-primary-50 dark:focus:bg-primary-900/20 focus:ring-1 focus:ring-inset focus:ring-primary-500"
+                                                                        value={row[header] === undefined || row[header] === null ? '' : row[header]}
+                                                                        onChange={(e) => {
+                                                                            const newData = [...importData];
+                                                                            newData[rInd][header] = e.target.value;
+
+                                                                            if (mapping.amount && (header === mapping.quantity || header === mapping.rate)) {
+                                                                                const q = parseFloat(newData[rInd][mapping.quantity]) || 0;
+                                                                                const r = parseFloat(newData[rInd][mapping.rate]) || 0;
+                                                                                newData[rInd][mapping.amount] = (q * r).toFixed(2);
+                                                                            }
+
+                                                                            setImportData(newData);
+                                                                        }}
+                                                                    />
+                                                                </td>
+                                                            ))}
+                                                            <td className="px-4 py-2 text-center bg-app-surface/50">
+                                                                <button
+                                                                    onClick={() => {
+                                                                        const newData = [...importData];
+                                                                        newData.splice(rInd, 1);
+                                                                        setImportData(newData);
+                                                                    }}
+                                                                    className="p-1.5 text-app-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded opacity-0 group-hover:opacity-100 transition-all"
+                                                                    title="Remove row"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                    {importData.length === 0 && (
+                                                        <tr>
+                                                            <td colSpan={fileHeaders.length + 2} className="px-4 py-8 text-center text-app-muted">
+                                                                All rows deleted. Please cancel and upload a new file.
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div className="flex justify-between pt-6 border-t border-app-subtle">
+                                            <Button variant="secondary" onClick={() => setImpStep(1)}>
+                                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                                Change File
+                                            </Button>
+                                            <Button
+                                                onClick={() => setImpStep(3)}
+                                                disabled={importData.length === 0}
+                                            >
+                                                Proceed to Mapping
+                                                <ArrowLeft className="w-4 h-4 ml-2 rotate-180" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Step 3: Map Columns */}
+                                {impStep === 3 && (
                                     <div className="space-y-6">
                                         <div className="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-xl border border-amber-200 dark:border-amber-800 flex items-start gap-3">
                                             <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
@@ -760,9 +928,9 @@ const BOQManagement = () => {
                                         </div>
 
                                         <div className="flex justify-between pt-6 border-t border-app-subtle">
-                                            <Button variant="secondary" onClick={() => setImpStep(1)}>
+                                            <Button variant="secondary" onClick={() => setImpStep(2)}>
                                                 <ArrowLeft className="w-4 h-4 mr-2" />
-                                                Back
+                                                Back to Edit Data
                                             </Button>
                                             <Button onClick={handleImport} disabled={importing}>
                                                 {importing ? (
@@ -775,8 +943,8 @@ const BOQManagement = () => {
                                     </div>
                                 )}
 
-                                {/* Step 3: Success */}
-                                {impStep === 3 && importResult && (
+                                {/* Step 4: Success */}
+                                {impStep === 4 && importResult && (
                                     <div className="text-center py-8">
                                         <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-6">
                                             <Check className="w-8 h-8 text-green-600" />

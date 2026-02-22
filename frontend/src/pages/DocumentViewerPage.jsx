@@ -100,7 +100,14 @@ const DocumentViewerPage = () => {
     const fetchNotings = async () => {
         try {
             const res = await client.get(`/edms/noting-sheets/?document=${id}`);
-            setNotings(res.data);
+            const data = res.data;
+            let items = [];
+            if (Array.isArray(data)) {
+                items = data;
+            } else if (data && Array.isArray(data.results)) {
+                items = data.results;
+            }
+            setNotings(items);
         } catch (error) {
             console.error('Failed to fetch notings:', error);
         }
@@ -255,14 +262,15 @@ const DocumentViewerPage = () => {
                     </div>
 
                     {/* Document Display Content */}
-                    <div className="flex-1 overflow-auto p-8 flex items-start justify-center bg-app-base/50">
+                    <div className="flex-1 overflow-auto p-4 md:p-8 bg-slate-200/80 dark:bg-slate-200/80 text-center whitespace-nowrap">
                         {fileType === 'pdf' && fileUrl ? (
                             <iframe
-                                src={fileUrl}
-                                className="bg-white shadow-2xl transition-all duration-300"
+                                src={`${fileUrl}#zoom=${zoom}`}
+                                className="inline-block bg-white shadow-2xl transition-all duration-300 align-top whitespace-normal"
                                 style={{
-                                    width: `${zoom}%`,
-                                    height: '100%',
+                                    width: `${Math.max(100, zoom)}%`,
+                                    maxWidth: `${Math.max(800, zoom * 8)}px`,
+                                    minHeight: '80vh',
                                     aspectRatio: '1/1.414'
                                 }}
                                 title="Document Viewer"
@@ -271,16 +279,19 @@ const DocumentViewerPage = () => {
                             <img
                                 src={fileUrl}
                                 alt="Document"
-                                className="shadow-2xl object-contain transition-all duration-300"
+                                className="inline-block shadow-2xl object-contain bg-white transition-all duration-300 align-top whitespace-normal"
                                 style={{
-                                    width: `${zoom}%`,
-                                    maxWidth: 'none' // Allow zoom to exceed container
+                                    width: `${Math.max(100, zoom)}%`,
+                                    maxWidth: `${Math.max(800, zoom * 8)}px`
                                 }}
                             />
                         ) : fileType === 'video' && fileUrl ? (
                             <div
-                                style={{ width: `${zoom}%`, maxWidth: '100%' }}
-                                className="shadow-2xl bg-black rounded-lg overflow-hidden"
+                                style={{
+                                    width: `${Math.max(100, zoom)}%`,
+                                    maxWidth: `${Math.max(800, zoom * 8)}px`
+                                }}
+                                className="inline-block shadow-2xl bg-black rounded-lg overflow-hidden transition-all duration-300 align-top whitespace-normal"
                             >
                                 <video controls className="w-full h-auto">
                                     <source src={fileUrl} />
@@ -289,10 +300,10 @@ const DocumentViewerPage = () => {
                             </div>
                         ) : fileType === 'excel' && excelData ? (
                             <div
-                                className="bg-white shadow-2xl overflow-auto w-full transition-all duration-300"
+                                className="inline-block bg-white shadow-2xl overflow-auto transition-all duration-300 align-top whitespace-normal text-left"
                                 style={{
-                                    width: `${zoom}%`,
-                                    maxWidth: 'none'
+                                    width: `${Math.max(100, zoom)}%`,
+                                    maxWidth: `${Math.max(1000, zoom * 10)}px`
                                 }}
                             >
                                 <table className="w-full border-collapse text-sm text-app-text">

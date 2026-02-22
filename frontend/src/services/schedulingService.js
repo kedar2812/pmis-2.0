@@ -13,7 +13,9 @@ const schedulingService = {
         // Use FormData to support potential file uploads or backend expectations
         const formData = new FormData();
         Object.keys(payload).forEach(key => {
-            formData.append(key, payload[key]);
+            if (payload[key] !== null && payload[key] !== undefined) {
+                formData.append(key, payload[key]);
+            }
         });
         const response = await api.post('/scheduling/tasks/', formData);
         return transformTaskToFrontend(response.data);
@@ -21,7 +23,13 @@ const schedulingService = {
 
     updateTask: async (id, data, projectId) => {
         const payload = transformTaskToBackend(data, projectId);
-        const response = await api.patch(`/scheduling/tasks/${id}/`, payload);
+        const formData = new FormData();
+        Object.keys(payload).forEach(key => {
+            if (payload[key] !== null && payload[key] !== undefined) {
+                formData.append(key, payload[key]);
+            }
+        });
+        const response = await api.patch(`/scheduling/tasks/${id}/`, formData);
         return transformTaskToFrontend(response.data);
     },
 
@@ -94,22 +102,41 @@ const schedulingService = {
 const transformTaskToBackend = (data, pId) => ({
     project: pId,
     name: data.name,
-    start_date: data.startDate,
-    end_date: data.endDate,
+    description: data.description,
+    start_date: data.start_date || data.startDate,
+    end_date: data.end_date || data.endDate,
     progress: data.progress || 0,
-    is_milestone: data.isMilestone || false,
-    status: data.status || 'PLANNED'
+    is_milestone: data.is_milestone || data.isMilestone || false,
+    is_critical: data.is_critical || data.isCritical || false,
+    status: data.status || 'PLANNED',
+    progress_method: data.progress_method,
+    planned_quantity: data.planned_quantity,
+    executed_quantity: data.executed_quantity,
+    uom: data.uom,
+    budgeted_cost: data.budgeted_cost,
+    actual_cost: data.actual_cost,
+    weight: data.weight
 });
 
 const transformTaskToFrontend = (data) => ({
     id: data.id,
     name: data.name,
+    description: data.description,
     startDate: data.start_date,
     endDate: data.end_date,
     progress: data.progress,
+    computedProgress: data.computed_progress,
     isMilestone: data.is_milestone,
+    isCritical: data.is_critical,
     status: data.status,
-    project: data.project
+    project: data.project,
+    progressMethod: data.progress_method,
+    plannedQuantity: data.planned_quantity,
+    executedQuantity: data.executed_quantity,
+    uom: data.uom,
+    budgetedCost: data.budgeted_cost,
+    actualCost: data.actual_cost,
+    weight: data.weight
 });
 
 export default schedulingService;

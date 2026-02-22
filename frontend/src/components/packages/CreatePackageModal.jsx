@@ -53,6 +53,29 @@ export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelec
 
     // ... (fetchEligibleStaff remains same)
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 10 * 1024 * 1024) {
+                setFileError('File size must be less than 10MB');
+                setAgreementFile(null);
+                return;
+            }
+
+            const allowedExtensions = ['pdf', 'doc', 'docx'];
+            const fileExt = file.name.split('.').pop().toLowerCase();
+
+            if (!allowedExtensions.includes(fileExt)) {
+                setFileError('Only PDF, DOC, and DOCX files are allowed');
+                setAgreementFile(null);
+                return;
+            }
+
+            setAgreementFile(file);
+            setFileError('');
+        }
+    };
+
     const resetForm = () => {
         setFormData({
             projectId: '',

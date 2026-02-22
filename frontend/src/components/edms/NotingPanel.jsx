@@ -35,27 +35,27 @@ const NotingPanel = ({
     const getNoteTypeConfig = (type) => {
         const configs = {
             REMARK: {
-                color: 'border-l-slate-400 bg-slate-50',
+                color: 'border-l-slate-400 bg-slate-50 dark:bg-slate-800/50',
                 icon: MessageSquare,
                 label: 'Remark'
             },
             CLARIFICATION_REQUEST: {
-                color: 'border-l-amber-400 bg-amber-50',
+                color: 'border-l-amber-400 bg-amber-50 dark:bg-amber-500/10',
                 icon: AlertTriangle,
                 label: 'Clarification Request'
             },
             CLARIFICATION_RESPONSE: {
-                color: 'border-l-blue-400 bg-blue-50',
+                color: 'border-l-blue-400 bg-blue-50 dark:bg-blue-500/10',
                 icon: CornerDownRight,
                 label: 'Clarification Response'
             },
             RECOMMENDATION: {
-                color: 'border-l-purple-400 bg-purple-50',
+                color: 'border-l-purple-400 bg-purple-50 dark:bg-purple-500/10',
                 icon: CheckCircle,
                 label: 'Recommendation'
             },
             RULING: {
-                color: 'border-l-green-500 bg-green-50',
+                color: 'border-l-green-500 bg-green-50 dark:bg-green-500/10',
                 icon: Gavel,
                 label: 'Ruling/Decision'
             }
@@ -104,11 +104,11 @@ const NotingPanel = ({
     if (notings.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-16 text-center px-4">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                    <MessageSquare size={32} className="text-slate-400" />
+                <div className="w-16 h-16 bg-slate-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-4">
+                    <MessageSquare size={32} className="text-slate-400 dark:text-neutral-500" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-700">No Notes Yet</h3>
-                <p className="text-sm text-slate-500 mt-1">
+                <h3 className="text-lg font-semibold text-slate-700 dark:text-white">No Notes Yet</h3>
+                <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">
                     {canAddNoting
                         ? 'Add the first noting entry to this document.'
                         : 'No noting entries have been added to this document.'}
@@ -137,14 +137,14 @@ const NotingPanel = ({
                                     key={note.id}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className={`border-l-4 ${config.color} rounded-lg p-3 border border-amber-200`}
+                                    className={`border-l-4 ${config.color} rounded-lg p-3 border border-amber-200 dark:border-amber-500/30`}
                                 >
                                     <div className="flex items-start justify-between mb-2">
                                         <div className="flex items-center gap-2">
-                                            <span className="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                                            <span className="bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-xs px-2 py-0.5 rounded-full font-medium">
                                                 DRAFT
                                             </span>
-                                            <span className="text-xs text-slate-500">{config.label}</span>
+                                            <span className="text-xs text-slate-500 dark:text-neutral-400">{config.label}</span>
                                         </div>
                                         <div className="flex items-center gap-1">
                                             <button
@@ -158,12 +158,12 @@ const NotingPanel = ({
                                     </div>
 
                                     {note.subject && (
-                                        <p className="font-medium text-slate-700 text-sm mb-1">{note.subject}</p>
+                                        <p className="font-medium text-slate-700 dark:text-slate-200 text-sm mb-1">{note.subject}</p>
                                     )}
-                                    <p className="text-sm text-slate-600 whitespace-pre-wrap">{note.content}</p>
+                                    <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap">{note.content}</p>
 
-                                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-amber-200">
-                                        <span className="text-xs text-slate-400">
+                                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-amber-200 dark:border-amber-500/30">
+                                        <span className="text-xs text-slate-400 dark:text-neutral-500">
                                             Created {formatDistanceToNow(new Date(note.created_at), { addSuffix: true })}
                                         </span>
                                         <Button
@@ -210,14 +210,14 @@ const NotingPanel = ({
                                 {/* Note Header */}
                                 <div className="flex items-start justify-between mb-2">
                                     <div className="flex items-center gap-2">
-                                        <span className="bg-slate-200 text-slate-700 text-xs px-2 py-0.5 rounded-full font-bold">
+                                        <span className="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs px-2 py-0.5 rounded-full font-bold">
                                             #{note.note_number}
                                         </span>
-                                        <NoteIcon size={14} className="text-slate-500" />
-                                        <span className="text-xs text-slate-500">{config.label}</span>
+                                        <NoteIcon size={14} className="text-slate-500 dark:text-neutral-400" />
+                                        <span className="text-xs text-slate-500 dark:text-neutral-400">{config.label}</span>
                                     </div>
                                     {note.references_note && (
-                                        <span className="text-xs text-blue-500 flex items-center gap-1">
+                                        <span className="text-xs text-blue-500 dark:text-blue-400 flex items-center gap-1">
                                             <CornerDownRight size={12} />
                                             Re: #{note.references_note}
                                         </span>
@@ -226,30 +226,30 @@ const NotingPanel = ({
 
                                 {/* Subject */}
                                 {note.subject && (
-                                    <p className="font-medium text-slate-700 text-sm mb-1">{note.subject}</p>
+                                    <p className="font-medium text-slate-700 dark:text-slate-200 text-sm mb-1">{note.subject}</p>
                                 )}
 
                                 {/* Content - truncated unless expanded */}
-                                <p className={`text-sm text-slate-600 whitespace-pre-wrap ${!isExpanded ? 'line-clamp-3' : ''}`}>
+                                <p className={`text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap ${!isExpanded ? 'line-clamp-3' : ''}`}>
                                     {note.content}
                                 </p>
 
                                 {/* Ruling Action */}
                                 {rulingLabel && (
-                                    <div className="mt-2 inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium">
+                                    <div className="mt-2 inline-flex items-center gap-1 bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 text-xs px-2 py-1 rounded-full font-medium">
                                         <Gavel size={12} />
                                         {rulingLabel}
                                     </div>
                                 )}
 
                                 {/* Author & Timestamp */}
-                                <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-200">
-                                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                                <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+                                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-neutral-400">
                                         <User size={12} />
-                                        <span className="font-medium text-slate-700">{note.author_name}</span>
+                                        <span className="font-medium text-slate-700 dark:text-slate-300">{note.author_name}</span>
                                         <span>({note.author_role})</span>
                                     </div>
-                                    <div className="flex items-center gap-1 text-xs text-slate-400">
+                                    <div className="flex items-center gap-1 text-xs text-slate-400 dark:text-neutral-500">
                                         <Calendar size={12} />
                                         {note.submitted_at && format(new Date(note.submitted_at), 'dd MMM yyyy, HH:mm')}
                                     </div>

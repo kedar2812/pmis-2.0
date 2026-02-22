@@ -15,6 +15,7 @@ const Scheduling = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
 
   // Initial Load
   useEffect(() => {
@@ -95,17 +96,24 @@ const Scheduling = () => {
         ) : (
           <GanttChart
             tasks={tasks}
-            onTaskClick={(task) => toast.info(`Viewing ${task.name} (${task.progress}%)`)}
+            onTaskClick={(task) => {
+              setEditingTask(task);
+              setIsModalOpen(true);
+            }}
           />
         )}
       </div>
 
-      {/* Add Schedule Task Modal */}
+      {/* Add/Edit Schedule Task Modal */}
       <AddScheduleTaskModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingTask(null);
+        }}
         projectId={selectedProject}
         onTaskCreated={() => loadTasks(selectedProject)}
+        editTask={editingTask}
       />
 
       {/* Import Schedule Modal */}

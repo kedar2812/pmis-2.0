@@ -223,14 +223,14 @@ const DocumentList = ({
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: index * 0.03 }}
-                        className={`bg-white rounded-xl border p-4 cursor-pointer hover:shadow-md transition-all ${isSelected ? 'border-primary-500 ring-2 ring-primary-100' : 'border-slate-200'
+                        className={`bg-white dark:bg-neutral-900 rounded-xl border p-4 cursor-pointer hover:shadow-md transition-all ${isSelected ? 'border-primary-500 ring-2 ring-primary-100 dark:ring-primary-900/50' : 'border-slate-200 dark:border-neutral-700'
                             }`}
                         onClick={() => onView(doc)}
                     >
                         {/* Icon & Type */}
                         <div className="flex items-start justify-between mb-3">
-                            <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
-                                <TypeIcon size={24} className="text-slate-500" />
+                            <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-neutral-800 flex items-center justify-center">
+                                <TypeIcon size={24} className="text-slate-500 dark:text-neutral-400" />
                             </div>
                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig.color}`}>
                                 <StatusIcon size={10} />
@@ -239,15 +239,15 @@ const DocumentList = ({
                         </div>
 
                         {/* Title */}
-                        <h3 className="font-semibold text-slate-800 text-sm line-clamp-2 mb-1">
+                        <h3 className="font-semibold text-slate-800 dark:text-white text-sm line-clamp-2 mb-1">
                             {doc.title}
                         </h3>
                         {doc.document_number && (
-                            <p className="text-xs text-slate-500 mb-2">{doc.document_number}</p>
+                            <p className="text-xs text-slate-500 dark:text-neutral-400 mb-2">{doc.document_number}</p>
                         )}
 
                         {/* Meta */}
-                        <div className="flex items-center justify-between text-xs text-slate-400 mt-3 pt-3 border-t border-slate-100">
+                        <div className="flex items-center justify-between text-xs text-slate-400 dark:text-neutral-500 mt-3 pt-3 border-t border-slate-100 dark:border-neutral-800">
                             <span>v{doc.current_version_number || 1}</span>
                             <span>{formatDistanceToNow(new Date(doc.created_at), { addSuffix: true })}</span>
                         </div>
@@ -259,7 +259,7 @@ const DocumentList = ({
                                     e.stopPropagation();
                                     onDownload(doc);
                                 }}
-                                className="flex-1 py-2 text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition-colors flex items-center justify-center gap-1"
+                                className="flex-1 py-2 text-xs text-slate-600 dark:text-neutral-300 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors flex items-center justify-center gap-1"
                             >
                                 <Download size={14} />
                                 Download
@@ -269,7 +269,7 @@ const DocumentList = ({
                                     e.stopPropagation();
                                     onDiscuss(doc);
                                 }}
-                                className="flex-1 py-2 text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition-colors flex items-center justify-center gap-1"
+                                className="flex-1 py-2 text-xs text-slate-600 dark:text-neutral-300 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors flex items-center justify-center gap-1"
                             >
                                 <MessageSquare size={14} />
                                 Discuss

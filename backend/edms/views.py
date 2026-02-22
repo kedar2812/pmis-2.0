@@ -359,13 +359,26 @@ class DocumentViewSet(viewsets.ModelViewSet):
             )
         
         # Log download
+        from .services import DocumentService
         DocumentService.log_download(request.user, document, version, request)
         
+        try:
+            file_handle = version.file.open('rb')
+        except (ValueError, FileNotFoundError):
+            return Response(
+                {'error': 'The file could not be found on the server.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
         response = FileResponse(
-            version.file.open('rb'),
+            file_handle,
             content_type=version.mime_type
         )
-        response['Content-Disposition'] = f'attachment; filename="{version.file_name}"'
+        
+        import urllib.parse
+        filename = version.file_name or 'document'
+        encoded_filename = urllib.parse.quote(filename)
+        response['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoded_filename}"
         return response
     
     @action(detail=True, methods=['get'], url_path='versions/(?P<version_id>[^/.]+)/download')
@@ -381,13 +394,26 @@ class DocumentViewSet(viewsets.ModelViewSet):
             )
         
         # Log download
+        from .services import DocumentService
         DocumentService.log_download(request.user, document, version, request)
         
+        try:
+            file_handle = version.file.open('rb')
+        except (ValueError, FileNotFoundError):
+            return Response(
+                {'error': 'The file could not be found on the server.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
         response = FileResponse(
-            version.file.open('rb'),
+            file_handle,
             content_type=version.mime_type
         )
-        response['Content-Disposition'] = f'attachment; filename="{version.file_name}"'
+        
+        import urllib.parse
+        filename = version.file_name or 'document'
+        encoded_filename = urllib.parse.quote(filename)
+        response['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoded_filename}"
         return response
     
     @action(detail=True, methods=['patch'])
@@ -765,7 +791,7 @@ class NotingSheetViewSet(viewsets.ModelViewSet):
                 references_note=references_note,
                 ruling_action=data.get('ruling_action', 'NONE'),
                 author=request.user,
-                is_draft=data.get('is_draft', True)
+                is_draft=True  # Create as draft initially to allow the submit method to work
             )
             
             # If not draft, submit immediately

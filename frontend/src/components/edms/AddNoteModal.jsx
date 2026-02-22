@@ -99,7 +99,7 @@ const AddNoteModal = ({
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="bg-white dark:bg-neutral-900 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden"
+                className="flex flex-col bg-white dark:bg-neutral-900 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden max-h-[90vh]"
             >
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-neutral-700 bg-gradient-to-r from-slate-50 to-primary-50 dark:from-neutral-800 dark:to-neutral-800">
@@ -116,10 +116,10 @@ const AddNoteModal = ({
                 </div>
 
                 {/* Form */}
-                <div className="p-6 space-y-4">
+                <div className="p-6 space-y-4 overflow-y-auto">
                     {/* Note Type */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                             Note Type
                         </label>
                         <div className="grid grid-cols-2 gap-2">
@@ -132,12 +132,12 @@ const AddNoteModal = ({
                                         type="button"
                                         onClick={() => setFormData(prev => ({ ...prev, note_type: type.value }))}
                                         className={`flex items-center gap-2 p-2.5 rounded-lg border transition-all text-left ${isSelected
-                                            ? 'border-primary-500 bg-primary-50'
-                                            : 'border-slate-200 hover:border-slate-300'
+                                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-500/10 dark:border-primary-400'
+                                            : 'border-slate-200 dark:border-neutral-700 hover:border-slate-300 dark:hover:border-neutral-600'
                                             }`}
                                     >
-                                        <TypeIcon size={18} className={isSelected ? 'text-primary-600' : type.color} />
-                                        <span className={`text-sm font-medium ${isSelected ? 'text-primary-700' : 'text-slate-700'}`}>
+                                        <TypeIcon size={18} className={isSelected ? 'text-primary-600 dark:text-primary-400' : type.color} />
+                                        <span className={`text-sm font-medium ${isSelected ? 'text-primary-700 dark:text-primary-300' : 'text-slate-700 dark:text-neutral-300'}`}>
                                             {type.label}
                                         </span>
                                     </button>
@@ -149,13 +149,13 @@ const AddNoteModal = ({
                     {/* Ruling Action (only for RULING type) */}
                     {formData.note_type === 'RULING' && (
                         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="overflow-hidden">
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                 Ruling Action
                             </label>
                             <select
                                 value={formData.ruling_action}
                                 onChange={(e) => setFormData(prev => ({ ...prev, ruling_action: e.target.value }))}
-                                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                             >
                                 {rulingActions.map(action => (
                                     <option key={action.value} value={action.value}>
@@ -173,7 +173,7 @@ const AddNoteModal = ({
                             value={formData.subject}
                             onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
                             placeholder="Subject line (optional)"
-                            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         />
                     </div>
 
@@ -184,7 +184,7 @@ const AddNoteModal = ({
                             onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
                             placeholder="Enter your observations, remarks, or decision..."
                             rows={5}
-                            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+                            className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
                             required
                         />
                     </div>
@@ -196,14 +196,14 @@ const AddNoteModal = ({
                             value={formData.references_note}
                             onChange={(e) => setFormData(prev => ({ ...prev, references_note: e.target.value }))}
                             placeholder="Reference Note ID (optional)"
-                            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-800 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         />
                     </div>
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
-                    <p className="text-xs text-slate-400">
+                <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800">
+                    <p className="text-xs text-slate-400 dark:text-neutral-500">
                         Immutable once submitted.
                     </p>
                     <div className="flex items-center gap-2">

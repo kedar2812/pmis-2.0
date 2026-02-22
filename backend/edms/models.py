@@ -564,9 +564,10 @@ class NotingSheet(models.Model):
     def save(self, *args, **kwargs):
         # Auto-assign note number for new notes
         if not self.note_number:
+            from django.db.models import Max
             max_num = NotingSheet.objects.filter(
                 document=self.document
-            ).aggregate(models.Max('note_number'))['note_number__max'] or 0
+            ).aggregate(Max('note_number'))['note_number__max'] or 0
             self.note_number = max_num + 1
         
         # Freeze author details on creation
