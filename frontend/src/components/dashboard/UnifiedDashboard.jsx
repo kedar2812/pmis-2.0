@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -107,14 +107,25 @@ const AlertItem = ({ alert, onClick }) => {
 
     return (
         <motion.div
-            className={`p-3 rounded-lg border ${severityColors[alert.severity]} cursor-pointer`}
-            onClick={onClick}
-            whileHover={{ scale: 1.02 }}
+            className={`p-3 rounded-lg border flex items-center justify-between group ${severityColors[alert.severity]}`}
+            whileHover={{ scale: 1.01 }}
         >
-            <div className="flex items-center gap-2">
-                <AlertCircle size={16} />
-                <span className="text-sm font-medium">{alert.message}</span>
+            <div className="flex items-center gap-3">
+                <AlertCircle size={18} className="shrink-0" />
+                <span className="text-sm font-medium leading-relaxed">{alert.message}</span>
             </div>
+            {alert.action_text && onClick && (
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onClick(e);
+                    }}
+                    className="shrink-0 ml-4 px-4 py-2 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-1 border border-blue-500 hover:border-blue-400"
+                >
+                    {alert.action_text}
+                    <ChevronRight size={14} strokeWidth={3} />
+                </button>
+            )}
         </motion.div>
     );
 };
@@ -158,6 +169,30 @@ const UnifiedDashboard = () => {
     const [graphModalOpen, setGraphModalOpen] = useState(false);
     const [graphModalMetric, setGraphModalMetric] = useState('budget');
     const [error, setError] = useState(null);
+    const [alertsDismissed, setAlertsDismissed] = useState(false);
+    const [activeAlerts, setActiveAlerts] = useState([]);
+
+    // Ref for the Alerts section to scroll to
+    const alertsSectionRef = useRef(null);
+    const [highlightAlerts, setHighlightAlerts] = useState(false);
+
+    const scrollToAlerts = () => {
+        if (alertsSectionRef.current) {
+            alertsSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setHighlightAlerts(true);
+            setTimeout(() => setHighlightAlerts(false), 2000); // Remove highlight after 2s
+        }
+    };
+
+    // New function to acknowledge and clear alerts
+    const handleAcknowledgeAlerts = () => {
+        setAlertsDismissed(true);
+        // Persist the current exact state of alerts to localStorage
+        // We save the full stats?.alerts array from the backend, not the computed activeAlerts
+        if (stats?.alerts) {
+            localStorage.setItem('acknowledgedAlertsSnapshot', JSON.stringify(stats.alerts));
+        }
+    };
 
     // Default stats to prevent crashes
     const defaultStats = {
@@ -211,6 +246,45 @@ const UnifiedDashboard = () => {
 
                 setStats(statsData || defaultStats);
                 setProjects(Array.isArray(projectsData) ? projectsData : projectsData?.results || []);
+
+                // Delta Logic calculation for alerts
+                if (statsData?.alerts && statsData.alerts.length > 0) {
+                    const savedSnapshotStr = localStorage.getItem('acknowledgedAlertsSnapshot');
+
+                    if (savedSnapshotStr) {
+                        try {
+                            const savedSnapshot = JSON.parse(savedSnapshotStr);
+                            // Compare current backend alerts to the saved snapshot using unique UUIDs
+                            const visibleAlerts = statsData.alerts.filter(currentAlert => {
+                                // If this exact alert ID (e.g. 'doc_overdue_4') was already explicitly acknowledged
+                                // in our local storage snapshot, we filter it out so it stays hidden.
+                                // Otherwise, we keep it as a visible, actionable alert.
+                                return !savedSnapshot.some(savedAlert => savedAlert.id === currentAlert.id);
+                            });
+
+                            if (visibleAlerts.length > 0) {
+                                setActiveAlerts(visibleAlerts);
+                                setAlertsDismissed(false);
+                            } else {
+                                setActiveAlerts([]);
+                                setAlertsDismissed(true);
+                            }
+
+                        } catch (e) {
+                            console.error("Failed to parse alerts snapshot", e);
+                            setActiveAlerts(statsData.alerts);
+                            setAlertsDismissed(false);
+                        }
+                    } else {
+                        // No snapshot exists, show all alerts
+                        setActiveAlerts(statsData.alerts);
+                        setAlertsDismissed(false);
+                    }
+                } else {
+                    setActiveAlerts([]);
+                    setAlertsDismissed(true);
+                }
+
             } catch (error) {
                 console.error('Failed to fetch dashboard data:', error);
                 setError('Failed to load dashboard data');
@@ -296,15 +370,19 @@ const UnifiedDashboard = () => {
                         PMIS Command Center • {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                 </div>
-                {alerts.length > 0 && (
-                    <motion.div
-                        className="flex items-center gap-2 px-4 py-2 bg-rose-100 text-rose-700 rounded-xl"
+                {activeAlerts.length > 0 && !alertsDismissed && (
+                    <motion.button
+                        onClick={scrollToAlerts}
+                        className="flex items-center gap-2 px-4 py-2 bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:hover:bg-rose-900/50 rounded-xl transition-colors cursor-pointer border border-rose-200 dark:border-rose-800 shadow-sm"
                         animate={{ scale: [1, 1.02, 1] }}
                         transition={{ repeat: Infinity, duration: 2 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                     >
-                        <Bell size={18} />
-                        <span className="font-medium">{alerts.length} alerts require attention</span>
-                    </motion.div>
+                        <Bell size={18} className="animate-pulse" />
+                        <span className="font-semibold">{activeAlerts.length} {activeAlerts.length === 1 ? 'alert requires' : 'alerts require'} attention</span>
+                        <ChevronRight size={16} className="ml-1 opacity-70" />
+                    </motion.button>
                 )}
             </motion.div>
 
@@ -350,6 +428,48 @@ const UnifiedDashboard = () => {
                     tooltip="Number of documents, RA bills, or change requests pending your approval or review action."
                 />
             </div>
+
+            {/* NEW: Section 1.5 System-Wide Alerts & Critical Items */}
+            <AnimatePresence>
+                {activeAlerts.length > 0 && !alertsDismissed && (
+                    <motion.div
+                        key="global-alerts-widget"
+                        ref={alertsSectionRef}
+                        initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                        animate={{
+                            opacity: 1,
+                            height: "auto",
+                            scale: highlightAlerts ? [1, 1.01, 1] : 1
+                        }}
+                        exit={{ opacity: 0, height: 0, scale: 0.95, filter: "blur(4px)", marginBottom: 0 }}
+                        transition={{ duration: 0.5, ease: "easeInOut" }}
+                        className="mb-6 rounded-2xl col-span-full overflow-hidden origin-top"
+                    >
+                        <GlassCard className={`p-6 transition-all duration-700 border-l-4 border-l-rose-500 ${highlightAlerts ? 'bg-app-hover shadow-lg' : 'bg-rose-50/30 dark:bg-rose-900/10'}`}>
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold text-app-heading flex items-center gap-2">
+                                    <AlertTriangle size={20} className="text-rose-500" />
+                                    Action Required: System Alerts
+                                </h3>
+                                <button
+                                    onClick={handleAcknowledgeAlerts}
+                                    className="text-xs font-medium text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+                                >
+                                    <CheckCircle size={14} />
+                                    Acknowledge All {activeAlerts.length} Alerts
+                                </button>
+                            </div>
+                            <div className="space-y-3 relative flex flex-col justify-center">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {activeAlerts.map((alert, idx) => (
+                                        <AlertItem key={alert.id || idx} alert={alert} onClick={() => navigate(alert.action_link || '/')} />
+                                    ))}
+                                </div>
+                            </div>
+                        </GlassCard>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Section 2: EVM S-Curve - Full Width */}
             <GlassCard className="p-6">
@@ -561,8 +681,8 @@ const UnifiedDashboard = () => {
                 </GlassCard>
             </div>
 
-            {/* Section 2: Schedule & Timeline + Alerts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Section 2: Schedule & Timeline */}
+            <div className="grid grid-cols-1 gap-6">
                 {/* Milestones */}
                 <GlassCard className="p-6">
                     <div className="flex items-center justify-between mb-4">
@@ -581,38 +701,6 @@ const UnifiedDashboard = () => {
                             ))
                         ) : (
                             <p className="text-center py-8 text-app-muted text-sm">No upcoming milestones</p>
-                        )}
-                    </div>
-                </GlassCard>
-
-                {/* Alerts & Critical Path */}
-                <GlassCard className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-app-heading flex items-center gap-2">
-                            <AlertTriangle size={20} className="text-amber-500" />
-                            Alerts & Critical Items
-                        </h3>
-                    </div>
-                    <div className="space-y-3">
-                        {alerts.length > 0 ? (
-                            alerts.slice(0, 4).map((alert, idx) => (
-                                <AlertItem key={idx} alert={alert} onClick={() => navigate(alert.link || '/')} />
-                            ))
-                        ) : (
-                            <div className="text-center py-6">
-                                <CheckCircle size={32} className="mx-auto text-emerald-400 mb-2" />
-                                <p className="text-sm text-app-muted">All systems operational</p>
-                            </div>
-                        )}
-                        {criticalPathTasks.length > 0 && (
-                            <div className="mt-4 pt-4 border-t border-app-subtle">
-                                <p className="text-xs font-medium text-app-muted uppercase mb-2">Critical Path Tasks</p>
-                                {criticalPathTasks.slice(0, 2).map((t, idx) => (
-                                    <div key={idx} className={`text-sm py-1 ${t.is_overdue ? 'text-rose-600' : 'text-app-text'}`}>
-                                        • {t.name} ({t.project})
-                                    </div>
-                                ))}
-                            </div>
                         )}
                     </div>
                 </GlassCard>
@@ -711,13 +799,13 @@ const UnifiedDashboard = () => {
             </div>
 
             {/* Graph Analysis Modal */}
-            <GraphAnalysisModal
+            < GraphAnalysisModal
                 isOpen={graphModalOpen}
                 onClose={() => setGraphModalOpen(false)}
                 projects={projects}
                 initialMetric={graphModalMetric}
             />
-        </div>
+        </div >
     );
 };
 

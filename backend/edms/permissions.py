@@ -62,6 +62,8 @@ class EDMSPermissions:
     
     @classmethod
     def can_upload(cls, user):
+        if getattr(user, 'is_superuser', False):
+            return True
         return getattr(user, 'role', None) in cls.CAN_UPLOAD
     
     @classmethod

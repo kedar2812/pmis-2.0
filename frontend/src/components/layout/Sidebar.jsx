@@ -40,10 +40,10 @@ import { cn } from '@/lib/utils';
  * - Dark Mode: Uses semantic design tokens for automatic theme switching
  */
 
-// Sidebar width variants for liquid motion
+// Sidebar width variants
 const sidebarVariants = {
-  expanded: { width: '18rem' }, // 288px
-  collapsed: { width: '6rem' }, // 96px
+  expanded: { width: '18rem' },
+  collapsed: { width: '6rem' },
 };
 
 // Text label variants for smooth fade/slide
@@ -72,16 +72,17 @@ const headerTextVariants = {
   },
 };
 
-// Transition timing - optimized for performance
+// Transition timing — buttery smooth
 const sidebarTransition = {
   type: 'spring',
-  stiffness: 300,
-  damping: 30,
-  mass: 0.5,
+  stiffness: 200,
+  damping: 28,
+  mass: 0.6,
 };
 
 const textTransition = {
-  duration: 0.15,
+  duration: 0.2,
+  ease: [0.16, 1, 0.3, 1],
 };
 
 const Sidebar = () => {
@@ -274,22 +275,17 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       <motion.aside
-        layout
         initial={false}
         animate={animationState}
         variants={sidebarVariants}
         transition={sidebarTransition}
         className={cn(
-          // Base styles
           'fixed top-4 left-4 z-40 h-[calc(100vh-2rem)]',
           'bg-app-card/90 backdrop-blur-xl border border-app-subtle',
-          'rounded-2xl shadow-lg overflow-hidden',
-          // Mobile: slide in/out with smooth transition
+          'rounded-2xl shadow-lg overflow-hidden will-change-[width]',
           'transition-transform duration-300 ease-out',
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-[120%]',
-          // Desktop: always visible
           'lg:translate-x-0',
-          // Print: hidden
           'print:hidden'
         )}
       >
@@ -355,7 +351,6 @@ const Sidebar = () => {
 
             {/* Collapse/Expand button - desktop only */}
             <motion.button
-              layout
               onClick={() => setIsCollapsed(!isCollapsed)}
               className={cn(
                 'hidden lg:flex rounded-lg hover:bg-app-layer-2 transition-colors flex-shrink-0',
@@ -380,7 +375,7 @@ const Sidebar = () => {
               // Only show scrollbar when sidebar is expanded
               shouldShowExpanded
                 ? 'overflow-y-auto overflow-x-hidden'
-                : 'overflow-hidden'
+                : 'overflow-y-auto overflow-x-hidden'
             )}
           >
             {visibleItems.map((item) => {
@@ -390,9 +385,7 @@ const Sidebar = () => {
               return (
                 <motion.div
                   key={item.id}
-                  whileHover={{ scale: 1.01, x: 2 }}
-                  whileTap={{ scale: 0.99 }}
-                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                  transition={{ duration: 0.15, ease: 'easeOut' }}
                 >
                   <Link
                     to={item.path}

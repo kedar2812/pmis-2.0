@@ -2,6 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { ChevronDown, Loader2 } from 'lucide-react';
 import mastersService from '@/api/services/mastersService';
 
+/** Safely extract array from DRF paginated or direct array responses */
+const toArray = (data) => {
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.results)) return data.results;
+    return [];
+};
+
 /**
  * Geography Selector Component
  * Provides dependent dropdowns: District → Town
@@ -24,7 +31,7 @@ const GeographySelector = ({
         setLoading(prev => ({ ...prev, districts: true }));
         try {
             const res = await mastersService.getDistricts();
-            setDistricts(res.data);
+            setDistricts(toArray(res.data));
         } catch (error) {
             console.error('Failed to fetch districts:', error);
         } finally {
@@ -40,11 +47,11 @@ const GeographySelector = ({
         setLoading(prev => ({ ...prev, towns: true }));
         try {
             const res = await mastersService.getDistrictTowns(districtId);
-            setTowns(res.data);
+            setTowns(toArray(res.data));
         } catch (error) {
             try {
                 const allTowns = await mastersService.getTowns({ district: districtId });
-                setTowns(allTowns.data);
+                setTowns(toArray(allTowns.data));
             } catch {
                 setTowns([]);
             }
@@ -95,7 +102,7 @@ const GeographySelector = ({
                     className={selectClasses}
                 >
                     <option value="">{placeholder}</option>
-                    {options.map(opt => (
+                    {(Array.isArray(options) ? options : []).map(opt => (
                         <option key={opt.id} value={opt.id}>
                             {opt.code ? `${opt.code} - ${opt[displayKey]}` : opt[displayKey]}
                         </option>

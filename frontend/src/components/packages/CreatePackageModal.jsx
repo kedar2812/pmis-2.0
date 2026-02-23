@@ -3,11 +3,11 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, FolderOpen, Calendar, IndianRupee, FileText, Upload, CheckCircle } from 'lucide-react';
 import projectService from '@/api/services/projectService';
+import edmsService from '@/api/services/edmsService';
 import Button from '@/components/ui/Button';
 import { toast } from 'sonner';
 import UserSelectField from '@/components/masters/UserSelectField';
 import ContractorSearchDropdown from '@/components/ui/ContractorSearchDropdown';
-import client from '@/api/client';
 
 export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelectedProjectId }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -160,25 +160,25 @@ export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelec
 
             const createdPackage = await projectService.createPackage(packageData);
 
-            // 2. Upload agreement document to EDMS
+            // 2. Upload agreement document to EDMS with smart routing
             if (agreementFile) {
-                const docFormData = new FormData();
-                docFormData.append('file', agreementFile);
-                docFormData.append('title', `Agreement - ${formData.name}`);
-                docFormData.append('description', `Agreement No: ${formData.agreementNo}`);
-                docFormData.append('project', formData.projectId);
-                docFormData.append('category', 'Agreements');
-
-                // Assuming you have a documentService or standard axios call for EDMS
-                // We'll use the generic client for now
-                const { default: client } = await import('@/api/client');
-                await client.post('/edms/documents/', docFormData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                try {
+                    await edmsService.uploadDocument({
+                        projectId: formData.projectId,
+                        file: agreementFile,
+                        title: `Agreement - ${formData.name}`,
+                        description: `Agreement No: ${formData.agreementNo}`,
+                        documentType: 'CONTRACT',
+                        autoRouteCategory: 'AGREEMENT',
+                    });
+                } catch (uploadErr) {
+                    console.warn('Agreement document upload failed:', uploadErr);
+                    toast.warning('Package created but agreement document upload failed. You can upload it manually in EDMS.');
+                }
             }
 
             toast.success('Work package created successfully');
-            if (onPackageCreated) onPackageCreated(createdPackage);
+            if (onSave) onSave(createdPackage);
             resetForm();
             onClose();
         } catch (error) {

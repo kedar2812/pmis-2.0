@@ -2,6 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { ChevronDown, Loader2 } from 'lucide-react';
 import mastersService from '@/api/services/mastersService';
 
+/** Safely extract array from DRF paginated or direct array responses */
+const toArray = (data) => {
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.results)) return data.results;
+    return [];
+};
+
 /**
  * Classification Selector Component
  * Independent dropdowns for: SchemeType → Scheme, WorkType, ProjectCategory
@@ -35,9 +42,9 @@ const ClassificationSelector = ({
                 mastersService.getWorkTypes(),
                 mastersService.getProjectCategories(),
             ]);
-            setSchemeTypes(stRes.data);
-            setWorkTypes(wtRes.data);
-            setProjectCategories(pcRes.data);
+            setSchemeTypes(toArray(stRes.data));
+            setWorkTypes(toArray(wtRes.data));
+            setProjectCategories(toArray(pcRes.data));
         } catch (error) {
             console.error('Failed to fetch classification data:', error);
         } finally {
@@ -58,7 +65,7 @@ const ClassificationSelector = ({
         setLoading(prev => ({ ...prev, schemes: true }));
         try {
             const res = await mastersService.getSchemes({ scheme_type: schemeTypeId });
-            setSchemes(res.data);
+            setSchemes(toArray(res.data));
         } catch (error) {
             console.error('Failed to fetch schemes:', error);
             setSchemes([]);
@@ -128,7 +135,7 @@ const ClassificationSelector = ({
                     className={selectClasses}
                 >
                     <option value="">{isLoading ? 'Loading...' : placeholder}</option>
-                    {options.map(opt => (
+                    {(Array.isArray(options) ? options : []).map(opt => (
                         <option key={opt.id} value={opt.id}>
                             {opt.code} - {opt.name}
                         </option>

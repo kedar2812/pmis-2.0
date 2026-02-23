@@ -289,39 +289,125 @@ class DashboardStatsView(APIView):
         
         # Alerts - critical items needing attention
         alerts = []
-        if overdue_approvals > 0:
-            alerts.append({
-                'type': 'approval_overdue',
-                'severity': 'warning',
-                'count': overdue_approvals,
-                'message': f'{overdue_approvals} documents pending > 48h',
-                'link': '/approvals'
-            })
-        if overdue_tasks > 0:
-            alerts.append({
-                'type': 'task_overdue',
-                'severity': 'critical',
-                'count': overdue_tasks,
-                'message': f'{overdue_tasks} tasks past deadline',
-                'link': '/scheduling'
-            })
-        # Budget warnings - projects over 90% utilization
-        # Use database aggregation instead of Python loop for better performance
-        from django.db.models import F, ExpressionWrapper, DecimalField
         
-        budget_warning_count = projects.filter(
-            spent__gt=F('budget') * 0.9,
-            budget__gt=0
-        ).count()
-        
-        if budget_warning_count > 0:
-            alerts.append({
-                'type': 'budget_warning',
-                'severity': 'warning',
-                'count': budget_warning_count,
-                'message': f'{budget_warning_count} projects over 90% budget',
-                'link': '/projects'
-            })
+        # 1. EDMS Overdue Approvals
+        try:
+            from edms.models import Document
+            two_days_ago = timezone.now() - timedelta(hours=48)
+            overdue_docs = Document.objects.filter(status__in=['pending_review', 'under_review'], created_at__lt=two_days_ago)[:5]
+            for doc in overdue_docs:
+                alerts.append({
+                    'id': f'doc_overdue_{doc.id}',
+                    'type': 'approval_overdue',
+                    'severity': 'warning',
+                    'message': f'Document "{doc.title}" pending review > 48h',
+                    'action_link': f'/edms?doc={doc.id}',
+                    'action_text': 'Review Document'
+                })
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.error(f"Alert generation failed for EDMS: {e}")
+
+        # 2. Scheduling Overdue Tasks
+        try:
+            from scheduling.models import ScheduleTask
+            overdue_task_list = ScheduleTask.objects.filter(
+                end_date__lt=today,
+                status__in=['PLANNED', 'IN_PROGRESS']
+            ).select_related('project')[:5]
+            
+            for task in overdue_task_list:
+                project_name = task.project.name if task.project else 'General'
+                alerts.append({
+                    'id': f'task_overdue_{task.id}',
+                    'type': 'task_overdue',
+                    'severity': 'critical',
+                    'message': f'[{project_name}] Task "{task.name}" is past deadline',
+                    'action_link': f'/projects/{task.project.id}' if task.project else '/scheduling',
+                    'action_text': 'Update Task'
+                })
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.error(f"Alert generation failed for Scheduling: {e}")
+
+        # 3. EVM / Budget Warnings (Project specific)
+        for p in active_projects:
+            budget = float(p.budget) if p.budget else 0
+            spent = float(p.spent) if p.spent else 0
+            progress = float(p.progress) if p.progress else 0
+            
+            earned_value = budget * (progress / 100)
+            cpi = earned_value / spent if spent > 0 else 1.0
+            
+            if budget > 0 and spent > budget * 0.9:
+                utilization = round((spent / budget) * 100, 1)
+                alerts.append({
+                    'id': f'budget_warning_{p.id}',
+                    'type': 'budget_warning',
+                    'severity': 'warning',
+                    'message': f'[{p.name}] High utilization ({utilization}% of budget spent)',
+                    'action_link': f'/projects/{p.id}',
+                    'action_text': 'Review Finances'
+                })
+            elif cpi < 0.95 and spent > 0:
+                alerts.append({
+                    'id': f'cpi_warning_{p.id}',
+                    'type': 'performance_warning',
+                    'severity': 'critical',
+                    'message': f'[{p.name}] Cost Performance Index dropped to {round(cpi, 2)} (Over Budget)',
+                    'action_link': f'/projects/{p.id}',
+                    'action_text': 'Analyze EVM'
+                })
+                
+            if p.status == 'Delayed':
+                alerts.append({
+                    'id': f'project_delayed_{p.id}',
+                    'type': 'schedule_warning',
+                    'severity': 'critical',
+                    'message': f'[{p.name}] Project explicitly marked as Delayed',
+                    'action_link': f'/projects/{p.id}',
+                    'action_text': 'View Status'
+                })
+
+        # 4. Critical/High Risks
+        try:
+            from projects.risk_models import Risk
+            high_risks = Risk.objects.filter(is_active=True, severity__in=['CRITICAL', 'HIGH']).exclude(status='CLOSED').select_related('project')[:5]
+            for risk in high_risks:
+                project_name = risk.project.name if risk.project else 'General'
+                alerts.append({
+                    'id': f'risk_alert_{risk.id}',
+                    'type': 'risk_alert',
+                    'severity': 'critical' if risk.severity == 'CRITICAL' else 'warning',
+                    'message': f'[{project_name}] {risk.severity.capitalize()} Risk logged: {risk.title}',
+                    'action_link': f'/projects/{risk.project.id}' if risk.project else '/projects',
+                    'action_text': 'Mitigate Risk'
+                })
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.error(f"Alert generation failed for Risks: {e}")
+
+        # 5. Procurement Variations Pending
+        try:
+            from procurement.models import Variation
+            pending_variations = Variation.objects.filter(status='UNDER_REVIEW').select_related('contract')[:5]
+            for var in pending_variations:
+                contract_name = var.contract.title if var.contract else 'Contract'
+                alerts.append({
+                    'id': f'variation_pending_{var.id}',
+                    'type': 'procurement_alert',
+                    'severity': 'info',
+                    'message': f'Variation pending approval for {contract_name}',
+                    'action_link': '/procurement',
+                    'action_text': 'Review Variation'
+                })
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.error(f"Alert generation failed for Procurement: {e}")
         
         # Top 5 projects by budget
         top_projects = []
