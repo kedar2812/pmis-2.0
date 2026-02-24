@@ -196,6 +196,15 @@ class BOQItem(models.Model):
     amount = models.DecimalField(max_digits=15, decimal_places=2, help_text="Qty * Rate")
     
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
+    
+    # ========== COST-LOADED SCHEDULE LINK ==========
+    linked_tasks = models.ManyToManyField(
+        'scheduling.ScheduleTask',
+        blank=True,
+        related_name='boq_items',
+        help_text='Schedule tasks this BOQ item contributes to. Enables BOQ-weighted progress calculation.'
+    )
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

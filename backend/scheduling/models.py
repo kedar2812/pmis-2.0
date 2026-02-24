@@ -80,6 +80,26 @@ class ScheduleTask(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     
+    # ========== BASELINE TRACKING (Immutable once frozen) ==========
+    baseline_start_date = models.DateField(
+        null=True, blank=True,
+        help_text='Frozen baseline start date. Set by freeze_baseline action.'
+    )
+    baseline_end_date = models.DateField(
+        null=True, blank=True,
+        help_text='Frozen baseline end date. Set by freeze_baseline action.'
+    )
+    
+    # ========== ACTUAL TRACKING ==========
+    actual_start_date = models.DateField(
+        null=True, blank=True,
+        help_text='Actual start date (when work physically started)'
+    )
+    actual_end_date = models.DateField(
+        null=True, blank=True,
+        help_text='Actual end date (when work was physically completed)'
+    )
+    
     # ========== PROGRESS METHOD & WEIGHT ==========
     progress_method = models.CharField(
         max_length=20,
@@ -151,6 +171,14 @@ class ScheduleTask(models.Model):
         default=0.0,
         validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
         help_text='System-calculated progress percentage (0-100). DO NOT EDIT DIRECTLY.'
+    )
+    
+    # ========== BOQ-WEIGHTED PHYSICAL PROGRESS ==========
+    physical_progress_pct = models.DecimalField(
+        max_digits=5, decimal_places=2,
+        default=Decimal('0'),
+        validators=[MinValueValidator(Decimal('0')), MaxValueValidator(Decimal('100'))],
+        help_text='BOQ-weighted physical progress (0-100%). Computed from linked BOQ execution data.'
     )
     
     # ========== CAPPING & VALIDATION ==========

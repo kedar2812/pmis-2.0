@@ -88,6 +88,23 @@ class Project(models.Model):
         help_text='Schedule variance percentage. Negative = behind schedule.'
     )
     
+    # ========== BASELINE FREEZE ==========
+    is_baseline_frozen = models.BooleanField(
+        default=False,
+        help_text='Whether the baseline schedule is frozen (immutable)'
+    )
+    baseline_frozen_date = models.DateTimeField(
+        null=True, blank=True,
+        help_text='Timestamp when the baseline was frozen'
+    )
+    baseline_frozen_by = models.ForeignKey(
+        'users.User',
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name='frozen_baselines',
+        help_text='User who froze the baseline'
+    )
+    
     # ========== FINANCIAL ==========
     budget = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'))
     spent = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'))
@@ -286,6 +303,9 @@ class WorkPackage(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.name} ({self.project.name})"

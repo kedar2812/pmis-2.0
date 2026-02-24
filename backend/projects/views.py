@@ -98,6 +98,77 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 'zone': project.zone.name if project.zone else None,
             }
         })
+    
+    @action(detail=True, methods=['post'])
+    def freeze_baseline(self, request, pk=None):
+        """
+        Freeze the project's schedule baseline.
+        
+        - Copies start_date → baseline_start_date and end_date → baseline_end_date
+          for ALL ScheduleTasks in this project.
+        - Sets project.is_baseline_frozen = True.
+        - Once frozen, baseline_* fields become immutable.
+        
+        Permission: Chief Engineer, Superintending Engineer, or Admin only.
+        """
+        from django.db import transaction
+        from scheduling.models import ScheduleTask
+        
+        project = self.get_object()
+        
+        # ========== PERMISSION CHECK ==========
+        allowed_roles = ['Chief_Engineer', 'Superintending_Engineer', 'Admin']
+        user_role = getattr(request.user, 'role', None)
+        if user_role not in allowed_roles and not request.user.is_superuser:
+            return Response(
+                {'error': 'Only Chief Engineers, Superintending Engineers, or Admins can freeze baselines.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # ========== ALREADY FROZEN CHECK ==========
+        if project.is_baseline_frozen:
+            return Response(
+                {'error': f'Baseline already frozen on {project.baseline_frozen_date}.',
+                 'frozen_by': str(project.baseline_frozen_by) if project.baseline_frozen_by else 'Unknown',
+                 'frozen_date': project.baseline_frozen_date},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # ========== VALIDATE TASKS EXIST ==========
+        tasks = ScheduleTask.objects.filter(project=project)
+        task_count = tasks.count()
+        if task_count == 0:
+            return Response(
+                {'error': 'Cannot freeze baseline: no schedule tasks defined for this project.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # ========== ATOMIC FREEZE ==========
+        from django.utils import timezone
+        
+        with transaction.atomic():
+            # Copy working dates to baseline for all tasks
+            tasks.update(
+                baseline_start_date=models.F('start_date'),
+                baseline_end_date=models.F('end_date')
+            )
+            
+            # Mark project as frozen
+            project.is_baseline_frozen = True
+            project.baseline_frozen_date = timezone.now()
+            project.baseline_frozen_by = request.user
+            project.save(update_fields=['is_baseline_frozen', 'baseline_frozen_date', 'baseline_frozen_by'])
+        
+        logger.info(f"Baseline frozen for project {project.name} (ID: {project.id}) by {request.user.username}. {task_count} tasks baselined.")
+        
+        return Response({
+            'status': 'success',
+            'message': f'Baseline frozen successfully. {task_count} tasks baselined.',
+            'project_id': str(project.id),
+            'frozen_date': project.baseline_frozen_date,
+            'frozen_by': request.user.username,
+            'tasks_baselined': task_count
+        })
 
 
 class WorkPackageViewSet(viewsets.ModelViewSet):

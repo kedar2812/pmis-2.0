@@ -7,6 +7,12 @@ from .models import (
 from scheduling.models import ScheduleTask
 
 class BOQItemSerializer(serializers.ModelSerializer):
+    linked_tasks = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=ScheduleTask.objects.all(),
+        required=False
+    )
+    
     class Meta:
         model = BOQItem
         fields = '__all__'

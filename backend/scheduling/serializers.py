@@ -55,6 +55,14 @@ class ScheduleTaskSerializer(serializers.ModelSerializer):
             'end_date',
             'duration_days',  # Computed
             
+            # Baseline Tracking (Immutable once frozen)
+            'baseline_start_date',
+            'baseline_end_date',
+            
+            # Actual Tracking
+            'actual_start_date',
+            'actual_end_date',
+            
             # Progress Method & Weight
             'progress_method',
             'progress_method_display',
@@ -75,6 +83,7 @@ class ScheduleTaskSerializer(serializers.ModelSerializer):
             'computed_progress',
             'effective_progress',  # With capping applied
             'earned_value',
+            'physical_progress_pct',  # BOQ-weighted progress
             
             # Capping & Validation
             'max_progress_without_approval',
@@ -103,6 +112,9 @@ class ScheduleTaskSerializer(serializers.ModelSerializer):
         read_only_fields = [
             'id',
             'computed_progress',
+            'physical_progress_pct',
+            'baseline_start_date',
+            'baseline_end_date',
             'created_at',
             'updated_at',
         ]
@@ -135,6 +147,18 @@ class ScheduleTaskSerializer(serializers.ModelSerializer):
                 )
         
         return data
+    
+    def update(self, instance, validated_data):
+        """Block baseline field modifications when project baseline is frozen."""
+        project = instance.project
+        if project.is_baseline_frozen:
+            frozen_fields = ['baseline_start_date', 'baseline_end_date']
+            for field in frozen_fields:
+                if field in validated_data and validated_data[field] != getattr(instance, field):
+                    raise serializers.ValidationError(
+                        {field: f'Cannot modify {field}: project baseline is frozen since {project.baseline_frozen_date}.'}
+                    )
+        return super().update(instance, validated_data)
 
 
 class ScheduleTaskListSerializer(serializers.ModelSerializer):
@@ -152,12 +176,17 @@ class ScheduleTaskListSerializer(serializers.ModelSerializer):
             'wbs_code',
             'start_date',
             'end_date',
+            'baseline_start_date',
+            'baseline_end_date',
+            'actual_start_date',
+            'actual_end_date',
             'computed_progress',
             'effective_progress',
+            'physical_progress_pct',
             'status',
             'is_milestone',
             'is_critical',
             'weight',
             'budgeted_cost',
         ]
-        read_only_fields = ['id', 'computed_progress']
+        read_only_fields = ['id', 'computed_progress', 'physical_progress_pct']

@@ -90,6 +90,11 @@ class ProjectSerializer(serializers.ModelSerializer):
             'progress_state_display',
             'schedule_variance',
             
+            # Baseline Freeze
+            'is_baseline_frozen',
+            'baseline_frozen_date',
+            'baseline_frozen_by',
+            
             # Financial
             'budget', 'spent', 'location', 
             
@@ -134,6 +139,10 @@ class ProjectSerializer(serializers.ModelSerializer):
             'earned_value',
             'progress_state',
             'schedule_variance',
+            # Baseline freeze fields (controlled by API only)
+            'is_baseline_frozen',
+            'baseline_frozen_date',
+            'baseline_frozen_by',
         ]
         # Make most FK fields optional
         extra_kwargs = {

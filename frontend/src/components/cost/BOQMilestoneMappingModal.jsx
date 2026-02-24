@@ -1,15 +1,19 @@
 /**
- * BOQMilestoneMappingModal - Link BOQ items to Schedule Milestones with % allocation
+ * BOQMilestoneMappingModal - Link BOQ items to Schedule Tasks (M2M) AND Milestones (%)
  * 
- * Enables the "No Money Without Time" principle by connecting costs to schedule.
- * A BOQ item can be split across multiple milestones (e.g., 30% Foundation, 70% Superstructure)
+ * Two sections:
+ * 1. "Linked Schedule Tasks" — Checkbox list linking BOQ items to tasks (cost-loaded schedule)
+ * 2. "Milestone Allocation" — Original % allocation to milestones (preserved for backward compat)
+ * 
+ * Enables the "Cost-Loaded Schedule" principle where physical progress is
+ * automatically calculated from RA Bill executions via BOQ-to-Task linkage.
  */
 import { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     X, Link2, Target, Percent, Plus, Trash2, Loader2,
-    CheckCircle2, AlertCircle, Calendar, PieChart
+    CheckCircle2, AlertCircle, Calendar, PieChart, ListChecks, Save
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import financeService from '@/services/financeService';
@@ -18,9 +22,14 @@ import { toast } from 'sonner';
 
 const BOQMilestoneMappingModal = ({ boqItem, projectId, onClose, onUpdated }) => {
     const [milestones, setMilestones] = useState([]);
+    const [allTasks, setAllTasks] = useState([]);
     const [existingMappings, setExistingMappings] = useState([]);
+    const [linkedTaskIds, setLinkedTaskIds] = useState(new Set());
+    const [originalLinkedTaskIds, setOriginalLinkedTaskIds] = useState(new Set());
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [savingTasks, setSavingTasks] = useState(false);
+    const [activeTab, setActiveTab] = useState('tasks'); // 'tasks' or 'milestones'
 
     // New mapping form
     const [selectedMilestone, setSelectedMilestone] = useState('');
@@ -46,49 +55,88 @@ const BOQMilestoneMappingModal = ({ boqItem, projectId, onClose, onUpdated }) =>
     const loadData = async () => {
         setLoading(true);
         try {
-            const [milestonesData, mappingsData] = await Promise.all([
+            const [milestonesData, mappingsData, tasksData] = await Promise.all([
                 schedulingService.getMilestones(projectId),
-                financeService.getBOQMappings(boqItem.id)
+                financeService.getBOQMappings(boqItem.id),
+                schedulingService.getTasks ? schedulingService.getTasks(projectId) :
+                    fetch(`/api/scheduling/tasks/?project=${projectId}`).then(r => r.json()).then(d => d.results || d)
             ]);
             setMilestones(milestonesData);
             setExistingMappings(mappingsData);
+            setAllTasks(Array.isArray(tasksData) ? tasksData : []);
+
+            // Set linked task IDs from boqItem data
+            const linkedIds = new Set((boqItem.linked_tasks || []).map(id => String(id)));
+            setLinkedTaskIds(linkedIds);
+            setOriginalLinkedTaskIds(new Set(linkedIds));
         } catch (error) {
             console.error('Failed to load data:', error);
-            toast.error('Failed to load milestone data');
+            toast.error('Failed to load data');
         } finally {
             setLoading(false);
         }
     };
 
-    // Calculate allocated and remaining percentages
+    // Toggle a task's linked state
+    const toggleTask = (taskId) => {
+        setLinkedTaskIds(prev => {
+            const next = new Set(prev);
+            const id = String(taskId);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
+        });
+    };
+
+    // Check if task links have changed
+    const hasTaskChanges = useMemo(() => {
+        if (linkedTaskIds.size !== originalLinkedTaskIds.size) return true;
+        for (const id of linkedTaskIds) {
+            if (!originalLinkedTaskIds.has(id)) return true;
+        }
+        return false;
+    }, [linkedTaskIds, originalLinkedTaskIds]);
+
+    // Save linked tasks via PATCH
+    const handleSaveLinkedTasks = async () => {
+        setSavingTasks(true);
+        try {
+            const taskIds = Array.from(linkedTaskIds).map(id => parseInt(id) || id);
+            await financeService.updateBOQItem(boqItem.id, {
+                linked_tasks: taskIds
+            });
+            setOriginalLinkedTaskIds(new Set(linkedTaskIds));
+            toast.success(`${taskIds.length} task(s) linked to ${boqItem.item_code}`);
+            onUpdated?.();
+        } catch (error) {
+            console.error('Failed to save linked tasks:', error);
+            const msg = error.response?.data?.detail || error.response?.data?.linked_tasks?.[0] || 'Failed to save';
+            toast.error(msg);
+        } finally {
+            setSavingTasks(false);
+        }
+    };
+
+    // ========== Milestone % allocation (existing logic preserved) ==========
+
     const { totalAllocated, remaining } = useMemo(() => {
         const total = existingMappings.reduce((sum, m) => sum + parseFloat(m.percentage_allocated || 0), 0);
-        return {
-            totalAllocated: total,
-            remaining: 100 - total
-        };
+        return { totalAllocated: total, remaining: 100 - total };
     }, [existingMappings]);
 
-    // Filter out already mapped milestones
     const availableMilestones = useMemo(() => {
         const mappedIds = new Set(existingMappings.map(m => m.milestone));
         return milestones.filter(m => !mappedIds.has(m.id));
     }, [milestones, existingMappings]);
 
-    // Add new mapping
     const handleAddMapping = async () => {
-        if (!selectedMilestone) {
-            return toast.error('Please select a milestone');
-        }
-
+        if (!selectedMilestone) return toast.error('Please select a milestone');
         const pct = parseFloat(percentageAllocated);
-        if (isNaN(pct) || pct <= 0 || pct > 100) {
-            return toast.error('Please enter a valid percentage (1-100)');
-        }
-
-        if (pct > remaining) {
-            return toast.error(`Cannot allocate more than ${remaining.toFixed(1)}% remaining`);
-        }
+        if (isNaN(pct) || pct <= 0 || pct > 100) return toast.error('Please enter a valid percentage (1-100)');
+        if (pct > remaining) return toast.error(`Cannot allocate more than ${remaining.toFixed(1)}% remaining`);
 
         setAddingNew(true);
         try {
@@ -97,14 +145,11 @@ const BOQMilestoneMappingModal = ({ boqItem, projectId, onClose, onUpdated }) =>
                 milestone: selectedMilestone,
                 percentage_allocated: pct.toFixed(2)
             });
-
             setExistingMappings(prev => [...prev, newMapping]);
             setSelectedMilestone('');
             setPercentageAllocated('');
             toast.success('Milestone linked successfully');
-
         } catch (error) {
-            console.error('Failed to create mapping:', error);
             const errorMsg = error.response?.data?.detail || 'Failed to create mapping';
             toast.error(errorMsg);
         } finally {
@@ -112,30 +157,21 @@ const BOQMilestoneMappingModal = ({ boqItem, projectId, onClose, onUpdated }) =>
         }
     };
 
-    // Delete mapping
     const handleDeleteMapping = async (mappingId) => {
         if (!confirm('Remove this milestone link?')) return;
-
         try {
             await financeService.deleteBOQMapping(mappingId);
             setExistingMappings(prev => prev.filter(m => m.id !== mappingId));
             toast.success('Mapping removed');
         } catch (error) {
-            console.error('Failed to delete mapping:', error);
             toast.error('Failed to remove mapping');
         }
     };
 
-    // Format currency
     const formatCurrency = (val) => {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            maximumFractionDigits: 0
-        }).format(val);
+        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
     };
 
-    // Get milestone name by ID
     const getMilestoneName = (milestoneId) => {
         const milestone = milestones.find(m => m.id === milestoneId);
         return milestone?.name || 'Unknown Milestone';
@@ -146,23 +182,20 @@ const BOQMilestoneMappingModal = ({ boqItem, projectId, onClose, onUpdated }) =>
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="bg-white dark:bg-neutral-900 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden"
+                className="bg-white dark:bg-neutral-900 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden"
             >
                 {/* Header */}
                 <div className="flex justify-between items-center p-4 border-b border-slate-200 dark:border-neutral-700 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-neutral-800 dark:to-neutral-800">
                     <div>
                         <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                             <Link2 className="text-amber-600 dark:text-amber-400" size={20} />
-                            Link to Milestones
+                            Cost-Loaded Schedule Link
                         </h2>
                         <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5">
-                            Allocate BOQ cost across schedule milestones
+                            Connect BOQ items to schedule tasks for automatic progress tracking
                         </p>
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="p-2 hover:bg-white/50 dark:hover:bg-neutral-700 rounded-lg transition-colors"
-                    >
+                    <button onClick={onClose} className="p-2 hover:bg-white/50 dark:hover:bg-neutral-700 rounded-lg transition-colors">
                         <X size={20} className="text-slate-500 dark:text-neutral-400" />
                     </button>
                 </div>
@@ -183,24 +216,30 @@ const BOQMilestoneMappingModal = ({ boqItem, projectId, onClose, onUpdated }) =>
                             <p className="text-sm text-slate-600 dark:text-neutral-400 line-clamp-2">{boqItem.description}</p>
                         </div>
                     </div>
+                </div>
 
-                    {/* Allocation Progress Bar */}
-                    <div className="mt-4">
-                        <div className="flex justify-between text-xs mb-1">
-                            <span className="text-slate-600 dark:text-neutral-400">Allocated to Milestones</span>
-                            <span className={`font-medium ${totalAllocated >= 100 ? 'text-green-600' : 'text-amber-600'}`}>
-                                {totalAllocated.toFixed(1)}% / 100%
-                            </span>
-                        </div>
-                        <div className="h-2 bg-slate-200 dark:bg-neutral-700 rounded-full overflow-hidden">
-                            <motion.div
-                                className={`h-full ${totalAllocated >= 100 ? 'bg-green-500' : 'bg-amber-500'}`}
-                                initial={{ width: 0 }}
-                                animate={{ width: `${Math.min(totalAllocated, 100)}%` }}
-                                transition={{ duration: 0.5 }}
-                            />
-                        </div>
-                    </div>
+                {/* Tab Switcher */}
+                <div className="flex border-b border-slate-200 dark:border-neutral-700">
+                    <button
+                        onClick={() => setActiveTab('tasks')}
+                        className={`flex-1 px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${activeTab === 'tasks'
+                                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-900/10'
+                                : 'text-slate-500 dark:text-neutral-400 hover:bg-slate-50 dark:hover:bg-neutral-800'
+                            }`}
+                    >
+                        <ListChecks size={16} />
+                        Linked Tasks ({linkedTaskIds.size})
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('milestones')}
+                        className={`flex-1 px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${activeTab === 'milestones'
+                                ? 'text-amber-600 dark:text-amber-400 border-b-2 border-amber-600 dark:border-amber-400 bg-amber-50/50 dark:bg-amber-900/10'
+                                : 'text-slate-500 dark:text-neutral-400 hover:bg-slate-50 dark:hover:bg-neutral-800'
+                            }`}
+                    >
+                        <Target size={16} />
+                        Milestone Allocation ({totalAllocated.toFixed(0)}%)
+                    </button>
                 </div>
 
                 {/* Content */}
@@ -210,130 +249,229 @@ const BOQMilestoneMappingModal = ({ boqItem, projectId, onClose, onUpdated }) =>
                             <Loader2 className="w-6 h-6 animate-spin text-primary-600" />
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                            {/* Existing Mappings */}
-                            {existingMappings.length > 0 && (
+                        <>
+                            {/* ====== TASKS TAB ====== */}
+                            {activeTab === 'tasks' && (
                                 <div className="space-y-2">
-                                    <p className="text-xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider">
-                                        Linked Milestones
+                                    <p className="text-xs text-slate-500 dark:text-neutral-400 mb-3">
+                                        Select which schedule tasks this BOQ item contributes to. Progress will be automatically calculated from RA Bill executions.
                                     </p>
-                                    {existingMappings.map((mapping) => (
-                                        <div
-                                            key={mapping.id}
-                                            className="flex items-center justify-between p-3 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 rounded-lg hover:border-slate-300 dark:hover:border-neutral-600 transition-colors group"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                                                    <Target size={14} className="text-green-600" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-slate-800 dark:text-white">
-                                                        {mapping.milestone_name || getMilestoneName(mapping.milestone)}
-                                                    </p>
-                                                    <p className="text-xs text-slate-500 dark:text-neutral-400">
-                                                        {formatCurrency(boqItem.amount * (parseFloat(mapping.percentage_allocated) / 100))}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <span className="px-2 py-1 bg-green-100 text-green-700 text-sm font-bold rounded">
-                                                    {parseFloat(mapping.percentage_allocated).toFixed(1)}%
-                                                </span>
-                                                <button
-                                                    onClick={() => handleDeleteMapping(mapping.id)}
-                                                    className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
-                                                    title="Remove mapping"
+                                    {allTasks.length > 0 ? (
+                                        allTasks.map(task => {
+                                            const isLinked = linkedTaskIds.has(String(task.id));
+                                            return (
+                                                <label
+                                                    key={task.id}
+                                                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${isLinked
+                                                            ? 'border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20'
+                                                            : 'border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-slate-300 dark:hover:border-neutral-600'
+                                                        }`}
                                                 >
-                                                    <Trash2 size={14} />
-                                                </button>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isLinked}
+                                                        onChange={() => toggleTask(task.id)}
+                                                        className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                                                    />
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-2">
+                                                            {task.wbs_code && (
+                                                                <span className="text-[10px] px-1.5 py-0.5 bg-slate-200 dark:bg-neutral-700 text-slate-600 dark:text-neutral-400 rounded font-mono">
+                                                                    {task.wbs_code}
+                                                                </span>
+                                                            )}
+                                                            <span className="text-sm font-medium text-slate-800 dark:text-white truncate">
+                                                                {task.name}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-neutral-400">
+                                                            <span>{task.start_date} → {task.end_date}</span>
+                                                            {task.budgeted_cost > 0 && (
+                                                                <span className="text-emerald-600">
+                                                                    {formatCurrency(task.budgeted_cost)}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${(task.computed_progress || 0) >= 100
+                                                            ? 'bg-emerald-100 text-emerald-700'
+                                                            : 'bg-slate-100 text-slate-600 dark:bg-neutral-700 dark:text-neutral-400'
+                                                        }`}>
+                                                        {Math.round(task.computed_progress || 0)}%
+                                                    </span>
+                                                </label>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg flex items-center gap-3">
+                                            <AlertCircle size={20} className="text-amber-600 dark:text-amber-400" />
+                                            <div>
+                                                <p className="text-sm font-medium text-amber-800 dark:text-amber-300">No Tasks Found</p>
+                                                <p className="text-xs text-amber-600 dark:text-amber-400">
+                                                    Import a schedule or add tasks to the project first
+                                                </p>
                                             </div>
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
                             )}
 
-                            {/* Add New Mapping */}
-                            {remaining > 0 && availableMilestones.length > 0 && (
-                                <div className="p-4 bg-slate-50 dark:bg-neutral-800 rounded-xl border border-slate-200 dark:border-neutral-700 space-y-3">
-                                    <p className="text-xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider flex items-center gap-1">
-                                        <Plus size={12} /> Add Milestone Link
-                                    </p>
-
-                                    <div className="flex gap-2">
-                                        <select
-                                            value={selectedMilestone}
-                                            onChange={(e) => setSelectedMilestone(e.target.value)}
-                                            className="flex-1 px-3 py-2 border border-slate-200 dark:border-neutral-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white dark:bg-neutral-900 dark:text-white"
-                                        >
-                                            <option value="">Select Milestone...</option>
-                                            {availableMilestones.map(m => (
-                                                <option key={m.id} value={m.id}>
-                                                    {m.name} ({m.progress}% complete)
-                                                </option>
-                                            ))}
-                                        </select>
-
-                                        <div className="relative w-24">
-                                            <input
-                                                type="number"
-                                                min="0.1"
-                                                max={remaining}
-                                                step="0.1"
-                                                value={percentageAllocated}
-                                                onChange={(e) => setPercentageAllocated(e.target.value)}
-                                                placeholder={`Max ${remaining.toFixed(0)}%`}
-                                                className="w-full px-3 py-2 border border-slate-200 dark:border-neutral-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white dark:bg-neutral-900 dark:text-white pr-7"
-                                            />
-                                            <Percent size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400" />
+                            {/* ====== MILESTONES TAB (preserved) ====== */}
+                            {activeTab === 'milestones' && (
+                                <div className="space-y-4">
+                                    {/* Allocation Progress Bar */}
+                                    <div>
+                                        <div className="flex justify-between text-xs mb-1">
+                                            <span className="text-slate-600 dark:text-neutral-400">Allocated to Milestones</span>
+                                            <span className={`font-medium ${totalAllocated >= 100 ? 'text-green-600' : 'text-amber-600'}`}>
+                                                {totalAllocated.toFixed(1)}% / 100%
+                                            </span>
                                         </div>
-
-                                        <Button
-                                            onClick={handleAddMapping}
-                                            disabled={addingNew}
-                                            size="sm"
-                                            className="bg-amber-600 text-white hover:bg-amber-700"
-                                        >
-                                            {addingNew ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
-                                        </Button>
+                                        <div className="h-2 bg-slate-200 dark:bg-neutral-700 rounded-full overflow-hidden">
+                                            <motion.div
+                                                className={`h-full ${totalAllocated >= 100 ? 'bg-green-500' : 'bg-amber-500'}`}
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${Math.min(totalAllocated, 100)}%` }}
+                                                transition={{ duration: 0.5 }}
+                                            />
+                                        </div>
                                     </div>
+
+                                    {/* Existing Mappings */}
+                                    {existingMappings.length > 0 && (
+                                        <div className="space-y-2">
+                                            <p className="text-xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider">
+                                                Linked Milestones
+                                            </p>
+                                            {existingMappings.map((mapping) => (
+                                                <div
+                                                    key={mapping.id}
+                                                    className="flex items-center justify-between p-3 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 rounded-lg hover:border-slate-300 dark:hover:border-neutral-600 transition-colors group"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                                            <Target size={14} className="text-green-600" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-medium text-slate-800 dark:text-white">
+                                                                {mapping.milestone_name || getMilestoneName(mapping.milestone)}
+                                                            </p>
+                                                            <p className="text-xs text-slate-500 dark:text-neutral-400">
+                                                                {formatCurrency(boqItem.amount * (parseFloat(mapping.percentage_allocated) / 100))}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="px-2 py-1 bg-green-100 text-green-700 text-sm font-bold rounded">
+                                                            {parseFloat(mapping.percentage_allocated).toFixed(1)}%
+                                                        </span>
+                                                        <button
+                                                            onClick={() => handleDeleteMapping(mapping.id)}
+                                                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
+                                                            title="Remove mapping"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Add New Mapping */}
+                                    {remaining > 0 && availableMilestones.length > 0 && (
+                                        <div className="p-4 bg-slate-50 dark:bg-neutral-800 rounded-xl border border-slate-200 dark:border-neutral-700 space-y-3">
+                                            <p className="text-xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider flex items-center gap-1">
+                                                <Plus size={12} /> Add Milestone Link
+                                            </p>
+                                            <div className="flex gap-2">
+                                                <select
+                                                    value={selectedMilestone}
+                                                    onChange={(e) => setSelectedMilestone(e.target.value)}
+                                                    className="flex-1 px-3 py-2 border border-slate-200 dark:border-neutral-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white dark:bg-neutral-900 dark:text-white"
+                                                >
+                                                    <option value="">Select Milestone...</option>
+                                                    {availableMilestones.map(m => (
+                                                        <option key={m.id} value={m.id}>
+                                                            {m.name} ({m.progress}% complete)
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <div className="relative w-24">
+                                                    <input
+                                                        type="number"
+                                                        min="0.1"
+                                                        max={remaining}
+                                                        step="0.1"
+                                                        value={percentageAllocated}
+                                                        onChange={(e) => setPercentageAllocated(e.target.value)}
+                                                        placeholder={`Max ${remaining.toFixed(0)}%`}
+                                                        className="w-full px-3 py-2 border border-slate-200 dark:border-neutral-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white dark:bg-neutral-900 dark:text-white pr-7"
+                                                    />
+                                                    <Percent size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400" />
+                                                </div>
+                                                <Button onClick={handleAddMapping} disabled={addingNew} size="sm" className="bg-amber-600 text-white hover:bg-amber-700">
+                                                    {addingNew ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {remaining <= 0 && (
+                                        <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-3">
+                                            <CheckCircle2 size={20} className="text-green-600 dark:text-green-400" />
+                                            <div>
+                                                <p className="text-sm font-medium text-green-800 dark:text-green-300">Fully Allocated</p>
+                                                <p className="text-xs text-green-600 dark:text-green-400">This BOQ item is 100% linked to milestones</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {milestones.length === 0 && (
+                                        <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg flex items-center gap-3">
+                                            <AlertCircle size={20} className="text-amber-600 dark:text-amber-400" />
+                                            <div>
+                                                <p className="text-sm font-medium text-amber-800 dark:text-amber-300">No Milestones Found</p>
+                                                <p className="text-xs text-amber-600 dark:text-amber-400">
+                                                    Import a schedule or add milestone tasks to the project first
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
-
-                            {/* Fully Allocated Message */}
-                            {remaining <= 0 && (
-                                <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-3">
-                                    <CheckCircle2 size={20} className="text-green-600 dark:text-green-400" />
-                                    <div>
-                                        <p className="text-sm font-medium text-green-800 dark:text-green-300">Fully Allocated</p>
-                                        <p className="text-xs text-green-600 dark:text-green-400">This BOQ item is 100% linked to milestones</p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* No Milestones Warning */}
-                            {milestones.length === 0 && (
-                                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg flex items-center gap-3">
-                                    <AlertCircle size={20} className="text-amber-600 dark:text-amber-400" />
-                                    <div>
-                                        <p className="text-sm font-medium text-amber-800 dark:text-amber-300">No Milestones Found</p>
-                                        <p className="text-xs text-amber-600 dark:text-amber-400">
-                                            Import a schedule or add milestone tasks to the project first
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                        </>
                     )}
                 </div>
 
                 {/* Footer */}
-                <div className="flex justify-end p-4 border-t border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800">
-                    <Button
-                        onClick={() => { onUpdated && onUpdated(); onClose(); }}
-                        className="bg-primary-600 text-white"
-                    >
-                        Done
-                    </Button>
+                <div className="flex justify-between items-center p-4 border-t border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800">
+                    <div className="text-xs text-slate-400 dark:text-neutral-500">
+                        {activeTab === 'tasks' && hasTaskChanges && (
+                            <span className="text-amber-600 dark:text-amber-400 font-medium">● Unsaved task link changes</span>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {activeTab === 'tasks' && hasTaskChanges && (
+                            <Button
+                                onClick={handleSaveLinkedTasks}
+                                disabled={savingTasks}
+                                className="bg-blue-600 text-white hover:bg-blue-700"
+                            >
+                                {savingTasks ? (
+                                    <><Loader2 size={16} className="animate-spin mr-1" /> Saving...</>
+                                ) : (
+                                    <><Save size={16} className="mr-1" /> Save Task Links</>
+                                )}
+                            </Button>
+                        )}
+                        <Button
+                            onClick={() => { onUpdated?.(); onClose(); }}
+                            className="bg-primary-600 text-white"
+                        >
+                            Done
+                        </Button>
+                    </div>
                 </div>
             </motion.div>
         </div>,
