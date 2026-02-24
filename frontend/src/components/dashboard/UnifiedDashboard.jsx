@@ -312,6 +312,7 @@ const UnifiedDashboard = () => {
     const riskSummary = stats?.risk_summary || { high: 0, medium: 0, low: 0 };
     const changeRequests = stats?.change_requests || [];
     const earnedValue = stats?.earned_value || { cpi: 1.0, spi: 1.0 };
+    const phaseProgress = stats?.phase_progress || [];
     const cashFlow = stats?.cash_flow || [];
     const recentActivity = stats?.recent_activity || [];
     const topProjects = stats?.top_projects || [];
@@ -414,7 +415,7 @@ const UnifiedDashboard = () => {
                     value={`${financialProgress}%`}
                     subtext={`₹${((financialSummary.total_spent || 0) / 10000000).toFixed(1)} Cr spent`}
                     color="emerald"
-                    trend={financialProgress <= 80 ? 'up' : 'down'}
+                    trend={financialProgress > 0 ? (financialProgress <= 90 ? 'up' : 'down') : null}
                     onClick={() => navigate('/cost/budgeting')}
                     tooltip="Budget utilization rate. (Total Paid RA Bills / Total Contract Value) × 100. Usually lags behind physical progress."
                 />
@@ -610,15 +611,15 @@ const UnifiedDashboard = () => {
                     projects={projects}
                 />
 
-                {/* Phase Progress */}
+                {/* Phase Progress — sourced from backend ScheduleTask data */}
                 <PhaseProgressCard
                     title="Progress by Phase"
-                    phases={[
-                        { id: 'design', name: 'Design', progress: Math.min(physicalProgress * 1.5, 100), color: '#3b82f6' },
-                        { id: 'procurement', name: 'Procurement', progress: Math.min(physicalProgress * 1.2, 100), color: '#8b5cf6' },
-                        { id: 'construction', name: 'Construction', progress: physicalProgress, color: '#f59e0b' },
-                        { id: 'testing', name: 'Testing', progress: Math.max(physicalProgress - 30, 0), color: '#10b981' },
-                        { id: 'closeout', name: 'Closeout', progress: Math.max(physicalProgress - 60, 0), color: '#64748b' }
+                    phases={phaseProgress.length > 0 ? phaseProgress : [
+                        { id: 'design', name: 'Design', progress: 0, color: '#3b82f6' },
+                        { id: 'procurement', name: 'Procurement', progress: 0, color: '#8b5cf6' },
+                        { id: 'construction', name: 'Construction', progress: 0, color: '#f59e0b' },
+                        { id: 'testing', name: 'Testing & QC', progress: 0, color: '#10b981' },
+                        { id: 'closeout', name: 'Closeout', progress: 0, color: '#64748b' }
                     ]}
                 />
             </div>

@@ -220,14 +220,8 @@ class DashboardStatsView(APIView):
         except Exception as e:
             logger.error(f"Failed to fetch EDMS approval data: {e}")
         
-        # Get critical risks count
+        # Critical risks count — initialized to 0, set by real Risk model query below
         critical_risks = 0
-        try:
-            critical_risks = projects.filter(
-                Q(status='In Progress') & Q(progress__lt=50)
-            ).count()
-        except Exception as e:
-            logger.error(f"Failed to calculate critical risks: {e}")
         
         # Schedule health from scheduling module
         schedule_health = {
@@ -465,15 +459,15 @@ class DashboardStatsView(APIView):
         recent_activity.sort(key=lambda x: x['timestamp'], reverse=True)
         recent_activity = recent_activity[:10]
         
-        # KPIs for the dashboard
+        # KPIs for the dashboard — all values dynamically computed, no hardcoded trends
         kpis = [
             {
                 'id': 'total_budget',
                 'label': 'Total Budget',
                 'value': financial_summary['total_budget'],
                 'formatted': f"₹{financial_summary['total_budget'] / 10000000:.2f} Cr",
-                'trend': 'up',
-                'change': '+5.2%',
+                'trend': 'neutral',
+                'change': f"₹{financial_summary['remaining'] / 10000000:.1f} Cr remaining",
                 'color': 'emerald'
             },
             {
@@ -481,8 +475,8 @@ class DashboardStatsView(APIView):
                 'label': 'Active Projects',
                 'value': project_stats['in_progress'],
                 'formatted': str(project_stats['in_progress']),
-                'trend': 'up',
-                'change': '+2',
+                'trend': 'neutral',
+                'change': f"{project_stats['total']} total",
                 'color': 'blue'
             },
             {
@@ -508,8 +502,8 @@ class DashboardStatsView(APIView):
                 'label': 'Active Contracts',
                 'value': procurement_summary['active_contracts'],
                 'formatted': str(procurement_summary['active_contracts']),
-                'trend': 'up',
-                'change': f"{procurement_summary['active_tenders']} tenders",
+                'trend': 'neutral',
+                'change': f"{procurement_summary['active_tenders']} tenders open",
                 'color': 'violet'
             }
         ]
@@ -623,41 +617,151 @@ class DashboardStatsView(APIView):
         except Exception:
             pass
         
-        # Earned Value Metrics (EVM)
+        # ========== EARNED VALUE METRICS (EVM) — Accurate Portfolio-Level ==========
         total_budget = float(financial_summary['total_budget'] or 1)
         total_spent = float(financial_summary['total_spent'] or 0)
-        avg_progress = float(projects.aggregate(avg=Avg('progress'))['avg'] or 0)
         
-        # EV = Budget * Progress%
-        earned_value = total_budget * (avg_progress / 100)
+        # Use the per-project earned_value field (computed from task-level data)
+        portfolio_ev = float(portfolio_earned_value) if portfolio_earned_value > 0 else 0
+        
         # CPI = EV / AC (Cost Performance Index)
-        cpi = earned_value / total_spent if total_spent > 0 else 1.0
-        # SPI = EV / PV (Schedule Performance Index) - simplified
-        spi = avg_progress / 50 if avg_progress > 0 else 1.0  # Assuming 50% planned progress
+        cpi = portfolio_ev / total_spent if total_spent > 0 else (1.0 if portfolio_ev == 0 else float('inf'))
+        cpi = min(cpi, 9.99)  # Cap display at 9.99 for readability
+        
+        # SPI = EV / PV — PV calculated from time-based planned value
+        # Planned Value = Sum of (budget × time_elapsed_fraction) for each active project
+        planned_value = 0
+        for p in active_projects:
+            if p.start_date and p.end_date and p.budget:
+                total_days = (p.end_date - p.start_date).days or 1
+                elapsed_days = max((today - p.start_date).days, 0)
+                time_fraction = min(elapsed_days / total_days, 1.0)
+                planned_value += float(p.budget) * time_fraction
+        
+        spi = portfolio_ev / planned_value if planned_value > 0 else (1.0 if portfolio_ev == 0 else float('inf'))
+        spi = min(spi, 9.99)  # Cap display at 9.99
         
         earned_value_metrics = {
-            'earned_value': round(earned_value, 2),
+            'earned_value': round(portfolio_ev, 2),
+            'planned_value': round(planned_value, 2),
             'actual_cost': round(total_spent, 2),
             'cpi': round(cpi, 2),
-            'spi': round(min(spi, 2.0), 2),  # Cap at 2.0
+            'spi': round(spi, 2),
             'status': 'on_budget' if cpi >= 1.0 else 'over_budget',
-            'variance': round((cpi - 1.0) * 100, 1)
+            'cost_variance': round(portfolio_ev - total_spent, 2),
+            'schedule_variance': round(portfolio_ev - planned_value, 2),
         }
         
-        # Cash flow (last 6 months)
+        # ========== CASH FLOW — Real RA Bill data by month ==========
         cash_flow = []
-        for i in range(6):
-            month_date = timezone.now() - timedelta(days=30 * (5 - i))
-            month_name = month_date.strftime('%b')
-            # Simulated based on total spent distribution
-            inflow = (total_budget / 12) * (1 + (i * 0.1))
-            outflow = (total_spent / 6) * (1 + (i * 0.05))
-            cash_flow.append({
-                'month': month_name,
-                'inflow': round(inflow / 10000000, 2),  # In Cr
-                'outflow': round(outflow / 10000000, 2),
-                'net': round((inflow - outflow) / 10000000, 2)
-            })
+        try:
+            from finance.models import RABill
+            from django.db.models.functions import TruncMonth
+            
+            six_months_ago = timezone.now() - timedelta(days=180)
+            
+            # Outflow: Actual payments (approved/paid RA Bills grouped by month)
+            monthly_payments = (
+                RABill.objects.filter(
+                    bill_date__gte=six_months_ago,
+                    status__in=['APPROVED', 'PAID', 'VERIFIED']
+                )
+                .annotate(month=TruncMonth('bill_date'))
+                .values('month')
+                .annotate(
+                    total_gross=Sum('gross_amount'),
+                    total_net=Sum('net_payable'),
+                    bill_count=Count('id')
+                )
+                .order_by('month')
+            )
+            
+            # Build month lookup
+            payment_by_month = {}
+            for entry in monthly_payments:
+                month_key = entry['month'].strftime('%b %Y')
+                payment_by_month[month_key] = {
+                    'gross': float(entry['total_gross'] or 0),
+                    'net': float(entry['total_net'] or 0),
+                    'count': entry['bill_count'] or 0
+                }
+            
+            # Generate 6-month timeline
+            for i in range(6):
+                month_date = timezone.now() - timedelta(days=30 * (5 - i))
+                month_key = month_date.strftime('%b %Y')
+                month_label = month_date.strftime('%b')
+                data = payment_by_month.get(month_key, {'gross': 0, 'net': 0, 'count': 0})
+                cash_flow.append({
+                    'month': month_label,
+                    'inflow': round(data['gross'] / 10000000, 2),  # Gross billed (Cr)
+                    'outflow': round(data['net'] / 10000000, 2),    # Net paid (Cr)
+                    'net': round((data['gross'] - data['net']) / 10000000, 2),
+                    'bill_count': data['count']
+                })
+        except ImportError:
+            logger.warning("Finance module not available for cash flow")
+            # Generate empty 6-month timeline
+            for i in range(6):
+                month_date = timezone.now() - timedelta(days=30 * (5 - i))
+                cash_flow.append({'month': month_date.strftime('%b'), 'inflow': 0, 'outflow': 0, 'net': 0, 'bill_count': 0})
+        except Exception as e:
+            logger.error(f"Failed to fetch cash flow data: {e}")
+            for i in range(6):
+                month_date = timezone.now() - timedelta(days=30 * (5 - i))
+                cash_flow.append({'month': month_date.strftime('%b'), 'inflow': 0, 'outflow': 0, 'net': 0, 'bill_count': 0})
+        
+        # ========== PHASE PROGRESS — from real scheduling task data ==========
+        phase_progress = []
+        try:
+            from scheduling.models import ScheduleTask
+            phase_definitions = [
+                {'id': 'design', 'name': 'Design', 'keywords': ['design', 'survey', 'drawing', 'plan', 'DPR', 'detailed project report'], 'color': '#3b82f6'},
+                {'id': 'procurement', 'name': 'Procurement', 'keywords': ['procurement', 'tender', 'purchase', 'material', 'supply'], 'color': '#8b5cf6'},
+                {'id': 'construction', 'name': 'Construction', 'keywords': ['construction', 'build', 'civil', 'structural', 'execution', 'earthwork', 'foundation', 'rcc'], 'color': '#f59e0b'},
+                {'id': 'testing', 'name': 'Testing & QC', 'keywords': ['testing', 'commission', 'inspection', 'quality', 'QC', 'trial'], 'color': '#10b981'},
+                {'id': 'closeout', 'name': 'Closeout', 'keywords': ['closeout', 'handover', 'completion', 'defect', 'punch list', 'final'], 'color': '#64748b'},
+            ]
+            for phase_def in phase_definitions:
+                q = Q()
+                for kw in phase_def['keywords']:
+                    q |= Q(name__icontains=kw)
+                tasks = ScheduleTask.objects.filter(q)
+                total_count = tasks.count()
+                if total_count > 0:
+                    # Weighted average by budgeted_cost if available, else simple average
+                    tasks_with_cost = tasks.filter(budgeted_cost__gt=0)
+                    if tasks_with_cost.exists():
+                        # Weighted: sum(progress * cost) / sum(cost)
+                        from django.db.models import F
+                        agg = tasks_with_cost.aggregate(
+                            weighted_sum=Sum(F('computed_progress') * F('budgeted_cost')),
+                            total_cost=Sum('budgeted_cost')
+                        )
+                        w_sum = float(agg['weighted_sum'] or 0)
+                        t_cost = float(agg['total_cost'] or 1)
+                        avg_prog = w_sum / t_cost if t_cost > 0 else 0
+                    else:
+                        avg_prog = float(tasks.aggregate(avg=Avg('computed_progress'))['avg'] or 0)
+                    phase_progress.append({
+                        'id': phase_def['id'],
+                        'name': phase_def['name'],
+                        'progress': round(avg_prog, 1),
+                        'color': phase_def['color'],
+                        'task_count': total_count
+                    })
+                else:
+                    phase_progress.append({
+                        'id': phase_def['id'],
+                        'name': phase_def['name'],
+                        'progress': 0,
+                        'color': phase_def['color'],
+                        'task_count': 0
+                    })
+        except ImportError:
+            logger.warning("Scheduling module not available for phase progress")
+        except Exception as e:
+            logger.error(f"Failed to compute phase progress: {e}")
         
         return Response({
             'project_stats': project_stats,
@@ -678,6 +782,7 @@ class DashboardStatsView(APIView):
             'change_requests': change_requests,
             'earned_value': earned_value_metrics,
             'cash_flow': cash_flow,
+            'phase_progress': phase_progress,
             # ========== NEW: Aggregated Progress KPIs ==========
             'portfolio_progress': {
                 'physical_progress': round(portfolio_physical_progress, 1),
