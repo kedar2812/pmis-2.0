@@ -113,19 +113,19 @@ class MSPImporter(BaseImporter):
         return ['UID', 'Name', 'Start', 'Finish', 'PercentComplete', 'WBS', 'OutlineNumber']
 
     def import_data(self, file_path: str, mapping: Dict[str, str] = None) -> Generator[Dict[str, Any], None, None]:
-        tree = ET.parse(file_path)
-        root = tree.getroot()
-        
-        # Handle namespaces if present (simple hack: strict namespace handling is pain in generic parsers)
-        # We'll use local-name() or loop and strip tags if namespace is standard
-        # But 'http://schemas.microsoft.com/project' is common.
+        # Handle both file paths (str) and Django UploadedFile objects
+        if hasattr(file_path, 'read'):
+            file_path.seek(0)
+            content = file_path.read()
+            if isinstance(content, bytes):
+                content = content.decode('utf-8', errors='ignore')
+            root = ET.fromstring(content)
+        else:
+            tree = ET.parse(file_path)
+            root = tree.getroot()
         
         # Find 'Task' elements
-        # Note: root usually has {ns}Tasks -> {ns}Task
-        
-        # Fallback recursive search for 'Task' tag
         tasks = []
-        # Try finding all elements ending in 'Task'
         for elem in root.iter():
             if elem.tag.endswith('Task'):
                 tasks.append(elem)
@@ -137,9 +137,6 @@ class MSPImporter(BaseImporter):
                 if tag in ['UID', 'Name', 'Start', 'Finish', 'PercentComplete', 'WBS', 'OutlineNumber']:
                     data[tag] = child.text
             
-            # Skip summary tasks if needed, or identifying them
-            # Usually Summary tasks have children or specific flags. 
-            # We'll yield everything, logic layer can filter.
             if 'Name' in data:
                  yield data
 
@@ -149,13 +146,43 @@ class P6Importer(BaseImporter):
     Proprietary text format. We focus on %T=TASK table.
     """
     def read_headers(self, file_path: str) -> List[str]:
-        # P6 headers depend on the table definition in the file.
-        # We basically say we support standard P6 Task fields.
+        """Parse the .xer file and extract actual TASK table column names."""
+        # Read file content
+        if hasattr(file_path, 'read'):
+            file_path.seek(0)
+            content = file_path.read()
+            if isinstance(content, bytes):
+                content = content.decode('utf-8', errors='ignore')
+            lines = content.splitlines()
+        else:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                lines = f.readlines()
+        
+        current_table = None
+        for line in lines:
+            line = line.strip()
+            parts = line.split('\t')
+            row_type = parts[0]
+            
+            if row_type == '%T':
+                current_table = parts[1] if len(parts) > 1 else None
+            elif row_type == '%F' and current_table == 'TASK':
+                return parts[1:]  # Return actual column names from the file
+        
+        # Fallback if no TASK table found
         return ['task_code', 'task_name', 'target_start_date', 'target_end_date', 'act_start_date', 'act_end_date', 'phys_complete_pct']
 
     def import_data(self, file_path: str, mapping: Dict[str, str] = None) -> Generator[Dict[str, Any], None, None]:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            lines = f.readlines()
+        # Handle both file paths (str) and Django UploadedFile objects
+        if hasattr(file_path, 'read'):
+            file_path.seek(0)
+            content = file_path.read()
+            if isinstance(content, bytes):
+                content = content.decode('utf-8', errors='ignore')
+            lines = content.splitlines()
+        else:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                lines = f.readlines()
         
         current_table = None
         headers = []
@@ -175,3 +202,4 @@ class P6Importer(BaseImporter):
                     values = parts[1:]
                     row_data = dict(zip(headers, values))
                     yield row_data
+

@@ -27,6 +27,7 @@ STANDARD_PROJECT_STRUCTURE: Dict[str, List[str]] = {
         "Feasibility Reports",
         "Site Survey",
         "Environmental Clearance",
+        "Schedules",
     ],
     "02_Procurement & Contracts": [
         "Tenders",
@@ -87,6 +88,8 @@ ROUTE_CATEGORY_MAPPING: Dict[str, str] = {
     "DPR": "01_Planning & Approvals/DPR",
     "FEASIBILITY": "01_Planning & Approvals/Feasibility Reports",
     "SITE_SURVEY": "01_Planning & Approvals/Site Survey",
+    "SCHEDULE_BASELINE": "01_Planning & Approvals/Schedules",
+    "SCHEDULE_UPDATE": "01_Planning & Approvals/Schedules",
     "ENV_CLEARANCE": "01_Planning & Approvals/Environmental Clearance",
     
     # Procurement & Contracts
@@ -142,6 +145,8 @@ ROUTE_CATEGORY_CHOICES: List[Tuple[str, str]] = [
     ("FEASIBILITY", "Feasibility Report"),
     ("SITE_SURVEY", "Site Survey"),
     ("ENV_CLEARANCE", "Environmental Clearance"),
+    ("SCHEDULE_BASELINE", "Schedule Baseline"),
+    ("SCHEDULE_UPDATE", "Schedule Update/Revision"),
     ("TENDER", "Tender Document"),
     ("AGREEMENT", "Agreement/Contract"),
     ("WORK_ORDER", "Work Order"),

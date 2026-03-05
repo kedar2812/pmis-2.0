@@ -8,6 +8,7 @@ import { DynamicChart } from '@/components/ui/DynamicChart';
 import { PageLoading } from '@/components/ui/Loading';
 import GraphAnalysisModal from '@/components/ui/GraphAnalysisModal';
 import InfoTooltip from '@/components/ui/InfoTooltip';
+import { TextShimmer } from '@/components/ui/TextShimmer';
 import HealthSummaryPanel from './HealthSummaryPanel';
 import RadialProgressCard from './RadialProgressCard';
 import PhaseProgressCard from './PhaseProgressCard';
@@ -364,8 +365,13 @@ const UnifiedDashboard = () => {
                 className="flex flex-col md:flex-row md:items-center justify-between gap-4"
             >
                 <div>
-                    <h1 className="text-3xl font-heading font-bold text-app-heading">
-                        {greeting()}, {user?.first_name || 'Admin'}
+                    <h1 className="text-3xl font-heading font-bold">
+                        <TextShimmer
+                            duration={3}
+                            className="[--base-color:theme(colors.slate.600)] [--base-gradient-color:theme(colors.slate.900)] dark:[--base-color:theme(colors.slate.400)] dark:[--base-gradient-color:theme(colors.white)]"
+                        >
+                            {`${greeting()}, ${user?.first_name || 'Admin'}`}
+                        </TextShimmer>
                     </h1>
                     <p className="text-app-muted mt-1">
                         PMIS Command Center • {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
