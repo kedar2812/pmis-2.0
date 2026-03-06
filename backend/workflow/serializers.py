@@ -127,6 +127,7 @@ class WorkflowInstanceDetailSerializer(WorkflowInstanceListSerializer):
 
 class DelegationRuleSerializer(serializers.ModelSerializer):
     delegator_name = serializers.CharField(source='delegator.get_full_name', read_only=True)
+    delegator = serializers.PrimaryKeyRelatedField(read_only=True)
     delegate_to_name = serializers.CharField(source='delegate_to.get_full_name', read_only=True)
     module_display = serializers.CharField(source='get_module_display', read_only=True)
     is_currently_active = serializers.BooleanField(read_only=True)

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, X, AlertCircle } from 'lucide-react';
 import Button from '@/components/ui/Button';
@@ -7,6 +8,12 @@ const PasswordConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) =>
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        return () => setMounted(false);
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,17 +36,17 @@ const PasswordConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) =>
         }
     };
 
-    if (!isOpen) return null;
+    if (!isOpen || !mounted) return null;
 
-    return (
+    return createPortal(
         <AnimatePresence>
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
                 {/* Backdrop with strong blur and dark overlay */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+                    className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"
                     onClick={onClose}
                 />
 
@@ -47,7 +54,7 @@ const PasswordConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) =>
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="relative w-full max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-white/20 dark:border-white/10"
+                    className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800"
                 >
                     {/* Decorative gradient top edge */}
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-indigo-500 to-primary-500" />
@@ -62,6 +69,7 @@ const PasswordConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) =>
                             </h3>
                         </div>
                         <button
+                            type="button"
                             onClick={onClose}
                             className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                         >
@@ -129,7 +137,8 @@ const PasswordConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) =>
                     </form>
                 </motion.div>
             </div>
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 };
 
