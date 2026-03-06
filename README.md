@@ -425,6 +425,19 @@ cd backend
 - `GET /api/projects/{id}/` - Project details
 - `GET /api/projects/{id}/risks/` - Project risks
 
+### Site Execution
+- Mobile-first daily site logs
+- Real-time GPS location tracking with dual-layer maps
+- Automatic weather data fetching via Open-Meteo
+- Photo uploads with cover photo management
+- Synchronization with schedule tasks for physical progress
+
+**API Endpoints:**
+- `GET /api/execution/logs/` - List daily logs
+- `POST /api/execution/logs/` - Create daily log
+- `POST /api/execution/images/` - Upload site photo
+- `GET /api/execution/tasks/?project={id}` - List execution tasks
+
 ### Finance
 - Budget allocation and tracking
 - RA bill generation and approval
