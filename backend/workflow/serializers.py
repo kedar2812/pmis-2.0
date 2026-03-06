@@ -130,13 +130,14 @@ class DelegationRuleSerializer(serializers.ModelSerializer):
     delegate_to_name = serializers.CharField(source='delegate_to.get_full_name', read_only=True)
     module_display = serializers.CharField(source='get_module_display', read_only=True)
     is_currently_active = serializers.BooleanField(read_only=True)
+    password = serializers.CharField(write_only=True, required=True)
     
     class Meta:
         model = DelegationRule
         fields = [
             'id', 'delegator', 'delegator_name', 'delegate_to', 'delegate_to_name',
             'valid_from', 'valid_to', 'module', 'module_display',
-            'is_active', 'is_currently_active', 'reason', 'created_at'
+            'is_active', 'is_currently_active', 'reason', 'created_at', 'password'
         ]
 
 

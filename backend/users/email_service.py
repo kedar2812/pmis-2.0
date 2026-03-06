@@ -549,3 +549,86 @@ Zaheerabad Industrial Area
         print(f"[EMAIL ERROR] Failed to send password reset email to {user.email}: {e}")
         raise
 
+def send_delegation_notification(rule):
+    """Send an email notification about a new delegation rule to both delegator and delegate_to."""
+    subject = 'Workflow Delegation Rule Created - PMIS Zaheerabad Industrial Area'
+    
+    text_content = f"""
+A new workflow delegation rule has been set up in PMIS.
+
+Delegator: {rule.delegator.get_full_name()} ({rule.delegator.email})
+Delegated To: {rule.delegate_to.get_full_name()} ({rule.delegate_to.email})
+Valid From: {rule.valid_from.strftime('%Y-%m-%d %H:%M')}
+Valid To: {rule.valid_to.strftime('%Y-%m-%d %H:%M')}
+Reason: {rule.reason or 'Not provided'}
+
+If you have any questions, please contact the PMIS administration team.
+
+Best regards,
+PMIS Administration
+Zaheerabad Industrial Area
+    """
+    
+    html_content = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f3f4f6;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <table role="presentation" style="width: 600px; max-width: 100%; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 32px; text-align: center; border-radius: 12px 12px 0 0;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">Delegation Rule Created</h1>
+                            <p style="margin: 8px 0 0 0; color: #d1fae5; font-size: 14px;">PMIS - Zaheerabad Industrial Area</p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="padding: 32px;">
+                            <p style="margin: 0 0 24px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                                A new workflow delegation rule has been configured in the PMIS. During the specified period, the designated user will have authority to approve workflows on behalf of the delegator.
+                            </p>
+                            
+                            <table role="presentation" style="width: 100%; background-color: #f3f4f6; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+                                <tr><td style="padding: 4px 0;"><strong>Delegator:</strong> {rule.delegator.get_full_name()}</td></tr>
+                                <tr><td style="padding: 4px 0;"><strong>Delegated To:</strong> {rule.delegate_to.get_full_name()}</td></tr>
+                                <tr><td style="padding: 4px 0;"><strong>Valid From:</strong> {rule.valid_from.strftime('%Y-%m-%d %H:%M')}</td></tr>
+                                <tr><td style="padding: 4px 0;"><strong>Valid To:</strong> {rule.valid_to.strftime('%Y-%m-%d %H:%M')}</td></tr>
+                                <tr><td style="padding: 4px 0;"><strong>Reason:</strong> {rule.reason or 'Not provided'}</td></tr>
+                            </table>
+                            
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="padding: 24px 32px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; border-radius: 0 0 12px 12px; text-align: center;">
+                            <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                                <strong>PMIS Administration</strong><br>
+                                Zaheerabad Industrial Area
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+    """
+    
+    try:
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_emails = [rule.delegator.email, rule.delegate_to.email]
+        email = EmailMultiAlternatives(subject=subject, body=text_content, from_email=from_email, to=to_emails)
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+        print(f"[EMAIL] Delegation notification sent to {to_emails}")
+    except Exception as e:
+        print(f"[EMAIL ERROR] Failed to send delegation notification: {e}")
+
+

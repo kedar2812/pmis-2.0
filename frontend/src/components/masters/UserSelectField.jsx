@@ -17,6 +17,7 @@ import {
     X, Loader2, Building2
 } from 'lucide-react';
 import api from '@/api/client';
+import userService from '@/api/services/userService';
 import Button from '@/components/ui/Button';
 import { toast } from 'sonner';
 
@@ -74,8 +75,8 @@ const UserSelectField = ({
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const response = await api.get('/users/');
-            let data = Array.isArray(response.data) ? response.data : (response.data.results || []);
+            const response = await userService.getUsers();
+            let data = Array.isArray(response.data) ? response.data : (response.data?.results || response.data || []);
 
             // Filter by roles if specified
             if (filterRoles && filterRoles.length > 0) {

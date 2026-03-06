@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import workflowService from '@/api/services/workflowService';
-import usersService from '@/api/services/usersService';
+import userService from '@/api/services/userService';
 import {
     Users,
+    User,
     Plus,
     Trash2,
     Calendar,
@@ -12,11 +13,12 @@ import {
     Briefcase
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import UserSelectField from '@/components/masters/UserSelectField';
+import PasswordConfirmModal from './PasswordConfirmModal';
 
 const DelegationSettings = () => {
     const { user } = useAuth();
     const [delegations, setDelegations] = useState([]);
-    const [availableUsers, setAvailableUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -30,6 +32,10 @@ const DelegationSettings = () => {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Password Modal State
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [resolvePasswordRef, setResolvePasswordRef] = useState(null);
+
     useEffect(() => {
         fetchData();
     }, []);
@@ -37,18 +43,8 @@ const DelegationSettings = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [delegationsRes, usersRes] = await Promise.all([
-                workflowService.getMyDelegations(),
-                usersService.getUsers() // Standard user service
-            ]);
-
+            const delegationsRes = await workflowService.getMyDelegations();
             setDelegations(delegationsRes.results || delegationsRes.data || []);
-
-            // Filter out self and superusers/inactive
-            const userList = (usersRes.results || usersRes.data || []).filter(
-                u => u.id !== user.id && u.is_active
-            );
-            setAvailableUsers(userList);
             setError(null);
         } catch (err) {
             console.error("Failed to fetch delegation settings:", err);
@@ -60,11 +56,37 @@ const DelegationSettings = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!formData.delegate_to) {
+            setError("Please select a team member to delegate to.");
+            return;
+        }
+
         try {
+            // Check if ready to pop modal
+            setIsPasswordModalOpen(true);
+
+            // Create a promise to wait for password
+            const password = await new Promise((resolve, reject) => {
+                setResolvePasswordRef(() => resolve);
+            });
+
+            if (!password) return; // Cancelled
+
             setIsSubmitting(true);
-            await workflowService.createDelegation(formData);
+
+            // Format dates properly for Django DateTimeField
+            const submissionData = {
+                ...formData,
+                valid_from: `${formData.valid_from}T00:00:00Z`,
+                valid_to: `${formData.valid_to}T23:59:59Z`,
+                password: password // Included for the backend check
+            };
+
+            await workflowService.createDelegation(submissionData);
             await fetchData();
             setIsAdding(false);
+            setIsPasswordModalOpen(false);
             setFormData({
                 delegate_to: '',
                 valid_from: new Date().toISOString().split('T')[0],
@@ -73,9 +95,30 @@ const DelegationSettings = () => {
             });
         } catch (err) {
             console.error("Failed to create delegation:", err);
-            setError(err.response?.data?.error || "Failed to save delegation rule.");
+            // If backend throws a password error, it comes as 400 Bad Request
+            if (err.response?.data?.error) {
+                // Pass it up to reject the promise if we somehow got here, or just show on screen
+                throw new Error(err.response.data.error);
+            } else {
+                throw new Error("Failed to save delegation rule.");
+            }
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handlePasswordConfirm = async (password) => {
+        if (resolvePasswordRef) {
+            resolvePasswordRef(password);
+            setResolvePasswordRef(null);
+        }
+    };
+
+    const handlePasswordCancel = () => {
+        setIsPasswordModalOpen(false);
+        if (resolvePasswordRef) {
+            resolvePasswordRef(null);
+            setResolvePasswordRef(null);
         }
     };
 
@@ -132,18 +175,14 @@ const DelegationSettings = () => {
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-app-heading mb-1.5">Delegate Authority To <span className="text-red-500">*</span></label>
-                                <select
-                                    required
-                                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-sm"
+                                <UserSelectField
+                                    label="Delegate Authority To"
+                                    required={true}
                                     value={formData.delegate_to}
-                                    onChange={(e) => setFormData({ ...formData, delegate_to: e.target.value })}
-                                >
-                                    <option value="">Select a team member...</option>
-                                    {availableUsers.map(u => (
-                                        <option key={u.id} value={u.id}>{u.get_full_name || `${u.first_name} ${u.last_name}`} - {u.role_display || u.role}</option>
-                                    ))}
-                                </select>
+                                    onChange={(val) => setFormData({ ...formData, delegate_to: val })}
+                                    excludeRoles={['EPC_Contractor']} // Cannot delegate to contractors
+                                    placeholder="Search team members..."
+                                />
                                 <p className="text-xs text-app-muted mt-1.5 flex items-center gap-1">
                                     <AlertCircle size={12} /> The selected user will have full authority over your Inbox.
                                 </p>
@@ -273,6 +312,15 @@ const DelegationSettings = () => {
                     </table>
                 )}
             </div>
+
+            {/* Password Security Modal */}
+            <PasswordConfirmModal
+                isOpen={isPasswordModalOpen}
+                onClose={handlePasswordCancel}
+                onConfirm={handlePasswordConfirm}
+                title="Verify Identity To Delegate"
+                message="Delegating your workflow approvals gives another user full access to act on your behalf. Please enter your password to confirm."
+            />
         </div>
     );
 };

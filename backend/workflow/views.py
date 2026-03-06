@@ -15,7 +15,7 @@ from django.apps import apps
 
 from .models import (
     WorkflowTemplate, WorkflowStep, WorkflowTriggerRule,
-    WorkflowInstance, WorkflowAuditLog, DelegationRule
+    WorkflowInstance, WorkflowAuditLog, DelegationRule, AuditAction
 )
 from .serializers import (
     WorkflowTemplateListSerializer, WorkflowTemplateDetailSerializer,
@@ -326,6 +326,43 @@ class DelegationRuleViewSet(viewsets.ModelViewSet):
         
         return queryset.order_by('-valid_from')
     
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Verify password
+        password = serializer.validated_data.pop('password', None)
+        if not password or not request.user.check_password(password):
+            return Response(
+                {'error': 'Invalid password. Delegation could not be saved.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        self.perform_create(serializer)
+        
+        # Get the saved instance
+        instance = serializer.instance
+        
+        # Create an audit log for this delegation (no specific workflow instance yet, just tracking authority transfer)
+        WorkflowAuditLog.objects.create(
+            instance_id=None, # It's a system-level delegation, not tied to a single instance
+            action=AuditAction.DELEGATE,
+            performed_by=request.user,
+            remarks=f"Delegated authority to {instance.delegate_to.get_full_name()} from {instance.valid_from.date()} to {instance.valid_to.date()}. Reason: {instance.reason}"
+        )
+        
+        # Send Email Notification
+        try:
+            from users.email_service import send_delegation_notification
+            send_delegation_notification(instance)
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to send delegation email: {e}")
+            
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     def perform_create(self, serializer):
         # Ensure user can only delegate their own authority
         if not self.request.user.is_superuser:
