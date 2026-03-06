@@ -41,6 +41,7 @@ const DocumentViewerPage = lazy(() => import('./pages/DocumentViewerPage'));
 const Communications = lazy(() => import('./pages/Communications'));
 const Approvals = lazy(() => import('./pages/Approvals'));
 const ETPMaster = lazy(() => import('./pages/ETPMaster'));
+const SiteExecution = lazy(() => import('./pages/SiteExecution'));
 
 const ProtectedRoute = ({ children, requiredPermission }) => {
   const { user } = useAuth();
@@ -90,6 +91,7 @@ const AppRoutes = () => {
         <Route path="communications/:threadId" element={<Communications />} />
         <Route path="approvals" element={<Approvals />} />
         <Route path="etp-master" element={<ETPMaster />} />
+        <Route path="site-execution" element={<SiteExecution />} />
       </Route>
     </Routes>
   );

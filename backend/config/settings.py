@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'masters.apps.MastersConfig',
     'procurement',
     'workflow',
+    'execution.apps.ExecutionConfig',
 ]
 
 MIDDLEWARE = [

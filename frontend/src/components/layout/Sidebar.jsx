@@ -24,6 +24,7 @@ import {
   Building2,
   PieChart,
   Calculator,
+  ClipboardList,
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
@@ -158,6 +159,14 @@ const Sidebar = () => {
       icon: Calendar,
       path: '/scheduling',
       permission: 'scheduling:view',
+    },
+    {
+      id: 'site-execution',
+      label: 'Site Execution',
+      icon: ClipboardList,
+      path: '/site-execution',
+      permission: 'scheduling:view',
+      noTranslate: true,
     },
     {
       id: 'user-management',

@@ -27,6 +27,7 @@ urlpatterns = [
     path('api/masters/', include('masters.urls')),
     path('api/procurement/', include('procurement.urls')),  # e-Procurement module
     path('api/workflow/', include('workflow.urls')),  # Workflow Engine
+    path('api/execution/', include('execution.urls')),  # Site Execution module
     path('api/search/', include('search.urls')),  # Universal Spotlight Search
     path('api/audit/logs/', audit_views.unified_audit_logs, name='unified_audit_logs'),
 ]

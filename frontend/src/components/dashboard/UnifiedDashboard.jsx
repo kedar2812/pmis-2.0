@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ProjectCard from './ProjectCard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -528,7 +529,7 @@ const UnifiedDashboard = () => {
                 />
             </GlassCard>
 
-            {/* Section 3: Project Portfolio Table (Moved up) */}
+            {/* Section 3: Project Portfolio — Media-rich Card Grid */}
             <GlassCard className="overflow-hidden">
                 <div className="p-6 border-b border-slate-200 dark:border-neutral-800">
                     <div className="flex items-center justify-between">
@@ -544,65 +545,19 @@ const UnifiedDashboard = () => {
                         </button>
                     </div>
                 </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-app-secondary">
-                            <tr className="text-xs font-medium text-app-muted uppercase tracking-wider">
-                                <th className="py-3 pl-6 text-left">Project</th>
-                                <th className="py-3 text-left">Status</th>
-                                <th className="py-3 text-right">Budget</th>
-                                <th className="py-3 text-right">Spent</th>
-                                <th className="py-3 pr-6">Progress</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-200 dark:divide-neutral-800">
-                            {(topProjects.length > 0 ? topProjects : projects.slice(0, 5)).map((project, idx) => {
-                                const budget = Number(project.budget) || 0;
-                                const spent = Number(project.spent) || 0;
-                                const progress = Number(project.progress) || 0;
-                                const statusColors = {
-                                    'In Progress': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-                                    'Planning': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-                                    'Completed': 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-                                    'On Hold': 'bg-slate-100 text-slate-700 dark:bg-neutral-700 dark:text-slate-300',
-                                };
-                                return (
-                                    <tr key={project.id || idx} className="hover:bg-app-hover cursor-pointer" onClick={() => navigate(`/projects/${project.id}`)}>
-                                        <td className="py-3 pl-6">
-                                            <p className="font-medium text-app-heading">{project.name}</p>
-                                        </td>
-                                        <td className="py-3">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[project.status] || 'bg-slate-100 text-slate-700 dark:bg-neutral-700 dark:text-slate-300'}`}>
-                                                {project.status || 'Unknown'}
-                                            </span>
-                                        </td>
-                                        <td className="py-3 text-right text-sm font-medium text-app-text">
-                                            ₹{(budget / 10000000).toFixed(2)} Cr
-                                        </td>
-                                        <td className="py-3 text-right text-sm text-app-muted">
-                                            ₹{(spent / 10000000).toFixed(2)} Cr
-                                        </td>
-                                        <td className="py-3 pr-6">
-                                            <div className="flex items-center gap-2">
-                                                <div className="flex-1 h-2 bg-app-secondary rounded-full overflow-hidden">
-                                                    <div
-                                                        className="h-full bg-gradient-to-r from-primary-500 to-primary-600 rounded-full"
-                                                        style={{ width: `${progress}%` }}
-                                                    />
-                                                </div>
-                                                <span className="text-xs font-medium text-app-muted w-10 text-right">{progress}%</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                            {topProjects.length === 0 && projects.length === 0 && (
-                                <tr>
-                                    <td colSpan={5} className="py-8 text-center text-slate-400 dark:text-neutral-500">No projects found</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                <div className="p-6">
+                    {(topProjects.length > 0 ? topProjects : projects).length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                            {(topProjects.length > 0 ? topProjects : projects).slice(0, 6).map((project) => (
+                                <ProjectCard key={project.id} project={project} />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="py-12 text-center text-slate-400 dark:text-neutral-500">
+                            <FolderOpen size={40} className="mx-auto mb-3 opacity-40" />
+                            <p>No projects found</p>
+                        </div>
+                    )}
                 </div>
             </GlassCard>
 

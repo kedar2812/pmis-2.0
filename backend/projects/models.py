@@ -220,6 +220,17 @@ class Project(models.Model):
     category = models.CharField(max_length=100, blank=True, help_text='Legacy category field')
     land_acquisition_status = models.FloatField(default=0.0)
 
+    # ========== SITE EXECUTION (Auto-updated via signal) ==========
+    latest_site_photo = models.ImageField(
+        upload_to='projects/site_photos/',
+        null=True,
+        blank=True,
+        help_text=(
+            'Automatically updated by execution.signals when a SiteImage '
+            'with is_primary=True is saved for any DailySiteLog of this project.'
+        )
+    )
+
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)  # Index for ordering
     updated_at = models.DateTimeField(auto_now=True)
 
