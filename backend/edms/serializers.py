@@ -8,18 +8,25 @@ from .models import (
 )
 
 
+class FolderAncestorSerializer(serializers.ModelSerializer):
+    class Meta:
+        from .models import Folder
+        model = Folder
+        fields = ['id', 'name', 'project', 'parent']
+
 class FolderSerializer(serializers.ModelSerializer):
     """Serializer for Folder model."""
     created_by_name = serializers.SerializerMethodField()
     document_count = serializers.SerializerMethodField()
     subfolder_count = serializers.SerializerMethodField()
     full_path = serializers.SerializerMethodField()
+    ancestors = serializers.SerializerMethodField()
     
     class Meta:
         model = Folder
         fields = [
             'id', 'name', 'project', 'parent', 'created_by', 'created_by_name',
-            'created_at', 'document_count', 'subfolder_count', 'full_path'
+            'created_at', 'document_count', 'subfolder_count', 'full_path', 'ancestors'
         ]
         read_only_fields = ['id', 'created_by', 'created_at']
     
@@ -36,6 +43,9 @@ class FolderSerializer(serializers.ModelSerializer):
     
     def get_full_path(self, obj):
         return obj.get_full_path()
+        
+    def get_ancestors(self, obj):
+        return FolderAncestorSerializer(obj.get_ancestors(), many=True).data
 
 
 class FolderTreeSerializer(serializers.ModelSerializer):

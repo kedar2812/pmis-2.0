@@ -19,6 +19,7 @@ import DocumentUploadModal from '@/components/edms/DocumentUploadModal';
 import AddVersionModal from '@/components/edms/AddVersionModal';
 import DocumentDetailModal from '@/components/edms/DocumentDetailModal';
 import NewThreadModal from '@/components/communications/NewThreadModal';
+import EDMSAdvancedSearch from '@/components/edms/EDMSAdvancedSearch';
 
 const EDMS = () => {
     const { user } = useAuth();
@@ -40,6 +41,10 @@ const EDMS = () => {
     const [statusFilter, setStatusFilter] = useState('');
     const [typeFilter, setTypeFilter] = useState('');
     const [viewMode, setViewMode] = useState('grid');
+
+    // Search state
+    const [isSearching, setIsSearching] = useState(false);
+    const [searchResults, setSearchResults] = useState([]);
 
     // Modals
     const [showUploadModal, setShowUploadModal] = useState(false);
@@ -149,6 +154,7 @@ const EDMS = () => {
 
     const navigateToFolder = (folder) => {
         setCurrentFolder(folder);
+        setCurrentView('folders');
         setBreadcrumbs(prev => [...prev, { type: 'folder', item: folder }]);
     };
 
@@ -254,22 +260,39 @@ const EDMS = () => {
         );
     });
 
+    const handleAdvancedSearch = async (searchParams) => {
+        setIsSearching(true);
+        setCurrentView('search');
+
+        if (!searchParams.q && searchParams.type === 'all' && !searchParams.status && !searchParams.document_type && !searchParams.date_from && !searchParams.date_to) {
+            setCurrentView(currentProject ? 'folders' : 'projects');
+            setIsSearching(false);
+            return;
+        }
+
+        try {
+            const params = new URLSearchParams(searchParams);
+            if (currentProject) {
+                params.append('project', currentProject.id);
+            }
+            if (currentFolder) {
+                params.append('folder', currentFolder.id);
+            }
+            const res = await client.get(`/edms/search/?${params.toString()}`);
+            setSearchResults(res.data.results || []);
+        } catch (error) {
+            console.error(error);
+            toast.error('Search failed');
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
     // Render project cards (Rich Card Design)
     const renderProjectsView = () => (
         <div className="p-6">
-            {/* Project Search Bar */}
-            <div className="mb-6 flex items-center gap-4">
-                <div className="relative flex-1 max-w-md">
-                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted" />
-                    <input
-                        type="text"
-                        value={projectSearchQuery}
-                        onChange={(e) => setProjectSearchQuery(e.target.value)}
-                        placeholder="Search projects by name or category..."
-                        className="w-full pl-10 pr-4 py-2.5 bg-app-input text-app-text border border-app rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-                <span className="text-sm text-app-muted">
+            <div className="mb-6 flex justify-end">
+                <span className="text-sm text-app-muted font-medium bg-app-surface px-3 py-1 rounded-full border border-app-subtle">
                     {filteredProjects.length} project{filteredProjects.length !== 1 ? 's' : ''}
                 </span>
             </div>
@@ -398,6 +421,115 @@ const EDMS = () => {
         </div>
     );
 
+    const renderSearchResults = () => (
+        <div className="p-6 space-y-6">
+            <h2 className="text-xl font-bold text-app-heading flex items-center gap-2 mb-4">
+                <Search className="text-primary-500" />
+                Search Results ({searchResults.length})
+            </h2>
+
+            {searchResults.length === 0 && !isSearching ? (
+                <div className="text-center py-20 text-app-muted border border-dashed border-app-subtle rounded-2xl">
+                    <Search size={48} className="mx-auto mb-4 opacity-30" />
+                    <p className="text-lg font-medium">No results found matching your criteria</p>
+                </div>
+            ) : (
+                <div className="space-y-6">
+                    {/* Render Projects */}
+                    {searchResults.filter(r => r.result_type === 'project').length > 0 && (
+                        <div>
+                            <h3 className="font-semibold text-app-heading mb-3 flex items-center gap-2">
+                                <FolderOpen size={16} className="text-blue-500" />
+                                Projects
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {searchResults.filter(r => r.result_type === 'project').map(p => (
+                                    <div
+                                        key={p.id}
+                                        className="bg-app-card p-4 rounded-xl border border-app-subtle shadow-sm hover:border-blue-300 hover:shadow-md cursor-pointer transition-all"
+                                        onClick={() => {
+                                            const proj = projects.find(pr => pr.id === p.id) || { id: p.id, name: p.title };
+                                            navigateToProject(proj);
+                                        }}
+                                    >
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <FolderOpen className="text-blue-500" size={24} />
+                                            <span className="font-semibold text-app-heading line-clamp-1">{p.title}</span>
+                                        </div>
+                                        <p className="text-xs text-app-muted truncate">{p.description}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Render Folders */}
+                    {searchResults.filter(r => r.result_type === 'folder').length > 0 && (
+                        <div>
+                            <h3 className="font-semibold text-app-heading mb-3 flex items-center gap-2">
+                                <Folder size={16} className="text-amber-500" />
+                                Folders
+                            </h3>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                {searchResults.filter(r => r.result_type === 'folder').map(f => (
+                                    <div
+                                        key={f.id}
+                                        className="bg-app-card p-4 rounded-xl border border-app-subtle shadow-sm hover:border-amber-300 hover:shadow-md cursor-pointer transition-all"
+                                        onClick={() => {
+                                            client.get(`/edms/folders/${f.id}/`).then(res => {
+                                                const proj = projects.find(pr => pr.id === f.project_id) || { id: f.project_id, name: f.project_name };
+                                                setCurrentProject(proj);
+
+                                                const newBreadcrumbs = [{ type: 'project', item: proj }];
+                                                if (res.data.ancestors) {
+                                                    res.data.ancestors.forEach(anc => {
+                                                        newBreadcrumbs.push({ type: 'folder', item: anc });
+                                                    });
+                                                }
+                                                newBreadcrumbs.push({ type: 'folder', item: res.data });
+
+                                                setBreadcrumbs(newBreadcrumbs);
+                                                setCurrentFolder(res.data);
+                                                setCurrentView('folders');
+                                            });
+                                        }}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <Folder className="text-amber-500" size={20} fill="currentColor" />
+                                            <span className="font-medium text-sm text-app-heading truncate">{f.title}</span>
+                                        </div>
+                                        <p className="text-xs text-app-muted mt-2 truncate text-right">in {f.project_name}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Render Documents */}
+                    {searchResults.filter(r => r.result_type === 'document').length > 0 && (
+                        <div>
+                            <h3 className="font-semibold text-app-heading mb-3 flex items-center gap-2">
+                                <FileText size={16} className="text-primary-500" />
+                                Documents
+                            </h3>
+                            <div className="bg-app-card rounded-xl border border-app-subtle shadow-sm overflow-hidden">
+                                <DocumentList
+                                    documents={searchResults.filter(r => r.result_type === 'document').map(r => r.document_data)}
+                                    loading={false}
+                                    viewMode="list"
+                                    onView={(doc) => setSelectedDocument(doc)}
+                                    onViewWithNoting={(doc) => navigate(`/edms/view/${doc.id}`)}
+                                    onDownload={handleDownload}
+                                    onDiscuss={handleDiscuss}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+
     return (
         <div className="h-full flex flex-col bg-slate-50/50 dark:bg-neutral-950">
             {/* Header Area with Subtle Gradient */}
@@ -479,7 +611,7 @@ const EDMS = () => {
                     </div>
 
                     {/* Breadcrumbs & Search Row */}
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex flex-col gap-4">
                         {/* Interactive Breadcrumbs */}
                         <div className="flex items-center gap-2 text-sm overflow-x-auto pb-1 no-scrollbar">
                             <button
@@ -512,39 +644,10 @@ const EDMS = () => {
                             })}
                         </div>
 
-                        {/* Search & Filters */}
-                        {currentProject && (
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <div className="relative group">
-                                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors" />
-                                    <input
-                                        type="text"
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        placeholder="Search documents..."
-                                        className="pl-9 pr-3 py-1.5 bg-app-input text-app-text border border-app rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 w-44 focus:w-60 transition-all shadow-sm"
-                                    />
-                                </div>
-                                <select
-                                    value={statusFilter}
-                                    onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="px-3 py-1.5 bg-app-input text-app-text border border-app rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 shadow-sm"
-                                >
-                                    {documentStatuses.map(s => (
-                                        <option key={s.value} value={s.value}>{s.label}</option>
-                                    ))}
-                                </select>
-                                <select
-                                    value={typeFilter}
-                                    onChange={(e) => setTypeFilter(e.target.value)}
-                                    className="px-3 py-1.5 bg-app-input text-app-text border border-app rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 shadow-sm"
-                                >
-                                    {documentTypes.map(t => (
-                                        <option key={t.value} value={t.value}>{t.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        )}
+                        {/* Advanced Search Bar */}
+                        <div className="w-full flex justify-center mb-2">
+                            <EDMSAdvancedSearch onSearch={handleAdvancedSearch} isSearching={isSearching} />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -552,11 +655,13 @@ const EDMS = () => {
             {/* Main Scrollable Content - Wrapped in white rounded container */}
             <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
                 <div className="bg-app-card rounded-2xl shadow-sm border border-app-subtle min-h-full">
-                    {loading && (currentView === 'projects' || folders.length === 0) ? (
+                    {loading && (currentView === 'projects' || folders.length === 0) && currentView !== 'search' ? (
                         <div className="flex flex-col items-center justify-center py-20 opacity-60">
                             <Loader2 size={40} className="animate-spin text-blue-500 dark:text-blue-400 mb-4" />
                             <p className="text-app-muted font-medium">Loading contents...</p>
                         </div>
+                    ) : currentView === 'search' ? (
+                        renderSearchResults()
                     ) : currentView === 'projects' ? (
                         renderProjectsView()
                     ) : (

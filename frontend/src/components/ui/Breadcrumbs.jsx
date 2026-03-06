@@ -1,11 +1,23 @@
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 
 export const Breadcrumbs = () => {
   const location = useLocation();
   const { t } = useLanguage();
+
+  // Custom dynamic label registry for overriding UUIDs
+  const [dynamicLabels, setDynamicLabels] = useState({});
+
+  useEffect(() => {
+    const handleSetLabel = (e) => {
+      setDynamicLabels(prev => ({ ...prev, [e.detail.path]: e.detail.label }));
+    };
+    window.addEventListener('set-breadcrumb-label', handleSetLabel);
+    return () => window.removeEventListener('set-breadcrumb-label', handleSetLabel);
+  }, []);
 
   const pathMap = {
     '/dashboard': t('common.dashboard'),
@@ -23,9 +35,30 @@ export const Breadcrumbs = () => {
 
     if (paths.length === 0) return breadcrumbs;
 
+    // UUID regex to detect dynamically generated IDs
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
     paths.forEach((path, index) => {
+      // Logic to ignore purely technical/action route segments that don't have separate pages
+      if (path === 'view' || path === 'edit' || path === 'create') {
+        return; // Skip adding these as clickable breadcrumbs
+      }
+
       const fullPath = '/' + paths.slice(0, index + 1).join('/');
-      const label = pathMap[fullPath] || path.charAt(0).toUpperCase() + path.slice(1);
+
+      // 1. Check if we have a dynamically registered label for this EXACT path
+      let label = dynamicLabels[fullPath];
+
+      if (!label) {
+        // 2. Fall back to static map or capitalization
+        label = pathMap[fullPath] || path.charAt(0).toUpperCase() + path.slice(1);
+
+        // 3. If the path is a UUID, fallback to "Details" if no dynamic label is set
+        if (uuidRegex.test(path)) {
+          label = "Details";
+        }
+      }
+
       breadcrumbs.push({
         label,
         path: index === paths.length - 1 ? undefined : fullPath,

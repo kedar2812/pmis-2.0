@@ -56,6 +56,16 @@ const DocumentViewerPage = () => {
             const res = await client.get(`/edms/documents/${id}/`);
             setDocument(res.data);
 
+            // Dispatch event to update the breadcrumb dynamic labels registry
+            window.dispatchEvent(
+                new CustomEvent('set-breadcrumb-label', {
+                    detail: {
+                        path: `/edms/view/${id}`,
+                        label: res.data.title || res.data.document_number
+                    }
+                })
+            );
+
             if (res.data.current_version) {
                 const docVersion = res.data.current_version;
                 const mimeType = docVersion.mime_type || '';

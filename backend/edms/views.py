@@ -937,3 +937,160 @@ class NotingSheetViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = f'attachment; filename="noting_sheet_{document_id}.html"'
         return response
 
+
+from rest_framework.views import APIView
+from django.db.models import Q
+from rest_framework import permissions
+
+class EDMSSearchView(APIView):
+    """
+    Advanced EDMS Search endpoint spanning Projects, Folders, and Documents.
+    Allows filtering, sorting, and typed search.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from projects.models import Project
+        from .models import Folder, Document
+        from .serializers import DocumentListSerializer
+        
+        import re
+        
+        q = request.query_params.get('q', '').strip()
+        search_type = request.query_params.get('type', 'all')  # all, project, folder, document
+        date_from = request.query_params.get('date_from')
+        date_to = request.query_params.get('date_to')
+        status_param = request.query_params.get('status')
+        doc_type = request.query_params.get('document_type')
+        sort_by = request.query_params.get('sort_by', 'date_desc')
+        project_id = request.query_params.get('project')
+        folder_id = request.query_params.get('folder')
+        
+        results = []
+        user = request.user
+        
+        # Tokenize query to support partial matches and arbitrary word ordering securely (basic fuzzy search)
+        query_words = [w for w in re.split(r'\s+', q) if w] if q else []
+        
+        def build_search_query(*fields):
+            """Builds a case-insensitive OR query across multiple fields, requiring EVERY word to match AT LEAST ONE field."""
+            if not query_words:
+                return Q()
+            final_q = Q()
+            for word in query_words:
+                word_q = Q()
+                for field in fields:
+                    word_q |= Q(**{f"{field}__icontains": word})
+                final_q &= word_q
+            return final_q
+
+        # Helper for time filtering
+        def apply_time_filter(qs, field):
+            if date_from:
+                qs = qs.filter(**{f"{field}__gte": date_from})
+            if date_to:
+                qs = qs.filter(**{f"{field}__lte": date_to})
+            return qs
+
+        # 1. Search Projects
+        if search_type in ['all', 'project']:
+            proj_qs = Project.objects.all()  # Fix: Project model does not have 'is_active' attribute
+            if project_id:
+                proj_qs = proj_qs.filter(id=project_id)
+            if q:
+                proj_qs = proj_qs.filter(build_search_query('name', 'description', 'category'))
+            proj_qs = apply_time_filter(proj_qs, 'created_at')
+            
+            for p in proj_qs:
+                results.append({
+                    'id': str(p.id),
+                    'result_type': 'project',
+                    'title': p.name,
+                    'description': p.description or 'Project',
+                    'category': p.category,
+                    'created_at': p.created_at,
+                    'project_id': str(p.id),
+                    'project_name': p.name
+                })
+        
+        # 2. Search Folders
+        if search_type in ['all', 'folder']:
+            folder_qs = Folder.objects.all()
+            if project_id:
+                folder_qs = folder_qs.filter(project_id=project_id)
+            if folder_id:
+                # Naive child folder filter
+                folder_qs = folder_qs.filter(parent_id=folder_id)
+            if q:
+                folder_qs = folder_qs.filter(build_search_query('name'))
+            folder_qs = apply_time_filter(folder_qs, 'created_at')
+            folder_qs = folder_qs.select_related('project')
+            
+            for f in folder_qs:
+                results.append({
+                    'id': str(f.id),
+                    'result_type': 'folder',
+                    'title': f.name,
+                    'description': f.get_full_path(),
+                    'created_at': f.created_at,
+                    'project_id': str(f.project.id),
+                    'project_name': f.project.name
+                })
+
+        # 3. Search Documents
+        if search_type in ['all', 'document']:
+            doc_qs = Document.objects.exclude(status=Document.Status.ARCHIVED)
+            if project_id:
+                doc_qs = doc_qs.filter(project_id=project_id)
+            if folder_id:
+                doc_qs = doc_qs.filter(folder_id=folder_id)
+            
+            # Role-based filtering
+            from .permissions import EDMSPermissions
+            if not EDMSPermissions.can_view_all(user):
+                doc_qs = doc_qs.filter(Q(uploaded_by=user) | Q(is_confidential=False))
+            elif not EDMSPermissions.can_view_confidential(user):
+                doc_qs = doc_qs.filter(is_confidential=False)
+                
+            if q:
+                doc_qs = doc_qs.filter(build_search_query('title', 'document_number', 'description'))
+            
+            if status_param:
+                doc_qs = doc_qs.filter(status=status_param)
+            if doc_type:
+                doc_qs = doc_qs.filter(document_type=doc_type)
+                
+            doc_qs = apply_time_filter(doc_qs, 'created_at')
+            doc_qs = doc_qs.select_related('project', 'folder', 'uploaded_by', 'current_version')
+
+            for d in doc_qs:
+                doc_data = DocumentListSerializer(d, context={'request': request}).data
+                results.append({
+                    'id': str(d.id),
+                    'result_type': 'document',
+                    'title': d.title,
+                    'description': d.description,
+                    'document_number': d.document_number,
+                    'status': d.status,
+                    'type': d.document_type,
+                    'created_at': d.created_at,
+                    'project_id': str(d.project.id),
+                    'project_name': d.project.name,
+                    'folder_id': str(d.folder.id) if d.folder else None,
+                    'document_data': doc_data
+                })
+
+        # Apply sorting
+        if sort_by == 'date_desc':
+            results.sort(key=lambda x: x['created_at'], reverse=True)
+        elif sort_by == 'date_asc':
+            results.sort(key=lambda x: x['created_at'])
+        elif sort_by == 'name_asc':
+            results.sort(key=lambda x: x['title'].lower() if x['title'] else '')
+        elif sort_by == 'name_desc':
+            results.sort(key=lambda x: x['title'].lower() if x['title'] else '', reverse=True)
+
+        return Response({
+            'count': len(results),
+            'results': results
+        })

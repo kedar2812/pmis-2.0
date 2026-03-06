@@ -1,7 +1,7 @@
 # EDMS URL Configuration
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import FolderViewSet, DocumentViewSet, ApprovalViewSet, AuditLogViewSet, NotingSheetViewSet
+from .views import FolderViewSet, DocumentViewSet, ApprovalViewSet, AuditLogViewSet, NotingSheetViewSet, EDMSSearchView
 
 router = DefaultRouter()
 router.register(r'folders', FolderViewSet, basename='folder')
@@ -11,6 +11,7 @@ router.register(r'audit-logs', AuditLogViewSet, basename='auditlog')
 router.register(r'noting-sheets', NotingSheetViewSet, basename='notingsheet')
 
 urlpatterns = [
+    path('search/', EDMSSearchView.as_view(), name='search'),
     path('', include(router.urls)),
 ]
 
