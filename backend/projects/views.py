@@ -10,6 +10,8 @@ import logging
 
 from .models import Project, WorkPackage, FundingSource
 from .serializers import ProjectSerializer, WorkPackageSerializer
+from workflow.engine import workflow_engine
+from workflow.models import WorkflowModule
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +29,20 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         try:
             self.perform_create(serializer)
+            project = serializer.instance
+            
+            # TRIGGER WORKFLOW ENGINE
+            try:
+                workflow_engine.start_workflow(
+                    entity_type='Project',
+                    entity_id=str(project.id),
+                    entity=project,
+                    user=request.user,
+                    module=WorkflowModule.PROJECT
+                )
+            except Exception as e:
+                logger.error(f"Failed to start workflow for project {project.id}: {str(e)}")
+            
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         except Exception as e:
@@ -176,6 +192,20 @@ class WorkPackageViewSet(viewsets.ModelViewSet):
     serializer_class = WorkPackageSerializer
     permission_classes = [IsAuthenticated]
     
+    def perform_create(self, serializer):
+        package = serializer.save()
+        # TRIGGER WORKFLOW ENGINE
+        try:
+            workflow_engine.start_workflow(
+                entity_type='WorkPackage',
+                entity_id=str(package.id),
+                entity=package,
+                user=self.request.user,
+                module=WorkflowModule.PACKAGE
+            )
+        except Exception as e:
+            logger.error(f"Failed to start workflow for WorkPackage {package.id}: {str(e)}")
+    
     def get_queryset(self):
         queryset = WorkPackage.objects.all()
         project_id = self.request.query_params.get('project', None)
@@ -276,20 +306,38 @@ class DashboardStatsView(APIView):
             if financial_summary['total_budget'] > 0 else 0
         )
         
-        # Get pending approvals from EDMS
+        # Get unified pending approvals across the platform for the current user
         pending_approvals = 0
         overdue_approvals = 0
+        
+        # 1. EDMS Pending Approvals
         try:
-            from edms.models import Document
-            pending_docs = Document.objects.filter(status__in=['pending_review', 'under_review'])
-            pending_approvals = pending_docs.count()
-            # Overdue = pending > 48 hours
+            from edms.services import WorkflowService
+            pending_docs = WorkflowService.get_pending_approvals(user)
+            pending_approvals += pending_docs.count()
+            
             two_days_ago = timezone.now() - timedelta(hours=48)
-            overdue_approvals = pending_docs.filter(created_at__lt=two_days_ago).count()
-        except ImportError:
-            logger.warning("EDMS module not available for dashboard stats")
+            overdue_approvals += pending_docs.filter(created_at__lt=two_days_ago).count()
         except Exception as e:
-            logger.error(f"Failed to fetch EDMS approval data: {e}")
+            logger.error(f"Failed to fetch EDMS pending docs: {e}")
+
+        # 2. Workflow Engine Tasks
+        try:
+            from workflow.engine import workflow_engine
+            pending_workflows = workflow_engine.get_pending_for_user(user)
+            pending_approvals += len(pending_workflows)
+        except Exception as e:
+            logger.error(f"Failed to fetch pending workflows: {e}")
+            
+        # 3. Finance BOQ requests
+        try:
+            from finance.models import ApprovalRequest
+            # Similar to financeService.getPendingApprovals() endpoint
+            if hasattr(user, 'role') and user.role in ['Admin', 'Finance_Manager', 'Superintending_Engineer']:
+                pending_boqs = ApprovalRequest.objects.filter(request_type='BOQ_FREEZE', status='PENDING').count()
+                pending_approvals += pending_boqs
+        except Exception as e:
+            logger.error(f"Failed to fetch pending BOQs: {e}")
         
         # Critical risks count — initialized to 0, set by real Risk model query below
         critical_risks = 0

@@ -9,7 +9,7 @@ class WorkPackageSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkPackage
         fields = [
-            'id', 'project', 'contractor', 'contractor_name', 'name', 
+            'id', 'project', 'contractor', 'contractor_master', 'contractor_name', 'name', 
             'description', 'status', 'budget', 'start_date', 'end_date',
             'agreement_no', 'agreement_date', 'responsible_staff',
             'created_at', 'updated_at'

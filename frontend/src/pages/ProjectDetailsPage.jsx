@@ -4,6 +4,7 @@ import projectService from '@/api/services/projectService';
 import mastersService from '@/api/services/mastersService';
 
 import { ProjectDetailView } from '@/components/projects/ProjectDetailView';
+import ApprovalWidget from '@/components/workflow/ApprovalWidget';
 import Button from '@/components/ui/Button';
 import { ChevronLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -16,6 +17,7 @@ const ProjectDetailsPage = () => {
     const [packages, setPackages] = useState([]);
     const [contractors, setContractors] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isLocked, setIsLocked] = useState(false);
 
     const loadProjectData = async () => {
         try {
@@ -78,13 +80,25 @@ const ProjectDetailsPage = () => {
             <Button variant="outline" onClick={() => navigate(-1)} className="mb-2">
                 <ChevronLeft size={16} className="mr-1" /> Back
             </Button>
-            <div className="bg-app-card rounded-lg shadow-sm border border-app-subtle overflow-hidden min-h-[85vh]">
-                <ProjectDetailView
-                    project={project}
-                    packages={packages}
-                    contractors={contractors}
-                    onPackageUpdate={handlePackageCreated}
-                />
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div className="lg:col-span-3 bg-app-card rounded-lg shadow-sm border border-app-subtle overflow-hidden min-h-[85vh]">
+                    <ProjectDetailView
+                        project={project}
+                        packages={packages}
+                        contractors={contractors}
+                        onPackageUpdate={handlePackageCreated}
+                        isLocked={isLocked}
+                    />
+                </div>
+
+                <div className="lg:col-span-1 space-y-6">
+                    <ApprovalWidget
+                        entityType="Project"
+                        entityId={id}
+                        onLockStatusChange={setIsLocked}
+                    />
+                </div>
             </div>
         </div>
     );

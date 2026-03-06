@@ -187,7 +187,7 @@ const NotificationCenter = ({ isOpen, onClose, notifications = [] }) => {
                     <div className="px-4 py-3 border-t border-slate-100 dark:border-neutral-800 bg-slate-50 dark:bg-neutral-800">
                         <button
                             onClick={() => {
-                                navigate('/approvals');
+                                navigate('/inbox');
                                 onClose();
                             }}
                             className="w-full text-center text-sm text-primary-600 hover:text-primary-700 font-medium"

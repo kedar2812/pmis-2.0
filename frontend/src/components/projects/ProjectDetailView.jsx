@@ -37,7 +37,7 @@ import NewThreadModal from '@/components/communications/NewThreadModal';
 import { toast } from 'sonner';
 import riskService from '@/api/services/riskService';
 
-export const ProjectDetailView = ({ project, packages = [], contractors = [], onAddContractor }) => {
+export const ProjectDetailView = ({ project, packages = [], contractors = [], onAddContractor, isLocked = false }) => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
     const [isAddContractorModalOpen, setIsAddContractorModalOpen] = useState(false);
@@ -151,13 +151,15 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                     </div>
                 </div>
                 {/* Actions */}
-                <Button
-                    variant="outline"
-                    onClick={() => setShowNewThread(true)}
-                    className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/50"
-                >
-                    <MessageSquare size={16} className="mr-2" /> Discuss Project
-                </Button>
+                {!isLocked && (
+                    <Button
+                        variant="outline"
+                        onClick={() => setShowNewThread(true)}
+                        className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/50"
+                    >
+                        <MessageSquare size={16} className="mr-2" /> Discuss Project
+                    </Button>
+                )}
             </div>
 
             {/* Tab Navigation */}
@@ -337,12 +339,14 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                         <div className="flex justify-between items-center">
                             <h3 className="text-lg font-bold text-app-heading">Contractors & Procurements</h3>
-                            <Button
-                                onClick={() => setIsAddContractorModalOpen(true)}
-                                className="bg-primary-950 text-white hover:bg-primary-900 shadow-lg shadow-primary-950/20 flex items-center gap-2"
-                            >
-                                + Add Contractor
-                            </Button>
+                            {!isLocked && (
+                                <Button
+                                    onClick={() => setIsAddContractorModalOpen(true)}
+                                    className="bg-primary-950 text-white hover:bg-primary-900 shadow-lg shadow-primary-950/20 flex items-center gap-2"
+                                >
+                                    + Add Contractor
+                                </Button>
+                            )}
                         </div>
 
                         {contractors && contractors.length > 0 ? (
@@ -391,12 +395,14 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                 </div>
                                 <h4 className="text-app-heading font-medium mb-1">No Contractors Added</h4>
                                 <p className="text-app-muted text-sm mb-4">Add contractors to manage procurements for this project.</p>
-                                <button
-                                    onClick={() => setIsAddContractorModalOpen(true)}
-                                    className="px-4 py-2 border border-app rounded-lg text-sm font-medium text-app-text hover:bg-app-surface transition-colors"
-                                >
-                                    Add Your First Contractor
-                                </button>
+                                {!isLocked && (
+                                    <button
+                                        onClick={() => setIsAddContractorModalOpen(true)}
+                                        className="px-4 py-2 border border-app rounded-lg text-sm font-medium text-app-text hover:bg-app-surface transition-colors"
+                                    >
+                                        Add Your First Contractor
+                                    </button>
+                                )}
                             </div>
                         )}
                     </motion.div>
@@ -525,12 +531,14 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                 <Shield size={20} className="text-orange-500" />
                                 Project Risks
                             </h3>
-                            <Button
-                                onClick={() => navigate(`/risk?project=${project.id}`)}
-                                className="bg-orange-600 text-white hover:bg-orange-700 flex items-center gap-2"
-                            >
-                                <Plus size={16} /> Add Risk
-                            </Button>
+                            {!isLocked && (
+                                <Button
+                                    onClick={() => navigate(`/risk?project=${project.id}`)}
+                                    className="bg-orange-600 text-white hover:bg-orange-700 flex items-center gap-2"
+                                >
+                                    <Plus size={16} /> Add Risk
+                                </Button>
+                            )}
                         </div>
 
                         {risksLoading ? (
@@ -613,12 +621,14 @@ export const ProjectDetailView = ({ project, packages = [], contractors = [], on
                                 </div>
                                 <h4 className="text-app-heading font-medium mb-1">No Risks Identified</h4>
                                 <p className="text-app-muted text-sm mb-4">Start tracking potential risks for this project.</p>
-                                <Button
-                                    onClick={() => navigate(`/risk?project=${project.id}`)}
-                                    variant="outline"
-                                >
-                                    <Plus size={16} className="mr-1" /> Add First Risk
-                                </Button>
+                                {!isLocked && (
+                                    <Button
+                                        onClick={() => navigate(`/risk?project=${project.id}`)}
+                                        variant="outline"
+                                    >
+                                        <Plus size={16} className="mr-1" /> Add First Risk
+                                    </Button>
+                                )}
                             </div>
                         )}
                     </motion.div>

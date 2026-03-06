@@ -149,7 +149,7 @@ export const CreatePackageModal = ({ isOpen, onClose, projects, onSave, preSelec
                 name: formData.name,
                 description: formData.description || '',
                 contractor_id: formData.contractor?.id,
-                responsible_staff_id: formData.responsibleStaff?.id,
+                responsible_staff: formData.responsibleStaff ? (`${formData.responsibleStaff.first_name || ''} ${formData.responsibleStaff.last_name || ''}`).trim() || formData.responsibleStaff.username || String(formData.responsibleStaff.id) : null,
                 agreement_no: formData.agreementNo,
                 agreement_date: formData.agreementDate,
                 contract_value: parseFloat(formData.contractValue.replace(/,/g, '')),

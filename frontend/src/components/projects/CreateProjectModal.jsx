@@ -360,31 +360,8 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
       // Create the project and get the new ID
       const projectResult = await onSave(projectData);
 
-      // ROBUST ID EXTRACTION: Handle all possible API response formats
-      let newProjectId = null;
-
-      if (projectResult) {
-        // Try direct ID (if result is the project object)
-        newProjectId = projectResult.id;
-
-        // Try axios response wrapper (result.data.id)
-        if (!newProjectId && projectResult.data) {
-          newProjectId = projectResult.data.id;
-        }
-
-        // Try nested response (result.data.data.id - some APIs double-wrap)
-        if (!newProjectId && projectResult.data?.data) {
-          newProjectId = projectResult.data.data.id;
-        }
-
-        // Convert to number if it's a string number
-        if (newProjectId && typeof newProjectId === 'string') {
-          const parsed = parseInt(newProjectId, 10);
-          if (!isNaN(parsed)) {
-            newProjectId = parsed;
-          }
-        }
-      }
+      // ROBUST ID EXTRACTION: Handle standard Axios response shapes and DRF returns
+      const newProjectId = projectResult?.id || projectResult?.data?.id;
 
       if (!newProjectId) {
         throw new Error('Project created but ID not returned');
@@ -446,7 +423,13 @@ export const CreateProjectModal = ({ isOpen, onClose, onSave }) => {
         }
 
         // Wait for all uploads to complete
-        await Promise.all(uploadPromises);
+        try {
+          await Promise.all(uploadPromises);
+        } catch (uploadException) {
+          console.error("Critical error during EDMS uploads:", uploadException);
+          toast.warning("Project created, but some documents failed to upload.");
+          // We don't throw here to allow modal to close gracefully
+        }
 
         // Show appropriate message based on upload results
         if (uploadFailed > 0) {

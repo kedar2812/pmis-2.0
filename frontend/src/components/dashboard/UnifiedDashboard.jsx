@@ -430,10 +430,10 @@ const UnifiedDashboard = () => {
                     icon={FileSignature}
                     label="Pending Approvals"
                     value={stats?.pending_approvals || 0}
-                    subtext="documents awaiting review"
+                    subtext="tasks awaiting review"
                     color={stats?.pending_approvals > 0 ? 'amber' : 'emerald'}
-                    onClick={() => navigate('/approvals')}
-                    tooltip="Number of documents, RA bills, or change requests pending your approval or review action."
+                    onClick={() => navigate('/inbox')}
+                    tooltip="Number of workflow tasks, documents, or financial requests pending your approval."
                 />
             </div>
 
@@ -684,7 +684,7 @@ const UnifiedDashboard = () => {
                         </h3>
                         <button
                             className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-                            onClick={() => navigate('/approvals')}
+                            onClick={() => navigate('/inbox')}
                         >
                             View All →
                         </button>

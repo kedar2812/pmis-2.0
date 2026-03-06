@@ -25,6 +25,7 @@ import {
   PieChart,
   Calculator,
   ClipboardList,
+  Inbox
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
@@ -117,6 +118,14 @@ const Sidebar = () => {
       permission: 'dashboard:view',
     },
     {
+      id: 'inbox',
+      label: 'Inbox',
+      icon: Inbox,
+      path: '/inbox',
+      permission: 'dashboard:view',
+      noTranslate: true,
+    },
+    {
       id: 'projects',
       label: t('common.projects'),
       icon: FolderOpen,
@@ -136,13 +145,6 @@ const Sidebar = () => {
       label: 'Communications',
       icon: MessageSquare,
       path: '/communications',
-      permission: 'dashboard:view',
-    },
-    {
-      id: 'approvals',
-      label: 'Approvals',
-      icon: Clock,
-      path: '/approvals',
       permission: 'dashboard:view',
     },
     {

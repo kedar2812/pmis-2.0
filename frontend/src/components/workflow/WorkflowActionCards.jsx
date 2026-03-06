@@ -216,7 +216,7 @@ const WorkflowActionCards = ({ maxItems = 5 }) => {
 
             {pendingItems.length > maxItems && (
                 <a
-                    href="/approvals"
+                    href="/inbox"
                     className="flex items-center justify-center gap-2 py-2 text-primary-600 hover:text-primary-700 text-sm font-medium"
                 >
                     View all {pendingItems.length} pending items

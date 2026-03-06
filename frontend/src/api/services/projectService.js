@@ -50,6 +50,37 @@ const transformProjectData = (data) => {
     return transformed;
 };
 
+// Transform frontend package data to backend format
+const transformPackageData = (data) => {
+    // Map camelCase/mismatched frontend fields to snake_case backend fields
+    const fieldMappings = {
+        contractValue: 'budget',
+        contract_value: 'budget', // Process legacy inputs mapped incorrectly
+        contractorId: 'contractor_master',
+        contractor_id: 'contractor_master',
+        projectId: 'project',
+        responsibleStaffId: 'responsible_staff',
+        agreementNo: 'agreement_no',
+        agreementDate: 'agreement_date',
+        startDate: 'start_date',
+        endDate: 'end_date',
+    };
+
+    const transformed = {};
+
+    for (const [key, value] of Object.entries(data)) {
+        const newKey = fieldMappings[key] || key;
+
+        // Skip empty string values for optional fields, but keep 0
+        if (value === '' || value === null || value === undefined) continue;
+
+        transformed[newKey] = value;
+    }
+
+    console.log('Transformed package data:', transformed);
+    return transformed;
+};
+
 const projectService = {
     getAllProjects: async () => {
         const response = await client.get('/projects/');
@@ -98,12 +129,14 @@ const projectService = {
     },
 
     createPackage: async (packageData) => {
-        const response = await client.post('/projects/packages/', packageData);
+        const transformedData = transformPackageData(packageData);
+        const response = await client.post('/projects/packages/', transformedData);
         return response.data;
     },
 
     createWorkPackage: async (packageData) => {
-        const response = await client.post('/projects/packages/', packageData);
+        const transformedData = transformPackageData(packageData);
+        const response = await client.post('/projects/packages/', transformedData);
         return response.data;
     },
 

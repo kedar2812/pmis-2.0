@@ -29,6 +29,8 @@ class WorkflowModule(models.TextChoices):
     CONTRACT = 'CONTRACT', 'Contract'
     BOQ = 'BOQ', 'BOQ Item'
     RISK = 'RISK', 'Risk'
+    PROJECT = 'PROJECT', 'Project'
+    PACKAGE = 'PACKAGE', 'Work Package'
 
 
 class ActionType(models.TextChoices):

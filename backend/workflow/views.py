@@ -373,6 +373,8 @@ class WorkflowActionsViewSet(viewsets.ViewSet):
         'Variation': ('procurement', 'Variation'),
         'Risk': ('projects', 'Risk'),
         'BOQItem': ('finance', 'BOQItem'),
+        'Project': ('projects', 'Project'),
+        'WorkPackage': ('projects', 'WorkPackage'),
     }
     
     def _get_entity(self, entity_type: str, entity_id: str):

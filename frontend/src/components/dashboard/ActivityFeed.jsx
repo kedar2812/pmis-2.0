@@ -89,7 +89,7 @@ const ActivityFeed = ({ limit = 10, showHeader = true, compact = false }) => {
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold text-slate-800">Recent Activity</h3>
                     <button
-                        onClick={() => navigate('/approvals')}
+                        onClick={() => navigate('/inbox')}
                         className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
                     >
                         View all <ArrowRight size={14} />

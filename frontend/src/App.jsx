@@ -20,6 +20,7 @@ import ResetPassword from './pages/ResetPassword';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Projects = lazy(() => import('./pages/Projects'));
 const ProjectDetailsPage = lazy(() => import('./pages/ProjectDetailsPage'));
+const Inbox = lazy(() => import('./pages/Inbox'));
 const RABilling = lazy(() => import('./pages/RABilling'));
 const FundManagement = lazy(() => import('./pages/FundManagement'));
 const Budgeting = lazy(() => import('./pages/Budgeting'));
@@ -39,7 +40,6 @@ const UserManagement = lazy(() => import('./pages/UserManagement'));
 const EDMS = lazy(() => import('./pages/EDMS'));
 const DocumentViewerPage = lazy(() => import('./pages/DocumentViewerPage'));
 const Communications = lazy(() => import('./pages/Communications'));
-const Approvals = lazy(() => import('./pages/Approvals'));
 const ETPMaster = lazy(() => import('./pages/ETPMaster'));
 const SiteExecution = lazy(() => import('./pages/SiteExecution'));
 
@@ -68,6 +68,7 @@ const AppRoutes = () => {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="projects" element={<Projects />} />
         <Route path="projects/:id" element={<ProjectDetailsPage />} />
+        <Route path="inbox" element={<Inbox />} />
         <Route path="e-procurement" element={<EProcurement />} />
         <Route path="cost/billing" element={<RABilling />} />
         <Route path="cost/funds" element={<FundManagement />} />
@@ -89,7 +90,6 @@ const AppRoutes = () => {
         <Route path="admin/master-data" element={<MasterData />} />
         <Route path="communications" element={<Communications />} />
         <Route path="communications/:threadId" element={<Communications />} />
-        <Route path="approvals" element={<Approvals />} />
         <Route path="etp-master" element={<ETPMaster />} />
         <Route path="site-execution" element={<SiteExecution />} />
       </Route>

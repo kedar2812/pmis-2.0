@@ -21,6 +21,9 @@ import api from '@/api/client';
 // Import the full UserManagement page component
 import UserManagement from '@/pages/UserManagement';
 
+// Import DelegationSettings component
+import DelegationSettings from '@/components/workflow/DelegationSettings';
+
 // Permission list for roles
 const ALL_PERMISSIONS = [
     'dashboard:view', 'dashboard:edit', 'scheduling:view', 'scheduling:edit',
@@ -85,6 +88,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
         { id: 'roles', label: 'Roles & Permissions', icon: KeyRound },
         { id: 'masters', label: 'Master Data', icon: Database },
         { id: 'workflow', label: 'Workflow Config', icon: GitBranch },
+        { id: 'delegation', label: 'Out of Office (Delegation)', icon: Users },
         { id: 'integrations', label: 'Integrations', icon: Plug },
         { id: 'notifications', label: 'Notifications', icon: Bell },
         { id: 'system', label: 'System', icon: Settings },
@@ -196,6 +200,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                             {activeSection === 'roles' && <RolesPermissionsSection />}
                                             {activeSection === 'masters' && <MasterDataSection navigate={navigate} onClose={onClose} />}
                                             {activeSection === 'workflow' && <WorkflowConfigSection />}
+                                            {activeSection === 'delegation' && <DelegationSettings />}
                                             {activeSection === 'integrations' && <IntegrationsSection settings={settings} updateSetting={updateSetting} />}
                                             {activeSection === 'notifications' && <NotificationsSection settings={settings} updateSetting={updateSetting} />}
                                             {activeSection === 'system' && <SystemSection settings={settings} updateSetting={updateSetting} />}

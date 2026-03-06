@@ -203,7 +203,7 @@ const SPVDashboard = ({ projects, kpis, risks }) => {
             variants={itemVariants}
             whileHover={{ y: -5, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => navigate('/approvals')}
+            onClick={() => navigate('/inbox')}
             className="bg-gradient-to-br from-white to-slate-50 border-l-4 border-l-amber-500 cursor-pointer shadow-sm hover:shadow-md transition-all"
           >
             <MotionCardContent className="p-6">
