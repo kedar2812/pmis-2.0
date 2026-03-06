@@ -34,7 +34,6 @@ const DelegationSettings = () => {
 
     // Password Modal State
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-    const [resolvePasswordRef, setResolvePasswordRef] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -54,7 +53,7 @@ const DelegationSettings = () => {
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
 
         if (!formData.delegate_to) {
@@ -62,17 +61,11 @@ const DelegationSettings = () => {
             return;
         }
 
+        setIsPasswordModalOpen(true);
+    };
+
+    const handlePasswordConfirm = async (password) => {
         try {
-            // Check if ready to pop modal
-            setIsPasswordModalOpen(true);
-
-            // Create a promise to wait for password
-            const password = await new Promise((resolve, reject) => {
-                setResolvePasswordRef(() => resolve);
-            });
-
-            if (!password) return; // Cancelled
-
             setIsSubmitting(true);
 
             // Format dates properly for Django DateTimeField
@@ -107,19 +100,8 @@ const DelegationSettings = () => {
         }
     };
 
-    const handlePasswordConfirm = async (password) => {
-        if (resolvePasswordRef) {
-            resolvePasswordRef(password);
-            setResolvePasswordRef(null);
-        }
-    };
-
     const handlePasswordCancel = () => {
         setIsPasswordModalOpen(false);
-        if (resolvePasswordRef) {
-            resolvePasswordRef(null);
-            setResolvePasswordRef(null);
-        }
     };
 
     const handleCancel = async (id) => {
