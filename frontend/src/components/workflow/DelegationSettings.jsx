@@ -68,11 +68,11 @@ const DelegationSettings = () => {
         try {
             setIsSubmitting(true);
 
-            // Format dates properly for Django DateTimeField
+            // Format dates using native JS Date to guarantee DRF ISO 8601 compliance
             const submissionData = {
                 ...formData,
-                valid_from: `${formData.valid_from}T00:00:00Z`,
-                valid_to: `${formData.valid_to}T23:59:59Z`,
+                valid_from: new Date(`${formData.valid_from}T00:00:00`).toISOString(),
+                valid_to: new Date(`${formData.valid_to}T23:59:59`).toISOString(),
                 password: password // Included for the backend check
             };
 

@@ -74,9 +74,15 @@ def sync_task_progress(sender, instance, **kwargs):
 
         task.executed_quantity = total_quantity
 
+        # Defensive fallback: if planned_quantity is unset, seed it from the
+        # first execution amount so progress calculates > 0% immediately.
+        if not task.planned_quantity or task.planned_quantity <= 0:
+            task.planned_quantity = total_quantity
+
         # Recompute progress using the task's configured method
         new_progress = task.calculate_progress()
         task.computed_progress = new_progress
+
 
         # Update physical_progress_pct:
         # If the task is quantity-based and has planned_quantity, derive pct

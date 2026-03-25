@@ -124,7 +124,9 @@ class ProjectSerializer(serializers.ModelSerializer):
             'fundings',
             'stakeholders', 'category', 
             'land_acquisition_status', 'work_packages',
-            'created_at', 'updated_at'
+            'created_at', 'updated_at',
+            # Site execution sync fields (written by signals, read-only via API)
+            'latest_site_photo',
         ]
         read_only_fields = [
             'id', 
@@ -143,6 +145,8 @@ class ProjectSerializer(serializers.ModelSerializer):
             'is_baseline_frozen',
             'baseline_frozen_date',
             'baseline_frozen_by',
+            # Managed entirely by execution signals
+            'latest_site_photo',
         ]
         # Make most FK fields optional
         extra_kwargs = {
