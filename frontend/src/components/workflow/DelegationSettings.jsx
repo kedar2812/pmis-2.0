@@ -88,10 +88,10 @@ const DelegationSettings = () => {
             });
         } catch (err) {
             console.error("Failed to create delegation:", err);
-            // If backend throws a password error, it comes as 400 Bad Request
-            if (err.response?.data?.error) {
-                // Pass it up to reject the promise if we somehow got here, or just show on screen
-                throw new Error(err.response.data.error);
+            if (err.response?.data) {
+                const errorData = err.response.data;
+                const errorMsg = errorData.error || Object.values(errorData).flat()[0];
+                throw new Error(errorMsg || "Failed to save delegation rule.");
             } else {
                 throw new Error("Failed to save delegation rule.");
             }

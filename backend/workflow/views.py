@@ -339,18 +339,10 @@ class DelegationRuleViewSet(viewsets.ModelViewSet):
             )
             
         self.perform_create(serializer)
-        
+
         # Get the saved instance
         instance = serializer.instance
-        
-        # Create an audit log for this delegation (no specific workflow instance yet, just tracking authority transfer)
-        WorkflowAuditLog.objects.create(
-            instance_id=None, # It's a system-level delegation, not tied to a single instance
-            action=AuditAction.DELEGATE,
-            performed_by=request.user,
-            remarks=f"Delegated authority to {instance.delegate_to.get_full_name()} from {instance.valid_from.date()} to {instance.valid_to.date()}. Reason: {instance.reason}"
-        )
-        
+
         # Send Email Notification
         try:
             from users.email_service import send_delegation_notification
@@ -359,7 +351,7 @@ class DelegationRuleViewSet(viewsets.ModelViewSet):
             import logging
             logger = logging.getLogger(__name__)
             logger.error(f"Failed to send delegation email: {e}")
-            
+
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 

@@ -188,5 +188,9 @@ class ScheduleTaskListSerializer(serializers.ModelSerializer):
             'is_critical',
             'weight',
             'budgeted_cost',
+            # Required for UOM badge and progress sync in Site Execution
+            'uom',
+            'planned_quantity',
+            'executed_quantity',
         ]
         read_only_fields = ['id', 'computed_progress', 'physical_progress_pct']

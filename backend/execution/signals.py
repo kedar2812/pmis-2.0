@@ -8,11 +8,13 @@ Signal 1 — Photo Sync:
 Signal 2 — Progress Sync:
     When a DailySiteLog is saved, aggregate all achieved_quantities
     for the linked ScheduleTask and update its executed_quantity /
-    computed_progress / physical_progress_pct.
+    computed_progress / physical_progress_pct. Then bubble that
+    progress up to the parent Project level.
 """
 import logging
 from decimal import Decimal
 
+from django.db import transaction
 from django.db.models import Sum
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -48,7 +50,7 @@ def sync_primary_photo_to_project(sender, instance, **kwargs):
 
 
 # ---------------------------------------------------------------------------
-# Signal 2: DailySiteLog saved → ScheduleTask progress update
+# Signal 2: DailySiteLog saved → ScheduleTask progress update → Project sync
 # ---------------------------------------------------------------------------
 @receiver(post_save, sender='execution.DailySiteLog')
 def sync_task_progress(sender, instance, **kwargs):
@@ -59,6 +61,9 @@ def sync_task_progress(sender, instance, **kwargs):
 
     Uses update_fields to target only the relevant fields and avoid
     cascading saves or circular signal triggers.
+
+    After saving, bubbles the recalculation up to the parent Project
+    using transaction.on_commit so the Dashboard card metrics are accurate.
     """
     try:
         task = instance.task
@@ -93,6 +98,17 @@ def sync_task_progress(sender, instance, **kwargs):
             'physical_progress_pct',
             'updated_at',
         ])
+
+        # Bubble progress up to the parent Project after the transaction commits
+        # so the Dashboard card progress bar stays accurate in real time.
+        project_id = task.project_id
+        try:
+            from projects.services.progress_calculator import recalculate_project_progress
+            transaction.on_commit(lambda: recalculate_project_progress(project_id))
+        except ImportError:
+            logger.warning(
+                "recalculate_project_progress not available — skipping project-level progress sync."
+            )
 
         logger.info(
             f"ProgressSync: Task '{task.name}' (id={task.id}) → "

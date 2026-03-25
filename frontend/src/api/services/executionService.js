@@ -43,7 +43,7 @@ const executionService = {
         const formData = new FormData();
         formData.append('site_log', logId);
         formData.append('image', imageFile);
-        formData.append('is_primary', isPrimary);
+        formData.append('is_primary', isPrimary ? 'true' : 'false');
         formData.append('caption', caption);
         // client interceptor removes Content-Type for FormData so browser sets boundary
         const response = await client.post('/execution/images/', formData);
