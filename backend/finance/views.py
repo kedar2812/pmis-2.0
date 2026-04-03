@@ -49,14 +49,14 @@ class ProjectFinanceSettingsViewSet(viewsets.ModelViewSet):
 from common.utils.importers import ExcelImporter
 from .models import BOQItem
 from .serializers import BOQItemSerializer
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 import json
 
 class BOQItemViewSet(viewsets.ModelViewSet):
     queryset = BOQItem.objects.all()
     serializer_class = BOQItemSerializer
     permission_classes = [permissions.IsAuthenticated]
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -296,6 +296,16 @@ class BOQMilestoneMappingViewSet(viewsets.ModelViewSet):
     queryset = BOQMilestoneMapping.objects.all()
     serializer_class = BOQMilestoneMappingSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        project_id = self.request.query_params.get('project')
+        boq_item_id = self.request.query_params.get('boq_item')
+        if project_id:
+            qs = qs.filter(boq_item__project_id=project_id)
+        if boq_item_id:
+            qs = qs.filter(boq_item_id=boq_item_id)
+        return qs
 
 
 class ApprovalRequestViewSet(viewsets.ModelViewSet):

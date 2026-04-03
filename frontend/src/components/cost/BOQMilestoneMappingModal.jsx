@@ -58,8 +58,7 @@ const BOQMilestoneMappingModal = ({ boqItem, projectId, onClose, onUpdated }) =>
             const [milestonesData, mappingsData, tasksData] = await Promise.all([
                 schedulingService.getMilestones(projectId),
                 financeService.getBOQMappings(boqItem.id),
-                schedulingService.getTasks ? schedulingService.getTasks(projectId) :
-                    fetch(`/api/scheduling/tasks/?project=${projectId}`).then(r => r.json()).then(d => d.results || d)
+                schedulingService.getTasks(projectId)
             ]);
             setMilestones(milestonesData);
             setExistingMappings(mappingsData);
@@ -285,19 +284,19 @@ const BOQMilestoneMappingModal = ({ boqItem, projectId, onClose, onUpdated }) =>
                                                             </span>
                                                         </div>
                                                         <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-neutral-400">
-                                                            <span>{task.start_date} → {task.end_date}</span>
-                                                            {task.budgeted_cost > 0 && (
+                                                            <span>{task.startDate} → {task.endDate}</span>
+                                                            {task.budgetedCost > 0 && (
                                                                 <span className="text-emerald-600">
-                                                                    {formatCurrency(task.budgeted_cost)}
+                                                                    {formatCurrency(task.budgetedCost)}
                                                                 </span>
                                                             )}
                                                         </div>
                                                     </div>
-                                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${(task.computed_progress || 0) >= 100
+                                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${(task.computedProgress || 0) >= 100
                                                             ? 'bg-emerald-100 text-emerald-700'
                                                             : 'bg-slate-100 text-slate-600 dark:bg-neutral-700 dark:text-neutral-400'
                                                         }`}>
-                                                        {Math.round(task.computed_progress || 0)}%
+                                                        {Math.round(task.computedProgress || 0)}%
                                                     </span>
                                                 </label>
                                             );

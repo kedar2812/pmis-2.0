@@ -62,6 +62,7 @@ class ProgressCalculationService:
             project=self.project,
             status=BOQItem.Status.FROZEN
         )
+        has_frozen_items = boq_items.exists()
         
         # Calculate total sanctioned BOQ value
         total_boq_value = boq_items.aggregate(
@@ -155,6 +156,7 @@ class ProgressCalculationService:
             'total_boq_value': float(total_boq_value),
             'boq_items_count': boq_items.count(),
             'verified_executions_count': verified_executions.count(),
+            'has_frozen_items': has_frozen_items,
             'calculation_id': str(log.id),
             'calculated_at': self.calculation_date.isoformat()
         }

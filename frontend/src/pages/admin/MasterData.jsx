@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import mastersService from '@/api/services/mastersService';
-import financeService from '@/api/services/financeService';
+import financeService from '@/services/financeService';
 import api from '@/api/client';
 import Button from '@/components/ui/Button';
 import MasterFormModal from '@/components/masters/MasterFormModal';

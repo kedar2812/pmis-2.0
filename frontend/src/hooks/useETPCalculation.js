@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import financeService from '@/api/services/financeService';
+import financeService from '@/services/financeService';
 import { debounce } from '@/lib/utils';
 
 /**
@@ -48,8 +48,8 @@ export const useETPCalculation = (options = {}) => {
                 labour_cost: params.labour_cost,
             });
 
-            setSummary(response.data);
-            return response.data;
+            setSummary(response);
+            return response;
         } catch (err) {
             const errorMsg = err.response?.data?.error || 'Calculation failed';
             setError(errorMsg);

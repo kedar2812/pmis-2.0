@@ -5,7 +5,7 @@ import { X, Save, Printer, RefreshCw, Calculator, FileText, IndianRupee, AlertCi
 import Button from '@/components/ui/Button';
 import { toast } from 'sonner';
 import { RABillTemplate } from './RABillTemplate';
-import financeService from '@/api/services/financeService';
+import financeService from '@/services/financeService';
 
 export const GenerateBillModal = ({
     isOpen,
@@ -159,7 +159,7 @@ export const GenerateBillModal = ({
                 advances_recovery: (parseFloat(formData.mobilizationRecovery) || 0) + (parseFloat(formData.materialRecovery) || 0)
             });
 
-            const summary = response.data;
+            const summary = response;
 
             // Extract all statutory charges (deductions + levies + recoveries)
             const allCharges = [

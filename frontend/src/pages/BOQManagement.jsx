@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import financeService from '@/services/financeService';
 import projectService from '@/services/projectService';
@@ -427,6 +427,7 @@ const BOQManagement = () => {
     const handleImport = async () => {
         const missing = [];
         if (!mapping.item_code) missing.push('Item Code');
+        if (!mapping.description) missing.push('Description');
         if (!mapping.quantity) missing.push('Quantity');
         if (!mapping.rate) missing.push('Rate');
 
@@ -1066,7 +1067,7 @@ const BOQManagement = () => {
                                         <tbody className="divide-y divide-slate-200 dark:divide-neutral-800">
                                             {paginatedItems.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan="7" className="px-6 py-16 text-center">
+                                                    <td colSpan="8" className="px-6 py-16 text-center">
                                                         <div className="flex flex-col items-center">
                                                             <FileSpreadsheet className="w-12 h-12 text-app-muted-light mb-4" />
                                                             <p className="text-app-muted font-medium">
@@ -1110,20 +1111,38 @@ const BOQManagement = () => {
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
                                                             <div className="flex items-center justify-center gap-2">
-                                                                <button
-                                                                    onClick={() => handleEditItem(item)}
-                                                                    className="p-1 text-app-muted hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
-                                                                    title="Edit Item"
-                                                                >
-                                                                    <Edit2 className="w-4 h-4" />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDeleteItem(item.id)}
-                                                                    className="p-1 text-app-muted hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                                                                    title="Delete Item"
-                                                                >
-                                                                    <Trash2 className="w-4 h-4" />
-                                                                </button>
+                                                                {item.status === 'FROZEN' ? (
+                                                                    <span
+                                                                        className="p-1 text-blue-400 cursor-not-allowed"
+                                                                        title="Item is FROZEN — submit an Unfreeze request to edit"
+                                                                    >
+                                                                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                                                    </span>
+                                                                ) : (
+                                                                    <button
+                                                                        onClick={() => handleEditItem(item)}
+                                                                        className="p-1 text-app-muted hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
+                                                                        title="Edit Item"
+                                                                    >
+                                                                        <Edit2 className="w-4 h-4" />
+                                                                    </button>
+                                                                )}
+                                                                {item.status === 'FROZEN' ? (
+                                                                    <span
+                                                                        className="p-1 text-blue-300 cursor-not-allowed"
+                                                                        title="Cannot delete a Frozen item"
+                                                                    >
+                                                                        <Trash2 className="w-4 h-4 opacity-30" />
+                                                                    </span>
+                                                                ) : (
+                                                                    <button
+                                                                        onClick={() => handleDeleteItem(item.id)}
+                                                                        className="p-1 text-app-muted hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                                        title="Delete Item"
+                                                                    >
+                                                                        <Trash2 className="w-4 h-4" />
+                                                                    </button>
+                                                                )}
                                                                 <button
                                                                     onClick={() => setMappingModalItem(item)}
                                                                     className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors ml-1"

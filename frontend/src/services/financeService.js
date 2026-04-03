@@ -71,14 +71,9 @@ const financeService = {
     },
 
     updateBOQItem: async (itemId, data) => {
-        // Convert to FormData to avoid 'Unsupported media type' if backend expects multipart
-        const formData = new FormData();
-        Object.keys(data).forEach(key => {
-            if (data[key] !== null && data[key] !== undefined) {
-                formData.append(key, data[key]);
-            }
+        const response = await api.patch(`/finance/boq/${itemId}/`, data, {
+            headers: { 'Content-Type': 'application/json' }
         });
-        const response = await api.patch(`/finance/boq/${itemId}/`, formData);
         return response.data;
     },
 
@@ -118,6 +113,11 @@ const financeService = {
             item_ids: itemIds,
             description
         });
+        return response.data;
+    },
+
+    calculateETP: async (params) => {
+        const response = await api.post('/finance/bills/calculate_etp/', params);
         return response.data;
     },
 
@@ -245,8 +245,6 @@ const transformBillToBackend = (data) => {
         plant_machinery_recovery: 0, // Not in UI yet
 
         penalty_amount: data.penaltyAmount || 0,
-        price_adjustment: data.priceAdjustment || 0,
-        insurance_recovery: data.insuranceRecovery || 0,
         other_deductions: data.otherDeductions || 0,
 
         // net_payable is auto-calc
